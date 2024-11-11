@@ -1,0 +1,150 @@
+{
+   "main" : {
+      "controls" : [
+         {
+            "panel" : {
+               "controls" : [
+                  {
+                     "image" : {
+                        "alpha" : 0.50,
+                        "clip_direction" : "left",
+                        "clip_ratio" : 0.0,
+                        "controls" : [],
+                        "keep_ratio" : false,
+                        "layer" : 1,
+                        "texture" : "textures/ui/custom_brah",
+                        "type" : "image"
+                     }
+                  },
+                  {
+                     "id@common.text_edit_box" : {
+                        "$edit_box_default_texture" : "textures/ui/edit_box_indent",
+                        "$edit_box_hover_texture" : "textures/ui/edit_box_indent_hover",
+                        "$font_scale_factor" : 1.0,
+                        "$font_size" : "normal",
+                        "$is_new_nine_slice" : false,
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$place_holder_text" : "§l物品命名id",
+                        "$place_holder_text_color" : [ 0.0, 1.0, 1.0 ],
+                        "$text_background_default" : "netease_editor_template_namespace.edit_box_background_default",
+                        "$text_background_hover" : "netease_editor_template_namespace.edit_box_background_hover",
+                        "$text_box_name" : "%netease_editor_template_namespace.message",
+                        "$text_box_text_color" : [ 1, 1, 1 ],
+                        "$text_edit_box_content_binding_name" : "#netease_editor_template_namespace.message_content",
+                        "$text_edit_box_label_anchor_point" : "right_middle",
+                        "$text_edit_box_label_min_size" : [ "100%", 0 ],
+                        "$text_edit_box_label_size" : [ "default", "default" ],
+                        "layer" : 2,
+                        "max_length" : 512,
+                        "offset" : [ 0.0, -33.50 ],
+                        "size" : [ 98, 22 ],
+                        "type" : "edit_box"
+                     }
+                  },
+                  {
+                     "aux@common.text_edit_box" : {
+                        "$edit_box_default_texture" : "textures/ui/edit_box_indent",
+                        "$edit_box_hover_texture" : "textures/ui/edit_box_indent_hover",
+                        "$font_scale_factor" : 0.970,
+                        "$font_size" : "normal",
+                        "$is_new_nine_slice" : false,
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$place_holder_text" : "§l物品特殊值(不填则为0)",
+                        "$place_holder_text_color" : [ 1.0, 1.0, 0.0 ],
+                        "$text_background_default" : "netease_editor_template_namespace.edit_box_background_default",
+                        "$text_background_hover" : "netease_editor_template_namespace.edit_box_background_hover",
+                        "$text_box_name" : "%netease_editor_template_namespace.message",
+                        "$text_box_text_color" : [ 1, 1, 1 ],
+                        "$text_edit_box_content_binding_name" : "#netease_editor_template_namespace.message_content",
+                        "$text_edit_box_label_anchor_point" : "right_middle",
+                        "$text_edit_box_label_min_size" : [ "100%", 0 ],
+                        "$text_edit_box_label_size" : [ "default", "default" ],
+                        "layer" : 5,
+                        "max_length" : 512,
+                        "offset" : [ 0.0, -6.50 ],
+                        "size" : [ 98, 22 ],
+                        "type" : "edit_box"
+                     }
+                  },
+                  {
+                     "button@common.button" : {
+                        "$control_alpha" : 1.0,
+                        "$default_texture" : "textures/netease/common/button/default",
+                        "$hover_texture" : "textures/netease/common/button/hover",
+                        "$is_new_nine_slice" : false,
+                        "$label_color" : [ 1, 1, 1 ],
+                        "$label_font_scale_factor" : 1.0,
+                        "$label_font_size" : "large",
+                        "$label_layer" : 3,
+                        "$label_offset" : [ 0, 0 ],
+                        "$label_text" : "获取",
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$pressed_button_name" : "%netease_editor_template_namespace.click",
+                        "$pressed_texture" : "textures/netease/common/button/pressed",
+                        "$texture_layer" : 2,
+                        "bindings" : [
+                           {
+                              "binding_collection_name" : "",
+                              "binding_condition" : "always_when_visible",
+                              "binding_type" : "collection_details"
+                           }
+                        ],
+                        "button_mappings" : [],
+                        "controls" : [
+                           {
+                              "default@netease_editor_template_namespace.default" : {}
+                           },
+                           {
+                              "hover@netease_editor_template_namespace.hover" : {}
+                           },
+                           {
+                              "pressed@netease_editor_template_namespace.pressed" : {}
+                           },
+                           {
+                              "button_label@netease_editor_template_namespace.button_label" : {}
+                           }
+                        ],
+                        "default_control" : "default",
+                        "hover_control" : "hover",
+                        "is_handle_button_move_event" : true,
+                        "layer" : 8,
+                        "offset" : [ -0.50, 30.50 ],
+                        "pressed_control" : "pressed",
+                        "size" : [ 63.0, 29.0 ],
+                        "type" : "button"
+                     }
+                  },
+                  {
+                     "label" : {
+                        "controls" : [],
+                        "font_scale_factor" : 3.000000000000002,
+                        "font_type" : "default",
+                        "layer" : 18,
+                        "offset" : [ 0.0, -80.0 ],
+                        "text" : "获取隐藏物品",
+                        "text_alignment" : "center",
+                        "type" : "label"
+                     }
+                  }
+               ],
+               "layer" : 1,
+               "type" : "panel"
+            }
+         }
+      ],
+      "type" : "screen"
+   },
+   "namespace" : "getitem"
+}

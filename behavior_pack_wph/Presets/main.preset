@@ -1,0 +1,240 @@
+{
+    "boxDataList": [],
+    "childParts": [
+        {
+            "bpType": "InputBindPart",
+            "changes": {
+                "inputBindings[0].customEvent": "close"
+            },
+            "classType": "PartInstance",
+            "clientPartType": null,
+            "customVariables": [],
+            "directoryPath": "InputBind",
+            "metaType": "InputBindPartMeta",
+            "objId": "4c18d78bb41748c882b66df15c1c6fe0",
+            "partType": "InputBindPart"
+        },
+        {
+            "bpType": "MainLogicPart",
+            "changes": {},
+            "classType": "PartInstance",
+            "clientPartType": null,
+            "customVariables": [],
+            "directoryPath": "MainLogic",
+            "metaType": "MainLogicPartMeta",
+            "objId": "24d5890ab66b42218b705a45ff594daa",
+            "partType": "MainLogicPart"
+        }
+    ],
+    "childPresets": [
+        {
+            "bornType": 0,
+            "changes": {
+                "autoCreate": false,
+                "createUIMethod": "PushScreen",
+                "previewEnable": true
+            },
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "enchant",
+            "objId": "315c2918845a4d479bb654cea02e19a5",
+            "presetId": "fce48a53-a388-4c19-9177-69ded741a577",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "07fa65b027b54ec6afd420830c52c7c4",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {
+                "previewEnable": true
+            },
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "getitem",
+            "objId": "729bf781ce484d529907ced0a7159ede",
+            "presetId": "a6dfd5e9-4bc0-483b-a7b9-737c51dc89ed",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "e922d68437b14d618fc23a4ad540d665",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {
+                "autoCreate": false,
+                "createUIMethod": "PushScreen",
+                "uiNodeScreen": "customtips.main"
+            },
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "itemTips",
+            "objId": "077df3feee084abead262bcfb7d7d55a",
+            "presetId": "04043d9a-d4be-4f0c-80c6-73005a671f4e",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "fb55c4317ba3465fa6afbd38eae85bac",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {
+                "previewEnable": true
+            },
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "nbteditor",
+            "objId": "acfdc3a0fd3e4aae8d21a120d40d2f83",
+            "presetId": "500d40a5-0199-44fc-8fc7-a8a11e68a4c0",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "cd1efc1516554175be1ff7686f410cec",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {},
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "advcbui",
+            "objId": "cdb00bfa349d4d2ca7ebcb8d0b677d82",
+            "presetId": "99798cdc-431e-4c38-ada5-1d328d04695b",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "11abbbb4381c458c999c954fd85c7d4f",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
+        }
+    ],
+    "classType": "PresetBase",
+    "dimension": 0,
+    "forceLoad": true,
+    "name": "main",
+    "notifyRemove": true,
+    "objId": "8cc9d6dfdc1541779eb1ef6acca9e54e",
+    "preLoad": true,
+    "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
+    "presetType": "空预设",
+    "previewEnable": true,
+    "singleton": false,
+    "unique": false
+}

@@ -1,0 +1,20 @@
+{
+    "auxValue": 0,
+    "boxDataList": [],
+    "childParts": [],
+    "childPresets": [],
+    "classType": "BlockPreset",
+    "dimension": 0,
+    "engineTypeStr": "ycgnw:adv_command_block",
+    "forceLoad": false,
+    "name": "advcb",
+    "notifyRemove": true,
+    "objId": "0421adf419db4ae89796fdfb6f98e6ef",
+    "placeBorn": true,
+    "preLoad": false,
+    "presetId": "8cbc3ae8-f955-492d-a053-43a393c46bb2",
+    "presetType": "方块预设",
+    "previewEnable": true,
+    "singleton": false,
+    "unique": false
+}

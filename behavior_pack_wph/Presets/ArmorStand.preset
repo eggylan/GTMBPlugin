@@ -1,0 +1,49 @@
+{
+    "behaviorAttrs": {
+        "SetBlockControlAi": true,
+        "SetImmuneDamage": false,
+        "SetPersistence": true
+    },
+    "boxDataList": [],
+    "childParts": [],
+    "childPresets": [],
+    "classType": "EntityPreset",
+    "dimension": 0,
+    "engineTypeStr": "minecraft:armor_stand",
+    "entityAttrs": {
+        "SetDamageValue": 0.0,
+        "SetHealthValue": 1.0,
+        "SetLavaSpeedValue": 0.0,
+        "SetSpeedValue": 0.0
+    },
+    "forceLoad": false,
+    "isValid": true,
+    "name": "ArmorStand",
+    "notifyRemove": true,
+    "objId": "fa8046555d9d4d35ab63a5fd7ff9d4ec",
+    "oxygenAttrs": {
+        "SetAirSeconds": 15,
+        "SetRecoverTotalAirSupplyTime": 0.0
+    },
+    "physicsAttrs": {
+        "SetGravity": 0.0,
+        "SetPushable": false
+    },
+    "preLoad": false,
+    "presetId": "d7791c7c-d79a-49ba-8f8a-48e227b22ea8",
+    "presetType": "实体预设",
+    "previewEnable": true,
+    "renderAttrs": {
+        "SetNotRender": false
+    },
+    "singleton": false,
+    "stateAndItemAttrs": {
+        "AddEffect": [],
+        "SetItemInfo": []
+    },
+    "templateId": "minecraft:armor_stand",
+    "unique": false,
+    "updateRotationInterval": 2,
+    "updateScaleInterval": 0,
+    "updateTransformInterval": 2
+}

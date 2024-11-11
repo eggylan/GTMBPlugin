@@ -1,0 +1,49 @@
+{
+   "main" : {
+      "controls" : [
+         {
+            "minimap@mini_map.mini_map_wrapper" : {
+               "$enable_live_update" : true,
+               "$face_icon_bg_color" : "black",
+               "$face_icon_size" : [ -4.0, -4.0 ],
+               "$live_update_interval" : 1,
+               "$use_default_face_icon" : true,
+               "anchor_from" : "top_right",
+               "anchor_to" : "top_right",
+               "controls" : [
+                  {
+                     "mini_map_bg@mini_map.mini_map_bg" : {
+                        "controls" : [],
+                        "size" : [ "100.0%+8.0px", "100.0%+8.0px" ],
+                        "texture" : "textures/gui/gui2",
+                        "uv" : [ 1.0, 1.0 ],
+                        "uv_size" : [ 20.0, 20.0 ]
+                     }
+                  },
+                  {
+                     "netease_mini_map@mini_map.netease_mini_map" : {
+                        "allow_clipping" : true,
+                        "enable_scissor_test" : true
+                     }
+                  },
+                  {
+                     "icon@mini_map.icon" : {}
+                  },
+                  {
+                     "head_lbl@mini_map.head_label" : {}
+                  },
+                  {
+                     "text_lbl@mini_map.text_label" : {
+                        "layer" : 5
+                     }
+                  }
+               ],
+               "layer" : 1,
+               "offset" : [ -10.0, 10.0 ]
+            }
+         }
+      ],
+      "type" : "screen"
+   },
+   "namespace" : "minimap"
+}

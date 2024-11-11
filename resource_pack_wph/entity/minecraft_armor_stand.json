@@ -1,0 +1,45 @@
+{
+    "format_version": "1.8.0",
+    "minecraft:client_entity": {
+        "description": {
+            "animation_controllers": [
+                {
+                    "pose": "controller.animation.armor_stand.pose"
+                },
+                {
+                    "wiggling": "controller.animation.armor_stand.wiggle"
+                }
+            ],
+            "animations": {
+                "athena_pose": "animation.armor_stand.athena_pose",
+                "brandish_pose": "animation.armor_stand.brandish_pose",
+                "cancan_a_pose": "animation.armor_stand.cancan_a_pose",
+                "cancan_b_pose": "animation.armor_stand.cancan_b_pose",
+                "default_pose": "animation.armor_stand.default_pose",
+                "entertain_pose": "animation.armor_stand.entertain_pose",
+                "hero_pose": "animation.armor_stand.hero_pose",
+                "honor_pose": "animation.armor_stand.honor_pose",
+                "no_pose": "animation.armor_stand.no_pose",
+                "riposte_pose": "animation.armor_stand.riposte_pose",
+                "salute_pose": "animation.armor_stand.salute_pose",
+                "solemn_pose": "animation.armor_stand.solemn_pose",
+                "wiggle": "animation.armor_stand.wiggle",
+                "zombie_pose": "animation.armor_stand.zombie_pose"
+            },
+            "enable_attachables": true,
+            "geometry": {
+                "default": "geometry.armor_stand"
+            },
+            "identifier": "minecraft:armor_stand",
+            "materials": {
+                "default": "armor_stand"
+            },
+            "render_controllers": [
+                "controller.render.armor_stand"
+            ],
+            "textures": {
+                "default": "textures/entity/armor_stand"
+            }
+        }
+    }
+}

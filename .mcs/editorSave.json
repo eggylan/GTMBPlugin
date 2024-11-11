@@ -1,0 +1,107 @@
+{
+    "Addon": {
+        "EnchantSetting": {
+            "amplifier": 1
+        },
+        "PackResourceSortData": {
+            "1_minecraft:armor_stand": {
+                "createTime": 1704189566.5389907,
+                "modifyTime": 1704189566.5389907
+            },
+            "1_ycgnw:entity": {
+                "createTime": 1722934877.4516897,
+                "modifyTime": 1722934954.7799451
+            }
+        },
+        "PlayerEffectSetting": {
+            "amplifier": 1,
+            "duration": 10
+        },
+        "PresetInstanceTreeData": [
+
+        ]
+    },
+    "UI": {
+        "customPrefabGroupExpand": [
+            "enchant"
+        ],
+        "expandData": {
+            "prefab": {
+                "enchant.text": [
+                    "/netease_prefab_screen"
+                ]
+            },
+            "screen": {
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\15dabb94fade4f2b8157ab5aac255eae\\resource_pack_XEZHPUwg_09c636b9\\ui\\ServerSetting.json": [
+                    "/main",
+                    "/main/panel"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\15dabb94fade4f2b8157ab5aac255eae\\resource_pack_XEZHPUwg_09c636b9\\ui\\customtips.json": [
+                    "/main",
+                    "/main/panel",
+                    "/main/panel/label",
+                    "/main/panel/edit_box/centering_panel",
+                    "/main/panel/edit_box/centering_panel/clipper_panel"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\15dabb94fade4f2b8157ab5aac255eae\\resource_pack_XEZHPUwg_09c636b9\\ui\\enchant.json": [
+                    "/main",
+                    "/main/panel",
+                    "/main/panel/scroll_view/scroll_mouse",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/background_and_viewport",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/background_and_viewport/scrolling_view_port",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/bar_and_track",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/bar_and_track/stack_panel",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/bar_and_track/stack_panel/panel",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/bar_and_track/stack_panel/panel/centered_panel",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/bar_and_track/stack_panel/panel/centered_panel/scroll_box",
+                    "/main/panel/scroll_view/scroll_mouse/scroll_view/stack_panel/bar_and_track/stack_panel/panel/centered_panel/scroll_box/box"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\15dabb94fade4f2b8157ab5aac255eae\\resource_pack_XEZHPUwg_09c636b9\\ui\\getitem.json": [
+                    "/main",
+                    "/main/panel",
+                    "/main/panel/id",
+                    "/main/panel/id/centering_panel",
+                    "/main/panel/id/centering_panel/clipper_panel",
+                    "/main/panel/id/centering_panel/clipper_panel/visibility_panel",
+                    "/main/panel/aux/centering_panel",
+                    "/main/panel/aux/centering_panel/clipper_panel",
+                    "/main/panel/aux/centering_panel/clipper_panel/visibility_panel",
+                    "/main/panel/label"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\fb48e61fe18240a7bf10852f53e7617a\\resource_pack_wph\\ui\\advcblock.json": [
+                    "/screen",
+                    "/screen/panel",
+                    "/screen/panel/bg_panel",
+                    "/screen/panel/label",
+                    "/screen/panel/edit_box/centering_panel",
+                    "/screen/panel/edit_box/centering_panel/clipper_panel",
+                    "/screen/panel/edit_box/centering_panel/clipper_panel/visibility_panel"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\fb48e61fe18240a7bf10852f53e7617a\\resource_pack_wph\\ui\\customtips.json": [
+                    "/main",
+                    "/main/panel"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\fb48e61fe18240a7bf10852f53e7617a\\resource_pack_wph\\ui\\enchant.json": [
+                    "/main",
+                    "/main/panel"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\fb48e61fe18240a7bf10852f53e7617a\\resource_pack_wph\\ui\\getitem.json": [
+                    "/main",
+                    "/main/panel"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\fb48e61fe18240a7bf10852f53e7617a\\resource_pack_wph\\ui\\minimap.json": [
+                    "/main",
+                    "/main/minimap/mini_map_bg"
+                ],
+                "C:\\MCStudioDownload\\work\\a110902077@163.com\\Cpp\\AddOn\\fb48e61fe18240a7bf10852f53e7617a\\resource_pack_wph\\ui\\nbteditor.json": [
+                    "/main",
+                    "/main/panel",
+                    "/main/panel/label",
+                    "/main/panel/nbt/centering_panel"
+                ]
+            }
+        }
+    }
+}

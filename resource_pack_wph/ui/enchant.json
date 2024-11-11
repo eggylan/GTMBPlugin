@@ -1,0 +1,279 @@
+{
+   "in" : {
+      "anim_type" : "alpha",
+      "duration" : 0.50,
+      "from" : 0.0,
+      "next" : "",
+      "to" : 1.0
+   },
+   "ltr" : {
+      "anim_type" : "offset",
+      "duration" : 0.50,
+      "from" : [ -150.0, 36.0 ],
+      "next" : "",
+      "to" : [ -13.0, 36.0 ]
+   },
+   "main" : {
+      "controls" : [
+         {
+            "panel" : {
+               "clip_offset" : [ 0.0, 0.0 ],
+               "controls" : [
+                  {
+                     "image" : {
+                        "alpha" : 0.50,
+                        "clip_direction" : "left",
+                        "clip_ratio" : 0.020,
+                        "color" : [ 1.0, 1.0, 1.0 ],
+                        "controls" : [],
+                        "keep_ratio" : false,
+                        "layer" : 1,
+                        "texture" : "textures/ui/custom_brah",
+                        "type" : "image"
+                     }
+                  },
+                  {
+                     "button@common.button" : {
+                        "$control_alpha" : 1.0,
+                        "$default_texture" : "textures/netease/common/button/default",
+                        "$hover_texture" : "textures/netease/common/button/hover",
+                        "$is_new_nine_slice" : false,
+                        "$label_color" : [ 1, 1, 1 ],
+                        "$label_font_scale_factor" : 1.0,
+                        "$label_font_size" : "normal",
+                        "$label_layer" : 3,
+                        "$label_offset" : [ 0, 0 ],
+                        "$label_text" : "附魔手持物品",
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$pressed_button_name" : "%netease_editor_template_namespace.click",
+                        "$pressed_texture" : "textures/netease/common/button/pressed",
+                        "$texture_layer" : 2,
+                        "bindings" : [
+                           {
+                              "binding_collection_name" : "",
+                              "binding_condition" : "always_when_visible",
+                              "binding_type" : "collection_details"
+                           }
+                        ],
+                        "button_mappings" : [],
+                        "controls" : [
+                           {
+                              "default@netease_editor_template_namespace.default" : {}
+                           },
+                           {
+                              "hover@netease_editor_template_namespace.hover" : {}
+                           },
+                           {
+                              "pressed@netease_editor_template_namespace.pressed" : {}
+                           },
+                           {
+                              "button_label@netease_editor_template_namespace.button_label" : {}
+                           }
+                        ],
+                        "default_control" : "default",
+                        "hover_control" : "hover",
+                        "is_handle_button_move_event" : true,
+                        "layer" : 2,
+                        "offset" : [ -13.0, 36.0 ],
+                        "pressed_control" : "pressed",
+                        "propagate_alpha" : true,
+                        "size" : [ 58, 28 ],
+                        "type" : "button"
+                     }
+                  },
+                  {
+                     "lvl@common.text_edit_box" : {
+                        "$edit_box_default_texture" : "textures/ui/edit_box_indent",
+                        "$edit_box_hover_texture" : "textures/ui/edit_box_indent_hover",
+                        "$font_scale_factor" : 1.0,
+                        "$font_size" : "normal",
+                        "$is_new_nine_slice" : false,
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$place_holder_text" : "§l附魔等级",
+                        "$place_holder_text_color" : [ 0.0, 1.0, 1.0 ],
+                        "$text_background_default" : "netease_editor_template_namespace.edit_box_background_default",
+                        "$text_background_hover" : "netease_editor_template_namespace.edit_box_background_hover",
+                        "$text_box_name" : "%netease_editor_template_namespace.message",
+                        "$text_box_text_color" : [ 1, 1, 1 ],
+                        "$text_edit_box_content_binding_name" : "#netease_editor_template_namespace.message_content",
+                        "$text_edit_box_label_anchor_point" : "right_middle",
+                        "$text_edit_box_label_min_size" : [ "100%", 0 ],
+                        "$text_edit_box_label_size" : [ "default", "default" ],
+                        "layer" : 12,
+                        "max_length" : 512,
+                        "offset" : [ -10.0, -9.50 ],
+                        "size" : [ 82, 18 ],
+                        "type" : "edit_box"
+                     }
+                  },
+                  {
+                     "ID@common.text_edit_box" : {
+                        "$edit_box_default_texture" : "textures/ui/edit_box_indent",
+                        "$edit_box_hover_texture" : "textures/ui/edit_box_indent_hover",
+                        "$font_scale_factor" : 1.0,
+                        "$font_size" : "normal",
+                        "$is_new_nine_slice" : false,
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$place_holder_text" : "§l附魔ID",
+                        "$place_holder_text_color" : [ 1.0, 1.0, 0.0 ],
+                        "$text_background_default" : "netease_editor_template_namespace.edit_box_background_default",
+                        "$text_background_hover" : "netease_editor_template_namespace.edit_box_background_hover",
+                        "$text_box_name" : "%netease_editor_template_namespace.message",
+                        "$text_box_text_color" : [ 1, 1, 1 ],
+                        "$text_edit_box_content_binding_name" : "#netease_editor_template_namespace.message_content",
+                        "$text_edit_box_label_anchor_point" : "right_middle",
+                        "$text_edit_box_label_min_size" : [ "100%", 0 ],
+                        "$text_edit_box_label_size" : [ "default", "default" ],
+                        "layer" : 15,
+                        "max_length" : 512,
+                        "offset" : [ -10.0, -39.50 ],
+                        "size" : [ 82, 18 ],
+                        "type" : "edit_box"
+                     }
+                  },
+                  {
+                     "scroll_view@common.scrolling_panel" : {
+                        "$background_nine_slice_buttom" : 0,
+                        "$background_nine_slice_left" : 0,
+                        "$background_nine_slice_right" : 0,
+                        "$background_nine_slice_top" : 0,
+                        "$background_nineslice_size" : [ 0.0, 0.0, 0.0, 0.0 ],
+                        "$background_offset_touch|default" : [ 0.0, 0.0 ],
+                        "$background_offset|default" : [ 0.0, 0.0 ],
+                        "$background_size_touch|default" : [ "100.0%+0.0px", "100.0%+0.0px" ],
+                        "$background_size|default" : [ "100.0%+0.0px", "100.0%+0.0px" ],
+                        "$box_nine_slice_buttom" : 0,
+                        "$box_nine_slice_left" : 0,
+                        "$box_nine_slice_right" : 0,
+                        "$box_nine_slice_top" : 0,
+                        "$box_nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$is_background_nine_slice" : false,
+                        "$is_box_nine_slice" : false,
+                        "$is_track_nine_slice" : false,
+                        "$scroll_background_image_control" : "netease_editor_template_namespace.scroll_background_image",
+                        "$scroll_background_texture" : "textures/ui/ScrollRail",
+                        "$scroll_box_mouse_image_control" : "netease_editor_template_namespace.scroll_box_image",
+                        "$scroll_box_texture" : "textures/ui/newTouchScrollBox",
+                        "$scroll_box_touch_image_control" : "netease_editor_template_namespace.scroll_box_image",
+                        "$scroll_box_visible_touch|default" : true,
+                        "$scroll_size_touch|default" : [ 4.0, "100.0%+0.0px" ],
+                        "$scroll_track_image_control" : "netease_editor_template_namespace.scroll_track_image",
+                        "$scroll_track_texture" : "textures/ui/ScrollRail",
+                        "$scroll_view_port_max_size_touch|default" : [ "0.0%+0.0px", "100.0%+0.0px" ],
+                        "$scrolling_content" : "enchant.text",
+                        "$show_background" : true,
+                        "$track_nine_slice_buttom" : 0,
+                        "$track_nine_slice_left" : 0,
+                        "$track_nine_slice_right" : 0,
+                        "$track_nine_slice_top" : 0,
+                        "$track_nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$use_touch_mode|default" : true,
+                        "layer" : 18,
+                        "offset" : [ -116.50, -4.50 ],
+                        "size" : [ 103, 205 ]
+                     }
+                  },
+                  {
+                     "delench@common.button" : {
+                        "$control_alpha" : 1.0,
+                        "$default_texture" : "textures/netease/common/button/default",
+                        "$hover_texture" : "textures/netease/common/button/hover",
+                        "$is_new_nine_slice" : false,
+                        "$label_color" : [ 1, 1, 1 ],
+                        "$label_font_scale_factor" : 1.0,
+                        "$label_font_size" : "normal",
+                        "$label_layer" : 3,
+                        "$label_offset" : [ 0.0, 0.0 ],
+                        "$label_text" : "删除手持物品第一条附魔",
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$pressed_button_name" : "%netease_editor_template_namespace.click",
+                        "$pressed_texture" : "textures/netease/common/button/pressed",
+                        "$texture_layer" : 2,
+                        "bindings" : [
+                           {
+                              "binding_collection_name" : "",
+                              "binding_condition" : "always_when_visible",
+                              "binding_type" : "collection_details"
+                           }
+                        ],
+                        "button_mappings" : [],
+                        "controls" : [
+                           {
+                              "default@netease_editor_template_namespace.default" : {
+                                 "keep_ratio" : false
+                              }
+                           },
+                           {
+                              "hover@netease_editor_template_namespace.hover" : {
+                                 "keep_ratio" : false
+                              }
+                           },
+                           {
+                              "pressed@netease_editor_template_namespace.pressed" : {
+                                 "keep_ratio" : false
+                              }
+                           },
+                           {
+                              "button_label@netease_editor_template_namespace.button_label" : {}
+                           }
+                        ],
+                        "default_control" : "default",
+                        "hover_control" : "hover",
+                        "is_handle_button_move_event" : true,
+                        "layer" : 32,
+                        "offset" : [ 102.0, 36.0 ],
+                        "pressed_control" : "pressed",
+                        "size" : [ 101, 25.0 ],
+                        "type" : "button"
+                     }
+                  },
+                  {
+                     "label" : {
+                        "color" : [ 0.0, 0.0, 1.0 ],
+                        "font_scale_factor" : 2.100000000000001,
+                        "font_type" : "default",
+                        "layer" : 42,
+                        "offset" : [ 13.0, -75.0 ],
+                        "size" : [ 140, 34 ],
+                        "text" : "自定义附魔",
+                        "text_alignment" : "center",
+                        "type" : "label"
+                     }
+                  }
+               ],
+               "layer" : 1,
+               "propagate_alpha" : true,
+               "type" : "panel"
+            }
+         }
+      ],
+      "type" : "screen"
+   },
+   "namespace" : "enchant",
+   "text" : {
+      "color" : [ 0.3333333333333333, 1.0, 1.0 ],
+      "font_scale_factor" : 0.90,
+      "font_type" : "default",
+      "layer" : 1,
+      "shadow" : true,
+      "size" : [ 90.0, 352.0 ],
+      "text" : "   附魔id列表\n  0 = 保护\n  1 = 火焰保护\n  2 = 摔落保护\n  3 = 爆炸保护\n  4 = 弹射物保护\n  5 = 荆棘\n  6 = 水下呼吸\n  7 = 深海探索者\n  8 = 水下速掘\n  9 = 锋利\n 10 = 亡灵杀手\n 11 = 节肢杀手\n 12 = 击退\n 13 = 火焰附加\n 14 = 抢夺\n 15 = 效率\n 16 = 精准采集\n 17 = 耐久\n 18 = 时运\n 19 = 力量\n 20 = 冲击\n 21 = 火矢\n 22 = 无限\n 23 = 海之眷顾\n 24 = 饵钓\n 25 = 冰霜行者\n 26 = 经验修补\n 27 = 绑定诅咒\n 28 = 消失诅咒\n 29 = 穿刺\n 30 = 激流\n 31 = 忠诚\n 32 = 引雷\n 33 = 多重射击\n 34 = 穿透\n 35 = 快速装填\n 36 = 灵魂疾行\n 其他数值 = 只有附魔光效",
+      "type" : "label"
+   }
+}
