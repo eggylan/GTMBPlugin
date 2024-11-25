@@ -96,24 +96,18 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CommandEvent", self, self.OnCommandEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerJoinMessageEvent", self, self.OnAddPlayerEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerLeftMessageServerEvent", self, self.OnRemovePlayerEvent)
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "OnScriptTickServer", self, self.OnScriptTickServer)
 		serversystem.ListenForEvent('Minecraft', 'preset', "enchant", self, self.enchant)
 		serversystem.ListenForEvent('Minecraft', 'preset', "getitem", self, self.getitem)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changeTip", self, self.changeTips)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changenbt", self, self.changenbt)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdbatch', self, self.cmdbatch)
-		serversystem.ListenForEvent('Minecraft', 'preset', 'close', self, self.closer)
+		self.timer = serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0,self.OnSecond)
 
 		"""
 		@description 服务端的零件对象初始化入口
 		"""
 
 		PartBase.InitServer(self)
-	
-	def closer(self, playerID):
-		import mod.server.extraServerApi as serverApi
-		playerID = str(playerID)
-		serverApi.GetSystem("Minecraft", "preset").NotifyToClient(playerID, "close", playerID)
 
 	def changenbt(self, args):
 		import mod.server.extraServerApi as serverApi
@@ -185,7 +179,7 @@ class MainLogicPart(PartBase):
 				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "v1.0.0(24/8/28)", "§b")
+			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "v0.6.2(2024/11)", "§b")
 		elif args["message"][0] * 20 == args["message"][:20]:
 			args["cancel"] = True
 			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
@@ -201,8 +195,8 @@ class MainLogicPart(PartBase):
 				serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
 		elif "" in args["message"] or "" in args["message"]:
 			args["cancel"] = True
-			compCmd.SetCommand('/tellraw '+ args["username"] +' {"rawtext":[{"text":"§6§l反崩服系统>>> §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言"}]}')
-			compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§e检测到玩家§c【' + args["username"] + '】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令"}]}')
+			compCmd.SetCommand('/tellraw '+ args["username"] +' {\"rawtext\":[{\"text\":\"§6§l反崩服系统>>> §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言\"}]}')
+			compCmd.SetCommand('/tellraw @a[tag=op] {\"rawtext\":[{\"text\":\"§6§l管理小助手>>> §r§e检测到玩家§c【' + args["username"] + '】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令\"}]}')
 			compCmd.SetCommand('/ability '+ args["username"] +' mute true',False)
 		else:
 			args["cancel"] = False
@@ -210,84 +204,65 @@ class MainLogicPart(PartBase):
 	def OnCommandEvent(self, args):
 		import mod.server.extraServerApi as serverApi
 		playername = serverApi.GetEngineCompFactory().CreateName(args["entityId"]).GetName()
+		compMsg = serverApi.GetEngineCompFactory().CreateMsg(args["entityId"])
+		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
 		if args["command"] == "/kill @e":
 			args["cancel"] = True
-			comp = serverApi.GetEngineCompFactory().CreateMsg(args["entityId"])
-			comp.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
+			compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
 		elif args["command"].split(" ")[0] == "/master":
 			args["cancel"] = True
+			splitstring = args["command"].split(" ")
 			if serverApi.GetEngineCompFactory().CreatePlayer(args["entityId"]).GetPlayerOperation() == 2:
-				comp = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
-				comp.SetCommand('/scoreboard objectives add master dummy', False)
-				comp.SetCommand('/scoreboard players set ' + args["command"].split(" ")[1] + ' master 0', False)
-				serverApi.GetEngineCompFactory().CreateMsg(args["entityId"]).NotifyOneMessage(args["entityId"], '§r§f尝试将玩家 ' + args["command"].split(" ")[1] + ' 写入 master 记分板，分数为0。玩家 '+ args["command"].split(" ")[1] + ' 将锁定为管理员权限。', "§f")
-				comp.SetCommand('/tellraw @a[tag=op,name=!'+ playername +'] {"rawtext":[{"text":"§7§o[' + playername + ': 尝试将玩家 ' + args["command"].split(" ")[1] + ' 写入 master 记分板，分数为0。玩家 '+ args["command"].split(" ")[1] + ' 将锁定为管理员权限。]"}]}')
+				playernames = []
+				for i in serverApi.GetPlayerList():
+					playerid = serverApi.GetEngineCompFactory().CreateName(i).GetName()
+					playernames.append(playerid)
+					if playerid == splitstring[1]:
+						targetId = i
+				if splitstring[1] in playernames:
+					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(targetId)
+					compExtra.SetExtraData("isMaster", True)
+					#comp.SetCommand('/scoreboard objectives add master dummy', False)
+					#comp.SetCommand('/scoreboard players set ' + splitstring[1] + ' master 0', False)
+					compMsg.NotifyOneMessage(args["entityId"], '尝试将玩家 %s 锁定为管理员权限' % (splitstring[1]))
+					compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {\"rawtext\":[{\"text\":\"§7§o[%s:尝试将玩家 %s 的权限状态锁定为管理员权限]\§r"}]}' % (playername, playername, splitstring[1]))
+				else:
+					compMsg.NotifyOneMessage(args["entityId"], '没有与选择器匹配的目标', "§c")
 			else:
-				serverApi.GetEngineCompFactory().CreateMsg(args["entityId"]).NotifyOneMessage(args["entityId"], '§r§c你没有使用此命令的权限。', "§c")
+				compMsg.NotifyOneMessage(args["entityId"], '未知的命令:master。请检查命令是否存在，以及您对它是否拥有使用权限。', "§c")
 		elif args["command"].split(" ")[0] == "/demaster":
+			splitstring = args["command"].split(" ")
 			args["cancel"] = True
 			if serverApi.GetEngineCompFactory().CreatePlayer(args["entityId"]).GetPlayerOperation() == 2:
-				comp = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
-				comp.SetCommand('/scoreboard players reset ' + args["command"].split(" ")[1] + ' master', False)
-				serverApi.GetEngineCompFactory().CreateMsg(args["entityId"]).NotifyOneMessage(args["entityId"], '§r§f尝试将 ' + args["command"].split(" ")[1] + ' 移出 master 记分板。玩家 '+ args["command"].split(" ")[1] + ' 的权限状态解除锁定。', "§f")
-				comp.SetCommand('/tellraw @a[tag=op,name=!'+ playername +'] {"rawtext":[{"text":"§7§o[' + playername + ': 尝试将 ' + args["command"].split(" ")[1] + ' 移出 master 记分板。玩家 '+ args["command"].split(" ")[1] + ' 的权限状态解除锁定。]"}]}')
+				playernames = []
+				for i in serverApi.GetPlayerList():
+					playerid = serverApi.GetEngineCompFactory().CreateName(i).GetName()
+					playernames.append(playerid)
+					if playerid == splitstring[1]:
+						targetId = i
+				if splitstring[1] in playernames:
+					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(targetId)
+					compExtra.SetExtraData("isMaster", False)
+					#compCmd.SetCommand('/scoreboard players reset ' + splitstring[1] + ' master', False)
+					compMsg.NotifyOneMessage(args["entityId"], '尝试将 %s 的权限状态解除锁定。' % (splitstring[1]))
+					compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {\"rawtext\":[{\"text\":\"§7§o[%s: 尝试将 %s 的权限状态解除锁定。]§r\"}]}' % (playername, playername, splitstring[1]))
+				else:
+					compMsg.NotifyOneMessage(args["entityId"], '没有与选择器匹配的目标', "§c")
 			else:
-				serverApi.GetEngineCompFactory().CreateMsg(args["entityId"]).NotifyOneMessage(args["entityId"], '§r§c你没有使用此命令的权限。', "§c")
-				
+				compMsg.NotifyOneMessage(args["entityId"], '未知的命令:demaster。请检查命令是否存在，以及您对它是否拥有使用权限。', "§c")
 
 	def OnAddPlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e加入了游戏"
 		elif args["name"] == "EGGYLAN_":
-			args["message"] = "§r§f***"
+			args["message"] = "§r***"
 		elif args["name"] == "EGGYLAN":
-			args["message"] = "§r§f***"
+			args["message"] = "§r***"
 
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e退出了游戏"
 
-	def OnScriptTickServer(self):
-		import mod.server.extraServerApi as serverApi
-		self.servertick += 1
-		banname = ["乌鸦哥","政治","书籍","www","的狗","男娘"]
-		if self.servertick >= 30:
-			comp = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
-			compboard = serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId())
-			playerscoreboard = compboard.GetAllPlayerScoreboardObjects()
-			opids = []
-			for player in playerscoreboard:
-				for score in player['scoreList']:
-					if score['displayName'] == 'master':
-							opids.append(player['playerId'])
-			for opid in opids:
-				opname = serverApi.GetEngineCompFactory().CreateName(opid).GetName()
-				if opname:
-					comp.SetCommand('/op ' + opname, False)
-
-			comp.SetCommand('/op 王培衡很丁丁', False)
-			comp.SetCommand('/op EGGYLAN', False)
-			comp.SetCommand('/op EGGYLAN_', False)
-			playerIds = serverApi.GetPlayerList()
-			for players in playerIds:
-				operation = serverApi.GetEngineCompFactory().CreatePlayer(players).GetPlayerOperation()
-				playername = serverApi.GetEngineCompFactory().CreateName(players).GetName()
-				if operation == 2:
-					comp.SetCommand('/tellraw @a[name='+playername+',tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}')
-					comp.SetCommand('/tag ' + playername + ' add op', False)
-				else:
-					comp.SetCommand('/tellraw @a[name='+playername+',tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}')
-					comp.SetCommand('/tag ' + playername + ' remove op', False)
-				for name in banname:
-					if name in playername:
-						comp.SetCommand('/gamemode spectator @a[name='+playername+',tag=!banname]', False)
-						comp.SetCommand('/tellraw @a[name=' + playername + ',tag=!banname] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为旁观模式。"}]}')
-						comp.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为旁观模式！"}]}')
-						comp.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家！"}]}')
-						comp.SetCommand('/tag ' + playername + ' add banname', False)
-				
-			self.servertick = 0
-	
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
@@ -299,6 +274,31 @@ class MainLogicPart(PartBase):
 		@description 服务端的零件对象逻辑驱动入口
 		"""
 		PartBase.TickServer(self)
+
+	def OnSecond(self):
+		import mod.server.extraServerApi as serverApi
+		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
+		for i in ['王培衡很丁丁','EGGYLAN','EGGYLAN_']:
+			compCmd.SetCommand('/op %s' % (i), False)
+		playerIds = serverApi.GetPlayerList()
+		for i in playerIds:
+			if serverApi.GetEngineCompFactory().CreateExtraData(i).GetExtraData("isMaster"):
+				compCmd.SetCommand("/op %s" % (serverApi.GetEngineCompFactory().CreateName(i).GetName()))
+		for players in playerIds:
+			operation = serverApi.GetEngineCompFactory().CreatePlayer(players).GetPlayerOperation()
+			playername = serverApi.GetEngineCompFactory().CreateName(players).GetName()
+			if operation == 2:
+				compCmd.SetCommand('/tellraw @a[name='+playername+',tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}')
+				compCmd.SetCommand('/tag ' + playername + ' add op', False)
+			else:
+				compCmd.SetCommand('/tellraw @a[name='+playername+',tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}')
+				compCmd.SetCommand('/tag ' + playername + ' remove op', False)
+			if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(playername):
+				compCmd.SetCommand('/gamemode spectator @a[name='+playername+',tag=!banname]', False)
+				compCmd.SetCommand('/tellraw @a[name=' + playername + ',tag=!banname] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词\，已将您设为旁观模式。"}]}')
+				compCmd.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏\，已将其设为旁观模式!"}]}')
+				compCmd.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}')
+				compCmd.SetCommand('/tag ' + playername + ' add banname', False)
 
 	def DestroyClient(self):
 		"""
@@ -314,6 +314,7 @@ class MainLogicPart(PartBase):
 		@description 服务端的零件对象销毁逻辑入口
 		"""
 		import mod.server.extraServerApi as serverApi
+		serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId).CancelTimer(self.timer)
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		serversystem.UnListenAllEvents()
 		PartBase.DestroyServer(self)

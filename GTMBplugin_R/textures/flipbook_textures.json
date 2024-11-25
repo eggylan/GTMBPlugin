@@ -1,0 +1,7 @@
+[
+    {
+        "flipbook_texture": "textures/blocks/adv_command_block_front",
+        "atlas_tile": "ycgnw:command_block_front",
+        "ticks_per_frame": 10
+    }
+]

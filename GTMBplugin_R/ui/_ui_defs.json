@@ -6,6 +6,7 @@
         "ui/getitem.json",
         "ui/minimap.json",
         "ui/nbteditor.json",
+        "ui/anvil_screen.json",
         "ui/netease_editor_template_namespace.json"
     ]
 }

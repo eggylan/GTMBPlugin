@@ -1,0 +1,33 @@
+{
+    "format_version": "1.10.0",
+    "minecraft:block": {
+        "components": {
+            "minecraft:destroy_time": {
+                "value": 9999999.0
+            },
+            "minecraft:explosion_resistance": {
+                "value": 9999999.0
+            },
+            "netease:block_entity": {
+                "client_tick": true,
+                "tick": true
+            },
+            "netease:face_directional": {
+                "type": "facing_direction"
+            },
+            "netease:redstone": {
+                "type": "consumer"
+            },
+            "netease:render_layer": {
+                "value": "opaque"
+            },
+            "netease:solid": {
+                "value": true
+            }
+        },
+        "description": {
+            "identifier": "ycgnw:adv_command_block",
+            "register_to_creative_menu": false
+        }
+    }
+}

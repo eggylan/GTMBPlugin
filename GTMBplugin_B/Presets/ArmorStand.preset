@@ -20,7 +20,7 @@
     "isValid": true,
     "name": "ArmorStand",
     "notifyRemove": true,
-    "objId": "c4bdac8a08164653b7664adf9f6ba346",
+    "objId": "fa8046555d9d4d35ab63a5fd7ff9d4ec",
     "oxygenAttrs": {
         "SetAirSeconds": 15,
         "SetRecoverTotalAirSupplyTime": 0.0

@@ -5,7 +5,7 @@ ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 
 
-class NeteaseScreenNode(ScreenNode):
+class commandblockscreen(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
 
@@ -13,6 +13,12 @@ class NeteaseScreenNode(ScreenNode):
 		"""
 		@description UI创建成功时调用
 		"""
+		self.GetBaseUIControl("/panel/exit").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/exit").asButton().SetButtonTouchUpCallback(self.closescreen)
+
+	def closescreen(self, args):
+		import mod.client.extraClientApi as clientApi
+		clientApi.PopTopUI()
 
 	def Destroy(self):
 		"""

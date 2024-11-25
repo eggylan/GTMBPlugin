@@ -29,8 +29,7 @@ class cmdbatch(ScreenNode):
 	
 	def close(self, args):
 		import mod.client.extraClientApi as clientApi
-		playerID = clientApi.GetLocalPlayerId()
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("close",playerID)
+		clientApi.PopTopUI()
 	
 	def Destroy(self):
 		"""

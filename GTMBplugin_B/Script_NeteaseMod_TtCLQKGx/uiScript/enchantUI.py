@@ -17,8 +17,6 @@ class enchantUI(ScreenNode):
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.enchant)
 		self.GetBaseUIControl("/panel/delench").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/delench").asButton().SetButtonTouchUpCallback(self.delenchant)
-		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
 	def enchant(self, args):
 		if self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText():
@@ -30,11 +28,6 @@ class enchantUI(ScreenNode):
 		enchantdata = {"id": "del", "lvl": "1"}
 		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("enchant", enchantdata)
-
-	def close(self, args):
-		import mod.client.extraClientApi as clientApi
-		playerID = clientApi.GetLocalPlayerId()
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("close",playerID)
 
 	def Destroy(self):
 		"""

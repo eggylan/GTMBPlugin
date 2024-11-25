@@ -15,8 +15,6 @@ class getitemUI(ScreenNode):
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.get)
-		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
 	def get(self, args):
 		itemData = {"newItemName": "minecraft:" + self.GetBaseUIControl("/panel/id").asTextEditBox().GetEditText(), "newAuxValue": 0, "count": 1}
@@ -26,11 +24,6 @@ class getitemUI(ScreenNode):
 			itemData["newAuxValue"] = int(self.GetBaseUIControl("/panel/aux").asTextEditBox().GetEditText())
 		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("getitem", itemData)
-	
-	def close(self, args):
-		import mod.client.extraClientApi as clientApi
-		playerID = clientApi.GetLocalPlayerId()
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("close",playerID)
 
 	def Destroy(self):
 		"""
