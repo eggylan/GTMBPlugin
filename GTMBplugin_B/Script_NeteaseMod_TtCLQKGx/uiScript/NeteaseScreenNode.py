@@ -13,7 +13,6 @@ class NeteaseScreenNode(ScreenNode):
 		"""
 		@description UI创建成功时调用
 		"""
-		self.GetBaseUIControl("/button").asButton().AddTouchEventParams({"isSwallow": True})
 
 	def Destroy(self):
 		"""

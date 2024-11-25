@@ -1,6 +1,6 @@
 {
     "ui_defs": [
-        "ui/advcblock.json",
+        "ui/cmdbatch.json",
         "ui/customtips.json",
         "ui/enchant.json",
         "ui/getitem.json",
