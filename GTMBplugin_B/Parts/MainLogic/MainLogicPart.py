@@ -252,12 +252,20 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(args["entityId"], '未知的命令:demaster。请检查命令是否存在，以及您对它是否拥有使用权限。', "§c")
 
 	def OnAddPlayerEvent(self, args):
+		import mod.server.extraServerApi as serverApi
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e加入了游戏"
 		elif args["name"] == "EGGYLAN_":
 			args["message"] = "§r***"
 		elif args["name"] == "EGGYLAN":
 			args["message"] = "§r***"
+		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
+		if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(args["name"]):
+			compCmd.SetCommand('/gamemode spectator @a[name='+args["name"]+',tag=!banname]', False)
+			compCmd.SetCommand('/tellraw @a[name=' + args["name"] + ',tag=!banname] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词\，已将您设为旁观模式。"}]}')
+			compCmd.SetCommand('/execute as @a[name=' + args["name"] + ',tag=!banname] run tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏\，已将其设为旁观模式!"}]}')
+			compCmd.SetCommand('/execute as @a[name=' + args["name"] + ',tag=!banname] run tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}')
+			compCmd.SetCommand('/tag ' + args["name"] + ' add banname', False)
 
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
@@ -293,12 +301,6 @@ class MainLogicPart(PartBase):
 			else:
 				compCmd.SetCommand('/tellraw @a[name='+playername+',tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}')
 				compCmd.SetCommand('/tag ' + playername + ' remove op', False)
-			if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(playername):
-				compCmd.SetCommand('/gamemode spectator @a[name='+playername+',tag=!banname]', False)
-				compCmd.SetCommand('/tellraw @a[name=' + playername + ',tag=!banname] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词\，已将您设为旁观模式。"}]}')
-				compCmd.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏\，已将其设为旁观模式!"}]}')
-				compCmd.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}')
-				compCmd.SetCommand('/tag ' + playername + ' add banname', False)
 
 	def DestroyClient(self):
 		"""
