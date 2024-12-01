@@ -4,4 +4,4 @@
 
 主要功能：自定义附魔、获取隐藏物品、修改物品NBT、指令批处理、修改物品注释、防止聊天文本卡客户端、违禁词玩家检测
 
-![image](https://github.com/eggylan/GTMBPlugin/blob/main/readmeimg/01.png)
+![image](readmeimg/01.png)
