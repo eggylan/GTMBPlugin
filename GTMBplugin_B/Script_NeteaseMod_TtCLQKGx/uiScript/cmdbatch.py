@@ -22,9 +22,7 @@ class cmdbatch(ScreenNode):
 		if self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText():
 			cmds = self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText()
 			import mod.client.extraClientApi as clientApi
-			playerid = clientApi.GetLocalPlayerId()
-			playername = clientApi.GetEngineCompFactory().CreateName(playerid).GetName()
-			cmds = {"playername": playername, "cmds": cmds, "playerid": playerid}
+			cmds = {"cmds": cmds}
 			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdbatch", cmds)
 	
 	def close(self, args):

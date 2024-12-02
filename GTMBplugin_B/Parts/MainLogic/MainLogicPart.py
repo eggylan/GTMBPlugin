@@ -115,15 +115,14 @@ class MainLogicPart(PartBase):
 	
 	def cmdbatch(self, cmds):
 		import mod.server.extraServerApi as serverApi
-		playername = cmds["playername"]
+		playerid = cmds["__id__"]
 		cmd = cmds["cmds"]
-		playerid = cmds["playerid"]
 		if serverApi.GetEngineCompFactory().CreatePlayer(playerid).GetPlayerOperation() == 2:
 			cmd = cmd.split("\n")
 			for i in cmd:
 				if i and i[0] == '/':
 					i = i[1:]
-				serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/execute as '+ playername +' at @s run ' + i, True)
+				serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/execute as '+ serverApi.GetEngineCompFactory().CreateName(playerid).GetName() +' at @s run ' + i, True)
 		
 	def changeTips(self, tips):
 		import mod.server.extraServerApi as serverApi
