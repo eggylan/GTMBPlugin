@@ -11,7 +11,7 @@
                         "clip_ratio" : 0.0,
                         "layer" : 1,
                         "size" : [ "120.0%+100.0px", "120.0%+100.0px" ],
-                        "texture" : "textures/ui/custom_brah",
+                        "texture" : "textures/ui/gray",
                         "type" : "image"
                      }
                   },
