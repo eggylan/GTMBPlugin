@@ -17,6 +17,8 @@ class enchantUI(ScreenNode):
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.enchant)
 		self.GetBaseUIControl("/panel/delench").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/delench").asButton().SetButtonTouchUpCallback(self.delenchant)
+		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
 	def enchant(self, args):
 		if self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText():
@@ -29,6 +31,10 @@ class enchantUI(ScreenNode):
 		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("enchant", enchantdata)
 
+	def close(self, args):
+		import mod.client.extraClientApi as clientApi
+		clientApi.PopTopUI()
+	
 	def Destroy(self):
 		"""
 		@description UI销毁时调用

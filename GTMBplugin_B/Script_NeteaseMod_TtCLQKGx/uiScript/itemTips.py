@@ -15,12 +15,18 @@ class itemTips(ScreenNode):
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.changeTip)
+		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
 	def changeTip(self, args):
 		itemTips = {"Tips": self.GetBaseUIControl("/panel/edit_box").asTextEditBox().GetEditText()}
 		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changeTip", itemTips)
 
+	def close(self, args):
+		import mod.client.extraClientApi as clientApi
+		clientApi.PopTopUI()
+	
 	def Destroy(self):
 		"""
 		@description UI销毁时调用

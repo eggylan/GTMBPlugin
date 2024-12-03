@@ -39,7 +39,7 @@
                         "$text_box_text_color" : [ 1, 1, 1 ],
                         "enabled_newline" : true,
                         "layer" : 3,
-                        "max_length" : 1024,
+                        "max_length" : 1000000,
                         "offset" : [ 0.0, 11.50 ],
                         "size" : [ 357, 122 ],
                         "type" : "edit_box"

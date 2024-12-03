@@ -15,6 +15,8 @@ class getitemUI(ScreenNode):
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.get)
+		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
 	def get(self, args):
 		itemData = {"newItemName": "minecraft:" + self.GetBaseUIControl("/panel/id").asTextEditBox().GetEditText(), "newAuxValue": 0, "count": 1}
@@ -25,6 +27,10 @@ class getitemUI(ScreenNode):
 		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("getitem", itemData)
 
+	def close(self, args):	
+		import mod.client.extraClientApi as clientApi
+		clientApi.PopTopUI()
+	
 	def Destroy(self):
 		"""
 		@description UI销毁时调用

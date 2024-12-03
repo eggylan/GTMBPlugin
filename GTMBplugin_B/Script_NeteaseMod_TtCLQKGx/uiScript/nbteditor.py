@@ -15,6 +15,8 @@ class nbteditor(ScreenNode):
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.change)
+		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 		import mod.client.extraClientApi as clientApi
 		import json
 		comp = clientApi.GetEngineCompFactory().CreateItem(clientApi.GetLocalPlayerId())
@@ -37,6 +39,10 @@ class nbteditor(ScreenNode):
 		nbt = json.loads(strnbt)
 		nbtdata = {"nbt": nbt}
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changenbt", nbtdata)
+
+	def close(self, args):
+		import mod.client.extraClientApi as clientApi
+		clientApi.PopTopUI()
 
 	def Destroy(self):
 		"""
