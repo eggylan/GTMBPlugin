@@ -43,7 +43,7 @@
                         "controls" : [],
                         "keep_ratio" : false,
                         "layer" : 1,
-                        "texture" : "textures/ui/gray",
+                        "texture" : "textures/blocks/custom_brah",
                         "type" : "image"
                      }
                   },

@@ -28,7 +28,7 @@
                         "controls" : [],
                         "keep_ratio" : false,
                         "layer" : 1,
-                        "texture" : "textures/ui/gray",
+                        "texture" : "textures/blocks/custom_brah",
                         "type" : "image"
                      }
                   },
@@ -254,6 +254,60 @@
                         "text" : "自定义附魔",
                         "text_alignment" : "center",
                         "type" : "label"
+                     }
+                  },
+                  {
+                     "closebutton@common.button" : {
+                        "$control_alpha" : 1.0,
+                        "$default_texture" : "textures/netease/common/button/default",
+                        "$hover_texture" : "textures/netease/common/button/hover",
+                        "$is_new_nine_slice" : false,
+                        "$label_color" : [ 1, 1, 1 ],
+                        "$label_font_scale_factor" : 1.0,
+                        "$label_font_size" : "large",
+                        "$label_layer" : 3,
+                        "$label_offset" : [ 0, 0 ],
+                        "$label_text" : "x",
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$pressed_button_name" : "%netease_editor_template_namespace.click",
+                        "$pressed_texture" : "textures/netease/common/button/pressed",
+                        "$texture_layer" : 2,
+                        "anchor_from" : "top_right",
+                        "anchor_to" : "top_right",
+                        "bindings" : [
+                           {
+                              "binding_collection_name" : "",
+                              "binding_condition" : "always_when_visible",
+                              "binding_type" : "collection_details"
+                           }
+                        ],
+                        "button_mappings" : [],
+                        "controls" : [
+                           {
+                              "default@netease_editor_template_namespace.default" : {}
+                           },
+                           {
+                              "hover@netease_editor_template_namespace.hover" : {}
+                           },
+                           {
+                              "pressed@netease_editor_template_namespace.pressed" : {}
+                           },
+                           {
+                              "button_label@netease_editor_template_namespace.button_label" : {}
+                           }
+                        ],
+                        "default_control" : "default",
+                        "hover_control" : "hover",
+                        "is_handle_button_move_event" : true,
+                        "layer" : 2,
+                        "offset" : [ -16.0, 14.0 ],
+                        "pressed_control" : "pressed",
+                        "size" : [ 43, 20 ],
+                        "type" : "button"
                      }
                   }
                ],
