@@ -5,7 +5,6 @@ from Preset.Model.GameObject import registerGenericClass
 
 @registerGenericClass("MainLogicPart")
 class MainLogicPart(PartBase):
-	servertick = 0
 	
 	def __init__(self):
 		PartBase.__init__(self)
@@ -71,23 +70,26 @@ class MainLogicPart(PartBase):
 
 	def enchant(self, enchantdata):
 		import mod.server.extraServerApi as serverApi
-		comp = serverApi.GetEngineCompFactory().CreateItem(enchantdata["__id__"])
-		itemDict = comp.GetPlayerItem(2, 0, True)
-		if itemDict:
-			if itemDict["userData"] is None:
-				itemDict["userData"] = {}
-			if itemDict["userData"].get('ench', None) is None:
-				itemDict["userData"]['ench'] = []
-			if enchantdata["id"] == "del":
-				itemDict["userData"]['ench'].pop(0)
-			else:
-				itemDict["userData"]['ench'].insert(0, {'lvl': {'__type__': 2, '__value__': int(enchantdata["lvl"])}, 'id': {'__type__': 2, '__value__': int(enchantdata["id"])}, 'modEnchant': {'__type__': 8, '__value__': ''}})
-			itemDict["enchantData"] = []
-			comp.SpawnItemToPlayerCarried(itemDict, enchantdata["__id__"])
+		if serverApi.GetEngineCompFactory().CreatePlayer(enchantdata["__id__"]).GetPlayerOperation() == 2:
+			# 二次权限验证
+			comp = serverApi.GetEngineCompFactory().CreateItem(enchantdata["__id__"])
+			itemDict = comp.GetPlayerItem(2, 0, True)
+			if itemDict:
+				if itemDict["userData"] is None:
+					itemDict["userData"] = {}
+				if itemDict["userData"].get('ench', None) is None:
+					itemDict["userData"]['ench'] = []
+				if enchantdata["id"] == "del":
+					itemDict["userData"]['ench'].pop(0)
+				else:
+					itemDict["userData"]['ench'].insert(0, {'lvl': {'__type__': 2, '__value__': int(enchantdata["lvl"])}, 'id': {'__type__': 2, '__value__': int(enchantdata["id"])}, 'modEnchant': {'__type__': 8, '__value__': ''}})
+				itemDict["enchantData"] = []
+				comp.SpawnItemToPlayerCarried(itemDict, enchantdata["__id__"])
 
 	def getitem(self, itemdata):
 		import mod.server.extraServerApi as serverApi
-		serverApi.GetEngineCompFactory().CreateItem(itemdata["__id__"]).SpawnItemToPlayerInv(itemdata, itemdata["__id__"])
+		if serverApi.GetEngineCompFactory().CreatePlayer(itemdata["__id__"]).GetPlayerOperation() == 2:
+			serverApi.GetEngineCompFactory().CreateItem(itemdata["__id__"]).SpawnItemToPlayerInv(itemdata, itemdata["__id__"])
 
 	def InitServer(self):
 		import mod.server.extraServerApi as serverApi
@@ -111,7 +113,8 @@ class MainLogicPart(PartBase):
 
 	def changenbt(self, args):
 		import mod.server.extraServerApi as serverApi
-		serverApi.GetEngineCompFactory().CreateItem(args["__id__"]).SpawnItemToPlayerCarried(args["nbt"], args["__id__"])
+		if serverApi.GetEngineCompFactory().CreatePlayer(args["__id__"]).GetPlayerOperation() == 2:
+			serverApi.GetEngineCompFactory().CreateItem(args["__id__"]).SpawnItemToPlayerCarried(args["nbt"], args["__id__"])
 	
 	def cmdbatch(self, cmds):
 		import mod.server.extraServerApi as serverApi
@@ -126,12 +129,13 @@ class MainLogicPart(PartBase):
 		
 	def changeTips(self, tips):
 		import mod.server.extraServerApi as serverApi
-		itemComp = serverApi.GetEngineCompFactory().CreateItem(tips["__id__"])
-		itemDict = itemComp.GetEntityItem(2, 0, True)
-		if tips["Tips"] == '':
-			del itemDict['userData']['ItemCustomTips']
-		itemDict['customTips'] = tips["Tips"]
-		itemComp.SpawnItemToPlayerCarried(itemDict, tips["__id__"])
+		if serverApi.GetEngineCompFactory().CreatePlayer(tips["__id__"]).GetPlayerOperation() == 2:
+			itemComp = serverApi.GetEngineCompFactory().CreateItem(tips["__id__"])
+			itemDict = itemComp.GetEntityItem(2, 0, True)
+			if tips["Tips"] == '':
+				del itemDict['userData']['ItemCustomTips']
+			itemDict['customTips'] = tips["Tips"]
+			itemComp.SpawnItemToPlayerCarried(itemDict, tips["__id__"])
 
 	def OnServerChat(self, args):
 		playerId = args["playerId"]
@@ -223,10 +227,10 @@ class MainLogicPart(PartBase):
 					compExtra.SetExtraData("isMaster", True)
 					#comp.SetCommand('/scoreboard objectives add master dummy', False)
 					#comp.SetCommand('/scoreboard players set ' + splitstring[1] + ' master 0', False)
-					compMsg.NotifyOneMessage(args["entityId"], '尝试将玩家 %s 锁定为管理员权限' % (splitstring[1]))
-					compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {\"rawtext\":[{\"text\":\"§7§o[%s:尝试将玩家 %s 的权限状态锁定为管理员权限]\§r"}]}' % (playername, playername, splitstring[1]))
+					compMsg.NotifyOneMessage(args["entityId"], '尝试将玩家 %s 锁定为管理员权限。' % (splitstring[1]))
+					compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 尝试将玩家 %s 的权限状态锁定为管理员权限。]§r"}]}' % (playername, playername, splitstring[1]))
 				else:
-					compMsg.NotifyOneMessage(args["entityId"], '没有与选择器匹配的目标', "§c")
+					compMsg.NotifyOneMessage(args["entityId"], '无法在房间内找到此玩家。', "§c")
 			else:
 				compMsg.NotifyOneMessage(args["entityId"], '未知的命令:master。请检查命令是否存在，以及您对它是否拥有使用权限。', "§c")
 		elif args["command"].split(" ")[0] == "/demaster":
@@ -246,7 +250,7 @@ class MainLogicPart(PartBase):
 					compMsg.NotifyOneMessage(args["entityId"], '尝试将 %s 的权限状态解除锁定。' % (splitstring[1]))
 					compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {\"rawtext\":[{\"text\":\"§7§o[%s: 尝试将 %s 的权限状态解除锁定。]§r\"}]}' % (playername, playername, splitstring[1]))
 				else:
-					compMsg.NotifyOneMessage(args["entityId"], '没有与选择器匹配的目标', "§c")
+					compMsg.NotifyOneMessage(args["entityId"], '无法在房间内找到此玩家。', "§c")
 			else:
 				compMsg.NotifyOneMessage(args["entityId"], '未知的命令:demaster。请检查命令是否存在，以及您对它是否拥有使用权限。', "§c")
 
@@ -254,10 +258,6 @@ class MainLogicPart(PartBase):
 		import mod.server.extraServerApi as serverApi
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e加入了游戏"
-		elif args["name"] == "EGGYLAN_":
-			args["message"] = "§r***"
-		elif args["name"] == "EGGYLAN":
-			args["message"] = "§r***"
 		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
 		if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(args["name"]):
 			compCmd.SetCommand('/gamemode spectator @a[name='+args["name"]+',tag=!banname]', False)
@@ -288,12 +288,16 @@ class MainLogicPart(PartBase):
 		for i in ['王培衡很丁丁','EGGYLAN','EGGYLAN_']:
 			compCmd.SetCommand('/op %s' % (i), False)
 		playerIds = serverApi.GetPlayerList()
-		for i in playerIds:
-			if serverApi.GetEngineCompFactory().CreateExtraData(i).GetExtraData("isMaster"):
-				compCmd.SetCommand("/op %s" % (serverApi.GetEngineCompFactory().CreateName(i).GetName()))
-		for players in playerIds:
-			operation = serverApi.GetEngineCompFactory().CreatePlayer(players).GetPlayerOperation()
-			playername = serverApi.GetEngineCompFactory().CreateName(players).GetName()
+		for player in playerIds:
+			playername = serverApi.GetEngineCompFactory().CreateName(player).GetName()
+			operation = serverApi.GetEngineCompFactory().CreatePlayer(player).GetPlayerOperation()
+			if serverApi.GetEngineCompFactory().CreateExtraData(player).GetExtraData("isMaster"):
+				compCmd.SetCommand("/op %s" % (serverApi.GetEngineCompFactory().CreateName(player).GetName()))		
+			
+			if serverApi.GetEngineCompFactory().CreateTag(player).EntityHasTag("kick"):
+				serverApi.GetEngineCompFactory().CreateTag(player).RemoveEntityTag("kick")
+				compCmd.SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(player).GetName(), False)
+
 			if operation == 2:
 				compCmd.SetCommand('/tellraw @a[name='+playername+',tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}')
 				compCmd.SetCommand('/tag ' + playername + ' add op', False)
