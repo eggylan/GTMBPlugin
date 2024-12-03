@@ -98,7 +98,7 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CommandEvent", self, self.OnCommandEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerJoinMessageEvent", self, self.OnAddPlayerEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerLeftMessageServerEvent", self, self.OnRemovePlayerEvent)
-		serversystem.ListenForEvent('Minecraft', 'preset', "enchant", self, self.enchant)
+		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "ClientLoadAddonsFinishServerEvent", self, self.OnClientLoadAddonsFinishServerEvent)
 		serversystem.ListenForEvent('Minecraft', 'preset', "getitem", self, self.getitem)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changeTip", self, self.changeTips)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changenbt", self, self.changenbt)
@@ -258,13 +258,23 @@ class MainLogicPart(PartBase):
 		import mod.server.extraServerApi as serverApi
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e加入了游戏"
+
+	def OnClientLoadAddonsFinishServerEvent(self, args):
+		import mod.server.extraServerApi as serverApi
 		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
-		if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(args["name"]):
-			compCmd.SetCommand('/gamemode spectator @a[name='+args["name"]+',tag=!banname]', False)
-			compCmd.SetCommand('/tellraw @a[name=' + args["name"] + ',tag=!banname] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词\，已将您设为旁观模式。"}]}')
-			compCmd.SetCommand('/execute as @a[name=' + args["name"] + ',tag=!banname] run tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏\，已将其设为旁观模式!"}]}')
-			compCmd.SetCommand('/execute as @a[name=' + args["name"] + ',tag=!banname] run tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}')
-			compCmd.SetCommand('/tag ' + args["name"] + ' add banname', False)
+		playername = serverApi.GetEngineCompFactory().CreateName(args["playerId"]).GetName()
+		if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(playername):
+			serverApi.GetEngineCompFactory().CreatePlayer(args["playerId"]).SetPermissionLevel(0)
+			serverApi.GetEngineCompFactory().CreateMsg(args["playerId"]).NotifyOneMessage(args["playerId"], "§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为游客权限。")
+			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为游客权限!"}]}',False)
+			compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}',False)
+			serverApi.GetEngineCompFactory().CreateTag(args["playerId"]).AddEntityTag("banname")
+			# 改为直接调用API					
+			# compCmd.SetCommand('/gamemode spectator @a[name='+playername+',tag=!banname]', False)
+			# compCmd.SetCommand('/tellraw @a[name=' + playername + ',tag=!banname] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为旁观模式。"}]}')
+			# compCmd.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为旁观模式!"}]}')
+			# compCmd.SetCommand('/execute as @a[name=' + playername + ',tag=!banname] run tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}')
+			# compCmd.SetCommand('/tag ' + playername + ' add banname', False)
 
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
