@@ -263,6 +263,10 @@ class MainLogicPart(PartBase):
 		import mod.server.extraServerApi as serverApi
 		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
 		playername = serverApi.GetEngineCompFactory().CreateName(args["playerId"]).GetName()
+		
+		# 禁用魔法指令功能
+		serverApi.GetEngineCompFactory().CreateAiCommand(args["playerId"]).Disable()
+		
 		if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(playername):
 			serverApi.GetEngineCompFactory().CreatePlayer(args["playerId"]).SetPermissionLevel(0)
 			serverApi.GetEngineCompFactory().CreateMsg(args["playerId"]).NotifyOneMessage(args["playerId"], "§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为游客权限。")
