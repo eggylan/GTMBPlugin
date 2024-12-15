@@ -260,7 +260,7 @@ class MainLogicPart(PartBase):
 		if args["command"] == "/kill @e":
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
-		elif args["command"].split(" ")[0] == "/master":
+		elif args["command"].split(" ")[0] == "/master": # 用于锁定玩家权限，在 ModAPI 3.2 Beta 之后随着官方加入自定义指令需要改写
 			args["cancel"] = True
 			splitstring = args["command"].split(" ")
 			if serverApi.GetEngineCompFactory().CreatePlayer(args["entityId"]).GetPlayerOperation() == 2:
@@ -306,6 +306,8 @@ class MainLogicPart(PartBase):
 		import mod.server.extraServerApi as serverApi
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e加入了游戏"
+		if args["name"] == "EGGYLAN_":
+			args["message"] = "§eEGGYLAN_§l§b(开发者) §r§e加入了游戏"
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
 		import mod.server.extraServerApi as serverApi
