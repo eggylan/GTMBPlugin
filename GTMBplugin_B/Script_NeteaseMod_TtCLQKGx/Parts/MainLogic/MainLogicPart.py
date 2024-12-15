@@ -23,6 +23,7 @@ class MainLogicPart(PartBase):
 		clientsystem.ListenForEvent("Minecraft", "preset", "openUI3", self, self.UI3)
 		clientsystem.ListenForEvent("Minecraft", "preset", "openUI4", self, self.UI4)
 		clientsystem.ListenForEvent("Minecraft", "preset", "openUI5", self, self.UI5)
+		clientsystem.ListenForEvent("Minecraft", "preset", "openUI6", self, self.UI6)
 		clientsystem.ListenForEvent('Minecraft', 'preset', 'close', self, self.close)		
 
 	def UI1(self, args):
@@ -49,6 +50,11 @@ class MainLogicPart(PartBase):
 		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdbatch")[0]
 		uiNodePreset.SetUiActive(True)
 		uiNodePreset.SetUiVisible(True)
+
+	def UI6(self, args):
+		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimport")[0]
+		uiNodePreset.SetUiActive(True)
+		uiNodePreset.SetUiVisible(True)
 		
 
 	def close(self, args):
@@ -65,6 +71,9 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiActive(False)
 		uiNodePreset.SetUiVisible(False)
 		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdbatch")[0]
+		uiNodePreset.SetUiActive(False)
+		uiNodePreset.SetUiVisible(False)
+		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimport")[0]
 		uiNodePreset.SetUiActive(False)
 		uiNodePreset.SetUiVisible(False)
 
@@ -99,10 +108,12 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerJoinMessageEvent", self, self.OnAddPlayerEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerLeftMessageServerEvent", self, self.OnRemovePlayerEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "ClientLoadAddonsFinishServerEvent", self, self.OnClientLoadAddonsFinishServerEvent)
+		serversystem.ListenForEvent('Minecraft', 'preset', "enchant", self, self.enchant)
 		serversystem.ListenForEvent('Minecraft', 'preset', "getitem", self, self.getitem)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changeTip", self, self.changeTips)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changenbt", self, self.changenbt)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdbatch', self, self.cmdbatch)
+		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdblockimport', self, self.cmdblockimport)
 		self.timer = serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0,self.OnSecond)
 
 		"""
@@ -136,6 +147,36 @@ class MainLogicPart(PartBase):
 				del itemDict['userData']['ItemCustomTips']
 			itemDict['customTips'] = tips["Tips"]
 			itemComp.SpawnItemToPlayerCarried(itemDict, tips["__id__"])
+	
+	def cmdblockimport(self, cmdblockcmdsjson):
+		import mod.server.extraServerApi as serverApi
+		playerid = cmdblockcmdsjson["__id__"]
+		if serverApi.GetEngineCompFactory().CreatePlayer(playerid).GetPlayerOperation() == 2:
+			import json
+			playerpos = serverApi.GetEngineCompFactory().CreatePos(playerid).GetFootPos()
+			player_X, player_Y, player_Z = playerpos
+			# 处理负数坐标
+			if player_X < 0:
+				player_X = int(player_X) - 1
+			if player_Y < 0:
+				player_Y = int(player_Y) - 1
+			if player_Z < 0:
+				player_Z = int(player_Z) - 1
+			data = json.loads(cmdblockcmdsjson["cmdblockcmdsjson"])
+			for block in data:
+				cmd = str(block["C"])
+				name = str(block["N"])
+				x = int(block["x"] + player_X)
+				y = int(block["y"] + player_Y)
+				z = int(block["z"] + player_Z)
+				dimensionId = cmdblockcmdsjson["dimension"]
+				redstone_mode_mapping = {0: 1, 1: 0}
+				redstoneMode = redstone_mode_mapping.get(block["R"], None)
+				compcmdblk = serverApi.GetEngineCompFactory().CreateBlockEntity(serverApi.GetLevelId())
+				cmdblkdata = compcmdblk.GetCommandBlock((x, y, z), dimensionId)
+				mode = int(cmdblkdata["mode"])
+				isConditional = int(cmdblkdata["isConditional"])
+				compcmdblk.SetCommandBlock((x, y, z), dimensionId, cmd, name, mode, isConditional, redstoneMode)
 
 	def OnServerChat(self, args):
 		playerId = args["playerId"]
@@ -178,6 +219,13 @@ class MainLogicPart(PartBase):
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了NBT修改器]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI3", args)
+			else:
+				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+		elif args["message"] == "python.cmdblockimport":
+			args["cancel"] = True
+			if can_use_key == 1:
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了命令方块设置工具面板]"}]}')
+				serversystem.NotifyToClient(playerId, "openUI6", args)
 			else:
 				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
 		elif args["message"] == "python.getversion":

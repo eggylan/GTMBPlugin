@@ -3,78 +3,17 @@
       "controls" : [
          {
             "panel" : {
+               "clip_offset" : [ 0.0, 0.0 ],
                "controls" : [
                   {
-                     "image" : {
-                        "alpha" : 0.50,
-                        "clip_direction" : "left",
-                        "clip_ratio" : 0.020,
-                        "color" : [ 1.0, 1.0, 1.0 ],
-                        "controls" : [],
-                        "keep_ratio" : false,
-                        "layer" : 1,
-                        "offset" : [ 0.50, -0.50 ],
-                        "texture" : "textures/blocks/custom_brah",
-                        "type" : "image"
-                     }
-                  },
-                  {
-                     "inputpath@common.text_edit_box" : {
-                        "$edit_box_default_texture" : "textures/ui/edit_box_indent",
-                        "$edit_box_hover_texture" : "textures/ui/edit_box_indent_hover",
-                        "$font_scale_factor" : 1.0,
-                        "$font_size" : "normal",
-                        "$is_new_nine_slice" : false,
-                        "$nine_slice_buttom" : 0,
-                        "$nine_slice_left" : 0,
-                        "$nine_slice_right" : 0,
-                        "$nine_slice_top" : 0,
-                        "$nineslice_size" : [ 0, 0, 0, 0 ],
-                        "$place_holder_text" : "请输入路径...",
-                        "$place_holder_text_color" : [ 0.50, 0.50, 0.50 ],
-                        "$text_background_default" : "netease_editor_template_namespace.edit_box_background_default",
-                        "$text_background_hover" : "netease_editor_template_namespace.edit_box_background_hover",
-                        "$text_box_name" : "%netease_editor_template_namespace.message",
-                        "$text_box_text_color" : [ 1, 1, 1 ],
-                        "$text_edit_box_content_binding_name" : "#netease_editor_template_namespace.message_content",
-                        "$text_edit_box_label_anchor_point" : "right_middle",
-                        "$text_edit_box_label_min_size" : [ "100%", 0 ],
-                        "$text_edit_box_label_size" : [ "default", "default" ],
-                        "layer" : 1,
-                        "max_length" : 512,
-                        "offset" : [ 0.0, 44.0 ],
-                        "size" : [ 356, 27 ],
-                        "type" : "edit_box"
-                     }
-                  },
-                  {
-                     "label" : {
-                        "color" : [ 1.0, 0.3333333333333333, 0.0 ],
-                        "controls" : [],
-                        "font_scale_factor" : 2.000000000000001,
+                     "tip" : {
                         "font_type" : "default",
                         "layer" : 2,
-                        "offset" : [ 0.0, -96.0 ],
+                        "offset" : [ 0.0, -74.50 ],
                         "shadow" : true,
-                        "text" : "§l指令批处理",
+                        "text" : "使用方法请参照说明书",
                         "text_alignment" : "center",
                         "type" : "label"
-                     }
-                  },
-                  {
-                     "cmds@command_block.command_block_text_edit_box" : {
-                        "$font_scale_factor" : 1.0,
-                        "$font_size" : "normal",
-                        "$place_holder_text" : "在此处输入指令...",
-                        "$place_holder_text_color" : [ 0.50, 0.50, 0.50 ],
-                        "$text_box_name" : "%netease_editor_template_namespace.message",
-                        "$text_box_text_color" : [ 1, 1, 1 ],
-                        "enabled_newline" : true,
-                        "layer" : 3,
-                        "max_length" : 2147483646,
-                        "offset" : [ 0.0, -23.50 ],
-                        "size" : [ 357, 74 ],
-                        "type" : "edit_box"
                      }
                   },
                   {
@@ -88,7 +27,7 @@
                         "$label_font_size" : "large",
                         "$label_layer" : 3,
                         "$label_offset" : [ 0, 0 ],
-                        "$label_text" : "执行",
+                        "$label_text" : "设置",
                         "$nine_slice_buttom" : 0,
                         "$nine_slice_left" : 0,
                         "$nine_slice_right" : 0,
@@ -123,10 +62,24 @@
                         "hover_control" : "hover",
                         "is_handle_button_move_event" : true,
                         "layer" : 2,
-                        "offset" : [ -72.0, 85.0 ],
+                        "offset" : [ -90.0, 84.50 ],
                         "pressed_control" : "pressed",
-                        "size" : [ 65.0, 28.0 ],
+                        "size" : [ 73.0, 28.0 ],
                         "type" : "button"
+                     }
+                  },
+                  {
+                     "image" : {
+                        "alpha" : 0.50,
+                        "clip_direction" : "left",
+                        "clip_ratio" : 0.020,
+                        "color" : [ 1.0, 1.0, 1.0 ],
+                        "controls" : [],
+                        "keep_ratio" : false,
+                        "layer" : 1,
+                        "offset" : [ 0.0, 1.0 ],
+                        "texture" : "textures/blocks/custom_brah",
+                        "type" : "image"
                      }
                   },
                   {
@@ -184,14 +137,62 @@
                      }
                   },
                   {
-                     "tip" : {
+                     "label" : {
+                        "color" : [ 0.0, 1.0, 0.0 ],
+                        "controls" : [],
+                        "font_scale_factor" : 2.0,
                         "font_type" : "default",
                         "layer" : 2,
-                        "offset" : [ 0.0, -74.50 ],
+                        "offset" : [ 0.0, -97.0 ],
                         "shadow" : true,
-                        "text" : "一次执行多行指令，前缀斜杠“/”非必要\n指令过多可能产生卡顿，请耐心等待",
+                        "text" : "§l命令方块设置工具",
                         "text_alignment" : "center",
                         "type" : "label"
+                     }
+                  },
+                  {
+                     "jsoncmd@command_block.command_block_text_edit_box" : {
+                        "$font_scale_factor" : 1.0,
+                        "$font_size" : "normal",
+                        "$place_holder_text" : "在此处键入json字符串...",
+                        "$place_holder_text_color" : [ 0.50, 0.50, 0.50 ],
+                        "$text_box_name" : "%netease_editor_template_namespace.message",
+                        "$text_box_text_color" : [ 1, 1, 1 ],
+                        "enabled_newline" : true,
+                        "layer" : 3,
+                        "max_length" : 2147483646,
+                        "offset" : [ 0.0, -16.50 ],
+                        "size" : [ 357, 72 ],
+                        "type" : "edit_box"
+                     }
+                  },
+                  {
+                     "inputpath@common.text_edit_box" : {
+                        "$edit_box_default_texture" : "textures/ui/edit_box_indent",
+                        "$edit_box_hover_texture" : "textures/ui/edit_box_indent_hover",
+                        "$font_scale_factor" : 1.0,
+                        "$font_size" : "normal",
+                        "$is_new_nine_slice" : false,
+                        "$nine_slice_buttom" : 0,
+                        "$nine_slice_left" : 0,
+                        "$nine_slice_right" : 0,
+                        "$nine_slice_top" : 0,
+                        "$nineslice_size" : [ 0, 0, 0, 0 ],
+                        "$place_holder_text" : "请输入路径...",
+                        "$place_holder_text_color" : [ 0.50, 0.50, 0.50 ],
+                        "$text_background_default" : "netease_editor_template_namespace.edit_box_background_default",
+                        "$text_background_hover" : "netease_editor_template_namespace.edit_box_background_hover",
+                        "$text_box_name" : "%netease_editor_template_namespace.message",
+                        "$text_box_text_color" : [ 1, 1, 1 ],
+                        "$text_edit_box_content_binding_name" : "#netease_editor_template_namespace.message_content",
+                        "$text_edit_box_label_anchor_point" : "right_middle",
+                        "$text_edit_box_label_min_size" : [ "100%", 0 ],
+                        "$text_edit_box_label_size" : [ "default", "default" ],
+                        "layer" : 1,
+                        "max_length" : 512,
+                        "offset" : [ 0.0, 44.0 ],
+                        "size" : [ 356, 27 ],
+                        "type" : "edit_box"
                      }
                   },
                   {
@@ -240,19 +241,20 @@
                         "hover_control" : "hover",
                         "is_handle_button_move_event" : true,
                         "layer" : 2,
-                        "offset" : [ 67.50, 85.0 ],
+                        "offset" : [ 77.0, 84.50 ],
                         "pressed_control" : "pressed",
-                        "size" : [ 73.0, 28 ],
+                        "size" : [ 74.0, 28 ],
                         "type" : "button"
                      }
                   }
                ],
                "layer" : 1,
+               "propagate_alpha" : true,
                "type" : "panel"
             }
          }
       ],
       "type" : "screen"
    },
-   "namespace" : "cmdbatch"
+   "namespace" : "cmdblockimport"
 }

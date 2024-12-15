@@ -5,7 +5,7 @@ ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 
 
-class cmdbatch(ScreenNode):
+class cmdblockimportui(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
 
@@ -14,32 +14,33 @@ class cmdbatch(ScreenNode):
 		@description UI创建成功时调用
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.cmdbatch)
+		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.cmdblockimport)
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.cmd_path_mode)
+		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.cmdblk_path_mode)
 
-	def cmdbatch(self, args):
-		if self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText():
-			cmds = self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText()
-			import mod.client.extraClientApi as clientApi
-			cmds = {"cmds": cmds}
-			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdbatch", cmds)
-
-	def cmd_path_mode(self, args):
-		if self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText():
-			path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
-			with open(path, 'r') as file:
-				cmds = file.read()
-			import mod.client.extraClientApi as clientApi
-			cmds = {"cmds": cmds}
-			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdbatch", cmds)
-
-	
 	def close(self, args):
 		import mod.client.extraClientApi as clientApi
 		clientApi.PopTopUI()
+
+	def cmdblockimport(self, args):
+		if self.GetBaseUIControl("/panel/jsoncmd").asTextEditBox().GetEditText():
+			cmdblockcmdsjson = self.GetBaseUIControl("/panel/jsoncmd").asTextEditBox().GetEditText()
+			import mod.client.extraClientApi as clientApi
+			Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
+			cmdblockcmdsjson = {"cmdblockcmdsjson": cmdblockcmdsjson,"dimension":Dimension}
+			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdblockimport", cmdblockcmdsjson)
+	
+	def cmdblk_path_mode(self, args):
+		if self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText():
+			path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
+			with open(path, 'r') as file:
+				cmdblockcmdsjson = file.read()
+			import mod.client.extraClientApi as clientApi
+			Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
+			cmdblockcmdsjson = {"cmdblockcmdsjson": cmdblockcmdsjson,"dimension":Dimension}
+			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdblockimport", cmdblockcmdsjson)
 	
 	def Destroy(self):
 		"""

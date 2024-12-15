@@ -56,7 +56,7 @@
     "property_bag": {
       "#property_field": "#item_name"
     },
-    "max_length": 256,
+    "max_length": 512,
     "enabled_newline":true,
     "$text_edit_binding_name": "#text_box_item_name",
     "$text_edit_box_label_size": [ "default", 190 ]
