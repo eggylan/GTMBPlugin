@@ -1,0 +1,12 @@
+{
+	"format_version": "0.0.1",
+	"name": "demaster",
+	"description": "取消锁定玩家权限等级",
+	"permission_level": "game_directors",
+	"args": [
+		{
+			"name": "玩家",
+			"type": "target"
+        }
+	]
+}

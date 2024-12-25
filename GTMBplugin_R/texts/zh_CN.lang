@@ -1,1 +1,3 @@
 tile.ycgnw:adv_command_block.name=高级命令方块
+commands.master.success=锁定玩家权限成功
+commands.demaster.success=解锁玩家权限成功
