@@ -223,6 +223,43 @@
                 ]
             },
             "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {},
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "cmdimport",
+            "objId": "8a75b2a6c4d24754b3f2ee5e87bdbc5a",
+            "presetId": "a4c3286c-c92c-4cd6-940f-c303a96b6407",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "6902cb707db74298ae36e8698b1a7143",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
         }
     ],
     "classType": "PresetBase",
@@ -230,7 +267,7 @@
     "forceLoad": true,
     "name": "main",
     "notifyRemove": true,
-    "objId": "6e0ec0c8d8e942559288c0f7eb9c595a",
+    "objId": "86c7bc597ab04b5083dfea4385c3825a",
     "preLoad": true,
     "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
     "presetType": "空预设",

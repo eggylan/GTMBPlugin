@@ -52,7 +52,7 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiVisible(True)
 
 	def UI6(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimport")[0]
+		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdimport")[0]
 		uiNodePreset.SetUiActive(True)
 		uiNodePreset.SetUiVisible(True)
 		
@@ -73,7 +73,7 @@ class MainLogicPart(PartBase):
 		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdbatch")[0]
 		uiNodePreset.SetUiActive(False)
 		uiNodePreset.SetUiVisible(False)
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimport")[0]
+		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdimport")[0]
 		uiNodePreset.SetUiActive(False)
 		uiNodePreset.SetUiVisible(False)
 
