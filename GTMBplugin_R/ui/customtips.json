@@ -1,177 +1,248 @@
 {
-   "main" : {
-      "controls" : [
-         {
-            "panel" : {
-               "controls" : [
-                  {
-                     "image" : {
-                        "alpha" : 0.60,
-                        "clip_direction" : "left",
-                        "clip_ratio" : 0.0,
-                        "layer" : 1,
-                        "size" : [ "120.0%+100.0px", "120.0%+100.0px" ],
-                        "texture" : "textures/blocks/custom_brah",
-                        "type" : "image"
-                     }
-                  },
-                  {
-                     "label" : {
-                        "color" : [ 1.0, 1.0, 0.0 ],
-                        "controls" : [],
-                        "font_scale_factor" : 2.0,
-                        "font_type" : "default",
-                        "layer" : 2,
-                        "offset" : [ -2.50, -97.0 ],
-                        "text" : "§l设置物品自定义备注",
-                        "text_alignment" : "center",
-                        "type" : "label"
-                     }
-                  },
-                  {
-                     "edit_box@common.text_edit_box" : {
-                        "$edit_box_default_texture" : "textures/ui/edit_box_indent",
-                        "$edit_box_hover_texture" : "textures/ui/edit_box_indent_hover",
-                        "$font_scale_factor" : 1.0,
-                        "$font_size" : "normal",
-                        "$is_new_nine_slice" : false,
-                        "$nine_slice_buttom" : 0,
-                        "$nine_slice_left" : 0,
-                        "$nine_slice_right" : 0,
-                        "$nine_slice_top" : 0,
-                        "$nineslice_size" : [ 0, 0, 0, 0 ],
-                        "$place_holder_text" : "在这里输入物品的自定义备注,按enter换行\n(会覆盖第一行的文本)",
-                        "$place_holder_text_color" : [ 0.0, 1.0, 1.0 ],
-                        "$text_background_default" : "netease_editor_template_namespace.edit_box_background_default",
-                        "$text_background_hover" : "netease_editor_template_namespace.edit_box_background_hover",
-                        "$text_box_name" : "%netease_editor_template_namespace.message",
-                        "$text_box_text_color" : [ 1, 1, 1 ],
-                        "$text_edit_box_content_binding_name" : "#netease_editor_template_namespace.message_content",
-                        "$text_edit_box_label_anchor_point" : "top_right",
-                        "$text_edit_box_label_min_size" : [ "100%", 0 ],
-                        "$text_edit_box_label_size" : [ "default", "default" ],
-                        "enabled_newline" : true,
-                        "layer" : 3,
-                        "max_length" : 512,
-                        "offset" : [ 2.0, -35.50 ],
-                        "size" : [ 300, 84 ],
-                        "type" : "edit_box"
-                     }
-                  },
-                  {
-                     "button@common.button" : {
-                        "$control_alpha" : 1.0,
-                        "$default_texture" : "textures/netease/common/button/default",
-                        "$hover_texture" : "textures/netease/common/button/hover",
-                        "$is_new_nine_slice" : false,
-                        "$label_color" : [ 1.0, 1.0, 1.0 ],
-                        "$label_font_scale_factor" : 0.80,
-                        "$label_font_size" : "large",
-                        "$label_layer" : 3,
-                        "$label_offset" : [ 0, 0 ],
-                        "$label_text" : "设置手持物品的备注",
-                        "$nine_slice_buttom" : 0,
-                        "$nine_slice_left" : 0,
-                        "$nine_slice_right" : 0,
-                        "$nine_slice_top" : 0,
-                        "$nineslice_size" : [ 0.0, 0.0, 1.0, 0.0 ],
-                        "$pressed_button_name" : "%netease_editor_template_namespace.click",
-                        "$pressed_texture" : "textures/netease/common/button/pressed",
-                        "$texture_layer" : 2,
-                        "anchor_to" : "top_middle",
-                        "bindings" : [
-                           {
-                              "binding_collection_name" : "",
-                              "binding_condition" : "always_when_visible",
-                              "binding_type" : "collection_details"
-                           }
-                        ],
-                        "button_mappings" : [],
-                        "controls" : [
-                           {
-                              "default@netease_editor_template_namespace.default" : {}
-                           },
-                           {
-                              "hover@netease_editor_template_namespace.hover" : {}
-                           },
-                           {
-                              "pressed@netease_editor_template_namespace.pressed" : {}
-                           },
-                           {
-                              "button_label@netease_editor_template_namespace.button_label" : {}
-                           }
-                        ],
-                        "default_control" : "default",
-                        "hover_control" : "hover",
-                        "is_handle_button_move_event" : true,
-                        "layer" : 6,
-                        "offset" : [ 0.0, 24.0 ],
-                        "pressed_control" : "pressed",
-                        "size" : [ 130, 21 ],
-                        "type" : "button"
-                     }
-                  },
-                  {
-                     "closebutton@common.button" : {
-                        "$control_alpha" : 1.0,
-                        "$default_texture" : "textures/netease/common/button/default",
-                        "$hover_texture" : "textures/netease/common/button/hover",
-                        "$is_new_nine_slice" : false,
-                        "$label_color" : [ 1, 1, 1 ],
-                        "$label_font_scale_factor" : 1.0,
-                        "$label_font_size" : "large",
-                        "$label_layer" : 3,
-                        "$label_offset" : [ 0, 0 ],
-                        "$label_text" : "x",
-                        "$nine_slice_buttom" : 0,
-                        "$nine_slice_left" : 0,
-                        "$nine_slice_right" : 0,
-                        "$nine_slice_top" : 0,
-                        "$nineslice_size" : [ 0, 0, 0, 0 ],
-                        "$pressed_button_name" : "%netease_editor_template_namespace.click",
-                        "$pressed_texture" : "textures/netease/common/button/pressed",
-                        "$texture_layer" : 2,
-                        "anchor_from" : "top_right",
-                        "anchor_to" : "top_right",
-                        "bindings" : [
-                           {
-                              "binding_collection_name" : "",
-                              "binding_condition" : "always_when_visible",
-                              "binding_type" : "collection_details"
-                           }
-                        ],
-                        "button_mappings" : [],
-                        "controls" : [
-                           {
-                              "default@netease_editor_template_namespace.default" : {}
-                           },
-                           {
-                              "hover@netease_editor_template_namespace.hover" : {}
-                           },
-                           {
-                              "pressed@netease_editor_template_namespace.pressed" : {}
-                           },
-                           {
-                              "button_label@netease_editor_template_namespace.button_label" : {}
-                           }
-                        ],
-                        "default_control" : "default",
-                        "hover_control" : "hover",
-                        "is_handle_button_move_event" : true,
-                        "layer" : 2,
-                        "offset" : [ -14.0, 11.0 ],
-                        "pressed_control" : "pressed",
-                        "size" : [ 43, 20 ],
-                        "type" : "button"
-                     }
-                  }
-               ],
-               "layer" : 1,
-               "type" : "panel"
+    "main": {
+        "controls": [
+            {
+                "panel": {
+                    "controls": [
+                        {
+                            "image": {
+                                "alpha": 0.6,
+                                "clip_direction": "left",
+                                "clip_ratio": 0,
+                                "layer": 1,
+                                "size": [
+                                    "120.0%+100.0px",
+                                    "120.0%+100.0px"
+                                ],
+                                "texture": "textures/ui/gray",
+                                "type": "image"
+                            }
+                        },
+                        {
+                            "label": {
+                                "color": [
+                                    1,
+                                    1,
+                                    0
+                                ],
+                                "controls": [],
+                                "font_scale_factor": 2,
+                                "font_type": "default",
+                                "layer": 2,
+                                "offset": [
+                                    -2.5,
+                                    -97
+                                ],
+                                "text": "§l设置物品自定义备注",
+                                "text_alignment": "center",
+                                "type": "label"
+                            }
+                        },
+                        {
+                            "edit_box@common.text_edit_box": {
+                                "$edit_box_default_texture": "textures/ui/edit_box_indent",
+                                "$edit_box_hover_texture": "textures/ui/edit_box_indent_hover",
+                                "$font_scale_factor": 1,
+                                "$font_size": "normal",
+                                "$is_new_nine_slice": false,
+                                "$nine_slice_buttom": 0,
+                                "$nine_slice_left": 0,
+                                "$nine_slice_right": 0,
+                                "$nine_slice_top": 0,
+                                "$nineslice_size": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "$place_holder_text": "在这里输入物品的自定义备注,按enter换行\n(会覆盖第一行的文本)",
+                                "$place_holder_text_color": [
+                                    0,
+                                    1,
+                                    1
+                                ],
+                                "$text_background_default": "netease_editor_template_namespace.edit_box_background_default",
+                                "$text_background_hover": "netease_editor_template_namespace.edit_box_background_hover",
+                                "$text_box_name": "%netease_editor_template_namespace.message",
+                                "$text_box_text_color": [
+                                    1,
+                                    1,
+                                    1
+                                ],
+                                "$text_edit_box_content_binding_name": "#netease_editor_template_namespace.message_content",
+                                "$text_edit_box_label_anchor_point": "top_right",
+                                "$text_edit_box_label_min_size": [
+                                    "100%",
+                                    0
+                                ],
+                                "$text_edit_box_label_size": [
+                                    "default",
+                                    "default"
+                                ],
+                                "enabled_newline": true,
+                                "layer": 3,
+                                "max_length": 512,
+                                "offset": [
+                                    2,
+                                    -35.5
+                                ],
+                                "size": [
+                                    300,
+                                    84
+                                ],
+                                "type": "edit_box"
+                            }
+                        },
+                        {
+                            "button@common.button": {
+                                "$control_alpha": 1,
+                                "$default_texture": "textures/netease/common/button/default",
+                                "$hover_texture": "textures/netease/common/button/hover",
+                                "$is_new_nine_slice": false,
+                                "$label_color": [
+                                    1,
+                                    1,
+                                    1
+                                ],
+                                "$label_font_scale_factor": 0.8,
+                                "$label_font_size": "large",
+                                "$label_layer": 3,
+                                "$label_offset": [
+                                    0,
+                                    0
+                                ],
+                                "$label_text": "设置手持物品的备注",
+                                "$nine_slice_buttom": 0,
+                                "$nine_slice_left": 0,
+                                "$nine_slice_right": 0,
+                                "$nine_slice_top": 0,
+                                "$nineslice_size": [
+                                    0,
+                                    0,
+                                    1,
+                                    0
+                                ],
+                                "$pressed_button_name": "%netease_editor_template_namespace.click",
+                                "$pressed_texture": "textures/netease/common/button/pressed",
+                                "$texture_layer": 2,
+                                "anchor_to": "top_middle",
+                                "bindings": [
+                                    {
+                                        "binding_collection_name": "",
+                                        "binding_condition": "always_when_visible",
+                                        "binding_type": "collection_details"
+                                    }
+                                ],
+                                "button_mappings": [],
+                                "controls": [
+                                    {
+                                        "default@netease_editor_template_namespace.default": {}
+                                    },
+                                    {
+                                        "hover@netease_editor_template_namespace.hover": {}
+                                    },
+                                    {
+                                        "pressed@netease_editor_template_namespace.pressed": {}
+                                    },
+                                    {
+                                        "button_label@netease_editor_template_namespace.button_label": {}
+                                    }
+                                ],
+                                "default_control": "default",
+                                "hover_control": "hover",
+                                "is_handle_button_move_event": true,
+                                "layer": 6,
+                                "offset": [
+                                    0,
+                                    24
+                                ],
+                                "pressed_control": "pressed",
+                                "size": [
+                                    130,
+                                    21
+                                ],
+                                "type": "button"
+                            }
+                        },
+                        {
+                            "closebutton@common.button": {
+                                "$control_alpha": 1,
+                                "$default_texture": "textures/netease/common/button/default",
+                                "$hover_texture": "textures/netease/common/button/hover",
+                                "$is_new_nine_slice": false,
+                                "$label_color": [
+                                    1,
+                                    1,
+                                    1
+                                ],
+                                "$label_font_scale_factor": 1,
+                                "$label_font_size": "large",
+                                "$label_layer": 3,
+                                "$label_offset": [
+                                    0,
+                                    0
+                                ],
+                                "$label_text": "x",
+                                "$nine_slice_buttom": 0,
+                                "$nine_slice_left": 0,
+                                "$nine_slice_right": 0,
+                                "$nine_slice_top": 0,
+                                "$nineslice_size": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "$pressed_button_name": "%netease_editor_template_namespace.click",
+                                "$pressed_texture": "textures/netease/common/button/pressed",
+                                "$texture_layer": 2,
+                                "anchor_from": "top_right",
+                                "anchor_to": "top_right",
+                                "bindings": [
+                                    {
+                                        "binding_collection_name": "",
+                                        "binding_condition": "always_when_visible",
+                                        "binding_type": "collection_details"
+                                    }
+                                ],
+                                "button_mappings": [],
+                                "controls": [
+                                    {
+                                        "default@netease_editor_template_namespace.default": {}
+                                    },
+                                    {
+                                        "hover@netease_editor_template_namespace.hover": {}
+                                    },
+                                    {
+                                        "pressed@netease_editor_template_namespace.pressed": {}
+                                    },
+                                    {
+                                        "button_label@netease_editor_template_namespace.button_label": {}
+                                    }
+                                ],
+                                "default_control": "default",
+                                "hover_control": "hover",
+                                "is_handle_button_move_event": true,
+                                "layer": 2,
+                                "offset": [
+                                    -14,
+                                    11
+                                ],
+                                "pressed_control": "pressed",
+                                "size": [
+                                    43,
+                                    20
+                                ],
+                                "type": "button"
+                            }
+                        }
+                    ],
+                    "layer": 1,
+                    "type": "panel"
+                }
             }
-         }
-      ],
-      "type" : "screen"
-   },
-   "namespace" : "customtips"
+        ],
+        "type": "screen"
+    },
+    "namespace": "customtips"
 }
