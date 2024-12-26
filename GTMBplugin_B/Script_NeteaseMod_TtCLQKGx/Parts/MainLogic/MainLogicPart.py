@@ -127,14 +127,54 @@ class MainLogicPart(PartBase):
 
 	def OnCustomCommand(self, args):
 		import mod.server.extraServerApi as serverApi
-		print(args)
-		compExtra = serverApi.GetEngineCompFactory().CreateExtraData(args['args'][0]['value'][0])
+		playerId = args['origin']['entityId']
+		compMsg = serverApi.GetEngineCompFactory().CreateMsg(playerId)
 		if args['command'] == 'master':
-			args['return_msg_key'] = 'commands.master.success'
-			compExtra.SetExtraData("isMaster", True)
+			if args['args'][0]['value']:
+				args['return_msg_key'] = 'commands.master.success'
+				for i in args['args'][0]['value']:
+					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
+					compExtra.SetExtraData("isMaster", True)
+			else:
+				args['return_msg_key'] = 'commands.master.faild'
+				args['return_failed'] = True
 		if args['command'] == 'demaster':
-			args['return_msg_key'] = 'commands.demaster.success'
-			compExtra.SetExtraData("isMaster", False)
+			if args['args'][0]['value']:
+				args['return_msg_key'] = 'commands.demaster.success'
+				for i in args['args'][0]['value']:
+					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
+					compExtra.SetExtraData("isMaster", False)
+			else:
+				args['return_msg_key'] = 'commands.master.faild'
+				args['return_failed'] = True
+		compExtra = serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId())
+		params = compExtra.GetExtraData('parameters')
+		input1 = args['args'][0]['value']
+		if args['command'] == 'param':
+			if type(params) == dict and params.has_key(args['args'][0]['value']):
+				args['return_msg_key'] = ''
+				compMsg.NotifyOneMessage(playerId, "变量\"%s\"为 %s" % (input1, params[input1]))
+			else:
+				args['return_msg_key'] = ''
+				compMsg.NotifyOneMessage(playerId, "未知的变量\"%s\"" % (input1), "§c")
+				args['return_failed'] = True
+		if args['command'] == 'paramdel':
+			if type(params) == dict and params.has_key(args['args'][0]['value']):
+				args['return_msg_key'] = 'commands.paramdel.success'
+				del params[input1]
+				compExtra.SetExtraData('parameters', params)
+			else:
+				args['return_msg_key'] = ''
+				compMsg.NotifyOneMessage(playerId, "未知的变量\"%s\"" % (input1), "§c")
+				args['return_failed'] = True
+		if args['command'] == 'paramwrite':
+			args['return_msg_key'] = 'commands.paramwrt.success'
+			input2 = args['args'][1]['value']
+			if type(params) == dict:
+				params[input1] = input2
+			else:
+				params = {input1: input2}
+			compExtra.SetExtraData('parameters', params)
 
 	def changenbt(self, args):
 		import mod.server.extraServerApi as serverApi

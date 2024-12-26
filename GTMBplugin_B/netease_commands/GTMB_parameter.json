@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "paramwrite",
+	"description": "修改存储于世界中的变量",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "变量", "type": "str"},
+		{"name": "值", "type": "str"}
+	]
+}
