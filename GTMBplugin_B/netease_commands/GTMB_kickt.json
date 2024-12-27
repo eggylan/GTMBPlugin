@@ -7,6 +7,11 @@
 		{
 			"name": "目标",
 			"type": "target"
-        }
+        },
+		{
+			"name": "原因",
+			"type": "str",
+			"default": ""
+		}
 	]
 }

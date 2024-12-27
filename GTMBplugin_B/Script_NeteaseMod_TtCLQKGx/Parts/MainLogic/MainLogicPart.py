@@ -180,7 +180,7 @@ class MainLogicPart(PartBase):
 		if args['command'] == 'kickt':
 			kicklist = serverApi.GetEngineCompFactory().CreateEntityComponent(serverApi.GetLevelId()).GetEntitiesBySelector(args['args'][0]['value'])
 			for kickplayer in kicklist:
-				serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(kickplayer).GetName(), False)
+				serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(kickplayer).GetName() + ' ' + args['args'][1]['value'], False)
 			args['return_msg_key'] = 'commands.kickt.success'
 		if args['command'] == 'setunbanappeal':
 			compExtra.SetExtraData('appealway', args['args'][0]['value'])
