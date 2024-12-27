@@ -11,7 +11,7 @@
 		{
 			"name": "原因",
 			"type": "str",
-			"default": ""
+			"default": "Kicked by an operator."
 		}
 	]
 }
