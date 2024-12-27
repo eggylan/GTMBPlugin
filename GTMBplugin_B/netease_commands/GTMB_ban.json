@@ -1,11 +1,11 @@
 {
 	"format_version": "0.0.1",
-	"name": "demaster",
-	"description": "取消锁定玩家权限等级",
+	"name": "ban",
+	"description": "封禁玩家",
 	"permission_level": "admin",
 	"args": [
 		{
-			"name": "玩家",
+			"name": "目标",
 			"type": "target"
         }
 	]

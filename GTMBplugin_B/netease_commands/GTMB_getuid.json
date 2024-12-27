@@ -1,11 +1,11 @@
 {
 	"format_version": "0.0.1",
-	"name": "demaster",
-	"description": "取消锁定玩家权限等级",
+	"name": "getuid",
+	"description": "获取目标玩家的UID",
 	"permission_level": "admin",
 	"args": [
 		{
-			"name": "玩家",
+			"name": "目标",
 			"type": "target"
         }
 	]

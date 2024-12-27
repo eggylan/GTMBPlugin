@@ -1,0 +1,12 @@
+{
+	"format_version": "0.0.1",
+	"name": "setunbanappeal",
+	"description": "设置玩家被封禁后的申诉通道",
+	"permission_level": "admin",
+	"args": [
+		{
+			"name": "字符串",
+			"type": "str"
+        }
+	]
+}
