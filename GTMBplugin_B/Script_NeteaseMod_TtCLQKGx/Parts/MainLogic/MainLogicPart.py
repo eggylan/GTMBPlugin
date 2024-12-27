@@ -186,25 +186,21 @@ class MainLogicPart(PartBase):
 			compExtra.SetExtraData('appealway', args['args'][0]['value'])
 			args['return_msg_key'] = 'commands.setunbanappeal.success'
 		if args['command'] == 'ban':
-			target = args['args'][0]['value']
-			if "@a" or "@r" or "@p" or "@e" in target:
-				args['return_msg_key'] = 'commands.ban.failedbytarget'
-			else:
-				targetlist = serverApi.GetEngineCompFactory().CreateEntityComponent(serverApi.GetLevelId()).GetEntitiesBySelector(target)
-				try:
-					banlist = compExtra.GetExtraData('banlist')
-				except:
-					banlist = []
-				banlist = set(banlist)
-				targetlist = set(targetlist)
-				banlist = banlist.union(targetlist)
-				banlist = list(banlist)
-				compExtra.SetExtraData('banlist', banlist)
+			if args['args'][0]['value']:
+				for i in args['args'][0]['value']:
+					playername = serverApi.GetEngineCompFactory().CreateName(i).GetName()
+					if not serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId()).GetExtraData('banlist'):
+						banlist = []
+					else:
+						banlist = serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId()).GetExtraData('banlist')
+					banlist.append(playername)
+					compExtra.SetExtraData('banlist', banlist)
 				args['return_msg_key'] = 'commands.ban.success'
-				try:
-					serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId()).GetExtraData("appealway") 
-				except:
+				if not serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId()).GetExtraData("appealway"):
 					compMsg.NotifyOneMessage(playerId, "我们注意到您尚未设置解封申诉通道，请使用 /setunbanappeal 来设置。", "§e")
+			else:
+				args['return_msg_key'] = 'commands.ban.faild'
+				args['return_failed'] = True
 		
 
 			
@@ -346,10 +342,17 @@ class MainLogicPart(PartBase):
 			compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
 
 	def OnAddPlayerEvent(self, args):
+		import mod.server.extraServerApi as serverApi
 		if args["name"] == "王培衡很丁丁":
-			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e加入了游戏"
+			args["message"] = "§b§l[开发者]§r§e王培衡很丁丁 加入了游戏"
 		if args["name"] == "EGGYLAN_":
-			args["message"] = "§eEGGYLAN_§l§b(开发者) §r§e加入了游戏"
+			args["message"] = "§b§l[开发者]§r§eEGGYLAN_ 加入了游戏"
+		if args["name"] == "EGGYLAN":
+			args["message"] = "§b§l[开发者]§r§eEGGYLAN 加入了游戏"
+		if args["name"] in serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId()).GetExtraData("banlist"):
+			serverApi.GetEngineCompFactory().CreateTag(args["id"]).AddEntityTag("ban")
+		if serverApi.GetEngineCompFactory().CreateExtraData(args["id"]).GetExtraData("isMaster"):
+			args["message"] = "§6[管理员]§e " + args["name"] + " 加入了游戏"
 
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
@@ -366,13 +369,6 @@ class MainLogicPart(PartBase):
 			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为游客权限!"}]}',False)
 			compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}',False)
 			serverApi.GetEngineCompFactory().CreateTag(args["playerId"]).AddEntityTag("banname")
-
-		if serverApi.GetEngineCompFactory().CreateExtraData(args["playerId"]).GetExtraData("isMaster"):
-			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"§6[服务器管理员]§e ' + playername + ' 加入了游戏"}]}')
-
-		if args["playerId"] in serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId()).GetExtraData("banlist"):
-			serverApi.GetEngineCompFactory().CreateTag(args["playerId"]).AddEntityTag("ban")
-
 
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
