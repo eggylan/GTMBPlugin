@@ -1,9 +1,0 @@
-{
-	"format_version": "0.0.1",
-	"name": "kick-ip",
-	"description": "从房间中踢出指定IP地址的玩家",
-	"permission_level": "game_directors",
-	"args": [
-		{"name": "IP地址", "type": "str"}
-	]
-}
