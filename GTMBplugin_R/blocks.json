@@ -3,16 +3,5 @@
         1,
         1,
         0
-    ],
-    "ycgnw:adv_command_block": {
-        "sound": "metal",
-        "textures": {
-            "down": "ycgnw:command_block_side1",
-            "east": "ycgnw:command_block_side3",
-            "north": "ycgnw:command_block_front",
-            "south": "ycgnw:command_block_back",
-            "up": "ycgnw:command_block_side1",
-            "west": "ycgnw:command_block_side2"
-        }
-    }
+    ]
 }

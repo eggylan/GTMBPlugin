@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setworldspawnd",
+	"description": "设置世界出生点维度与坐标",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "维度id", "type": "int","default":null},
+        {"name": "坐标", "type": "pos","default":null}
+	]
+}

@@ -84,6 +84,7 @@ class customcmdsPart(PartBase):
 			else:
 				args['return_msg_key'] = 'commands.kickt.faild'
 				args['return_failed'] = True
+		
 
 	def TickClient(self):
 		"""

@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "summonitem",
+	"description": "生成掉落物",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "坐标", "type": "pos"},
+        {"name": "物品信息Json", "type": "str"}
+	]
+}
