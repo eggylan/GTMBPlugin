@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "kickt",
+	"description": "从房间中踢出玩家，支持目标选择器",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "原因（会显示在被踢界面）", "type": "str","default":" "}
+	]
+}

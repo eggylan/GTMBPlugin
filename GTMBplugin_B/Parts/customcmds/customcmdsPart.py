@@ -27,7 +27,10 @@ class customcmdsPart(PartBase):
 
 	def OnCustomCommand(self, args):
 		import mod.server.extraServerApi as serverApi
-		playerId = args['origin']['entityId']
+		try:
+			playerId = args['origin']['entityId']
+		except:
+			playerId = None
 		compMsg = serverApi.GetEngineCompFactory().CreateMsg(playerId)
 		if args['command'] == 'master':
 			if args['args'][0]['value']:
@@ -52,11 +55,9 @@ class customcmdsPart(PartBase):
 		input1 = args['args'][0]['value']
 		if args['command'] == 'param':
 			if type(params) == dict and params.has_key(args['args'][0]['value']):
-				args['return_msg_key'] = ''
-				compMsg.NotifyOneMessage(playerId, "变量\"%s\"为 %s" % (input1, params[input1]))
+				args['return_msg_key'] = "变量\"%s\"为 %s" % (input1, params[input1])
 			else:
-				args['return_msg_key'] = ''
-				compMsg.NotifyOneMessage(playerId, "未知的变量\"%s\"" % (input1), "§c")
+				args['return_msg_key'] = "未知的变量\"%s\"" % (input1)
 				args['return_failed'] = True
 		if args['command'] == 'paramdel':
 			if type(params) == dict and params.has_key(args['args'][0]['value']):
@@ -64,8 +65,7 @@ class customcmdsPart(PartBase):
 				del params[input1]
 				compExtra.SetExtraData('parameters', params)
 			else:
-				args['return_msg_key'] = ''
-				compMsg.NotifyOneMessage(playerId, "未知的变量\"%s\"" % (input1), "§c")
+				args['return_msg_key'] = "未知的变量\"%s\"" % (input1)
 				args['return_failed'] = True
 		if args['command'] == 'paramwrite':
 			args['return_msg_key'] = 'commands.paramwrt.success'
@@ -76,10 +76,14 @@ class customcmdsPart(PartBase):
 				params = {input1: input2}
 			compExtra.SetExtraData('parameters', params)
 		if args['command'] == 'kickt':
-			kicklist = serverApi.GetEngineCompFactory().CreateEntityComponent(serverApi.GetLevelId()).GetEntitiesBySelector(args['args'][0]['value'])
-			for kickplayer in kicklist:
-				serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(kickplayer).GetName() + ' ' + args['args'][1]['value'], False)
-			args['return_msg_key'] = 'commands.kickt.success'
+			if args['args'][0]['value']:
+				for kickplayer in args['args'][0]['value']:
+				
+					serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(kickplayer).GetName() + ' ' + args['args'][1]['value'], False)
+				args['return_msg_key'] = 'commands.kickt.success'
+			else:
+				args['return_msg_key'] = 'commands.kickt.faild'
+				args['return_failed'] = True
 
 	def TickClient(self):
 		"""
