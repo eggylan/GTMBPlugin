@@ -1,6 +1,0 @@
-{
-	"format_version": "0.0.1",
-	"name": "banlist",
-	"description": "查看封禁玩家列表",
-	"permission_level": "game_directors"
-}

@@ -6,8 +6,8 @@ from Preset.Model import PartBaseMeta
 
 
 @sunshine_class_meta
-class MainLogicPartMeta(PartBaseMeta):
-	CLASS_NAME = "MainLogicPart"
+class customcmdsPartMeta(PartBaseMeta):
+	CLASS_NAME = "customcmdsPart"
 	PROPERTIES = {
 		#   "int1": PInt(text="整数1", sort=1, default=1, tip="这是个整数", group="分组1"),
 		#   "float1": PFloat(text="浮点数1", sort=3, default=1.1),

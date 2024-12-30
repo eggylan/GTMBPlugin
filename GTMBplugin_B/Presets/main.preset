@@ -24,6 +24,17 @@
             "metaType": "MainLogicPartMeta",
             "objId": "24d5890ab66b42218b705a45ff594daa",
             "partType": "MainLogicPart"
+        },
+        {
+            "bpType": "customcmdsPart",
+            "changes": {},
+            "classType": "PartInstance",
+            "clientPartType": null,
+            "customVariables": [],
+            "directoryPath": "customcmds",
+            "metaType": "customcmdsPartMeta",
+            "objId": "9bb81ec65a84402aa2b67a8bc7f91bc9",
+            "partType": "customcmdsPart"
         }
     ],
     "childPresets": [
@@ -189,6 +200,45 @@
         },
         {
             "bornType": 0,
+            "changes": {
+                "autoCreate": false
+            },
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "cmdblockimportui",
+            "objId": "6d755b7bd89542a99a8c02ca9605acd3",
+            "presetId": "8bf8996d-fd22-474d-a695-81666c9c502e",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "9d20f13f037a4ddba428a344e48f6dde",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
+        },
+        {
+            "bornType": 0,
             "changes": {},
             "classType": "PresetInstance",
             "dimension": 0,
@@ -223,43 +273,6 @@
                 ]
             },
             "virtual": true
-        },
-        {
-            "bornType": 0,
-            "changes": {},
-            "classType": "PresetInstance",
-            "dimension": 0,
-            "entityId": null,
-            "id": null,
-            "ids": [],
-            "isPreLoad": false,
-            "loadPresetCfg": false,
-            "maxChunkPos": null,
-            "minChunkPos": null,
-            "name": "cmdimport",
-            "objId": "8a75b2a6c4d24754b3f2ee5e87bdbc5a",
-            "presetId": "a4c3286c-c92c-4cd6-940f-c303a96b6407",
-            "presetType": null,
-            "transform": {
-                "classType": "Transform",
-                "objId": "6902cb707db74298ae36e8698b1a7143",
-                "pos": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "virtual": true
         }
     ],
     "classType": "PresetBase",
@@ -267,7 +280,7 @@
     "forceLoad": true,
     "name": "main",
     "notifyRemove": true,
-    "objId": "86c7bc597ab04b5083dfea4385c3825a",
+    "objId": "79a00f0b2ee949f38dfdaadf82c99c5b",
     "preLoad": true,
     "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
     "presetType": "空预设",

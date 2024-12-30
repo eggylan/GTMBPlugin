@@ -4,7 +4,4 @@ commands.demaster.success=解锁玩家权限成功
 commands.master.faild=没有与选择器匹配的目标
 commands.paramdel.success=删除变量成功
 commands.paramwrt.success=修改变量成功
-commands.ban.success=该玩家已被封禁
-commands.ban.faild=没有与选择器匹配的目标
-commands.setunbanappeal.success=设置申诉方式成功
 commands.kickt.success=已踢出目标玩家
