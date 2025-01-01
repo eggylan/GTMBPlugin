@@ -52,7 +52,7 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiVisible(True)
 
 	def UI6(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdimport")[0]
+		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimportui")[0]
 		uiNodePreset.SetUiActive(True)
 		uiNodePreset.SetUiVisible(True)
 		
@@ -72,7 +72,7 @@ class MainLogicPart(PartBase):
 		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdbatch")[0]
 		uiNodePreset.SetUiActive(False)
 		uiNodePreset.SetUiVisible(False)
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdimport")[0]
+		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimportui")[0]
 		uiNodePreset.SetUiActive(False)
 		uiNodePreset.SetUiVisible(False)
 
@@ -107,15 +107,13 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerJoinMessageEvent", self, self.OnAddPlayerEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerLeftMessageServerEvent", self, self.OnRemovePlayerEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "ClientLoadAddonsFinishServerEvent", self, self.OnClientLoadAddonsFinishServerEvent)
-		
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CustomCommandTriggerServerEvent", self, self.OnCustomCommand)
-
 		serversystem.ListenForEvent('Minecraft', 'preset', "enchant", self, self.enchant)
 		serversystem.ListenForEvent('Minecraft', 'preset', "getitem", self, self.getitem)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changeTip", self, self.changeTips)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changenbt", self, self.changenbt)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdbatch', self, self.cmdbatch)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdblockimport', self, self.cmdblockimport)
+		serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommandPermissionLevel(4)
 		self.timer = serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0,self.OnSecond)
 
 		"""
@@ -123,57 +121,6 @@ class MainLogicPart(PartBase):
 		"""
 
 		PartBase.InitServer(self)
-
-	def OnCustomCommand(self, args):
-		import mod.server.extraServerApi as serverApi
-		playerId = args['origin']['entityId']
-		compMsg = serverApi.GetEngineCompFactory().CreateMsg(playerId)
-		if args['command'] == 'master':
-			if args['args'][0]['value']:
-				args['return_msg_key'] = 'commands.master.success'
-				for i in args['args'][0]['value']:
-					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-					compExtra.SetExtraData("isMaster", True)
-			else:
-				args['return_msg_key'] = 'commands.master.faild'
-				args['return_failed'] = True
-		if args['command'] == 'demaster':
-			if args['args'][0]['value']:
-				args['return_msg_key'] = 'commands.demaster.success'
-				for i in args['args'][0]['value']:
-					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-					compExtra.SetExtraData("isMaster", False)
-			else:
-				args['return_msg_key'] = 'commands.master.faild'
-				args['return_failed'] = True
-		compExtra = serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId())
-		params = compExtra.GetExtraData('parameters')
-		input1 = args['args'][0]['value']
-		if args['command'] == 'param':
-			if type(params) == dict and params.has_key(args['args'][0]['value']):
-				args['return_msg_key'] = ''
-				compMsg.NotifyOneMessage(playerId, "变量\"%s\"为 %s" % (input1, params[input1]))
-			else:
-				args['return_msg_key'] = ''
-				compMsg.NotifyOneMessage(playerId, "未知的变量\"%s\"" % (input1), "§c")
-				args['return_failed'] = True
-		if args['command'] == 'paramdel':
-			if type(params) == dict and params.has_key(args['args'][0]['value']):
-				args['return_msg_key'] = 'commands.paramdel.success'
-				del params[input1]
-				compExtra.SetExtraData('parameters', params)
-			else:
-				args['return_msg_key'] = ''
-				compMsg.NotifyOneMessage(playerId, "未知的变量\"%s\"" % (input1), "§c")
-				args['return_failed'] = True
-		if args['command'] == 'paramwrite':
-			args['return_msg_key'] = 'commands.paramwrt.success'
-			input2 = args['args'][1]['value']
-			if type(params) == dict:
-				params[input1] = input2
-			else:
-				params = {input1: input2}
-			compExtra.SetExtraData('parameters', params)
 
 	def changenbt(self, args):
 		import mod.server.extraServerApi as serverApi
@@ -200,7 +147,7 @@ class MainLogicPart(PartBase):
 				del itemDict['userData']['ItemCustomTips']
 			itemDict['customTips'] = tips["Tips"]
 			itemComp.SpawnItemToPlayerCarried(itemDict, tips["__id__"])
-	
+
 	def cmdblockimport(self, cmdblockcmdsjson):
 		import mod.server.extraServerApi as serverApi
 		playerid = cmdblockcmdsjson["__id__"]
@@ -208,7 +155,6 @@ class MainLogicPart(PartBase):
 			import json
 			playerpos = serverApi.GetEngineCompFactory().CreatePos(playerid).GetFootPos()
 			player_X, player_Y, player_Z = playerpos
-			# 处理负数坐标
 			if player_X < 0:
 				player_X = int(player_X) - 1
 			if player_Y < 0:
@@ -217,8 +163,8 @@ class MainLogicPart(PartBase):
 				player_Z = int(player_Z) - 1
 			data = json.loads(cmdblockcmdsjson["cmdblockcmdsjson"])
 			for block in data:
-				cmd = str(block["C"])
-				name = str(block["N"])
+				cmd = block["C"].encode("utf-8")
+				name = block["N"].encode("utf-8")
 				x = int(block["x"] + player_X)
 				y = int(block["y"] + player_Y)
 				z = int(block["z"] + player_Z)
@@ -267,18 +213,18 @@ class MainLogicPart(PartBase):
 				serversystem.NotifyToClient(playerId, "openUI5", args)
 			else:
 				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
-		elif args["message"] == "python.nbteditor":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了NBT修改器]"}]}')
-				serversystem.NotifyToClient(playerId, "openUI3", args)
-			else:
-				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
 		elif args["message"] == "python.cmdblockimport":
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了命令方块设置工具面板]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI6", args)
+			else:
+				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+		elif args["message"] == "python.nbteditor":
+			args["cancel"] = True
+			if can_use_key == 1:
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了NBT修改器]"}]}')
+				serversystem.NotifyToClient(playerId, "openUI3", args)
 			else:
 				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
 		elif args["message"] == "python.getversion":
@@ -307,18 +253,19 @@ class MainLogicPart(PartBase):
 
 	def OnCommandEvent(self, args):
 		import mod.server.extraServerApi as serverApi
-		playername = serverApi.GetEngineCompFactory().CreateName(args["entityId"]).GetName()
 		compMsg = serverApi.GetEngineCompFactory().CreateMsg(args["entityId"])
-		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
 		if args["command"] == "/kill @e":
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
 
 	def OnAddPlayerEvent(self, args):
+		# import mod.server.extraServerApi as serverApi
 		if args["name"] == "王培衡很丁丁":
-			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e加入了游戏"
+			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 加入了游戏"
 		if args["name"] == "EGGYLAN_":
-			args["message"] = "§eEGGYLAN_§l§b(开发者) §r§e加入了游戏"
+			args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 加入了游戏"
+		if args["name"] == "EGGYLAN":
+			args["message"] = "§b§l[开发者] §r§eEGGYLAN 加入了游戏"
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
 		import mod.server.extraServerApi as serverApi
@@ -334,10 +281,14 @@ class MainLogicPart(PartBase):
 			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为游客权限!"}]}',False)
 			compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}',False)
 			serverApi.GetEngineCompFactory().CreateTag(args["playerId"]).AddEntityTag("banname")
-
+	
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
-			args["message"] = "§e王培衡很丁丁§l§b(插件作者) §r§e退出了游戏"
+			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 离开了游戏"
+		if args["name"] == "EGGYLAN_":
+			args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 离开了游戏"
+		if args["name"] == "EGGYLAN":
+			args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
 
 	def TickClient(self):
 		"""
@@ -362,10 +313,6 @@ class MainLogicPart(PartBase):
 			operation = serverApi.GetEngineCompFactory().CreatePlayer(player).GetPlayerOperation()
 			if serverApi.GetEngineCompFactory().CreateExtraData(player).GetExtraData("isMaster"):
 				compCmd.SetCommand("/op %s" % (serverApi.GetEngineCompFactory().CreateName(player).GetName()))		
-			
-			if serverApi.GetEngineCompFactory().CreateTag(player).EntityHasTag("kick"):
-				serverApi.GetEngineCompFactory().CreateTag(player).RemoveEntityTag("kick")
-				compCmd.SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(player).GetName(), False)
 
 			if operation == 2:
 				compCmd.SetCommand('/tellraw @a[name='+playername+',tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}')

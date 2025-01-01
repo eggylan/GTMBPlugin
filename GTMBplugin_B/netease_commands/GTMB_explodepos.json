@@ -1,0 +1,27 @@
+{
+	"format_version": "0.0.1",
+	"name": "explode",
+	"description": "创建一个或多个爆炸",
+	"permission_level": "game_directors",
+	"args": [
+		{
+			"name": "爆炸坐标",
+			"type": "pos"
+		},
+		{
+			"name": "爆炸威力",
+			"type": "int",
+			"default": 2
+		},
+		{
+			"name": "是否破坏方块",
+			"type": "bool",
+			"default": true
+		},
+		{
+			"name": "是否产生火焰",
+			"type": "bool",
+			"default": false
+		}
+	]
+}

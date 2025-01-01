@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "summonprojectile",
+	"description": "生成抛射物（直接发射）",
+	"permission_level": "game_directors",
+	"args": [
+
+	]
+}

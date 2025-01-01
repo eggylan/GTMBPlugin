@@ -1,0 +1,11 @@
+{
+    "bpType": "customcmdsPart",
+    "changes": {},
+    "classType": "PartInstance",
+    "clientPartType": null,
+    "customVariables": [],
+    "directoryPath": "customcmds",
+    "metaType": "customcmdsPartMeta",
+    "objId": "ce01f37f3e394aa2a2d7a871a0ddb226",
+    "partType": "customcmdsPart"
+}
