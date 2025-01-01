@@ -5,6 +5,6 @@
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "变量", "type": "str"},
-		{"name": "值", "type": "str"}
+		{"name": "字符", "type": "str"}
 	]
 }
