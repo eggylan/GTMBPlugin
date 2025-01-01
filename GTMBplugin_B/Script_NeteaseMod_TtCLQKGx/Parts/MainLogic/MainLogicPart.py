@@ -56,7 +56,6 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiActive(True)
 		uiNodePreset.SetUiVisible(True)
 		
-
 	def close(self, args):
 		uiNodePreset = self.GetParent().GetChildPresetsByName("enchant")[0]
 		uiNodePreset.SetUiActive(False)
@@ -284,7 +283,7 @@ class MainLogicPart(PartBase):
 				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "v0.6.2(2024/11)", "§b")
+			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "v0.7(2025/1)", "§b")
 		elif args["message"][0] * 20 == args["message"][:20]:
 			args["cancel"] = True
 			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
