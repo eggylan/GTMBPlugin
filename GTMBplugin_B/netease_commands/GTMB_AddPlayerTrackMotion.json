@@ -1,0 +1,15 @@
+{
+	"format_version": "0.0.1",
+	"name": "addplayertrackmotion",
+	"description": "给玩家添加轨迹运动器",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "终点", "type": "pos"},
+        {"name":"时间","type":"float"},
+        {"name":"是否循环","type":"bool","default":false},
+        {"name":"起点朝向","type":"pos","default":null},
+        {"name":"终点朝向","type":"pos","default":null},
+        {"name":"使用运动速度为朝向","type":"bool","default":false}
+	]
+}

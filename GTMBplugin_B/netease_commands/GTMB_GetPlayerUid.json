@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "getuid",
+	"description": "获取某在线玩家的账号UID",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"}
+    ]
+}

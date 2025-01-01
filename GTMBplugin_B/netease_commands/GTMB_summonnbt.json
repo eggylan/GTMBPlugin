@@ -5,7 +5,7 @@
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "nbtJson", "type": "str"},
-        {"name": "维度id", "type": "int","default":0},
+        {"name": "维度id", "type": "int","default":null},
         {"name": "是否为NPC", "type": "bool","default":false}
 
 	]

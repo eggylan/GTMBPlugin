@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "forbidliquidflow",
+	"description": "设置是否禁止地图中的流体流动",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "是否禁止", "type": "bool"}
+    ]
+}
