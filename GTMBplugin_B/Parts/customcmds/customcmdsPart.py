@@ -99,6 +99,13 @@ class customcmdsPart(PartBase):
 			cmd = args["args"][0]["value"]
 			if cmd.startswith("/"):
 				cmd = cmd[1:]
+			cmd2 = ""
+			for i in cmd.split(" "):
+				for ii in compExtra.GetExtraData('parameters').keys():
+					index = i.find("param:%s" % (ii))
+					if not index == -1:
+						i = compExtra.GetExtraData('parameters')[i[index+1:]]
+				cmd2 = cmd2 + i
 			serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd, False)
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 		

@@ -10,6 +10,7 @@ class MainLogicPart(PartBase):
 		PartBase.__init__(self)
 		# 零件名称
 		self.name = "主逻辑零件"
+		self.etsFiles = []
 
 	def InitClient(self):
 		"""
