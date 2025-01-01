@@ -1,0 +1,12 @@
+{
+	"format_version": "0.0.1",
+	"name": "console",
+	"description": "以控制台身份执行指令",
+	"permission_level": "game_directors",
+	"args": [
+		{
+			"name": "指令字符串",
+			"type": "str"
+        }
+	]
+}
