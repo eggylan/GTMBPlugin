@@ -1,0 +1,14 @@
+{
+	"format_version": "0.0.1",
+	"name": "addentityaroundpointmotion",
+	"description": "给实体（不含玩家）添加对点环绕运动器",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "圆心坐标", "type": "pos"},
+        {"name":"角速度（弧度/秒）","type":"float"},
+        {"name":"轴","type":"pos","default":[0, 1, 0]},
+        {"name":"锁定实体朝向","type":"bool","default":false},
+        {"name":"停止弧度","type":"float","default":0}
+	]
+}
