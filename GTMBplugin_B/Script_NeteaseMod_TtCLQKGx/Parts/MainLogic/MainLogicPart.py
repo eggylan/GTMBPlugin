@@ -244,7 +244,7 @@ class MainLogicPart(PartBase):
 				serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "TPS:%s mspt:%.2fms" % (TPS,serverApi.GetServerTickTime()) , "§e")
 			else:
 				serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
-		elif "" in args["message"] or "" in args["message"]:
+		elif "" in args["message"] or "" in args["message"] or "" in args["message"]:
 			args["cancel"] = True
 			compCmd.SetCommand('/tellraw '+ args["username"] +' {\"rawtext\":[{\"text\":\"§6§l反崩服系统>>> §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言\"}]}')
 			compCmd.SetCommand('/tellraw @a[tag=op] {\"rawtext\":[{\"text\":\"§6§l管理小助手>>> §r§e检测到玩家§c【' + args["username"] + '】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令\"}]}')
