@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "openinventorygui",
+	"description": "打开原版背包界面",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "分页名称", "type": "str", "default": "search"},
+        {"name": "是否强制打开（默认否）", "type": "bool", "default": false}
+	]
+}

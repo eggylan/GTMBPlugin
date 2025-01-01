@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "hidehudgui",
+	"description": "隐藏HUD游戏界面的游戏原生UI，与按下F1按钮效果一致。",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "是否隐藏", "type": "bool"}
+	]
+}
