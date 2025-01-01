@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
-	"name": "explode",
-	"description": "创建一个或多个爆炸",
+	"name": "explodebypos",
+	"description": "创建一个爆炸",
 	"permission_level": "game_directors",
 	"args": [
 		{

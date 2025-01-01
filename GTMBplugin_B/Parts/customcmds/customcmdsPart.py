@@ -31,7 +31,6 @@ class customcmdsPart(PartBase):
 			playerId = args['origin']['entityId']
 		except:
 			playerId = None
-		compMsg = serverApi.GetEngineCompFactory().CreateMsg(playerId)
 		if args['command'] == 'master':
 			if args['args'][0]['value']:
 				args['return_msg_key'] = 'commands.master.success'
@@ -39,7 +38,7 @@ class customcmdsPart(PartBase):
 					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
 					compExtra.SetExtraData("isMaster", True)
 			else:
-				args['return_msg_key'] = 'commands.master.faild'
+				args['return_msg_key'] = '没有与选择器匹配的目标'
 				args['return_failed'] = True
 		if args['command'] == 'demaster':
 			if args['args'][0]['value']:
@@ -48,7 +47,7 @@ class customcmdsPart(PartBase):
 					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
 					compExtra.SetExtraData("isMaster", False)
 			else:
-				args['return_msg_key'] = 'commands.master.faild'
+				args['return_msg_key'] = '没有与选择器匹配的目标'
 				args['return_failed'] = True
 		compExtra = serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId())
 		params = compExtra.GetExtraData('parameters')
@@ -78,12 +77,24 @@ class customcmdsPart(PartBase):
 		if args['command'] == 'kickt':
 			if args['args'][0]['value']:
 				for kickplayer in args['args'][0]['value']:
-				
 					serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(kickplayer).GetName() + ' ' + args['args'][1]['value'], False)
 				args['return_msg_key'] = 'commands.kickt.success'
 			else:
-				args['return_msg_key'] = 'commands.kickt.faild'
+				args['return_msg_key'] = '没有与选择器匹配的目标'
 				args['return_failed'] = True
+		if args['command'] == 'explode':
+			values = {arg['name']: arg['value']for arg in args['args']}
+			if args['args'][0]['value'] == None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in args['args'][0]['value']:
+				pos = serverApi.GetEngineCompFactory().CreatePos(i).GetFootPos()
+				serverApi.GetEngineCompFactory().CreateExplosion(serverApi.GetLevelId()).CreateExplosion(pos, values['爆炸威力'], values['是否产生火焰'], values['是否破坏方块'], playerId, playerId)
+		if args['command'] == 'explodebypos':
+			values = {arg['name']: arg['value']for arg in args['args']}
+			pos = args['args'][0]['value']
+			serverApi.GetEngineCompFactory().CreateExplosion(serverApi.GetLevelId()).CreateExplosion(pos, values['爆炸威力'], values['是否产生火焰'], values['是否破坏方块'], playerId, playerId)
 		
 
 	def TickClient(self):

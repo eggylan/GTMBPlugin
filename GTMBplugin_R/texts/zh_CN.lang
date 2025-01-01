@@ -1,8 +1,6 @@
 tile.ycgnw:adv_command_block.name=高级命令方块
 commands.master.success=锁定玩家权限成功
 commands.demaster.success=解锁玩家权限成功
-commands.master.faild=没有与选择器匹配的目标
 commands.paramdel.success=删除变量成功
 commands.paramwrt.success=修改变量成功
 commands.kickt.success=已踢出目标玩家
-commands.kickt.faild=找不到此玩家
