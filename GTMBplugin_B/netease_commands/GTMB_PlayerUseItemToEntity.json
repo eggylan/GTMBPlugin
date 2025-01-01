@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "playeruseitemtoentity",
+	"description": "模拟玩家使用手上物品对某个生物使用（无视距离）",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "玩家", "type": "target"},
+        {"name": "生物", "type": "target"}
+	]
+}

@@ -1,0 +1,12 @@
+{
+	"format_version": "0.0.1",
+	"name": "playerdestoryblock",
+	"description": "模拟玩家使用手上工具破坏方块",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "玩家", "type": "target"},
+        {"name": "方块位置", "type": "pos"},
+        {"name": "启用粒子", "type": "bool","default":true},
+        {"name": "是否同步服务端背包信息","type":"bool","default":true}
+	]
+}

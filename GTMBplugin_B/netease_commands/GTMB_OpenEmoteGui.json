@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "openemotegui",
+	"description": "打开表情界面",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"}
+	]
+}
