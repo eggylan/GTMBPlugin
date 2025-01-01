@@ -53,11 +53,14 @@ class customcmdsPart(PartBase):
 		params = compExtra.GetExtraData('parameters')
 		input1 = args['args'][0]['value']
 		if args['command'] == 'param':
-			if type(params) == dict and params.has_key(args['args'][0]['value']):
-				args['return_msg_key'] = "变量\"%s\"为 %s" % (input1, params[input1])
+			if args['args'][0]['value'] == "查看 所有§§§§fghaldkhsdvsda":
+				args['return_msg_key'] = str(params)
 			else:
-				args['return_msg_key'] = "未知的变量\"%s\"" % (input1)
-				args['return_failed'] = True
+				if type(params) == dict and params.has_key(args['args'][0]['value']):
+					args['return_msg_key'] = "变量\"%s\"为 %s" % (input1, params[input1])
+				else:
+					args['return_msg_key'] = "未知的变量\"%s\"" % (input1)
+					args['return_failed'] = True
 		if args['command'] == 'paramdel':
 			if type(params) == dict and params.has_key(args['args'][0]['value']):
 				args['return_msg_key'] = 'commands.paramdel.success'
@@ -100,13 +103,16 @@ class customcmdsPart(PartBase):
 			if cmd.startswith("/"):
 				cmd = cmd[1:]
 			cmd2 = ""
-			for i in cmd.split(" "):
-				for ii in compExtra.GetExtraData('parameters').keys():
-					index = i.find("param:%s" % (ii))
-					if not index == -1:
-						i = compExtra.GetExtraData('parameters')[i[index+1:]]
-				cmd2 = cmd2 + i
-			serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd, False)
+			if compExtra.GetExtraData('parameters'):
+				for i in cmd.split(" "):
+					for ii in compExtra.GetExtraData('parameters').keys():
+						index = i.find("param:%s" % (ii))
+						if not index == -1:
+							i = compExtra.GetExtraData('parameters')[i[index+6:]]
+					cmd2 = "%s %s" % (cmd2, i)
+			else:
+				cmd2 = cmd
+			serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd2, False)
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 		
 
