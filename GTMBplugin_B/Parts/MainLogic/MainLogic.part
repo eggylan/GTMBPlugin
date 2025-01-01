@@ -1,0 +1,11 @@
+{
+    "bpType": "MainLogicPart",
+    "changes": {},
+    "classType": "PartInstance",
+    "clientPartType": null,
+    "customVariables": [],
+    "directoryPath": "MainLogic",
+    "metaType": "MainLogicPartMeta",
+    "objId": "98f4e5b2713c4e9cae50cb5ee5b3d07b",
+    "partType": "MainLogicPart"
+}

@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "openfoldgui",
-	"description": "打开下拉界面",
+	"description": "Open the fold GUI",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"}
