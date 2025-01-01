@@ -53,7 +53,7 @@ class customcmdsPart(PartBase):
 		params = compExtra.GetExtraData('parameters')
 		input1 = args['args'][0]['value']
 		if args['command'] == 'param':
-			if args['args'][0]['value'] == "查看 所有§§§§fghaldkhsdvsda":
+			if args['args'][0]['value'] == None:
 				args['return_msg_key'] = str(params)
 			else:
 				if type(params) == dict and params.has_key(args['args'][0]['value']):
