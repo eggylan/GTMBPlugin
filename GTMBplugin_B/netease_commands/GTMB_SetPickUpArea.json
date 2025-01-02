@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setpickuparea",
+	"description": "设置玩家的拾取物品范围，在原版拾取范围的基础上进行改变",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "范围", "type": "pos"}
+	]
+}

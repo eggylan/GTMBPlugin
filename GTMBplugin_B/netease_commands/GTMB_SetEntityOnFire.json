@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setentityonfire",
+	"description": "设置实体着火",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"着火时间（单位：秒），小于0时灭火","type" : "int"},
+        {"name":"每秒扣血","type" : "int","default":1}
+	]
+}

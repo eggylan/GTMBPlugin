@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "setlevelgravity",
+	"description": "设置世界重力因子",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "数值", "type": "float"}
+	]
+}

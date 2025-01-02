@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerexhaustionratiobytype",
+	"description": "设置玩家某行为饥饿度消耗倍率",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "玩家", "type": "target"},
+        {"name": "行为id", "type": "int"},
+        {"name": "倍率", "type": "float"}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setactorpushable",
+	"description": "设置实体是否可推动",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "是否可推动", "type": "bool"}
+	]
+}

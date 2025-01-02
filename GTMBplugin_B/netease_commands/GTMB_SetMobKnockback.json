@@ -1,0 +1,14 @@
+{
+	"format_version": "0.0.1",
+	"name": "setmobknockback",
+	"description": "设置击退的初始速度，需要考虑阻力的影响",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "X轴方向", "type": "float"},
+        {"name": "Z轴方向", "type": "float"},
+        {"name": "水平方向初速度", "type": "float"},
+        {"name": "垂直方向初速度", "type": "float"},
+        {"name": "向上速度阈值", "type": "float"}
+	]
+}

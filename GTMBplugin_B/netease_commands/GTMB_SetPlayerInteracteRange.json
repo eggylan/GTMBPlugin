@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerinteracterange",
+	"description": "设置玩家服务端的交互距离",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "交互半径", "type": "float"}
+	]
+}

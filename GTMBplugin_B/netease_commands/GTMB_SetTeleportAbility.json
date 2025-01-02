@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setteleportability",
+	"description": "设置玩家能否使用TP指令",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否允许", "type": "bool"}
+	]
+}

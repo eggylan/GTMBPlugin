@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setbuildability",
+	"description": "设置玩家生存模式下能否放置方块",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "是否可放置", "type": "bool"}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setentityowner",
+	"description": "设置实体属主（含可驯服生物主人、掉落物丢弃者，弹射物发射者）",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"属主(无参数为无主)","type" : "target","default":null}
+	]
+}

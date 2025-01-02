@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerhunger",
+	"description": "设置玩家饥饿度",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "玩家", "type": "target"},
+        {"name": "值", "type": "float"}
+	]
+}

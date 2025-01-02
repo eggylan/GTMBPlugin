@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcanotherplayerride",
+	"description": "设置驯服生物非主人是否有权限骑乘",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "是否可骑乘", "type": "bool"}
+	]
+}

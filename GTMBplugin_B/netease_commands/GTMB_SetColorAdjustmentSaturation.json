@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcolorsaturation",
+	"description": "调整玩家屏幕色彩饱和度",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"饱和度","type" : "float"}
+	]
+}

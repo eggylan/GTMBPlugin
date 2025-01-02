@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setattacktarget",
+	"description": "设置实体仇恨目标",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "仇恨目标", "type": "target"}
+	]
+}

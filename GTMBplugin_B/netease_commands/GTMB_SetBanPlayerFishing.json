@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setbanplayerfishing",
+	"description": "设置是否禁止玩家钓鱼，禁止后玩家可以抛甩鱼竿但无法钓起任何物品",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "是否禁止", "type": "bool"}
+	]
+}

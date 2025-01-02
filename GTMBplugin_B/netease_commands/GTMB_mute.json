@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "mute",
+	"description": "设置玩家禁言，开启后服务端拒绝此玩家聊天消息发包",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "开关", "type": "bool"}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setjumppower",
+	"description": "设置生物跳跃力度，0.42表示正常水平，对兔子无效",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "跳跃力度", "type": "float"}
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "stopentityriding",
+	"description": "强制骑乘者下坐骑",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"}
+	]
+}

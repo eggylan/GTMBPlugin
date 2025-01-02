@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "sethopperspeed",
+	"description": "设置漏斗运输一个物品所需的时间，该设置存档",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"方块位置","type" : "pos"},
+        {"name":"维度id","type" : "int"},
+        {"name":"时间（单位：红石刻），默认4","type" : "int"}
+	]
+}

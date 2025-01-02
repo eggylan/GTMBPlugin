@@ -1,0 +1,12 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcustomname",
+	"description": "设置物品的自定义名称",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"物品信息Json","type" : "str"},
+        {"name":"自定义名称","type" : "str"},
+        {"name":"槽位（默认主手）","type" : "int","default":null}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerhealthtick",
+	"description": "设置玩家自然恢复速度",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "玩家", "type": "target"},
+        {"name": "游戏刻", "type": "int"}
+	]
+}

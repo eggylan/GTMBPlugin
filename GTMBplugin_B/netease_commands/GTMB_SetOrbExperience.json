@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setorbexperience",
+	"description": "设置经验球经验",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "经验", "type": "int"}
+	]
+}

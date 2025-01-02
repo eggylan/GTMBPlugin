@@ -1,0 +1,13 @@
+{
+	"format_version": "0.0.1",
+	"name": "setitemdefenceangle",
+	"description": "设置盾牌物品的抵挡角度范围",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"玩家","type":"target"},
+        {"name":"位置id","type":"int"},
+        {"name":"槽位","type":"int"},
+        {"name":"左范围","type":"float"},
+        {"name":"右范围","type":"float"}
+	]
+}

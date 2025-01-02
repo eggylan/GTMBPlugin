@@ -4,6 +4,8 @@
 	"description": "生成抛射物（直接发射）",
 	"permission_level": "game_directors",
 	"args": [
-
+		{"name":"创建者","type":"target"},
+		{"name":"抛射物identifier","type":"str"},
+		{"name":"抛射物json数据","type":"str"}
 	]
 }

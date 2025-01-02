@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "settradelevel",
+	"description": "设置村民的交易等级",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "等级", "type": "int"}
+	]
+}

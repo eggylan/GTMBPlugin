@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setpersistent",
+	"description": "设置实体不会因为离玩家太远而被清除",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "TrueOrFalse", "type": "bool"}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerstarvetick",
+	"description": "设置玩家饥饿掉血速度",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "玩家", "type": "target"},
+        {"name": "游戏刻", "type": "int"}
+	]
+}

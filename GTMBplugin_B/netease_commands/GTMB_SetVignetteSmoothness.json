@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setvignettesmoothness",
+	"description": "设置渐晕模糊系数，系数越大，渐晕边缘越模糊，模糊的范围也越大",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "值，范围为[0,1]", "type": "float"}
+	]
+}

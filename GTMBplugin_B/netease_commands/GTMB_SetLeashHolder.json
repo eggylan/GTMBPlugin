@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setleashholder",
+	"description": "为实体添加牵引者，与拴绳作用相同",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "牵引者", "type": "target"},
+        {"name": "被牵引者", "type": "target"}
+	]
+}

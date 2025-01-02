@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "startentitymotion",
+	"description": "启动实体（不含玩家）身上的运动器",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"}
+	]
+}

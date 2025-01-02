@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "sit",
+	"description": "设置生物是否坐下",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否坐下", "type": "bool"}
+	]
+}

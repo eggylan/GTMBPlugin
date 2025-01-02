@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcontrol",
+	"description": "设置生物无需装备鞍就可以控制行走跳跃",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"可骑乘生物","type" : "target"},
+        {"name":"能否控制","type" : "bool"}
+	]
+}

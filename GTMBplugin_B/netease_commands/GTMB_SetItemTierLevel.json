@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setitemtierlevel",
+	"description": "设置工具类物品的挖掘等级",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name":"itemJson", "type":"str"},
+        {"name": "等级", "type": "int"}
+	]
+}

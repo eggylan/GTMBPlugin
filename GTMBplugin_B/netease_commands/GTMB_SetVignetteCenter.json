@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setvignettecenter",
+	"description": "设置渐晕的中心位置",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "x", "type": "float"},
+        {"name": "y", "type": "float"}
+	]
+}

@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "blockai",
+	"description": "设置启用生物原生AI",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否启用", "type": "bool"},
+        {"name":"禁用AI时是否冻结动作", "type":"bool","default":false}
+	]
+}

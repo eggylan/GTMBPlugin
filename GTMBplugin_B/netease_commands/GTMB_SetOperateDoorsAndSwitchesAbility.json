@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setoperatedoorability",
+	"description": "设置玩家能否与门和开关交互",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "能否交互", "type": "bool"}
+	]
+}

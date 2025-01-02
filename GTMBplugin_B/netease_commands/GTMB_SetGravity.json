@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setgravity",
+	"description": "设置实体的重力因子，设置为0时则应用世界的重力因子",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"重力因子（负数，表示每帧向下速度）","type" : "float"}
+	]
+}

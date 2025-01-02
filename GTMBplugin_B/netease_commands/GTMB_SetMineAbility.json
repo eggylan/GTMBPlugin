@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setmineability",
+	"description": "设置玩家在生存模式下能否摧毁方块",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否可破坏", "type": "bool"}
+	]
+}

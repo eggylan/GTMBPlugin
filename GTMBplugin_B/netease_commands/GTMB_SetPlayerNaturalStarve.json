@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayernaturalstarve",
+	"description": "设置是否开启玩家饥饿掉血",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否开启", "type": "bool"}
+	]
+}

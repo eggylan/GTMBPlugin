@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayermovable",
+	"description": "设置玩家是否可移动",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否可移动", "type": "bool"}
+	]
+}

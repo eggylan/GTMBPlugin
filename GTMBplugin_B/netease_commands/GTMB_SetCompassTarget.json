@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcompasstarget",
+	"description": "设置指南针的朝向位置",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"朝向位置","type" : "pos"}
+	]
+}

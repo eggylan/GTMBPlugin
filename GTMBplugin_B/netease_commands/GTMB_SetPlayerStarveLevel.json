@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerstarvelevel",
+	"description": "设置玩家饥饿临界值，当饥饿值小于此值时会自动扣血",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "玩家", "type": "target"},
+        {"name": "值", "type": "int"}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcurrentairsupply",
+	"description": "设置生物氧气储备值",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"值","type" : "int"}
+	]
+}

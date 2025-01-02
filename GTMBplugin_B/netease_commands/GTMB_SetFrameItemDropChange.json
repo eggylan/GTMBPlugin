@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setframeitemdropchange",
+	"description": "设置点击物品展示框时生成掉落的几率",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"方块位置","type" : "pos"},
+        {"name":"维度id","type" : "int"},
+        {"name":"掉落几率（取值范围：[0,1]）","type" : "float"}
+	]
+}

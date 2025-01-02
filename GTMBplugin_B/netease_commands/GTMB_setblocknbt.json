@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setblocknbt",
+	"description": "以NBT形式放置方块",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "维度id", "type": "int"},
+        {"name":"坐标", "type":"pos"},
+        {"name": "nbtJson", "type": "str"}
+	]
+}

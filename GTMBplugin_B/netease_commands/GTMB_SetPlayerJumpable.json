@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerjumpable",
+	"description": "设置玩家是否可跳跃",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否可跳跃", "type": "bool"}
+	]
+}

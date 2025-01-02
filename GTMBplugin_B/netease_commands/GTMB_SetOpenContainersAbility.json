@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setopencontainersability",
+	"description": "设置玩家能否打开容器",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "能否打开", "type": "bool"}
+	]
+}

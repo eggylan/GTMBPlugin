@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerattackspeedamplifier",
+	"description": "设置玩家攻击速度倍数",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "倍数，范围[0.5,2.0]", "type": "float"}
+	]
+}

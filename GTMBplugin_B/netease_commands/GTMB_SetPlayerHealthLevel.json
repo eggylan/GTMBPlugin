@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayerhealthlevel",
+	"description": "设置玩家健康临界值，当饥饿值大于等于此值时会自动回血，原版18",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "玩家", "type": "target"},
+        {"name": "值", "type": "int"}
+	]
+}

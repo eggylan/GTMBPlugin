@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setmotion",
+	"description": "设置生物（不含玩家）的瞬时移动方向向量",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "世界坐标系下的向量", "type": "pos"}
+	]
+}

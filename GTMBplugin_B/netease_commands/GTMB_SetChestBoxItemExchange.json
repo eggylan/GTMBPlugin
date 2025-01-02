@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setchestboxitemexchange",
+	"description": "交换箱子里物品的槽位",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"箱子坐标","type" : "pos"},
+        {"name":"箱子槽位1","type" : "int"},
+        {"name":"箱子槽位2","type" : "int"}
+	]
+}

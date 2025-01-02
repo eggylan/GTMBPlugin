@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcompassentity",
+	"description": "设置指南针朝向的实体",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"目标","type" : "target"},
+        {"name":"朝向实体","type" : "target"}
+	]
+}

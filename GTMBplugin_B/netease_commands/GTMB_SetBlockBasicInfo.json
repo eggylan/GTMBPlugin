@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setblockbasicinfo",
+	"description": "设置方块基本信息",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "方块identifier", "type": "str"},
+        {"name": "方块基本信息Json", "type": "str"},
+        {"name": "附加值", "type": "int","default":0}
+	]
+}

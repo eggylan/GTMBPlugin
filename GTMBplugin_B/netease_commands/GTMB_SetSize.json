@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "setsize",
+	"description": "设置实体的包围盒",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "宽度和长度", "type": "float"},
+        {"name": "高度", "type": "float"}
+	]
+}

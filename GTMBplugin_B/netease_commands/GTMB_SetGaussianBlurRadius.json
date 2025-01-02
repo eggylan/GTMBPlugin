@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setgaussianblurradius",
+	"description": "设置高斯模糊效果的模糊半径",
+	"permission_level": "game_directors",
+	"args": [
+        {"name":"玩家","type" : "target"},
+        {"name":"模糊半径","type" : "float"}
+	]
+}

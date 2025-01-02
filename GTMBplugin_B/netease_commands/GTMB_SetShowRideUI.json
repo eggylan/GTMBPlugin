@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setshowrideui",
+	"description": "设置是否显示马匹的UI界面",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "可骑乘生物", "type": "target"},
+        {"name": "是否显示", "type": "bool"}
+	]
+}

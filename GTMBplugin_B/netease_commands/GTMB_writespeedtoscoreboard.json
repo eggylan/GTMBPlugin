@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "writespeedtoscoreboard",
+	"description": "将玩家的服务端速度写入记分板",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "记分板名称", "type": "str"}
+	]
+}

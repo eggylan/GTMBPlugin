@@ -1,0 +1,16 @@
+{
+	"format_version": "0.0.1",
+	"name": "setsigntextstyle",
+	"description": "设置告示牌的文本样式",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "方块位置", "type": "pos"},
+        {"name": "维度id", "type": "int"},
+        {"name":"颜色通道值R","type":"float"},
+        {"name":"颜色通道值G","type":"float"},
+        {"name":"颜色通道值B","type":"float"},
+        {"name":"颜色通道值A","type":"float"},
+        {"name":"是否发光","type":"bool"},
+        {"name":"正反面","type":"int","default":0}
+	]
+}

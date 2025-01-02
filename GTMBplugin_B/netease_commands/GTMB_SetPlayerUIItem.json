@@ -1,0 +1,12 @@
+{
+	"format_version": "0.0.1",
+	"name": "setplayeruiitem",
+	"description": "设置合成容器的物品",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "玩家", "type": "target"},
+        {"name": "容器槽位", "type": "int"},
+        {"name": "itemJson", "type": "str"},
+        {"name":"将被替换物品放回玩家背包", "type":"bool","default":true}
+	]
+}

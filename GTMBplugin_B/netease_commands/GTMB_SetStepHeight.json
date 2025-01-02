@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "setstepheight",
+	"description": "设置玩家前进非跳跃状态下能上的最大台阶高度",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "最大高度", "type": "float"}
+	]
+}
