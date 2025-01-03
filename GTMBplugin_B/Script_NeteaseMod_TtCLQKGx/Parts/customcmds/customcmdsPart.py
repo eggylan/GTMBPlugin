@@ -53,6 +53,7 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 
 
+		compMsg = serverApi.GetEngineCompFactory().CreateMsg(playerId)
 		compExtra = serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId())
 		params = compExtra.GetExtraData('parameters')
 		input1 = args['args'][0]['value']
@@ -125,21 +126,47 @@ class customcmdsPart(PartBase):
 			serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd2, False)
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 		
-		if args["command"] == 'addentityaroundentitymotion':
-			if not len(args['args'][1]['value']) == 1:
+		if args["command"] == 'addentityaroundentitymotion' or args["command"] == 'addentityaroundpointmotion':
+			if not len(args['args'][1]['value']) == 1 and args["command"] == 'addentityaroundentitymotion':
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
 				args['return_failed'] = True
 				return
 			for i in args['args'][0]['value']:
+				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
 				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-				Mid = CompMotion.AddEntityAroundEntityMotion(args['args'][1]['value'][0],
-															 args['args'][2]['value'],
-															 args['args'][3]['value'],
-															 args['args'][4]['value'],
-															 args['args'][5]['value'],
-															 args['args'][6]['value'])
-				CompMotion.StartEntityMotion(Mid)
+				if args["command"] == 'addentityaroundentitymotion':
+					Mid = CompMotion.AddEntityAroundEntityMotion(args['args'][1]['value'][0],
+																 args['args'][2]['value'],
+																 args['args'][3]['value'],
+																 args['args'][4]['value'],
+																 args['args'][5]['value'],
+																 args['args'][6]['value'])
+				else:
+					Mid = CompMotion.AddEntityAroundPointMotion(args['args'][1]['value'],
+																args['args'][2]['value'],
+																args['args'][3]['value'],
+																args['args'][4]['value'],
+																args['args'][5]['value'])
+				Motions = compExtra.GetExtraData('Motions')
+				if not Motions:
+					Motions = []
+				Motions.append(Mid)
+				compExtra.SetExtraData('Motions', Motions)
 			args['return_msg_key'] = '成功设置运动器'
+		if args["command"] == 'startentitymotion':
+			args['return_msg_key'] = ''
+			for i in args['args'][0]['value']:
+				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
+				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
+				Motions = compExtra.GetExtraData('Motions')
+				if Motions:
+					for ii in Motions:
+						CompMotion.StartEntityMotion(ii)
+						Motions.remove(ii)
+					compExtra.SetExtraData('Motions', Motions)
+					compMsg.NotifyOneMessage(playerId, '成功启用实体的运动器')
+				else:
+					compMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
 
 	def TickClient(self):
 		"""

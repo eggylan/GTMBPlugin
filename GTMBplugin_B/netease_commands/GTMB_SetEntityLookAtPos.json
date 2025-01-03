@@ -1,6 +1,6 @@
 {
 	"format_version": "0.0.1",
-	"name": "setentityitem",
+	"name": "setentitylookat",
 	"description": "设置非玩家的实体看向某个位置",
 	"permission_level": "game_directors",
 	"args": [
