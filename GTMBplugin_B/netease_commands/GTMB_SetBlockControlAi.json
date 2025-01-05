@@ -1,6 +1,6 @@
 {
 	"format_version": "0.0.1",
-	"name": "blockai",
+	"name": "aicontrol",
 	"description": "设置启用生物原生AI",
 	"permission_level": "game_directors",
 	"args": [

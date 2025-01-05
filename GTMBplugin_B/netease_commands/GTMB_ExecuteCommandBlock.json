@@ -4,7 +4,9 @@
 	"description": "执行一次命令方块",
 	"permission_level": "game_directors",
 	"args": [
-		{"name": "方块位置", "type": "pos"},
+		{"name": "X", "type": "int"},
+		{"name": "Y", "type": "int"},
+		{"name": "Z", "type": "int"},
         {"name": "维度id", "type": "int"}
 	]
 }
