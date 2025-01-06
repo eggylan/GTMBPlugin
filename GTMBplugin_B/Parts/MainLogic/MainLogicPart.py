@@ -81,8 +81,8 @@ class MainLogicPart(PartBase):
 		import mod.server.extraServerApi as serverApi
 		if serverApi.GetEngineCompFactory().CreatePlayer(enchantdata["__id__"]).GetPlayerOperation() == 2:
 			# 二次权限验证
-			comp = serverApi.GetEngineCompFactory().CreateItem(enchantdata["__id__"])
-			itemDict = comp.GetPlayerItem(2, 0, True)
+			compItem = serverApi.GetEngineCompFactory().CreateItem(enchantdata["__id__"])
+			itemDict = compItem.GetPlayerItem(2, 0, True)
 			if itemDict:
 				if itemDict["userData"] is None:
 					itemDict["userData"] = {}
@@ -93,7 +93,7 @@ class MainLogicPart(PartBase):
 				else:
 					itemDict["userData"]['ench'].insert(0, {'lvl': {'__type__': 2, '__value__': int(enchantdata["lvl"])}, 'id': {'__type__': 2, '__value__': int(enchantdata["id"])}, 'modEnchant': {'__type__': 8, '__value__': ''}})
 				itemDict["enchantData"] = []
-				comp.SpawnItemToPlayerCarried(itemDict, enchantdata["__id__"])
+				compItem.SpawnItemToPlayerCarried(itemDict, enchantdata["__id__"])
 
 	def getitem(self, itemdata):
 		import mod.server.extraServerApi as serverApi
@@ -115,7 +115,7 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdbatch', self, self.cmdbatch)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdblockimport', self, self.cmdblockimport)
 		serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommandPermissionLevel(4)
-		self.timer = serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0,self.OnSecond)
+		self.timer = serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0, self.OnSecond)
 
 		"""
 		@description 服务端的零件对象初始化入口
@@ -183,6 +183,7 @@ class MainLogicPart(PartBase):
 		import mod.server.extraServerApi as serverApi
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		compCmd = serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId())
+		compMsg = serverApi.GetEngineCompFactory().CreateMsg(playerId)
 		can_use_key = 0
 		if serverApi.GetEngineCompFactory().CreatePlayer(playerId).GetPlayerOperation() == 2 or args["username"] in ["王培衡很丁丁","EGGYLAN_"]:
 			can_use_key = 1
@@ -192,48 +193,48 @@ class MainLogicPart(PartBase):
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了自定义附魔面板]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI1", args)
 			else:
-				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getitem":
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了获取隐藏物品面板]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI2", args)
 			else:
-				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.changetips":
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了修改物品注释面板]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI4", args)
 			else:
-				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.cmdbatch":
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了批量执行命令面板]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI5", args)
 			else:
-				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.cmdblockimport":
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了命令方块设置工具面板]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI6", args)
 			else:
-				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.nbteditor":
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了NBT修改器]"}]}')
 				serversystem.NotifyToClient(playerId, "openUI3", args)
 			else:
-				compCmd.SetCommand('/tellraw @a[name='+ args["username"] + '] {"rawtext":[{"text":"§c你没有使用此命令的权限。"}]}')
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "v0.7(2025/1):19", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):20", "§b")
 		elif args["message"][0] * 20 == args["message"][:20]:
 			args["cancel"] = True
-			serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
+			compMsg.NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
@@ -241,12 +242,12 @@ class MainLogicPart(PartBase):
 					TPS = "20.0*"
 				else:
 					TPS = "%.1f" % (1000/serverApi.GetServerTickTime())
-				serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "TPS:%s mspt:%.2fms" % (TPS,serverApi.GetServerTickTime()) , "§e")
+				compMsg.NotifyOneMessage(playerId, "TPS:%s mspt:%.2fms" % (TPS,serverApi.GetServerTickTime()) , "§e")
 			else:
-				serverApi.GetEngineCompFactory().CreateMsg(playerId).NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
 		elif "" in args["message"] or "" in args["message"] or "" in args["message"]:
 			args["cancel"] = True
-			compCmd.SetCommand('/tellraw '+ args["username"] +' {\"rawtext\":[{\"text\":\"§6§l反崩服系统>>> §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言\"}]}')
+			compMsg.NotifyOneMessage(playerId, "§6§l反崩服系统>>> §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言")
 			compCmd.SetCommand('/tellraw @a[tag=op] {\"rawtext\":[{\"text\":\"§6§l管理小助手>>> §r§e检测到玩家§c【' + args["username"] + '】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令\"}]}')
 			compCmd.SetCommand('/ability '+ args["username"] +' mute true',False)
 		else:

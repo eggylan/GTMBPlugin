@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "addentityaroundentitymotion",
-	"description": "给实体（不含玩家）添加对实体环绕运动器",
+	"description": "给实体添加对实体环绕运动器",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},

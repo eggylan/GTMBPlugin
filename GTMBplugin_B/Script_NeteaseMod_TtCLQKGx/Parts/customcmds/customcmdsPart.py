@@ -29,10 +29,10 @@ class customcmdsPart(PartBase):
 		import mod.server.extraServerApi as serverApi
 		levelId = serverApi.GetLevelId()
 		compcmd = serverApi.GetEngineCompFactory().CreateCommand(levelId)
-		try:
-			playerId = args['origin']['entityId']
-		except:
-			playerId = None
+	#	try:
+	#		playerId = args['origin']['entityId']
+	#	except:
+	#		playerId = None
 
 		if args['command'] == 'writehealthtoscoreboard':
 			if args['args'][0]['value'] is None:
@@ -210,7 +210,7 @@ class customcmdsPart(PartBase):
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 		
 		if args["command"] == 'addentityaroundentitymotion' or args["command"] == 'addentityaroundpointmotion':
-			if args['args'][1]['value'] is None and args["command"] == 'addentityaroundentitymotion':
+			if args['args'][1]['value'] is None and args["command"] == 'addentityaroundentitymotion' or args['args'][0]['value'] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
@@ -218,50 +218,36 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
 				args['return_failed'] = True
 				return
-			if args['args'][0]['value'] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in args['args'][0]['value']:
 				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
 				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
+				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
+				EntityType = CompType.GetEngineType()
 				if args["command"] == 'addentityaroundentitymotion':
-					Mid = CompMotion.AddEntityAroundEntityMotion(args['args'][1]['value'][0],
-																args['args'][2]['value'],
-																args['args'][3]['value'],
-																args['args'][4]['value'],
-																args['args'][5]['value'],
-																args['args'][6]['value'])
+					if EntityType == 63:
+						addMotion = CompMotion.AddPlayerAroundEntityMotion
+					else:
+						addMotion = CompMotion.AddEntityAroundEntityMotion
+					Mid = addMotion(args['args'][1]['value'][0],
+									args['args'][2]['value'],
+									args['args'][3]['value'],
+									args['args'][4]['value'],
+									args['args'][5]['value'],
+									args['args'][6]['value'])
 				else:
-					Mid = CompMotion.AddEntityAroundPointMotion(args['args'][1]['value'],
-																args['args'][2]['value'],
-																args['args'][3]['value'],
-																args['args'][4]['value'],
-																args['args'][5]['value'])
-				Motions = compExtra.GetExtraData('Motions')
-				if not Motions:
-					Motions = []
-				Motions.append(Mid)
-				compExtra.SetExtraData('Motions', Motions)
-			args['return_msg_key'] = '成功设置运动器'
-		
-		if args['command'] == 'addentitytrackmotion':
-			if args['args'][0]['value'] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
-			for i in args['args'][0]['value']:
-				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-				Mid = CompMotion.AddEntityTrackMotion(args['args'][1]['value'],
-														args['args'][2]['value'],
-														None,
-														False,
-														args['args'][3]['value'],
-														args['args'][4]['value'],
-														args['args'][5]['value'],
-														args['args'][6]['value'],
-														serverApi.GetMinecraftEnum().TimeEaseType.linear)
+					if EntityType == 63:
+						addMotion = CompMotion.AddPlayerAroundEntityMotion
+					else:
+						addMotion = CompMotion.AddEntityAroundEntityMotion
+					Mid = addMotion(args['args'][1]['value'],
+									args['args'][2]['value'],
+									args['args'][3]['value'],
+									args['args'][4]['value'],
+									args['args'][5]['value'])
+				if Mid == -1:
+					args['return_failed'] = True
+					args['return_msg_key'] = '创建失败'
+					return
 				Motions = compExtra.GetExtraData('Motions')
 				if not Motions:
 					Motions = []
@@ -277,9 +263,19 @@ class customcmdsPart(PartBase):
 			for i in args['args'][0]['value']:
 				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
 				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-				Mid = CompMotion.AddEntityVelocityMotion(args['args'][1]['value'],
-														args['args'][2]['value'],
-														args['args'][3]['value'])
+				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
+				EntityType = CompType.GetEngineType()
+				if EntityType == 63:
+					addMotion = CompMotion.AddPlayerVelocityMotion
+				else:
+					addMotion = CompMotion.AddEntityVelocityMotion
+				Mid = addMotion(args['args'][1]['value'],
+								args['args'][2]['value'],
+								args['args'][3]['value'])
+				if Mid == -1:
+					args['return_failed'] = True
+					args['return_msg_key'] = '创建失败'
+					return
 				Motions = compExtra.GetExtraData('Motions')
 				if not Motions:
 					Motions = []
@@ -295,10 +291,16 @@ class customcmdsPart(PartBase):
 			for i in args['args'][0]['value']:
 				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
 				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
+				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
+				EntityType = CompType.GetEngineType()
 				Motions = compExtra.GetExtraData('Motions')
 				if Motions:
+					if EntityType == 63:
+						startMotion = CompMotion.StartPlayerMotion
+					else:
+						startMotion = CompMotion.StartEntityMotion
 					for ii in Motions:
-						CompMotion.StartEntityMotion(ii)
+						startMotion(ii)
 					args['return_msg_key'] = "成功启用实体的运动器"
 				else:
 					args['return_failed'] = True
@@ -312,10 +314,16 @@ class customcmdsPart(PartBase):
 			for i in args['args'][0]['value']:
 				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
 				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
+				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
+				EntityType = CompType.GetEngineType()
 				Motions = compExtra.GetExtraData('Motions')
 				if Motions:
+					if EntityType == 63:
+						stopMotion = CompMotion.StopPlayerMotion
+					else:
+						stopMotion = CompMotion.StopEntityMotion
 					for ii in Motions:
-						CompMotion.StopEntityMotion(ii)
+						stopMotion(ii)
 					args['return_msg_key'] = "成功停止实体的运动器"
 				else:
 					args['return_failed'] = True
@@ -339,8 +347,72 @@ class customcmdsPart(PartBase):
 				else:
 					args['return_failed'] = True
 					args['return_msg_key'] = '实体没有绑定运动器'
-		
-		
+
+		if args['command'] == 'addenchant':
+			if args['args'][0]['value']:
+				for i in args['args'][0]['value']:
+					compItem = serverApi.GetEngineCompFactory().CreateItem(i)
+					if type(args['args'][3]['value']) == int:
+						slotType = 0
+						slot = args['args'][3]['value']
+					else:
+						slotType = 2
+						slot = 0
+					itemDict = compItem.GetPlayerItem(slotType, slot, True)
+					if itemDict:
+						if itemDict["userData"] is None:
+							itemDict["userData"] = {}
+						if itemDict["userData"].get('ench', None) is None:
+							itemDict["userData"]['ench'] = []
+						itemDict["userData"]['ench'].insert(0, {'lvl': {'__type__': 2, '__value__': args['args'][2]['value']}, 
+											  					'id':  {'__type__': 2, '__value__': args['args'][1]['value']}, 
+																'modEnchant': {'__type__': 8, '__value__': ''}})
+						itemDict["enchantData"] = []
+					else:
+						args['return_failed'] = True
+						args['return_msg_key'] = '该槽位没有物品或没有该槽位'
+						return
+					if slotType == 0:
+						compItem.SpawnItemToPlayerInv(itemDict, i, slot)
+					else:
+						compItem.SpawnItemToPlayerCarried(itemDict, i)
+					args['return_msg_key'] = '添加附魔成功'
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+		if args['command'] == 'addentitytrackmotion':
+			if args['args'][0]['value']:
+				for i in args['args'][0]['value']:
+					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
+					CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
+					CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
+					EntityType = CompType.GetEngineType()
+					if EntityType == 63:
+						addMotion = CompMotion.AddPlayerTrackMotion
+					else:
+						addMotion = CompMotion.AddEntityTrackMotion
+					Mid = addMotion(args['args'][1]['value'],
+									args['args'][2]['value'],
+									None,
+									False,
+									args['args'][3]['value'],
+									args['args'][5]['value'],
+									args['args'][4]['value'],
+									args['args'][6]['value'])
+					if Mid == -1:
+						args['return_failed'] = True
+						args['return_msg_key'] = '创建失败'
+						return
+					Motions = compExtra.GetExtraData('Motions')
+					if not Motions:
+						Motions = []
+					Motions.append(Mid)
+					compExtra.SetExtraData('Motions', Motions)
+				args['return_msg_key'] = '成功设置运动器'
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+
 
 	def TickClient(self):
 		"""
