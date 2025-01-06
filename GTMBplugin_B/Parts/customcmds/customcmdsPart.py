@@ -27,29 +27,30 @@ class customcmdsPart(PartBase):
 
 	def OnCustomCommand(self, args):
 		import mod.server.extraServerApi as serverApi
+		CF = serverApi.GetEngineCompFactory()
 		levelId = serverApi.GetLevelId()
-		compcmd = serverApi.GetEngineCompFactory().CreateCommand(levelId)
-	#	try:
-	#		playerId = args['origin']['entityId']
-	#	except:
-	#		playerId = None
+		compcmd = CF.CreateCommand(levelId)
+		try:
+			playerId = args['origin']['entityId']
+		except:
+			playerId = None
 
 		if args['command'] == 'writehealthtoscoreboard':
 			if args['args'][0]['value'] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
-			objects = serverApi.GetEngineCompFactory().CreateGame(levelId).GetAllScoreboardObjects()
+			objects = CF.CreateGame(levelId).GetAllScoreboardObjects()
 			scoreboard_name = args['args'][1]['value']
 			if not any(obj['name'] == scoreboard_name for obj in objects):
 				args['return_failed'] = True
 				args['return_msg_key'] = '未找到该计分板对象'
 				return
 			for entity in args['args'][0]['value']:
-				name = serverApi.GetEngineCompFactory().CreateName(entity).GetName()
+				name = CF.CreateName(entity).GetName()
 				if name is None:
 					name = '"' + str(entity) + '"'
-				health = serverApi.GetEngineCompFactory().CreateAttr(entity).GetAttrValue(0)
+				health = CF.CreateAttr(entity).GetAttrValue(0)
 				health = int(round(health))
 				compcmd.SetCommand('/scoreboard players set %s %s %s' % (name, scoreboard_name, health), False)
 			args['return_msg_key'] = '成功将生命值写入计分板'
@@ -59,25 +60,23 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
-			objects = serverApi.GetEngineCompFactory().CreateGame(levelId).GetAllScoreboardObjects()
+			objects = CF.CreateGame(levelId).GetAllScoreboardObjects()
 			scoreboard_name = args['args'][1]['value']
 			if not any(obj['name'] == scoreboard_name for obj in objects):
 				args['return_failed'] = True
 				args['return_msg_key'] = '未找到该计分板对象'
 				return
 			for entity in args['args'][0]['value']:
-				name = serverApi.GetEngineCompFactory().CreateName(entity).GetName()
+				name = CF.CreateName(entity).GetName()
 				if name is None:
 					name = '"' + str(entity) + '"'
-				hunger = serverApi.GetEngineCompFactory().CreateAttr(entity).GetAttrValue(4)
+				hunger = CF.CreateAttr(entity).GetAttrValue(4)
 				hunger = int(round(hunger))
 				compcmd.SetCommand('/scoreboard players set %s %s %s' % (name, scoreboard_name, hunger), False)
-			args['return_msg_key'] = '成功将饥饿值写入计分板'
-				
-				
+			args['return_msg_key'] = '成功将饥饿值写入计分板'	
 		
 		if args['command'] == 'executecb':
-			success = serverApi.GetEngineCompFactory().CreateBlockEntity(levelId).ExecuteCommandBlock((args['args'][0]['value'], args['args'][1]['value'], args['args'][2]['value']), args['args'][3]['value'])
+			success = CF.CreateBlockEntity(levelId).ExecuteCommandBlock((args['args'][0]['value'], args['args'][1]['value'], args['args'][2]['value']), args['args'][3]['value'])
 			if success:
 				args['return_msg_key'] = '成功执行命令方块'
 				return
@@ -91,7 +90,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in args['args'][0]['value']:
-				serverApi.GetEngineCompFactory().CreateName(i).SetName(args['args'][1]['value'])
+				CF.CreateName(i).SetName(args['args'][1]['value'])
 			args['return_msg_key'] = '成功设置名称'
 		
 		if args['command'] == 'aicontrol':
@@ -100,13 +99,13 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in args['args'][0]['value']:
-				serverApi.GetEngineCompFactory().CreateControlAi(i).SetBlockControlAi(args['args'][1]['value'], args['args'][2]['value'])
+				CF.CreateControlAi(i).SetBlockControlAi(args['args'][1]['value'], args['args'][2]['value'])
 			args['return_msg_key'] = '成功设置实体AI'
 		
 		if args['command'] == 'master':
 			if args['args'][0]['value']:
 				for i in args['args'][0]['value']:
-					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
+					compExtra = CF.CreateExtraData(i)
 					compExtra.SetExtraData("isMaster", True)
 				args['return_msg_key'] = '锁定玩家权限成功'
 				return
@@ -118,7 +117,7 @@ class customcmdsPart(PartBase):
 		if args['command'] == 'demaster':
 			if args['args'][0]['value']:
 				for i in args['args'][0]['value']:
-					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
+					compExtra = CF.CreateExtraData(i)
 					compExtra.SetExtraData("isMaster", False)
 				args['return_msg_key'] = '解锁玩家权限成功'
 				return
@@ -127,7 +126,7 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				return
 		
-		compExtra = serverApi.GetEngineCompFactory().CreateExtraData(serverApi.GetLevelId())
+		compExtra = CF.CreateExtraData(serverApi.GetLevelId())
 		params = compExtra.GetExtraData('parameters')
 		input1 = args['args'][0]['value']
 		if args['command'] == 'param':
@@ -167,7 +166,7 @@ class customcmdsPart(PartBase):
 		if args['command'] == 'kickt':
 			if args['args'][0]['value']:
 				for kickplayer in args['args'][0]['value']:
-					serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + serverApi.GetEngineCompFactory().CreateName(kickplayer).GetName() + ' ' + args['args'][1]['value'], False)
+					CF.CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + CF.CreateName(kickplayer).GetName() + ' ' + args['args'][1]['value'], False)
 				args['return_msg_key'] = '已踢出目标玩家'
 				return
 			else:
@@ -182,14 +181,14 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in args['args'][0]['value']:
-				pos = serverApi.GetEngineCompFactory().CreatePos(i).GetFootPos()
-				serverApi.GetEngineCompFactory().CreateExplosion(serverApi.GetLevelId()).CreateExplosion(pos, values['爆炸威力'], values['是否产生火焰'], values['是否破坏方块'], None, None)
+				pos = CF.CreatePos(i).GetFootPos()
+				CF.CreateExplosion(serverApi.GetLevelId()).CreateExplosion(pos, values['爆炸威力'], values['是否产生火焰'], values['是否破坏方块'], None, None)
 			args['return_msg_key'] = '爆炸已成功创建'
 	
 		if args['command'] == 'explodebypos':
 			values = {arg['name']: arg['value']for arg in args['args']}
 			pos = args['args'][0]['value']
-			serverApi.GetEngineCompFactory().CreateExplosion(serverApi.GetLevelId()).CreateExplosion(pos, values['爆炸威力'], values['是否产生火焰'], values['是否破坏方块'], None, None)
+			CF.CreateExplosion(serverApi.GetLevelId()).CreateExplosion(pos, values['爆炸威力'], values['是否产生火焰'], values['是否破坏方块'], None, None)
 			args['return_msg_key'] = '爆炸已成功创建'
 	
 		if args["command"] == "console":
@@ -206,25 +205,25 @@ class customcmdsPart(PartBase):
 					cmd2 = "%s %s" % (cmd2, i)
 			else:
 				cmd2 = cmd
-			serverApi.GetEngineCompFactory().CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd2, False)
+			CF.CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd2, False)
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 		
-		if args["command"] == 'addentityaroundentitymotion' or args["command"] == 'addentityaroundpointmotion':
-			if args['args'][1]['value'] is None and args["command"] == 'addentityaroundentitymotion' or args['args'][0]['value'] is None:
+		if args["command"] == 'addaroundentitymotion' or args["command"] == 'addaroundpointmotion':
+			if args['args'][1]['value'] is None and args["command"] == 'addaroundentitymotion' or args['args'][0]['value'] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
-			if not len(args['args'][1]['value']) == 1 and args["command"] == 'addentityaroundentitymotion':
+			if not len(args['args'][1]['value']) == 1 and args["command"] == 'addaroundentitymotion':
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
 				args['return_failed'] = True
 				return
 			for i in args['args'][0]['value']:
-				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
-				EntityType = CompType.GetEngineType()
-				if args["command"] == 'addentityaroundentitymotion':
-					if EntityType == 63:
+				compExtra = CF.CreateExtraData(i)
+				CompMotion = CF.CreateActorMotion(i)
+				CompType = CF.CreateEngineType(i)
+				EntityType = CompType.GetEngineTypeStr()
+				if args["command"] == 'addaroundentitymotion':
+					if EntityType == 'minecraft:player':
 						addMotion = CompMotion.AddPlayerAroundEntityMotion
 					else:
 						addMotion = CompMotion.AddEntityAroundEntityMotion
@@ -235,7 +234,7 @@ class customcmdsPart(PartBase):
 									args['args'][5]['value'],
 									args['args'][6]['value'])
 				else:
-					if EntityType == 63:
+					if EntityType == 'minecraft:player':
 						addMotion = CompMotion.AddPlayerAroundEntityMotion
 					else:
 						addMotion = CompMotion.AddEntityAroundEntityMotion
@@ -246,7 +245,7 @@ class customcmdsPart(PartBase):
 									args['args'][5]['value'])
 				if Mid == -1:
 					args['return_failed'] = True
-					args['return_msg_key'] = '创建失败'
+					args['return_msg_key'] = '设置失败'
 					return
 				Motions = compExtra.GetExtraData('Motions')
 				if not Motions:
@@ -255,17 +254,17 @@ class customcmdsPart(PartBase):
 				compExtra.SetExtraData('Motions', Motions)
 			args['return_msg_key'] = '成功设置运动器'
 
-		if args['command'] == 'addentityvelocitymotion':
+		if args['command'] == 'addvelocitymotion':
 			if args['args'][0]['value'] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in args['args'][0]['value']:
-				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
-				EntityType = CompType.GetEngineType()
-				if EntityType == 63:
+				compExtra = CF.CreateExtraData(i)
+				CompMotion = CF.CreateActorMotion(i)
+				CompType = CF.CreateEngineType(i)
+				EntityType = CompType.GetEngineTypeStr()
+				if EntityType == 'minecraft:player':
 					addMotion = CompMotion.AddPlayerVelocityMotion
 				else:
 					addMotion = CompMotion.AddEntityVelocityMotion
@@ -283,75 +282,87 @@ class customcmdsPart(PartBase):
 				compExtra.SetExtraData('Motions', Motions)
 			args['return_msg_key'] = '成功设置运动器'
 		
-		if args["command"] == 'startentitymotion':
+		if args["command"] == 'startmotion':
+			args['return_msg_key'] = ''
 			if args['args'][0]['value'] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in args['args'][0]['value']:
-				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
-				EntityType = CompType.GetEngineType()
+				compExtra = CF.CreateExtraData(i)
+				CompMotion = CF.CreateActorMotion(i)
+				CompType = CF.CreateEngineType(i)
+				CompMsg = CF.CreateMsg(i)
+				EntityType = CompType.GetEngineTypeStr()
 				Motions = compExtra.GetExtraData('Motions')
 				if Motions:
-					if EntityType == 63:
+					if EntityType == 'minecraft:player':
 						startMotion = CompMotion.StartPlayerMotion
 					else:
 						startMotion = CompMotion.StartEntityMotion
 					for ii in Motions:
 						startMotion(ii)
-					args['return_msg_key'] = "成功启用实体的运动器"
-				else:
+					CompMsg.NotifyOneMessage(playerId, '成功启用实体的运动器')
+				else :
 					args['return_failed'] = True
-					args['return_msg_key'] = '实体没有绑定运动器'
+					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
 		
-		if args['command'] == 'stopentitymotion':
+		if args['command'] == 'stopmotion':
+			args['return_msg_key'] = ''
 			if args['args'][0]['value'] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in args['args'][0]['value']:
-				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-				CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
-				EntityType = CompType.GetEngineType()
+				compExtra = CF.CreateExtraData(i)
+				CompMotion = CF.CreateActorMotion(i)
+				CompType = CF.CreateEngineType(i)
+				CompMsg = CF.CreateMsg(i)
+				EntityType = CompType.GetEngineTypeStr()
 				Motions = compExtra.GetExtraData('Motions')
 				if Motions:
-					if EntityType == 63:
+					if EntityType == 'minecraft:player':
 						stopMotion = CompMotion.StopPlayerMotion
 					else:
 						stopMotion = CompMotion.StopEntityMotion
 					for ii in Motions:
 						stopMotion(ii)
-					args['return_msg_key'] = "成功停止实体的运动器"
+					CompMsg.NotifyOneMessage(playerId, '成功停止实体的运动器')
 				else:
 					args['return_failed'] = True
-					args['return_msg_key'] = '实体没有绑定运动器'
+					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
 		
-		if args['command'] == 'removeentitymotion':
+		if args['command'] == 'removemotion':
+			args['return_msg_key'] = ''
 			if args['args'][0]['value'] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in args['args'][0]['value']:
-				compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-				CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
+				compExtra = CF.CreateExtraData(i)
+				CompMotion = CF.CreateActorMotion(i)
 				Motions = compExtra.GetExtraData('Motions')
+				CompType = CF.CreateEngineType(i)
+				CompMsg = CF.CreateMsg(i)
+				EntityType = CompType.GetEngineTypeStr()
 				if Motions:
+					if EntityType == 'minecraft:player':
+						removeMotion = CompMotion.RemovePlayerMotion
+					else:
+						removeMotion = CompMotion.RemoveEntityMotion
 					for ii in Motions:
-						CompMotion.RemoveEntityMotion(ii)
+						removeMotion(ii)
 						Motions.remove(ii)
 					compExtra.SetExtraData('Motions', Motions)
-					args['return_msg_key'] = "成功移除实体的运动器"
+					CompMsg.NotifyOneMessage(playerId, '成功移除实体的运动器')
 				else:
 					args['return_failed'] = True
-					args['return_msg_key'] = '实体没有绑定运动器'
+					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
 
 		if args['command'] == 'addenchant':
 			if args['args'][0]['value']:
 				for i in args['args'][0]['value']:
-					compItem = serverApi.GetEngineCompFactory().CreateItem(i)
+					compItem = CF.CreateItem(i)
 					if type(args['args'][3]['value']) == int:
 						slotType = 0
 						slot = args['args'][3]['value']
@@ -380,12 +391,13 @@ class customcmdsPart(PartBase):
 			else:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
-		if args['command'] == 'addentitytrackmotion':
+
+		if args['command'] == 'addtrackmotion':
 			if args['args'][0]['value']:
 				for i in args['args'][0]['value']:
-					compExtra = serverApi.GetEngineCompFactory().CreateExtraData(i)
-					CompMotion = serverApi.GetEngineCompFactory().CreateActorMotion(i)
-					CompType = serverApi.GetEngineCompFactory().CreateEngineType(i)
+					compExtra = CF.CreateExtraData(i)
+					CompMotion = CF.CreateActorMotion(i)
+					CompType = CF.CreateEngineType(i)
 					EntityType = CompType.GetEngineType()
 					if EntityType == 63:
 						addMotion = CompMotion.AddPlayerTrackMotion

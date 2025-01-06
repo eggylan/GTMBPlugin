@@ -1,6 +1,6 @@
 {
 	"format_version": "0.0.1",
-	"name": "addentityvelocitymotion",
+	"name": "addvelocitymotion",
 	"description": "给实体添加速度运动器",
 	"permission_level": "game_directors",
 	"args": [

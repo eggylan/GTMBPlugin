@@ -231,7 +231,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):20", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):21", "§b")
 		elif args["message"][0] * 20 == args["message"][:20]:
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
