@@ -5,6 +5,6 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
-        {"name": "TrueOrFalse", "type": "bool"}
+        {"name": "是否自动清除", "type": "bool"}
 	]
 }

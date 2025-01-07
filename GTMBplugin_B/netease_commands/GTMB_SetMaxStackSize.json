@@ -1,11 +1,11 @@
 {
 	"format_version": "0.0.1",
 	"name": "setmaxstacksize",
-	"description": "设置物品的最大堆叠数量（存档）",
+	"description": "设置主手物品的最大堆叠数量",
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
         {"name": "itemJson", "type": "str"},
-        {"name": "数量", "type": "int"}
+        {"name": "数量(64以内)", "type": "int"}
 	]
 }

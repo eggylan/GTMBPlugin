@@ -1,11 +1,10 @@
 {
 	"format_version": "0.0.1",
-	"name": "givenbt",
+	"name": "givewithnbt",
 	"description": "生成物品到玩家背包",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},
-        {"name": "物品信息Json", "type": "str"},
-        {"name": "背包槽位（默认主手）", "type": "int","default":null}
+        {"name": "物品信息Json", "type": "str"}
 	]
 }

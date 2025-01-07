@@ -5,7 +5,7 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
-        {"name": "方块名称", "type": "str"},
+        {"name": "方块命名空间id", "type": "str"},
         {"name": "速度", "type": "float"}
 	]
 }

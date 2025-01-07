@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
-	"name": "setcanactorsetonfirebylightning",
-	"description": "设置是否允许闪电点燃实体",
+	"name": "setblockcanburnbylightning",
+	"description": "设置是否允许闪电点燃方块",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "是否允许", "type": "bool"}

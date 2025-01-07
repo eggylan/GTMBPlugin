@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "cancelshearsdestoryblockspeedall",
-	"description": "取消剪刀对全部方块的破坏速度设置",
+	"description": "取消某玩家剪刀所有自定义的破坏速度设置",
 	"permission_level": "game_directors",
 	"args": [
 		{"name":"目标", "type": "target"}
