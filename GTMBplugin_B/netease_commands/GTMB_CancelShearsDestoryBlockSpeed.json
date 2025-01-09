@@ -1,10 +1,16 @@
 {
-	"format_version": "0.0.1",
-	"name": "cancelshearsdestoryblockspeed",
-	"description": "取消某玩家剪刀对某一方块的自定义的破坏速度设置",
-	"permission_level": "game_directors",
-	"args": [
-		{"name":"目标", "type": "target"},
-        {"name": "方块命名空间id", "type": "str"}
-	]
+    "args": [
+        {
+            "name": "目标",
+            "type": "target"
+        },
+        {
+            "name": "方块命名空间id",
+            "type": "item"
+        }
+    ],
+    "description": "取消某玩家剪刀对某一方块的自定义的破坏速度设置",
+    "format_version": "0.0.1",
+    "name": "cancelshearsdestoryblockspeed",
+    "permission_level": "game_directors"
 }

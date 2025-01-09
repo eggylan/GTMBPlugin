@@ -1,11 +1,20 @@
 {
-	"format_version": "0.0.1",
-	"name": "setshearsdestoryblockspeed",
-	"description": "设置剪刀对某一方块的破坏速度",
-	"permission_level": "game_directors",
-	"args": [
-        {"name": "目标", "type": "target"},
-        {"name": "方块命名空间id", "type": "str"},
-        {"name": "速度", "type": "float"}
-	]
+    "args": [
+        {
+            "name": "目标",
+            "type": "target"
+        },
+        {
+            "name": "方块命名空间id",
+            "type": "item"
+        },
+        {
+            "name": "速度",
+            "type": "float"
+        }
+    ],
+    "description": "设置剪刀对某一方块的破坏速度",
+    "format_version": "0.0.1",
+    "name": "setshearsdestoryblockspeed",
+    "permission_level": "game_directors"
 }

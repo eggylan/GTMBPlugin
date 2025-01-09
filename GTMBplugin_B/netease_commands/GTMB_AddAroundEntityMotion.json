@@ -1,15 +1,44 @@
 {
-	"format_version": "0.0.1",
-	"name": "addaroundentitymotion",
-	"description": "给实体添加对实体环绕运动器",
-	"permission_level": "game_directors",
-	"args": [
-		{"name": "目标", "type": "target"},
-        {"name": "环绕实体", "type": "target"},
-        {"name":"角速度（弧度/秒）","type":"float"},
-        {"name":"轴","type":"pos","default":[0, 1, 0]},
-        {"name":"锁定实体朝向","type":"bool","default":false},
-        {"name":"停止弧度","type":"float","default":0},
-        {"name":"环绕半径","type":"float","default":-1}
-    ]
+    "args": [
+        {
+            "name": "目标",
+            "type": "target"
+        },
+        {
+            "name": "环绕实体",
+            "type": "target"
+        },
+        {
+            "name": "角速度（弧度/秒）",
+            "type": "float"
+        },
+        {
+            "default": [
+                0,
+                1,
+                0
+            ],
+            "name": "轴",
+            "type": "pos"
+        },
+        {
+            "default": false,
+            "name": "锁定实体朝向",
+            "type": "bool"
+        },
+        {
+            "default": 0,
+            "name": "停止弧度",
+            "type": "float"
+        },
+        {
+            "default": -1,
+            "name": "环绕半径",
+            "type": "float"
+        }
+    ],
+    "description": "给实体添加对实体环绕运动器",
+    "format_version": "0.0.1",
+    "name": "addaroundentitymotion",
+    "permission_level": "game_directors"
 }
