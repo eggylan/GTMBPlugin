@@ -1,12 +1,10 @@
 {
 	"format_version": "0.0.1",
 	"name": "setitemdurability",
-	"description": "设置物品的耐久值",
+	"description": "设置手持物品的耐久值",
 	"permission_level": "game_directors",
 	"args": [
         {"name":"玩家","type":"target"},
-        {"name":"位置id","type":"int"},
-        {"name":"槽位","type":"int"},
         {"name":"耐久","type":"int"}
 	]
 }

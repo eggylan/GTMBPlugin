@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "setinvitemnum",
-	"description": "设置玩家背包物品数目",
+	"description": "设置玩家背包指定位置物品数目",
 	"permission_level": "game_directors",
 	"args": [
         {"name":"玩家","type":"target"},

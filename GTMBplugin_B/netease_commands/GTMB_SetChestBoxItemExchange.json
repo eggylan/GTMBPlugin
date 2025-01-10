@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "setchestboxitemexchange",
-	"description": "交换箱子里物品的槽位",
+	"description": "交换箱子里物品的位置",
 	"permission_level": "game_directors",
 	"args": [
         {"name":"箱子坐标","type" : "pos"},

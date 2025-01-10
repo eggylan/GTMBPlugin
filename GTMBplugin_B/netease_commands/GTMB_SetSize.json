@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "setsize",
-	"description": "设置实体的包围盒",
+	"description": "设置实体的碰撞箱",
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},

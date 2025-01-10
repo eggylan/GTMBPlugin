@@ -1,11 +1,10 @@
 {
 	"format_version": "0.0.1",
 	"name": "setitemtierspeed",
-	"description": "设置工具类物品的挖掘速度",
+	"description": "设置手持工具的挖掘速度",
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
-        {"name":"itemJson", "type":"str"},
         {"name": "速度", "type": "float"}
 	]
 }

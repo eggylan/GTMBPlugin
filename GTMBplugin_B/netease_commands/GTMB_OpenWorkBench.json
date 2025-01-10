@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "openworkbench",
-	"description": "在玩家当前位置打开工作台UI，不依赖于工作台方块",
+	"description": "在玩家当前位置打开工作台，不依赖于工作台方块",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"}

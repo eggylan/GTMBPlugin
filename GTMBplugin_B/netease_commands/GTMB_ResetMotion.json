@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "resetmotion",
-	"description": "重置生物（不含玩家）的瞬时移动方向向量",
+	"description": "重置生物的瞬时移动方向向量",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"}

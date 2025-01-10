@@ -5,7 +5,7 @@
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "itemJson", "type": "str"},
-        {"name": "槽位", "type": "int"},
+        {"name": "槽位 (0~2)", "type": "int"},
         {"name":"位置", "type":"pos"},
         {"name":"维度id", "type":"int"}
 	]

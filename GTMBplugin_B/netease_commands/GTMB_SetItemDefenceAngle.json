@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "setitemdefenceangle",
-	"description": "设置盾牌物品的抵挡角度范围",
+	"description": "设置盾牌的抵挡角度范围",
 	"permission_level": "game_directors",
 	"args": [
         {"name":"玩家","type":"target"},

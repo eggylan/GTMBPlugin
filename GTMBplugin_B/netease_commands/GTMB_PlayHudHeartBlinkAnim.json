@@ -1,9 +1,0 @@
-{
-	"format_version": "0.0.1",
-	"name": "playhudheartblinkanim",
-	"description": "播放原版受伤时血量变化的动效",
-	"permission_level": "game_directors",
-	"args": [
-		{"name": "玩家", "type": "target"}
-	]
-}

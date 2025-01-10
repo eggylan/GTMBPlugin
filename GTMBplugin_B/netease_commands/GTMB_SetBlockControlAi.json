@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "aicontrol",
-	"description": "设置启用生物原生AI",
+	"description": "设置生物原生AI",
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},

@@ -6,8 +6,8 @@
 	"args": [
 		{"name": "玩家", "type": "target"},
         {"name": "坐标", "type": "pos"},
-        {"name": "朝向（参见枚举值）", "type": "int"},
-        {"name": "物品所在地（默认主手）", "type": "int","default":2},
+        {"name": "朝向(0~6)", "type": "int"},
+        {"name": "物品槽位（默认主手）", "type": "int","default":2},
         {"name": "槽位", "type": "int","default":0}
 	]
 }

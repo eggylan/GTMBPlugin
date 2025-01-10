@@ -6,6 +6,6 @@
 	"args": [
         {"name": "维度id", "type": "int"},
         {"name":"坐标", "type":"pos"},
-        {"name": "nbtJson", "type": "str"}
+        {"name": "nbtJson(留空为获取)", "type": "str", "default": null}
 	]
 }

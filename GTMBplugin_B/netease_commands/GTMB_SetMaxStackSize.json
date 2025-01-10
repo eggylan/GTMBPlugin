@@ -5,7 +5,6 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
-        {"name": "itemJson", "type": "str"},
         {"name": "数量(64以内)", "type": "int"}
 	]
 }
