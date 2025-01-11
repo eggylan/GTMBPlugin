@@ -46,9 +46,8 @@ class customcmdsPart(PartBase):
 				if CF.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
 					CF.CreateExtraData(i).SetExtraData('chatprefix', args['args'][1]['value'])
 				else:
-					CF.CreateMsg(i).NotifyOneMessage(playerId, '未能为选择器中的非玩家实体设置聊天前缀', "§c")
+					CF.CreateMsg(i).NotifyOneMessage(playerId, '非玩家实体无法设置聊天前缀', "§c")
 			args['return_msg_key'] = '成功设置玩家聊天前缀'
-			return
 		
 		if command == 'writehealthtoscoreboard':
 			if args['args'][0]['value'] is None:
