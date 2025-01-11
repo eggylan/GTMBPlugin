@@ -231,7 +231,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):24", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):25", "§b")
 		elif args["message"][0] * 20 == args["message"][:20]:
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
@@ -251,7 +251,14 @@ class MainLogicPart(PartBase):
 			compCmd.SetCommand('/tellraw @a[tag=op] {\"rawtext\":[{\"text\":\"§6§l管理小助手>>> §r§e检测到玩家§c【' + args["username"] + '】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令\"}]}')
 			compCmd.SetCommand('/ability '+ args["username"] +' mute true',False)
 		else:
-			args["cancel"] = False
+			args["cancel"] = True
+			compdata = serverApi.GetEngineCompFactory().CreateExtraData(playerId)
+			if compdata.GetExtraData("chatprefix"):
+				chatprefix = compdata.GetExtraData("chatprefix")
+			else:
+				chatprefix = ""
+			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"'+ chatprefix + args["username"] + ' >>> '+ args["message"] +'"}]}')
+
 
 	def OnCommandEvent(self, args):
 		import mod.server.extraServerApi as serverApi

@@ -37,6 +37,19 @@ class customcmdsPart(PartBase):
 		except:
 			playerId = None
 
+		if command == 'playerchatprefix':
+			if args['args'][0]['value'] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in args['args'][0]['value']:
+				if CF.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
+					CF.CreateExtraData(i).SetExtraData('chatprefix', args['args'][1]['value'])
+				else:
+					CF.CreateMsg(i).NotifyOneMessage(playerId, '未能为选择器中的非玩家实体设置聊天前缀', "§c")
+			args['return_msg_key'] = '成功设置玩家聊天前缀'
+			return
+		
 		if command == 'writehealthtoscoreboard':
 			if args['args'][0]['value'] is None:
 				args['return_failed'] = True

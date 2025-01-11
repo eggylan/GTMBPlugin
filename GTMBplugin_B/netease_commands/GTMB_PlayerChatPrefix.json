@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "playerchatprefix",
+	"description": "设置玩家的聊天前缀",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "玩家", "type": "target"},
+		{"name": "字符串", "type": "str"}
+	]
+}
