@@ -19,41 +19,11 @@ class MainLogicPart(PartBase):
 		PartBase.InitClient(self)
 		import mod.client.extraClientApi as clientApi
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
-		clientsystem.ListenForEvent("Minecraft", "preset", "openUI1", self, self.UI1)
-		clientsystem.ListenForEvent("Minecraft", "preset", "openUI2", self, self.UI2)
-		clientsystem.ListenForEvent("Minecraft", "preset", "openUI3", self, self.UI3)
-		clientsystem.ListenForEvent("Minecraft", "preset", "openUI4", self, self.UI4)
-		clientsystem.ListenForEvent("Minecraft", "preset", "openUI5", self, self.UI5)
-		clientsystem.ListenForEvent("Minecraft", "preset", "openUI6", self, self.UI6)
+		clientsystem.ListenForEvent("Minecraft", "preset", "openUI", self, self.UI)
 		clientsystem.ListenForEvent('Minecraft', 'preset', 'close', self, self.close)		
 
-	def UI1(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("enchant")[0]
-		uiNodePreset.SetUiActive(True)
-		uiNodePreset.SetUiVisible(True)
-
-	def UI2(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("getitem")[0]
-		uiNodePreset.SetUiActive(True)
-		uiNodePreset.SetUiVisible(True)
-
-	def UI3(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("nbteditor")[0]
-		uiNodePreset.SetUiActive(True)
-		uiNodePreset.SetUiVisible(True)
-
-	def UI4(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("itemTips")[0]
-		uiNodePreset.SetUiActive(True)
-		uiNodePreset.SetUiVisible(True)
-	
-	def UI5(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdbatch")[0]
-		uiNodePreset.SetUiActive(True)
-		uiNodePreset.SetUiVisible(True)
-
-	def UI6(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimportui")[0]
+	def UI(self, args):
+		uiNodePreset = self.GetParent().GetChildPresetsByName(args["ui"])[0]
 		uiNodePreset.SetUiActive(True)
 		uiNodePreset.SetUiVisible(True)
 		
@@ -190,48 +160,48 @@ class MainLogicPart(PartBase):
 		if args["message"] == "python.enchant":
 			args["cancel"] = True
 			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了自定义附魔面板]"}]}')
-				serversystem.NotifyToClient(playerId, "openUI1", args)
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了自定义附魔面板]"}]}' % (args["username"], args["username"]))
+				serversystem.NotifyToClient(playerId, "openUI", {"ui":"enchant"})
 			else:
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getitem":
 			args["cancel"] = True
 			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了获取隐藏物品面板]"}]}')
-				serversystem.NotifyToClient(playerId, "openUI2", args)
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.changetips":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了修改物品注释面板]"}]}')
-				serversystem.NotifyToClient(playerId, "openUI4", args)
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.cmdbatch":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了批量执行命令面板]"}]}')
-				serversystem.NotifyToClient(playerId, "openUI5", args)
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.cmdblockimport":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了命令方块设置工具面板]"}]}')
-				serversystem.NotifyToClient(playerId, "openUI6", args)
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了获取隐藏物品面板]"}]}' % (args["username"], args["username"]))
+				serversystem.NotifyToClient(playerId, "openUI", {"ui":"getitem"})
 			else:
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.nbteditor":
 			args["cancel"] = True
 			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!' + args["username"] + '] {"rawtext":[{"text":"§7§o[' + args["username"] + ': 打开了NBT修改器]"}]}')
-				serversystem.NotifyToClient(playerId, "openUI3", args)
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了NBT修改器]"}]}' % (args["username"], args["username"]))
+				serversystem.NotifyToClient(playerId, "openUI", {"ui":"nbteditor"})
+			else:
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
+		elif args["message"] == "python.changetips":
+			args["cancel"] = True
+			if can_use_key == 1:
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了修改物品注释面板]"}]}' % (args["username"], args["username"]))
+				serversystem.NotifyToClient(playerId, "openUI", {"ui":"itemTips"})
+			else:
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
+		elif args["message"] == "python.cmdbatch":
+			args["cancel"] = True
+			if can_use_key == 1:
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了批量执行命令面板]"}]}' % (args["username"], args["username"]))
+				serversystem.NotifyToClient(playerId, "openUI", {"ui":"cmdbatch"})
+			else:
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
+		elif args["message"] == "python.cmdblockimport":
+			args["cancel"] = True
+			if can_use_key == 1:
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了命令方块设置工具面板]"}]}' % (args["username"], args["username"]))
+				serversystem.NotifyToClient(playerId, "openUI", {"ui":"cmdblockimportui"})
 			else:
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):26", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):27", "§b")
 		elif args["message"][0] * 20 == args["message"][:20]:
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
@@ -248,8 +218,8 @@ class MainLogicPart(PartBase):
 		elif "" in args["message"] or "" in args["message"] or "" in args["message"]:
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(playerId, "§6§l反崩服系统>>> §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言")
-			compCmd.SetCommand('/tellraw @a[tag=op] {\"rawtext\":[{\"text\":\"§6§l管理小助手>>> §r§e检测到玩家§c【' + args["username"] + '】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令\"}]}')
-			compCmd.SetCommand('/ability '+ args["username"] +' mute true',False)
+			compCmd.SetCommand('/tellraw @a[tag=op] {\"rawtext\":[{\"text\":\"§6§l管理小助手>>> §r§e检测到玩家§c【%s】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令\"}]}' % (args["username"]))
+			compCmd.SetCommand('/ability %s mute true' % (args["username"]), False)
 		else:
 			args["cancel"] = True
 			compdata = serverApi.GetEngineCompFactory().CreateExtraData(playerId)
@@ -257,7 +227,7 @@ class MainLogicPart(PartBase):
 				chatprefix = compdata.GetExtraData("chatprefix")
 			else:
 				chatprefix = ""
-			compMsg.SendMsg(chatprefix + args["username"], args["message"])
+			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s §c>>> §r%s\"}]}' % (chatprefix, args['username'], args['message']))
 
 
 	def OnCommandEvent(self, args):
@@ -324,11 +294,11 @@ class MainLogicPart(PartBase):
 				compCmd.SetCommand("/op %s" % (serverApi.GetEngineCompFactory().CreateName(player).GetName()))		
 
 			if operation == 2:
-				compCmd.SetCommand('/tellraw @a[name='+playername+',tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}')
-				compCmd.SetCommand('/tag ' + playername + ' add op', False)
+				compCmd.SetCommand('/tellraw @a[name=%s,tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}' % (playername))
+				compCmd.SetCommand('/tag %s add op' % (playername), False)
 			else:
-				compCmd.SetCommand('/tellraw @a[name='+playername+',tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}')
-				compCmd.SetCommand('/tag ' + playername + ' remove op', False)
+				compCmd.SetCommand('/tellraw @a[name=%s,tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}' % (playername))
+				compCmd.SetCommand('/tag %s remove op' % (playername), False)
 
 	def DestroyClient(self):
 		"""
