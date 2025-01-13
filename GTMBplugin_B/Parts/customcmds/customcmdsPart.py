@@ -23,9 +23,9 @@ class customcmdsPart(PartBase):
 		import mod.client.extraClientApi as clientApi
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
 		CF = clientApi.GetEngineCompFactory()
-		if args['cmd'] == 'getuid':
-			data = {'data': CF.CreatePlayer(clientApi.GetLocalPlayerId()).getUid(), 'target': args['origin']}
-			clientsystem.NotifyToServer("customCmdReturn", data)
+		
+		
+		# clientsystem.NotifyToServer("customCmdReturn", data)
 
 	def InitServer(self):
 		"""
@@ -42,8 +42,6 @@ class customcmdsPart(PartBase):
 		CF = serverApi.GetEngineCompFactory()
 		compMsg = CF.CreateMsg(args['target'])
 		compName = CF.CreateName(args['__id__'])
-		print("%s的uid为%s" % (compName.GetName(), args['data']))
-		compMsg.NotifyOneMessage(args['target'], "%s的uid为%s" % (compName.GetName(), args['data']))
 
 	def OnCustomCommand(self, args):
 		import mod.server.extraServerApi as serverApi
@@ -581,14 +579,17 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '修改失败'
 
 		if command == 'getuid':
+			uid_dict = {}
 			for i in cmdargs[0]:
 				CompType = CF.CreateEngineType(i)
 				if CompType.GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法获取uid'
 					return
-			serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
-			args['return_msg_key'] = ''
+				playername = CF.CreateName(i).GetName()
+				uid_dict[playername] = CF.CreateHttp(levelId).GetPlayerUid(i)
+			args['return_msg_key'] = '获取到的UID为%s' % (uid_dict)
+			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
