@@ -201,7 +201,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):27", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):28", "§b")
 		elif args["message"][0] * 20 == args["message"][:20]:
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(playerId, "您的消息中含有大量重复字符，发送失败。", "§c")
@@ -222,12 +222,15 @@ class MainLogicPart(PartBase):
 			compCmd.SetCommand('/ability %s mute true' % (args["username"]), False)
 		else:
 			args["cancel"] = True
+			message = args["message"]
 			compdata = serverApi.GetEngineCompFactory().CreateExtraData(playerId)
 			if compdata.GetExtraData("chatprefix"):
 				chatprefix = compdata.GetExtraData("chatprefix")
 			else:
 				chatprefix = ""
-			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s §c>>> §r%s\"}]}' % (chatprefix, args['username'], args['message']))
+			if not serverApi.GetEngineCompFactory().CreateGame(serverApi.GetLevelId()).CheckWordsValid(args["message"]):
+				message = "*****"
+			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message))
 
 
 	def OnCommandEvent(self, args):

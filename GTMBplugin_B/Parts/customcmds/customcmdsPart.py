@@ -27,6 +27,7 @@ class customcmdsPart(PartBase):
 
 	def OnCustomCommand(self, args):
 		import mod.server.extraServerApi as serverApi
+		import json
 		CF = serverApi.GetEngineCompFactory()
 		levelId = serverApi.GetLevelId()
 		compcmd = CF.CreateCommand(levelId)
@@ -37,6 +38,57 @@ class customcmdsPart(PartBase):
 		except:
 			playerId = None
 
+		if command == 'summonprojectile':
+			if args['args'][0]['value'] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			try:
+				targetlen = len(args['args'][7]['value'])
+				target = args['args'][7]['value'][0]
+			except:
+				targetlen = 1
+				target = None
+			if not targetlen == 1:
+				args['return_failed'] = True
+				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
+				return
+			
+			for i in args['args'][0]['value']:
+				param = {
+					'position': args['args'][2]['value'],
+					'direction': args['args'][3]['value'],
+					'power': args['args'][4]['value'],
+					'gravity': args['args'][5]['value'],
+					'damage': args['args'][6]['value'],
+					'targetId': target,
+					'isDamageOwner': args['args'][8]['value'],
+					'auxValue': args['args'][9]['value']
+				}
+				
+				CF.CreateProjectile(levelId).CreateProjectileEntity(i, args['args'][1]['value'], param)
+			args['return_msg_key'] = '成功生成抛射物'
+			return
+		
+		if command == 'setstepheight':
+			if args['args'][0]['value']:
+				for i in args['args'][0]['value']:
+					CF.CreateAttr(i).SetStepHeight(args['args'][1]['value'])
+				args['return_msg_key'] = '成功设置能迈过的最大高度'
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+
+		if command == 'setsize':
+			if args['args'][0]['value']:
+				for i in args['args'][0]['value']:
+					CF.CreateCollisionBox(i).SetSize((args['args'][1]['value'],args['args'][2]['value']))
+				args['return_msg_key'] = '成功设置碰撞箱'
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+		
+		
 		if command == 'playerchatprefix':
 			if args['args'][0]['value'] is None:
 				args['return_failed'] = True

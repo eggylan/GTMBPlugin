@@ -6,6 +6,13 @@
 	"args": [
 		{"name":"创建者","type":"target"},
 		{"name":"抛射物的id","type":"str"},
-		{"name":"抛射物json数据","type":"str"}
+		{"name":"初始位置","type":"pos"},
+		{"name":"初始朝向","type":"pos"},
+		{"name":"力量值","type":"float"},
+		{"name":"重力因子","type":"float","default":null},
+		{"name":"伤害","type":"float","default":null},
+		{"name":"追踪目标","type":"target","default":null},
+		{"name":"伤害创建者","type":"bool","default":false},
+		{"name":"auxValue","type":"int","default":0}
 	]
 }
