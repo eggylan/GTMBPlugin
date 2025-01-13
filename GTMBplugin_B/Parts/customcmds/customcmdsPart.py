@@ -23,7 +23,8 @@ class customcmdsPart(PartBase):
 		import mod.client.extraClientApi as clientApi
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
 		CF = clientApi.GetEngineCompFactory()
-		
+		if args['cmd'] == 'setplayerinteracterange':
+			clientApi.GetEngineCompFactory().CreatePlayer(args['target']).SetPickRange(args['cmdargs'][1])
 		
 		# clientsystem.NotifyToServer("customCmdReturn", data)
 
@@ -60,6 +61,67 @@ class customcmdsPart(PartBase):
 			playerId = args['origin']['entityId']
 		except:
 			playerId = None
+		
+		if command == 'setsigntextstyle':
+			x, y, z = cmdargs[0]
+			if x < 0:
+				x = int(x) - 1
+			else:
+				x = int(x)
+			y = int(y)
+			if z < 0:
+				z = int(z) - 1
+			else:
+				z = int(z)
+			r,g,b = cmdargs[2]
+			a = cmdargs[3]
+			lighting = cmdargs[4]
+			if cmdargs[5] is True:
+				side = 1
+			else:
+				side = 0
+			if CF.CreateBlockEntity(levelId).SetSignTextStyle((x,y,z),cmdargs[1],(r,g,b,a),lighting,side):
+				args['return_msg_key'] = '设置告示牌文本样式成功'
+				return
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '设置失败'
+				return
+		
+		if command == 'setsignblocktext':
+			x, y, z = cmdargs[0]
+			if x < 0:
+				x = int(x) - 1
+			else:
+				x = int(x)
+			y = int(y)
+			if z < 0:
+				z = int(z) - 1
+			else:
+				z = int(z)
+			if cmdargs[3] is True:
+				side = 1
+			else:
+				side = 0
+			if CF.CreateBlockInfo(levelId).SetSignBlockText((x,y,z),cmdargs[1],cmdargs[2],side):
+				args['return_msg_key'] = '设置告示牌文本成功'
+				return
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '设置失败'
+				return
+
+		if command == 'setplayerinteracterange':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				CF.CreatePlayer(i).SetPlayerInteracteRange(cmdargs[1])
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"setplayerinteracterange", 'target': i, 'cmdargs': cmdargs})
+			args['return_msg_key'] = '成功设置触及距离'
+
+		
 		if command == 'summonprojectile':
 			if cmdargs[0] is None:
 				args['return_failed'] = True
