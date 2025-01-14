@@ -18,7 +18,6 @@ class nbteditor(ScreenNode):
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 		import mod.client.extraClientApi as clientApi
-		import json
 		comp = clientApi.GetEngineCompFactory().CreateItem(clientApi.GetLocalPlayerId())
 		carriedData = comp.GetCarriedItem(True)
 		carriedData.pop('enchantData')

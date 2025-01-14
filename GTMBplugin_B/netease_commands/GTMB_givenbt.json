@@ -5,6 +5,6 @@
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},
-        {"name": "物品信息Json", "type": "str"}
+        {"name": "物品信息Json(只允许单引号)", "type": "str"}
 	]
 }

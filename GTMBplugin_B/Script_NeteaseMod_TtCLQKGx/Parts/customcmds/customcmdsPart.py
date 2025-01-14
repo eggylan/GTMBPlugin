@@ -46,6 +46,7 @@ class customcmdsPart(PartBase):
 
 	def OnCustomCommand(self, args):
 		import mod.server.extraServerApi as serverApi
+		import json
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		CF = serverApi.GetEngineCompFactory()
 		levelId = serverApi.GetLevelId()
@@ -70,8 +71,7 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				CF.CreateItem(i).SetInvItemExchange(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '成功交换物品'
-			return
-		
+			return	
 		
 		if command == 'setinvitemnum':
 			if cmdargs[0] is None:
@@ -86,7 +86,6 @@ class customcmdsPart(PartBase):
 				CF.CreateItem(i).SetInvItemNum(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '成功设置物品数量'
 			return
-		
 		
 		if command == 'setitemdefenceangle':
 			if cmdargs[0] is None:
@@ -119,8 +118,7 @@ class customcmdsPart(PartBase):
 				CF.CreateItem(i).SetItemDurability(2,0,cmdargs[1])
 			args['return_msg_key'] = '成功设置物品耐久度'
 			return
-			
-		
+				
 		if command == 'setitemmaxdurability':
 			if cmdargs[0] is None:
 				args['return_failed'] = True
@@ -134,8 +132,7 @@ class customcmdsPart(PartBase):
 				CF.CreateItem(i).SetItemMaxDurability(2,0,cmdargs[1],True)
 			args['return_msg_key'] = '成功设置物品最大耐久度'
 			return
-		
-		
+			
 		if command == 'setitemtierlevel':
 			if cmdargs[0] is None:
 				args['return_failed'] = True
@@ -179,7 +176,6 @@ class customcmdsPart(PartBase):
 				CF.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
 			args['return_msg_key'] = '成功设置最大堆叠数量'
 			return
-		
 		
 		if command == 'playerexhaustionratio':
 			if cmdargs[0] is None:
@@ -254,7 +250,6 @@ class customcmdsPart(PartBase):
 				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"setplayerinteracterange", 'target': i, 'cmdargs': cmdargs})
 			args['return_msg_key'] = '成功设置触及距离'
 			return
-
 		
 		if command == 'summonprojectile':
 			if cmdargs[0] is None:
@@ -862,6 +857,22 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '获取到的UID为%s' % (uid_dict)
 			return
 			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
+
+		if command == 'givewithnbt':
+			try:
+				itemDict = json.loads(cmdargs[1].replace("'",'"'), encoding='utf-8')
+			except:
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的nbt'
+				return
+			for i in cmdargs[0]:
+				if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法给予物品'
+					return
+				CF.CreateItem(i).SpawnItemToPlayerInv(itemDict, i)
+			
+
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
