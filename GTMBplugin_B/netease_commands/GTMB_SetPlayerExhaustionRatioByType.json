@@ -1,11 +1,11 @@
 {
 	"format_version": "0.0.1",
 	"name": "playerexhaustionratio",
-	"description": "管理玩家某行为饥饿度消耗倍率(后两个参数不填时显示所有倍率)",
+	"description": "管理玩家某行为饥饿度消耗倍率",
 	"permission_level": "game_directors",
 	"args": [
         {"name": "玩家", "type": "target"},
-        {"name": "行为id(0~4, 9)", "type": "int", "default":null},
-        {"name": "倍率", "type": "float", "default":null}
+        {"name": "行为id(0~4, 9)", "type": "int"},
+        {"name": "倍率", "type": "float"}
 	]
 }
