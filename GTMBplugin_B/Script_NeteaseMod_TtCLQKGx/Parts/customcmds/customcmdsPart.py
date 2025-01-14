@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
-
+import mod.server.extraServerApi as serverApi
+import mod.client.extraClientApi as clientApi
+import json
 
 @registerGenericClass("customcmdsPart")
 class customcmdsPart(PartBase):
@@ -14,17 +16,49 @@ class customcmdsPart(PartBase):
 		"""
 		@description 客户端的零件对象初始化入口
 		"""
-		import mod.client.extraClientApi as clientApi
+		global clientsystem,CFClient
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
+		CFClient = clientApi.GetEngineCompFactory()
 		clientsystem.ListenForEvent("Minecraft", "preset", "CustomCommandClient", self, self.OnCustomCommandClient)
 		PartBase.InitClient(self)
 
 	def OnCustomCommandClient(self, args):
-		import mod.client.extraClientApi as clientApi
-		clientsystem = clientApi.GetSystem("Minecraft", "preset")
-		CF = clientApi.GetEngineCompFactory()
 		if args['cmd'] == 'setplayerinteracterange':
 			clientApi.GetEngineCompFactory().CreatePlayer(args['target']).SetPickRange(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hideairsupplygui':
+			clientApi.HideAirSupplyGUI(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hidearmorgui':
+			clientApi.HideArmorGui(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hidecrosshairgui':
+			clientApi.HideCrossHairGUI(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hideexpgui':
+			clientApi.HideExpGui(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hidefoldgui':
+			clientApi.HideFoldGUI(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hidehealthgui':
+			clientApi.HideHealthGui(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hidehorsehealthgui':
+			clientApi.HideHorseHealthGui(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hidehudgui':
+			clientApi.HideHudGUI(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hidehungergui':
+			clientApi.HideHungerGui(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'hideslotbargui':
+			clientApi.HideSlotBarGui(args['cmdargs'][1])
+			return
+		if args['cmd'] == 'openfoldgui':
+			clientApi.OpenFoldGui()
+			return
 		
 		# clientsystem.NotifyToServer("customCmdReturn", data)
 
@@ -32,28 +66,22 @@ class customcmdsPart(PartBase):
 		"""
 		@description 服务端的零件对象初始化入口
 		"""
-		import mod.server.extraServerApi as serverApi
+		global serversystem,CFClient,CFServer,levelId,compcmd,compGame
+		CFServer = serverApi.GetEngineCompFactory()
+		levelId = serverApi.GetLevelId()
+		compcmd = CFServer.CreateCommand(levelId)
+		compGame = serverApi.GetEngineCompFactory().CreateGame(levelId)
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CustomCommandTriggerServerEvent", self, self.OnCustomCommand)
 		serversystem.ListenForEvent("Minecraft", "preset", "customCmdReturn", self, self.OnReturn)
 		PartBase.InitServer(self)
 
 	def OnReturn(self, args):
-		import mod.server.extraServerApi as serverApi
-		CF = serverApi.GetEngineCompFactory()
-		compMsg = CF.CreateMsg(args['target'])
-		compName = CF.CreateName(args['__id__'])
+		compMsg = CFServer.CreateMsg(args['target'])
+		compName = CFServer.CreateName(args['__id__'])
 
 	def OnCustomCommand(self, args):
-		import mod.server.extraServerApi as serverApi
-		import json
-		serversystem = serverApi.GetSystem("Minecraft", "preset")
-		CF = serverApi.GetEngineCompFactory()
-		levelId = serverApi.GetLevelId()
-		compcmd = CF.CreateCommand(levelId)
-		compGame = serverApi.GetEngineCompFactory().CreateGame(levelId)
 		command = args['command']
-
 		cmdargs = []
 		for i in args["args"]:
 			cmdargs.append(i["value"])
@@ -63,13 +91,199 @@ class customcmdsPart(PartBase):
 		except:
 			playerId = None
 		
+		if command == 'playeruseitemtopos':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			if cmdargs[2] not in [0,1,2,3,4,5]:
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的朝向'
+				return
+			x, y, z = cmdargs[1]
+			if x < 0:
+				x = int(x) - 1
+			else:
+				x = int(x)
+			y = int(y)
+			if z < 0:
+				z = int(z) - 1
+			else:
+				z = int(z)
+			for i in cmdargs[0]:
+				CFServer.CreateBlockInfo(i).PlayerUseItemToPos((x,y,z),cmdargs[3],cmdargs[4],cmdargs[2])
+			args['return_msg_key'] = '已尝试使用物品'
+			return
+		
+		if command == 'playeruseitemtoentity':
+			if cmdargs[0] is None or cmdargs[1] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			if not len(cmdargs[1]) == 1:
+				args['return_failed'] = True
+				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
+				return
+			entityId = cmdargs[1][0]
+			for i in cmdargs[0]:
+				CFServer.CreateBlockInfo(i).PlayerUseItemToEntity(entityId)
+			args['return_msg_key'] = '已尝试使用物品'
+			return
+		
+		if command == 'playerdestoryblock':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			x, y, z = cmdargs[1]
+			if x < 0:
+				x = int(x) - 1
+			else:
+				x = int(x)
+			y = int(y)
+			if z < 0:
+				z = int(z) - 1
+			else:
+				z = int(z)
+			for i in cmdargs[0]:
+				CFServer.CreateBlockInfo(i).PlayerDestoryBlock((x,y,z),cmdargs[2],cmdargs[3])
+			args['return_msg_key'] = '已尝试破坏方块'
+			return
+		
+		if command == 'openworkbench':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				CFServer.CreateBlockInfo(i).OpenWorkBench()
+			args['return_msg_key'] = '已打开工作台界面'
+		
+		if command == 'openfoldgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"openfoldgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将界面指令发送至客户端'
+		
+		if command == 'setimmunedamage':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				CFServer.CreateHurt(i).ImmuneDamage(cmdargs[1])
+			args['return_msg_key'] = '设置免疫伤害成功'
+		
+		if command == 'hideslotbargui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hideslotbargui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hidehungergui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehungergui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hidehudgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehudgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hidehorsehealthgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehorsehealthgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hidehealthgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehealthgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hidefoldgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidefoldgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hideexpgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hideexpgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hidecrosshairgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidecrosshairgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hidearmorgui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidearmorgui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
+		if command == 'hideairsupplygui':
+			if cmdargs[0] is None:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+				return
+			for i in cmdargs[0]:
+				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hideairsupplygui",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
+			return
+		
 		if command == 'setinvitemexchange':
 			if cmdargs[0] is None:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				CF.CreateItem(i).SetInvItemExchange(cmdargs[1], cmdargs[2])
+				CFServer.CreateItem(i).SetInvItemExchange(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '成功交换物品'
 			return	
 		
@@ -83,7 +297,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的物品数量'
 				return
 			for i in cmdargs[0]:
-				CF.CreateItem(i).SetInvItemNum(cmdargs[1], cmdargs[2])
+				CFServer.CreateItem(i).SetInvItemNum(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '成功设置物品数量'
 			return
 		
@@ -101,7 +315,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的角度'
 				return
 			for i in cmdargs[0]:
-				CF.CreateItem(i).SetItemDefenceAngle(cmdargs[1],cmdargs[2],cmdargs[3],cmdargs[4])
+				CFServer.CreateItem(i).SetItemDefenceAngle(cmdargs[1],cmdargs[2],cmdargs[3],cmdargs[4])
 			args['return_msg_key'] = '成功设置盾牌抵挡角度'
 			return
 		
@@ -115,7 +329,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的耐久度'
 				return
 			for i in cmdargs[0]:
-				CF.CreateItem(i).SetItemDurability(2,0,cmdargs[1])
+				CFServer.CreateItem(i).SetItemDurability(2,0,cmdargs[1])
 			args['return_msg_key'] = '成功设置物品耐久度'
 			return
 				
@@ -129,7 +343,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的耐久度'
 				return
 			for i in cmdargs[0]:
-				CF.CreateItem(i).SetItemMaxDurability(2,0,cmdargs[1],True)
+				CFServer.CreateItem(i).SetItemMaxDurability(2,0,cmdargs[1],True)
 			args['return_msg_key'] = '成功设置物品最大耐久度'
 			return
 			
@@ -143,9 +357,9 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的等级'
 				return
 			for i in cmdargs[0]:
-				itemdata = CF.CreateItem(i).GetPlayerItem(2, 0, True)
-				CF.CreateItem(i).SetItemTierLevel(itemdata,cmdargs[1])
-				CF.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
+				itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
+				CFServer.CreateItem(i).SetItemTierLevel(itemdata,cmdargs[1])
+				CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
 			args['return_msg_key'] = '成功设置物品等级'
 			return
 		
@@ -155,9 +369,9 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				itemdata = CF.CreateItem(i).GetPlayerItem(2, 0, True)
-				CF.CreateItem(i).SetItemTierSpeed(itemdata,cmdargs[1])
-				CF.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
+				itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
+				CFServer.CreateItem(i).SetItemTierSpeed(itemdata,cmdargs[1])
+				CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
 			args['return_msg_key'] = '成功设置物品挖掘速度'
 			return
 		
@@ -171,9 +385,9 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的堆叠数量'
 				return
 			for i in cmdargs[0]:
-				itemdata = CF.CreateItem(i).GetPlayerItem(2, 0, True)
-				CF.CreateItem(i).SetMaxStackSize(itemdata,cmdargs[1])
-				CF.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
+				itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
+				CFServer.CreateItem(i).SetMaxStackSize(itemdata,cmdargs[1])
+				CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
 			args['return_msg_key'] = '成功设置最大堆叠数量'
 			return
 		
@@ -187,7 +401,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的行为id'
 				return
 			for i in cmdargs[0]:
-				CF.CreatePlayer(i).SetPlayerExhaustionRatioByType(cmdargs[1], cmdargs[2])
+				CFServer.CreatePlayer(i).SetPlayerExhaustionRatioByType(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '成功设置玩家饥饿度消耗倍率'
 			return
 		
@@ -209,7 +423,7 @@ class customcmdsPart(PartBase):
 				side = 1
 			else:
 				side = 0
-			if CF.CreateBlockEntity(levelId).SetSignTextStyle((x,y,z),cmdargs[1],(r,g,b,a),lighting,side):
+			if CFServer.CreateBlockEntity(levelId).SetSignTextStyle((x,y,z),cmdargs[1],(r,g,b,a),lighting,side):
 				args['return_msg_key'] = '设置告示牌文本样式成功'
 				return
 			else:
@@ -232,7 +446,7 @@ class customcmdsPart(PartBase):
 				side = 1
 			else:
 				side = 0
-			if CF.CreateBlockInfo(levelId).SetSignBlockText((x,y,z),cmdargs[1],cmdargs[2],side):
+			if CFServer.CreateBlockInfo(levelId).SetSignBlockText((x,y,z),cmdargs[1],cmdargs[2],side):
 				args['return_msg_key'] = '设置告示牌文本成功'
 				return
 			else:
@@ -246,7 +460,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				CF.CreatePlayer(i).SetPlayerInteracteRange(cmdargs[1])
+				CFServer.CreatePlayer(i).SetPlayerInteracteRange(cmdargs[1])
 				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"setplayerinteracterange", 'target': i, 'cmdargs': cmdargs})
 			args['return_msg_key'] = '成功设置触及距离'
 			return
@@ -279,14 +493,14 @@ class customcmdsPart(PartBase):
 					'auxValue': cmdargs[9]
 				}
 				
-				CF.CreateProjectile(levelId).CreateProjectileEntity(i, cmdargs[1], param)
+				CFServer.CreateProjectile(levelId).CreateProjectileEntity(i, cmdargs[1], param)
 			args['return_msg_key'] = '成功生成抛射物'
 			return
 		
 		if command == 'setstepheight':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					CF.CreateAttr(i).SetStepHeight(cmdargs[1])
+					CFServer.CreateAttr(i).SetStepHeight(cmdargs[1])
 				args['return_msg_key'] = '成功设置能迈过的最大高度'
 			else:
 				args['return_failed'] = True
@@ -295,7 +509,7 @@ class customcmdsPart(PartBase):
 		if command == 'setsize':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					CF.CreateCollisionBox(i).SetSize((cmdargs[1],cmdargs[2]))
+					CFServer.CreateCollisionBox(i).SetSize((cmdargs[1],cmdargs[2]))
 				args['return_msg_key'] = '成功设置碰撞箱'
 			else:
 				args['return_failed'] = True
@@ -307,10 +521,10 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				if CF.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
-					CF.CreateExtraData(i).SetExtraData('chatprefix', cmdargs[1])
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
+					CFServer.CreateExtraData(i).SetExtraData('chatprefix', cmdargs[1])
 				else:
-					CF.CreateMsg(i).NotifyOneMessage(playerId, '非玩家实体无法设置聊天前缀', "§c")
+					CFServer.CreateMsg(i).NotifyOneMessage(playerId, '非玩家实体无法设置聊天前缀', "§c")
 			args['return_msg_key'] = '成功设置玩家聊天前缀'
 			return
 		
@@ -326,10 +540,10 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '未找到该计分板对象'
 				return
 			for entity in cmdargs[0]:
-				name = CF.CreateName(entity).GetName()
+				name = CFServer.CreateName(entity).GetName()
 				if name is None:
 					name = '"' + str(entity) + '"'
-				health = CF.CreateAttr(entity).GetAttrValue(0)
+				health = CFServer.CreateAttr(entity).GetAttrValue(0)
 				health = int(round(health))
 				compcmd.SetCommand('/scoreboard players set %s %s %s' % (name, scoreboard_name, health), False)
 			args['return_msg_key'] = '成功将生命值写入计分板'
@@ -347,10 +561,10 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '未找到该计分板对象'
 				return
 			for entity in cmdargs[0]:
-				name = CF.CreateName(entity).GetName()
+				name = CFServer.CreateName(entity).GetName()
 				if name is None:
 					name = '"' + str(entity) + '"'
-				hunger = CF.CreateAttr(entity).GetAttrValue(4)
+				hunger = CFServer.CreateAttr(entity).GetAttrValue(4)
 				hunger = int(round(hunger))
 				compcmd.SetCommand('/scoreboard players set %s %s %s' % (name, scoreboard_name, hunger), False)
 			args['return_msg_key'] = '成功将饥饿值写入计分板'
@@ -368,10 +582,10 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '未找到该计分板对象'
 				return
 			for entity in cmdargs[0]:
-				name = CF.CreateName(entity).GetName()
+				name = CFServer.CreateName(entity).GetName()
 				if name is None:
 					name = '"' + str(entity) + '"'
-				armor = CF.CreateAttr(entity).GetAttrValue(12)
+				armor = CFServer.CreateAttr(entity).GetAttrValue(12)
 				armor = int(round(armor))
 				compcmd.SetCommand('/scoreboard players set %s %s %s' % (name, scoreboard_name, armor), False)
 			args['return_msg_key'] = '成功将盔甲值写入计分板'
@@ -389,17 +603,17 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '未找到该计分板对象'
 				return
 			for entity in cmdargs[0]:
-				name = CF.CreateName(entity).GetName()
+				name = CFServer.CreateName(entity).GetName()
 				if name is None:
 					name = '"' + str(entity) + '"'
-				speed = CF.CreateAttr(entity).GetAttrValue(1)
+				speed = CFServer.CreateAttr(entity).GetAttrValue(1)
 				speed = int(round(speed))
 				compcmd.SetCommand('/scoreboard players set %s %s %s' % (name, scoreboard_name, speed), False)
 			args['return_msg_key'] = '成功将速度值写入计分板'
 			return
 		
 		if command == 'executecb':
-			success = CF.CreateBlockEntity(levelId).ExecuteCommandBlock((cmdargs[0], cmdargs[1], cmdargs[2]), cmdargs[3])
+			success = CFServer.CreateBlockEntity(levelId).ExecuteCommandBlock((cmdargs[0], cmdargs[1], cmdargs[2]), cmdargs[3])
 			if success:
 				args['return_msg_key'] = '成功执行命令方块'
 				return
@@ -414,7 +628,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				CF.CreateName(i).SetName(cmdargs[1])
+				CFServer.CreateName(i).SetName(cmdargs[1])
 			args['return_msg_key'] = '成功设置名称'
 			return
 		
@@ -424,14 +638,14 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				CF.CreateControlAi(i).SetBlockControlAi(cmdargs[1], cmdargs[2])
+				CFServer.CreateControlAi(i).SetBlockControlAi(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '成功设置实体AI'
 			return
 		
 		if command == 'master':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					compExtra = CF.CreateExtraData(i)
+					compExtra = CFServer.CreateExtraData(i)
 					compExtra.SetExtraData("isMaster", True)
 				args['return_msg_key'] = '锁定玩家权限成功'
 				return
@@ -443,7 +657,7 @@ class customcmdsPart(PartBase):
 		if command == 'demaster':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					compExtra = CF.CreateExtraData(i)
+					compExtra = CFServer.CreateExtraData(i)
 					compExtra.SetExtraData("isMaster", False)
 				args['return_msg_key'] = '解锁玩家权限成功'
 				return
@@ -452,7 +666,7 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				return
 		
-		compExtra = CF.CreateExtraData(serverApi.GetLevelId())
+		compExtra = CFServer.CreateExtraData(serverApi.GetLevelId())
 		params = compExtra.GetExtraData('parameters')
 		input1 = cmdargs[0]
 		if command == 'param':
@@ -492,7 +706,7 @@ class customcmdsPart(PartBase):
 		if command == 'kickt':
 			if cmdargs[0]:
 				for kickplayer in cmdargs[0]:
-					CF.CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + CF.CreateName(kickplayer).GetName() + ' ' + cmdargs[1], False)
+					CFServer.CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + CFServer.CreateName(kickplayer).GetName() + ' ' + cmdargs[1], False)
 				args['return_msg_key'] = '已踢出目标玩家'
 				return
 			else:
@@ -506,13 +720,13 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				position = CF.CreatePos(i).GetFootPos()
-				CF.CreateExplosion(levelId).CreateExplosion(position,cmdargs[1],cmdargs[3],cmdargs[2],i,None)
+				position = CFServer.CreatePos(i).GetFootPos()
+				CFServer.CreateExplosion(levelId).CreateExplosion(position,cmdargs[1],cmdargs[3],cmdargs[2],i,None)
 			args['return_msg_key'] = '爆炸已成功创建'
 			return
 	
 		if command == 'explodebypos':
-			if CF.CreateExplosion(levelId).CreateExplosion(cmdargs[0],cmdargs[1],cmdargs[3],cmdargs[2],None,None):
+			if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0],cmdargs[1],cmdargs[3],cmdargs[2],None,None):
 				args['return_msg_key'] = '爆炸已成功创建'
 				return
 			else:
@@ -534,7 +748,7 @@ class customcmdsPart(PartBase):
 					cmd2 = "%s %s" % (cmd2, i)
 			else:
 				cmd2 = cmd
-			CF.CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd2, False)
+			CFServer.CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd2, False)
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 			return
 		
@@ -548,9 +762,9 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				return
 			for i in cmdargs[0]:
-				compExtra = CF.CreateExtraData(i)
-				CompMotion = CF.CreateActorMotion(i)
-				CompType = CF.CreateEngineType(i)
+				compExtra = CFServer.CreateExtraData(i)
+				CompMotion = CFServer.CreateActorMotion(i)
+				CompType = CFServer.CreateEngineType(i)
 				EntityType = CompType.GetEngineTypeStr()
 				if command == 'addaroundentitymotion':
 					if EntityType == 'minecraft:player':
@@ -591,9 +805,9 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				compExtra = CF.CreateExtraData(i)
-				CompMotion = CF.CreateActorMotion(i)
-				CompType = CF.CreateEngineType(i)
+				compExtra = CFServer.CreateExtraData(i)
+				CompMotion = CFServer.CreateActorMotion(i)
+				CompType = CFServer.CreateEngineType(i)
 				EntityType = CompType.GetEngineTypeStr()
 				if EntityType == 'minecraft:player':
 					addMotion = CompMotion.AddPlayerVelocityMotion
@@ -621,10 +835,10 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				compExtra = CF.CreateExtraData(i)
-				CompMotion = CF.CreateActorMotion(i)
-				CompType = CF.CreateEngineType(i)
-				CompMsg = CF.CreateMsg(i)
+				compExtra = CFServer.CreateExtraData(i)
+				CompMotion = CFServer.CreateActorMotion(i)
+				CompType = CFServer.CreateEngineType(i)
+				CompMsg = CFServer.CreateMsg(i)
 				EntityType = CompType.GetEngineTypeStr()
 				Motions = compExtra.GetExtraData('Motions')
 				if Motions:
@@ -635,11 +849,10 @@ class customcmdsPart(PartBase):
 					for ii in Motions:
 						startMotion(ii)
 					CompMsg.NotifyOneMessage(playerId, '成功启用实体的运动器')
-					return
 				else :
 					args['return_failed'] = True
 					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
-					return
+			return
 		
 		if command == 'stopmotion':
 			args['return_msg_key'] = ''
@@ -648,10 +861,10 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				compExtra = CF.CreateExtraData(i)
-				CompMotion = CF.CreateActorMotion(i)
-				CompType = CF.CreateEngineType(i)
-				CompMsg = CF.CreateMsg(i)
+				compExtra = CFServer.CreateExtraData(i)
+				CompMotion = CFServer.CreateActorMotion(i)
+				CompType = CFServer.CreateEngineType(i)
+				CompMsg = CFServer.CreateMsg(i)
 				EntityType = CompType.GetEngineTypeStr()
 				Motions = compExtra.GetExtraData('Motions')
 				if Motions:
@@ -662,11 +875,10 @@ class customcmdsPart(PartBase):
 					for ii in Motions:
 						stopMotion(ii)
 					CompMsg.NotifyOneMessage(playerId, '成功停止实体的运动器')
-					return
 				else:
 					args['return_failed'] = True
 					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
-					return
+			return
 		
 		if command == 'removemotion':
 			args['return_msg_key'] = ''
@@ -675,11 +887,11 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 			for i in cmdargs[0]:
-				compExtra = CF.CreateExtraData(i)
-				CompMotion = CF.CreateActorMotion(i)
+				compExtra = CFServer.CreateExtraData(i)
+				CompMotion = CFServer.CreateActorMotion(i)
 				Motions = compExtra.GetExtraData('Motions')
-				CompType = CF.CreateEngineType(i)
-				CompMsg = CF.CreateMsg(i)
+				CompType = CFServer.CreateEngineType(i)
+				CompMsg = CFServer.CreateMsg(i)
 				EntityType = CompType.GetEngineTypeStr()
 				if Motions:
 					if EntityType == 'minecraft:player':
@@ -691,16 +903,15 @@ class customcmdsPart(PartBase):
 						Motions.remove(ii)
 					compExtra.SetExtraData('Motions', Motions)
 					CompMsg.NotifyOneMessage(playerId, '成功移除实体的运动器')
-					return
 				else:
 					args['return_failed'] = True
 					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
-					return
+			return
 
 		if command == 'addenchant':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					compItem = CF.CreateItem(i)
+					compItem = CFServer.CreateItem(i)
 					if type(cmdargs[3]) == int:
 						slotType = 0
 						slot = cmdargs[3]
@@ -720,13 +931,12 @@ class customcmdsPart(PartBase):
 					else:
 						args['return_failed'] = True
 						args['return_msg_key'] = '该槽位没有物品或没有该槽位'
-						return
 					if slotType == 0:
 						compItem.SpawnItemToPlayerInv(itemDict, i, slot)
 					else:
 						compItem.SpawnItemToPlayerCarried(itemDict, i)
 					args['return_msg_key'] = '添加附魔成功'
-					return
+				return
 			else:
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
@@ -735,9 +945,9 @@ class customcmdsPart(PartBase):
 		if command == 'addtrackmotion':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					compExtra = CF.CreateExtraData(i)
-					CompMotion = CF.CreateActorMotion(i)
-					CompType = CF.CreateEngineType(i)
+					compExtra = CFServer.CreateExtraData(i)
+					CompMotion = CFServer.CreateActorMotion(i)
+					CompType = CFServer.CreateEngineType(i)
 					EntityType = CompType.GetEngineType()
 					if EntityType == 63:
 						addMotion = CompMotion.AddPlayerTrackMotion
@@ -780,7 +990,7 @@ class customcmdsPart(PartBase):
 		if command == 'cancelshearsdestoryblockspeedall':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					compItem = CF.CreateItem(i)
+					compItem = CFServer.CreateItem(i)
 					compItem.CancelShearsDestoryBlockSpeedAll()
 				args['return_msg_key'] = '取消成功'
 				return
@@ -792,7 +1002,7 @@ class customcmdsPart(PartBase):
 		if command == 'cancelshearsdestoryblockspeed':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
-					compItem = CF.CreateItem(i)
+					compItem = CFServer.CreateItem(i)
 					if not compItem.CancelShearsDestoryBlockSpeed(cmdargs[1]):
 						args['return_failed'] = True
 						args['return_msg_key'] = '无效的命名空间id'
@@ -810,7 +1020,7 @@ class customcmdsPart(PartBase):
 					args['return_msg_key'] = '速度必须大于1'
 					return
 				for i in cmdargs[0]:
-					compItem = CF.CreateItem(i)
+					compItem = CFServer.CreateItem(i)
 					if not compItem.SetShearsDestoryBlockSpeed(cmdargs[1], cmdargs[2]):
 						args['return_failed'] = True
 						args['return_msg_key'] = '无效的命名空间id'
@@ -823,14 +1033,14 @@ class customcmdsPart(PartBase):
 
 		if command == 'changeselectslot':
 			for i in cmdargs[0]:
-				CompType = CF.CreateEngineType(i)
+				CompType = CFServer.CreateEngineType(i)
 				EntityType = CompType.GetEngineTypeStr()
 				if EntityType != "minecraft:player":
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置选择槽位'
 					return
 			for i in cmdargs[0]:
-				CompPlayer = CF.CreatePlayer(i)
+				CompPlayer = CFServer.CreatePlayer(i)
 				CompPlayer.ChangeSelectSlot(cmdargs[1])
 			args['return_msg_key'] = '设置成功'
 			return
@@ -847,30 +1057,32 @@ class customcmdsPart(PartBase):
 		if command == 'getuid':
 			uid_dict = {}
 			for i in cmdargs[0]:
-				CompType = CF.CreateEngineType(i)
+				CompType = CFServer.CreateEngineType(i)
 				if CompType.GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法获取uid'
 					return
-				playername = CF.CreateName(i).GetName()
-				uid_dict[playername] = CF.CreateHttp(levelId).GetPlayerUid(i)
+				playername = CFServer.CreateName(i).GetName()
+				uid_dict[playername] = CFServer.CreateHttp(levelId).GetPlayerUid(i)
 			args['return_msg_key'] = '获取到的UID为%s' % (uid_dict)
 			return
 			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
 
-		if command == 'givewithnbt':
-			try:
-				itemDict = json.loads(cmdargs[1].replace("'",'"'), encoding='utf-8')
-			except:
-				args['return_failed'] = True
-				args['return_msg_key'] = '无效的nbt'
-				return
-			for i in cmdargs[0]:
-				if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法给予物品'
-					return
-				CF.CreateItem(i).SpawnItemToPlayerInv(itemDict, i)
+		# if command == 'givewithnbt':
+		# 	try:
+		# 		itemDict = json.loads(cmdargs[1].replace("'",'"'), encoding='utf-8')
+		# 	except:
+		# 		args['return_failed'] = True
+		# 		args['return_msg_key'] = '无效的nbt'
+		# 		return
+		# 	for i in cmdargs[0]:
+		# 		if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+		# 			args['return_failed'] = True
+		# 			args['return_msg_key'] = '非玩家实体无法给予物品'
+		# 			return
+		# 		CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i,0)
+		# 	args['return_msg_key'] = '成功给予物品'
+		# 	return
 			
 
 	def TickClient(self):
