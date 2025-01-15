@@ -4,6 +4,12 @@ from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
 import mod.client.extraClientApi as clientApi
 import json
+CFServer = serverApi.GetEngineCompFactory()
+serversystem = serverApi.GetSystem("Minecraft", "preset")
+CFClient = clientApi.GetEngineCompFactory()
+levelId = serverApi.GetLevelId()
+compcmd = CFServer.CreateCommand(levelId)
+compGame = CFServer.CreateGame(levelId)
 
 @registerGenericClass("customcmdsPart")
 class customcmdsPart(PartBase):
@@ -16,9 +22,7 @@ class customcmdsPart(PartBase):
 		"""
 		@description 客户端的零件对象初始化入口
 		"""
-		global clientsystem,CFClient
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
-		CFClient = clientApi.GetEngineCompFactory()
 		clientsystem.ListenForEvent("Minecraft", "preset", "CustomCommandClient", self, self.OnCustomCommandClient)
 		PartBase.InitClient(self)
 
@@ -66,12 +70,6 @@ class customcmdsPart(PartBase):
 		"""
 		@description 服务端的零件对象初始化入口
 		"""
-		global serversystem,CFClient,CFServer,levelId,compcmd,compGame
-		CFServer = serverApi.GetEngineCompFactory()
-		levelId = serverApi.GetLevelId()
-		compcmd = CFServer.CreateCommand(levelId)
-		compGame = serverApi.GetEngineCompFactory().CreateGame(levelId)
-		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CustomCommandTriggerServerEvent", self, self.OnCustomCommand)
 		serversystem.ListenForEvent("Minecraft", "preset", "customCmdReturn", self, self.OnReturn)
 		PartBase.InitServer(self)
@@ -527,7 +525,7 @@ class customcmdsPart(PartBase):
 					CFServer.CreateMsg(i).NotifyOneMessage(playerId, '非玩家实体无法设置聊天前缀', "§c")
 			args['return_msg_key'] = '成功设置玩家聊天前缀'
 			return
-		
+
 		if command == 'writehealthtoscoreboard':
 			if cmdargs[0] is None:
 				args['return_failed'] = True
@@ -1068,21 +1066,22 @@ class customcmdsPart(PartBase):
 			return
 			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
 
-		# if command == 'givewithnbt':
-		# 	try:
-		# 		itemDict = json.loads(cmdargs[1].replace("'",'"'), encoding='utf-8')
-		# 	except:
-		# 		args['return_failed'] = True
-		# 		args['return_msg_key'] = '无效的nbt'
-		# 		return
-		# 	for i in cmdargs[0]:
-		# 		if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-		# 			args['return_failed'] = True
-		# 			args['return_msg_key'] = '非玩家实体无法给予物品'
-		# 			return
-		# 		CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i,0)
-		# 	args['return_msg_key'] = '成功给予物品'
-		# 	return
+		if command == 'givewithnbt':
+			try:
+				itemDict = json.loads(cmdargs[1].replace("'",'"'))
+			except:
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的nbt'
+				return
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法给予物品'
+					return
+				print(itemDict)
+				CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i)
+			args['return_msg_key'] = '成功给予物品'
+			return
 			
 
 	def TickClient(self):
