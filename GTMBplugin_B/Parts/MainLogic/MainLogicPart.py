@@ -97,6 +97,7 @@ class MainLogicPart(PartBase):
 
 	def changenbt(self, args):
 		if CF.CreatePlayer(args["__id__"]).GetPlayerOperation() == 2:
+			print(args["nbt"])
 			CF.CreateItem(args["__id__"]).SpawnItemToPlayerCarried(args["nbt"], args["__id__"])
 	
 	def cmdbatch(self, cmds):
@@ -197,7 +198,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):34.5", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):35", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:

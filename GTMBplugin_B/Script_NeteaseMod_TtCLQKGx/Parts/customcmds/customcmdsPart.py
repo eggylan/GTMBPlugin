@@ -1066,24 +1066,35 @@ class customcmdsPart(PartBase):
 			return
 			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
 
-		if command == 'givewithnbt':
-			try:
-				itemDict = json.loads(cmdargs[1].replace("'",'"'))
-			except:
-				args['return_failed'] = True
-				args['return_msg_key'] = '无效的nbt'
-				return
-			for i in cmdargs[0]:
-				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法给予物品'
-					return
-				print(itemDict)
-				CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i)
-			args['return_msg_key'] = '成功给予物品'
-			return
+		#if command == 'givewithnbt':
+		#	args['return_msg_key'] = '给予失败'
+		#	args['return_failed'] = True
+		#	def unicode_convert(input):
+		#		if isinstance(input, dict):
+		#			return {unicode_convert(key): unicode_convert(value) for key, value in input.iteritems()}
+		#		elif isinstance(input, list):
+		#			return [unicode_convert(element) for element in input]
+		#		elif isinstance(input, unicode):
+		#			return input.encode('utf-8')
+		#		else:
+		#			return input
+		#	try:
+		#		itemDict = json.loads(cmdargs[1].replace("'",'"'))
+		#	except:
+		#		args['return_failed'] = True
+		#		args['return_msg_key'] = '无效的nbt'
+		#		return
+		#	print(unicode_convert(itemDict))
+		#	for i in cmdargs[0]:
+		#		if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+		#			args['return_failed'] = True
+		#			args['return_msg_key'] = '非玩家实体无法给予物品'
+		#			return
+		#		CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i,1)
+		#		args['return_failed'] = False
+		#		args['return_msg_key'] = '成功给予物品'
+		#	return
 			
-
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
