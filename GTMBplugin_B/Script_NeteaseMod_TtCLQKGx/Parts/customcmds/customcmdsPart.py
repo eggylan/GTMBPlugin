@@ -1066,7 +1066,7 @@ class customcmdsPart(PartBase):
 			return
 			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
 
-		#if command == 'givewithnbt':
+		#if command == 'givewithnbt': 竟然not working!!!!!!!!!
 		#	args['return_msg_key'] = '给予失败'
 		#	args['return_failed'] = True
 		#	def unicode_convert(input):
@@ -1095,6 +1095,15 @@ class customcmdsPart(PartBase):
 		#		args['return_msg_key'] = '成功给予物品'
 		#	return
 			
+		if command == 'spawnitemtocontainer':
+			args['return_msg_key'] = '成功给予物品'
+			itemDict = {
+    'itemName': 'minecraft:bow',
+    'count': 1,
+    'auxValue': 0
+}
+			CFServer.CreateItem(levelId).SpawnItemToContainer(itemDict, cmdargs[1], cmdargs[2], cmdargs[3])
+			return
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
