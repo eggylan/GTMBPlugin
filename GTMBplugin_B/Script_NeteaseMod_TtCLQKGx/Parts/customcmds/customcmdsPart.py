@@ -10,6 +10,14 @@ CFClient = clientApi.GetEngineCompFactory()
 levelId = serverApi.GetLevelId()
 compcmd = CFServer.CreateCommand(levelId)
 compGame = CFServer.CreateGame(levelId)
+compItemWorld = CFServer.CreateItem(levelId)
+
+def intg(num):
+	#type: (float) -> int
+	if num >= 0:
+		return int(num)
+	else:
+		return int(num)-1
 
 @registerGenericClass("customcmdsPart")
 class customcmdsPart(PartBase):
@@ -1097,12 +1105,31 @@ class customcmdsPart(PartBase):
 			
 		if command == 'spawnitemtocontainer':
 			args['return_msg_key'] = '成功给予物品'
-			itemDict = {
-    'itemName': 'minecraft:bow',
-    'count': 1,
-    'auxValue': 0
-}
-			CFServer.CreateItem(levelId).SpawnItemToContainer(itemDict, cmdargs[1], cmdargs[2], cmdargs[3])
+			x = intg(cmdargs[2][0])
+			y = intg(cmdargs[2][1])
+			z = intg(cmdargs[2][2])
+			itemDict = compItemWorld.GetContainerItem((x, y, z,), cmdargs[1], cmdargs[3], True)
+			try:itemDict2 = json.loads(cmdargs[0].replace("'", '"'))
+			except:
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的Nbt'
+				return
+			for i in [('durability',0),('customTips',''),('extraId',''),('newAuxValue',0),('userData',None),('showInHand',True)]:
+				if not itemDict2.has_key(i[0]):
+					itemDict2[i[0]] = i[1]
+			if itemDict:
+				for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
+					itemDict.pop(i) #删去多余键值对(这些已被弃用)
+					itemDict2.pop(i, False)
+				countOrign = itemDict.pop('count')
+			else:countOrign = 0
+			countAdd = itemDict2.pop('count')
+			if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd<=64:
+				itemDict2['count'] = countOrign+countAdd
+				compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z,), cmdargs[3])
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '槽位已满'
 			return
 	def TickClient(self):
 		"""
