@@ -6,6 +6,6 @@
 	"args": [
 		{"name": "目标", "type": "target"},
         {"name": "附魔id", "type": "int"},
-        {"name":"槽位（留空为主手）", "type":"int","default":null}
+        {"name":"槽位", "type":"int","default":null}
 	]
 }
