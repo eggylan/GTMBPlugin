@@ -1,25 +1,25 @@
 {
   "modules": [
     {
-      "description": "",
       "type": "resources",
-      "uuid": "3a45ab6d-6803-4b32-8635-facb13b4a026",
+      "uuid": "bcac5506-22e5-4dc5-91b5-7f43244c37b6",
       "version": [
         0,
         0,
         1
-      ]
+      ],
+      "description": ""
     }
   ],
   "header": {
-    "description": "",
-    "name": "resource_pack",
-    "uuid": "29e70e33-5eee-46e2-9ec3-b865729a4bee",
+    "uuid": "6af7f4f8-5ad8-4684-9f4d-51c8efdfd09d",
     "version": [
       0,
-      0,
-      4
+      7,
+      0
     ],
+    "description": "",
+    "name": "resource_pack",
     "min_engine_version": [
       1,
       18,

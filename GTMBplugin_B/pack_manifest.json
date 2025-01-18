@@ -1,25 +1,25 @@
 {
   "modules": [
     {
-      "description": "",
       "type": "data",
-      "uuid": "75fbb7b8-2789-4474-9839-cc5227241eb0",
+      "uuid": "0f906543-3624-4647-a2b3-48a4ee676e40",
       "version": [
         0,
         0,
         1
-      ]
+      ],
+      "description": ""
     }
   ],
   "header": {
-    "description": "",
-    "name": "behavior_pack",
-    "uuid": "53101efd-8302-4f94-8502-41205d13ffa7",
+    "uuid": "4e677a1b-dc0a-42d0-b201-528773b46d37",
     "version": [
       0,
-      0,
-      4
+      7,
+      0
     ],
+    "description": "",
+    "name": "behavior_pack",
     "min_engine_version": [
       1,
       18,
