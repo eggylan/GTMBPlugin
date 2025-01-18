@@ -973,6 +973,7 @@ class customcmdsPart(PartBase):
 				if not compItem.SetShearsDestoryBlockSpeed(cmdargs[1], cmdargs[2]):
 					args['return_failed'] = True
 					args['return_msg_key'] = '无效的命名空间id'
+					return
 			args['return_msg_key'] = '设置成功'
 			return
 
