@@ -13,6 +13,6 @@
 		{"name":"伤害","type":"float","default":null},
 		{"name":"追踪目标","type":"target","default":null},
 		{"name":"伤害创建者","type":"bool","default":false},
-		{"name":"auxValue","type":"int","default":0}
+		{"name":"特殊值","type":"int","default":0}
 	]
 }

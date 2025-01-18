@@ -198,7 +198,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):40", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):41", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
@@ -224,7 +224,8 @@ class MainLogicPart(PartBase):
 				chatprefix = ""
 			if not CF.CreateGame(serverApi.GetLevelId()).CheckWordsValid(message):
 				message = "***"
-			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message))
+			message = message.replace('\\', '\\\\')
+			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message.replace('"', '\\"')))
 
 	def OnCommandEvent(self, args):
 		compMsg = CF.CreateMsg(args["entityId"])
