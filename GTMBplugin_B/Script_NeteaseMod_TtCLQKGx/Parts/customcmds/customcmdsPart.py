@@ -1086,6 +1086,16 @@ class customcmdsPart(PartBase):
 				CFServer.CreateAction(i).ResetAttackTarget()
 			args['return_msg_key'] = '清除仇恨成功'
 			return
+			
+		if command == 'resetmotion':
+			for i in cmdargs[0]:
+				CompType = CFServer.CreateEngineType(i)
+				CompMotion = CFServer.CreateActorMotion(i)
+				if CompType.GetEngineTypeStr() == 'minecraft:player':
+					CompMotion.SetPlayerMotion((0, 0, 0))
+				else:
+					CompMotion.ResetMotion()
+			return
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
