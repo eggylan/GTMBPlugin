@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "givewithnbt",
-	"description": "生成物品到玩家背包§c(无法使用)",
+	"description": "生成物品到玩家背包",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},
