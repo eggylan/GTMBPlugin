@@ -12,6 +12,23 @@ compcmd = CFServer.CreateCommand(levelId)
 compGame = CFServer.CreateGame(levelId)
 compItemWorld = CFServer.CreateItem(levelId)
 
+def unicode_convert(input):
+	#type: (dict|str) -> dict|list|str|bool
+	if isinstance(input, dict):
+		return {unicode_convert(key): unicode_convert(value) for key, value in input.iteritems()}
+	elif isinstance(input, list):
+		return [unicode_convert(element) for element in input]
+	elif isinstance(input, unicode):
+		output = input.encode('utf-8')
+		if output == 'True':
+			return True
+		elif output == 'False':
+			return False
+		else:
+			return output
+	else:
+		return input
+
 def intg(num):
 	#type: (float) -> int
 	if num >= 0:
@@ -1014,34 +1031,27 @@ class customcmdsPart(PartBase):
 			return
 			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
 
-		#if command == 'givewithnbt': 竟然not working!!!!!!!!!
-		#	args['return_msg_key'] = '给予失败'
-		#	args['return_failed'] = True
-		#	def unicode_convert(input):
-		#		if isinstance(input, dict):
-		#			return {unicode_convert(key): unicode_convert(value) for key, value in input.iteritems()}
-		#		elif isinstance(input, list):
-		#			return [unicode_convert(element) for element in input]
-		#		elif isinstance(input, unicode):
-		#			return input.encode('utf-8')
-		#		else:
-		#			return input
-		#	try:
-		#		itemDict = json.loads(cmdargs[1].replace("'",'"'))
-		#	except:
-		#		args['return_failed'] = True
-		#		args['return_msg_key'] = '无效的nbt'
-		#		return
-		#	print(unicode_convert(itemDict))
-		#	for i in cmdargs[0]:
-		#		if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-		#			args['return_failed'] = True
-		#			args['return_msg_key'] = '非玩家实体无法给予物品'
-		#			return
-		#		CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i,1)
-		#		args['return_failed'] = False
-		#		args['return_msg_key'] = '成功给予物品'
-		#	return
+		if command == 'givewithnbt':
+			args['return_msg_key'] = '给予失败'
+			args['return_failed'] = True
+			try:
+				itemDict = json.loads(cmdargs[1].replace("'",'"'))
+			except:
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的nbt'
+				return
+			print(unicode_convert(itemDict))
+			for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
+				itemDict.pop(i,False) #删去多余键值对(这些已被弃用)
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法给予物品'
+					return
+				CFServer.CreateItem(i).SpawnItemToPlayerInv(unicode_convert(itemDict), i)
+				args['return_failed'] = False
+				args['return_msg_key'] = '成功给予物品'
+			return
 			
 		if command == 'spawnitemtocontainer':
 			args['return_msg_key'] = '成功给予物品'
@@ -1049,7 +1059,7 @@ class customcmdsPart(PartBase):
 			y = intg(cmdargs[2][1])
 			z = intg(cmdargs[2][2])
 			itemDict = compItemWorld.GetContainerItem((x, y, z,), cmdargs[1], cmdargs[3], True)
-			try:itemDict2 = json.loads(cmdargs[0].replace("'", '"'))
+			try:itemDict2 = unicode_convert(json.loads(cmdargs[0].replace("'", '"')))
 			except:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的Nbt'
@@ -1095,6 +1105,7 @@ class customcmdsPart(PartBase):
 					CompMotion.SetPlayerMotion((0, 0, 0))
 				else:
 					CompMotion.ResetMotion()
+			args['return_msg_key'] = '重置运动成功'
 			return
 	def TickClient(self):
 		"""
