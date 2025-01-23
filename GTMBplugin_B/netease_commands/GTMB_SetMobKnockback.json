@@ -5,10 +5,10 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
-        {"name": "X轴方向", "type": "float"},
-        {"name": "Z轴方向", "type": "float"},
+        {"name": "X轴方向比例", "type": "float"},
+        {"name": "Z轴方向比例", "type": "float"},
         {"name": "水平方向初速度", "type": "float"},
         {"name": "垂直方向初速度", "type": "float"},
-        {"name": "向上速度阈值", "type": "float"}
+        {"name": "垂直方向速度阈值", "type": "float"}
 	]
 }

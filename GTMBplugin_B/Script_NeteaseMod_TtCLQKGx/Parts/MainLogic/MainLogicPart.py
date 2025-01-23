@@ -198,7 +198,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):45", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7(2025/1):46", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
@@ -228,10 +228,11 @@ class MainLogicPart(PartBase):
 			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message.replace('"', '\\"')))
 
 	def OnCommandEvent(self, args):
-		compMsg = CF.CreateMsg(args["entityId"])
-		if args["command"] == "/kill @e":
-			args["cancel"] = True
-			compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
+		pass
+		#compMsg = CF.CreateMsg(args["entityId"])
+		#if args["command"] == "/kill @e":
+		#	args["cancel"] = True
+		#	compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
 
 	def OnAddPlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":

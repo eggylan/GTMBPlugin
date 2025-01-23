@@ -136,6 +136,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置重生点'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerRespawnPos((x,y,z),cmdargs[2])
 			args['return_msg_key'] = '成功设置玩家重生点'
 			return
@@ -150,6 +151,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置回血临界值'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerHealthLevel(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家回血临界值'
 			return
@@ -164,6 +166,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置扣血临界值'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerStarveLevel(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家扣血临界值'
 			return
@@ -178,6 +181,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置饥饿度'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerHunger(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家饥饿度'
 			return
@@ -192,6 +196,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置攻击速度倍率'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerAttackSpeedAmplifier(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家攻击速度倍率'
 			return
@@ -202,6 +207,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置跳跃能力'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerJumpable(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家跳跃能力'
 			return
@@ -212,6 +218,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置移动能力'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerMovable(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家移动能力'
 			return
@@ -222,6 +229,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置是否饥饿掉血'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerNaturalStarve(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家是否饥饿掉血'
 			return
@@ -232,6 +240,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置前缀和后缀名'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1],'§r',cmdargs[2],'§r')
 			args['return_msg_key'] = '成功设置前缀和后缀名'
 			return
@@ -242,6 +251,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置饥饿最大消耗度'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerMaxExhaustionValue(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家饥饿最大消耗度'
 			return
@@ -252,6 +262,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置自然回血速度'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerHealthTick(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家自然回血速度'
 			return
@@ -288,6 +299,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置钓鱼能力'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetBanPlayerFishing(cmdargs[1])
 			args['return_msg_key'] = '成功设置钓鱼能力'
 			return
@@ -310,6 +322,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置挖掘权限'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetMineAbility(cmdargs[1])
 			args['return_msg_key'] = '成功设置挖掘权限'
 			return
@@ -320,6 +333,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置放置权限'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetBuildAbility(cmdargs[1])
 			args['return_msg_key'] = '成功设置放置权限'
 			return
@@ -335,6 +349,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置拾取范围'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPickUpArea(cmdargs[1])
 			args['return_msg_key'] = '成功设置拾取范围'
 			return
@@ -384,17 +399,8 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的朝向'
 				return
 			x, y, z = cmdargs[1]
-			if x < 0:
-				x = int(x) - 1
-			else:
-				x = int(x)
-			y = int(y)
-			if z < 0:
-				z = int(z) - 1
-			else:
-				z = int(z)
 			for i in cmdargs[0]:
-				CFServer.CreateBlockInfo(i).PlayerUseItemToPos((x,y,z),cmdargs[3],cmdargs[4],cmdargs[2])
+				CFServer.CreateBlockInfo(i).PlayerUseItemToPos((intg(x),intg(y),intg(z)),cmdargs[3],cmdargs[4],cmdargs[2])
 			args['return_msg_key'] = '已尝试使用物品'
 			return
 		
@@ -409,6 +415,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法设置使用物品'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreateBlockInfo(i).PlayerUseItemToEntity(entityId)
 			args['return_msg_key'] = '已尝试使用物品'
 			return
@@ -420,17 +427,8 @@ class customcmdsPart(PartBase):
 					args['return_msg_key'] = '非玩家实体无法破坏方块'
 					return
 			x, y, z = cmdargs[1]
-			if x < 0:
-				x = int(x) - 1
-			else:
-				x = int(x)
-			y = int(y)
-			if z < 0:
-				z = int(z) - 1
-			else:
-				z = int(z)
 			for i in cmdargs[0]:
-				CFServer.CreateBlockInfo(i).PlayerDestoryBlock((x,y,z),cmdargs[2],cmdargs[3])
+				CFServer.CreateBlockInfo(i).PlayerDestoryBlock((intg(x),intg(y),intg(z)),cmdargs[2],cmdargs[3])
 			args['return_msg_key'] = '已尝试破坏方块'
 			return
 		
@@ -599,7 +597,7 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法抵挡'
+					args['return_msg_key'] = '非玩家实体无法设置盾牌抵挡角度'
 					return
 			if cmdargs[1] not in [0,1,2,3]:
 				args['return_failed'] = True
@@ -685,17 +683,23 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的堆叠数量'
 				return
 			for i in cmdargs[0]:
-				itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
-				CFServer.CreateItem(i).SetMaxStackSize(itemdata,cmdargs[1])
-				CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
-			args['return_msg_key'] = '成功设置最大堆叠数量'
+				itemDict = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
+				if itemDict:
+					CFServer.CreateItem(i).SetMaxStackSize(itemDict,cmdargs[1])
+					if CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i):
+						args['return_msg_key'] = '成功设置最大堆叠数量'
+					else:
+						args['return_failed'] = True
+						args['return_msg_key'] = '设置失败'
+				else:
+					args['return_msg_key'] = '成功设置最大堆叠数量'
 			return
 		
 		if command == 'playerexhaustionratio':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法访问背包'
+					args['return_msg_key'] = '非玩家实体无法设置饥饿度消耗倍率'
 					return
 			if cmdargs[1] not in [0, 1, 2, 3, 4, 9]:
 				args['return_failed'] = True
@@ -734,20 +738,11 @@ class customcmdsPart(PartBase):
 		
 		if command == 'setsignblocktext':
 			x, y, z = cmdargs[0]
-			if x < 0:
-				x = int(x) - 1
-			else:
-				x = int(x)
-			y = int(y)
-			if z < 0:
-				z = int(z) - 1
-			else:
-				z = int(z)
 			if cmdargs[3] is True:
 				side = 1
 			else:
 				side = 0
-			if CFServer.CreateBlockInfo(levelId).SetSignBlockText((x,y,z),cmdargs[1],cmdargs[2],side):
+			if CFServer.CreateBlockInfo(levelId).SetSignBlockText((intg(x),intg(y),intg(z)),cmdargs[1],cmdargs[2],side):
 				args['return_msg_key'] = '设置告示牌文本成功'
 				return
 			else:
@@ -1014,7 +1009,7 @@ class customcmdsPart(PartBase):
 			return
 		
 		if command == 'addaroundentitymotion' or command == 'addaroundpointmotion':
-			if not len(cmdargs[1]) == 1 and command == 'addaroundentitymotion':
+			if len(cmdargs[1]) != 1 and command == 'addaroundentitymotion':
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
 				args['return_failed'] = True
 				return
@@ -1284,6 +1279,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法获取uid'
 					return
+			for i in cmdargs[0]:
 				playername = CFServer.CreateName(i).GetName()
 				uid_dict[playername] = CFServer.CreateHttp(levelId).GetPlayerUid(i)
 			args['return_msg_key'] = '获取到的UID为%s' % (uid_dict)
@@ -1295,11 +1291,26 @@ class customcmdsPart(PartBase):
 			args['return_failed'] = True
 			try:
 				itemDict = json.loads(cmdargs[1].replace("'",'"'))
-			except:
+			except ValueError as errordata:
+				if str(errordata).find('char') == -1:
+					args['return_failed'] = True
+					args['return_msg_key'] = '无效的nbt'
+					return
+				if str(errordata).find('Extra') != 0:
+					index = int(str(errordata)[str(errordata).find('char')+5: -1])
+				else:
+					index = int(str(errordata)[str(errordata).find('char')+7: -1])
+				if playerId is None:
+					colors = ['§c', '§r']
+				else:
+					colors = ['§e', '§c']
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的nbt 位于 %s' % (cmdargs[1][index-15:index]+colors[0]+cmdargs[1][index]+colors[1]+cmdargs[1][index+1:index+15])
+				return
+			if type(itemDict) != dict:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的nbt'
 				return
-			print(unicode_convert(itemDict))
 			for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
 				itemDict.pop(i,False) #删去多余键值对(这些已被弃用)
 			for i in cmdargs[0]:
@@ -1307,6 +1318,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法给予物品'
 					return
+			for i in cmdargs[0]:
 				CFServer.CreateItem(i).SpawnItemToPlayerInv(unicode_convert(itemDict), i)
 				args['return_failed'] = False
 				args['return_msg_key'] = '成功给予物品'
@@ -1319,9 +1331,25 @@ class customcmdsPart(PartBase):
 			z = intg(cmdargs[2][2])
 			itemDict = compItemWorld.GetContainerItem((x, y, z,), cmdargs[1], cmdargs[3], True)
 			try:itemDict2 = unicode_convert(json.loads(cmdargs[0].replace("'", '"')))
-			except:
+			except ValueError as errordata:
+				if str(errordata).find('char') == -1 :
+					args['return_failed'] = True
+					args['return_msg_key'] = '无效的nbt'
+					return
+				if str(errordata).find('Extra') != 0:
+					index = int(str(errordata)[str(errordata).find('char')+5: -1])
+				else:
+					index = int(str(errordata)[str(errordata).find('char')+7: -1])
+				if playerId is None:
+					colors = ['§c', '§r']
+				else:
+					colors = ['§e', '§c']
 				args['return_failed'] = True
-				args['return_msg_key'] = '无效的Nbt'
+				args['return_msg_key'] = '无效的nbt 位于 %s' % (cmdargs[0][index-15:index]+colors[0]+cmdargs[0][index]+colors[1]+cmdargs[0][index+1:index+15])
+				return
+			if type(itemDict2) != dict:
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的nbt'
 				return
 			for i in [('durability',0),('customTips',''),('extraId',''),('newAuxValue',0),('userData',None),('showInHand',True)]:
 				if not itemDict2.has_key(i[0]):
@@ -1365,6 +1393,90 @@ class customcmdsPart(PartBase):
 				else:
 					CompMotion.ResetMotion()
 			args['return_msg_key'] = '重置运动成功'
+			return
+	
+		if command == 'setleashholder':
+			if len(cmdargs[0]) == 1:
+				for i in cmdargs[1]:
+					compEntityD = CFServer.CreateEntityDefinitions(i)
+					compEntityD.SetLeashHolder(cmdargs[0])
+				args['return_msg_key'] = '正在尝试拴住实体'
+				return
+			else:
+				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
+				args['return_failed'] = True
+				return
+	
+		if command == 'setlootdropped':
+			for i in cmdargs[0]:
+				compEntityD = CFServer.CreateEntityDefinitions(i)
+				compEntityD.SetLootDropped(cmdargs[1])
+			args['return_msg_key'] = '设置成功'
+			return
+
+		if command == 'setmaxairsupply':
+			for i in cmdargs[0]:
+				compBrea = CFServer.CreateBreath(i)
+				compBrea.SetMaxAirSupply(cmdargs[1])
+			args['return_msg_key'] = '设置成功'
+			return
+
+		if command == 'setmobknockback':
+			for i in cmdargs[0]:
+				CFServer.CreateAction(i).SetMobKnockback(cmdargs[1], cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
+			args['return_msg_key'] = '设置成功'
+			return
+	
+		if command == 'setmotion':
+			for i in cmdargs[0]:
+				CompType = CFServer.CreateEngineType(i)
+				CompMotion = CFServer.CreateActorMotion(i)
+				if CompType.GetEngineTypeStr() == 'minecraft:player':
+					CompMotion.SetPlayerMotion(cmdargs[1])
+				else:
+					CompMotion.SetMotion(cmdargs[1])
+			args['return_msg_key'] = '设置运动成功'
+			return
+	
+		if command == 'setopencontainersability':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置打开容器的能力'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetOpenContainersAbility(cmdargs[1])
+			args['return_msg_key'] = '成功设置打开容器的能力'
+			return
+		
+		if command == 'setoperatedoorability':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置开门能力'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetOperateDoorsAndSwitchesAbility(cmdargs[1])
+			args['return_msg_key'] = '成功设置开门能力'
+			return
+
+		if command == 'setorbexperience':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:xp_orb':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非经验球实体无法设置经验值'
+					return
+			for i in cmdargs[0]:
+				compAttr = CFServer.CreateExp(i)
+				compAttr.SetOrbExperience(cmdargs[1])
+			args['return_msg_key'] = '设置成功'
+			return
+	
+		if command == 'setpersistent':
+			for i in cmdargs[0]:
+				compAttr = CFServer.CreateAttr(i)
+				compAttr.SetPersistent(cmdargs[1])
+			args['return_msg_key'] = '设置成功'
 			return
 	def TickClient(self):
 		"""

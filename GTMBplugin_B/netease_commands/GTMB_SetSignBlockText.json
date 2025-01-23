@@ -7,6 +7,6 @@
         {"name": "方块位置", "type": "pos"},
         {"name": "文本内容", "type": "str"},
         {"name": "维度id", "type": "int"},
-        {"name":"正反面","type":"bool","default":false}
+        {"name":"正面or反面","type":"bool","default":false}
 	]
 }
