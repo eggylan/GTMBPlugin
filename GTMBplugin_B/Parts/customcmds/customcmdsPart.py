@@ -18,7 +18,7 @@ def unicode_convert(input):
 		return {unicode_convert(key): unicode_convert(value) for key, value in input.iteritems()}
 	elif isinstance(input, list):
 		return [unicode_convert(element) for element in input]
-	elif isinstance(input, unicode):
+	elif isinstance(input, unicode): # type: ignore
 		output = input.encode('utf-8')
 		if output == 'True':
 			return True
@@ -115,20 +115,12 @@ class customcmdsPart(PartBase):
 			playerId = None
 		
 		if command == 'setentityonfire':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
 				CFServer.CreateAttr(i).SetEntityOnFire(cmdargs[1],cmdargs[2])
 			args['return_msg_key'] = '成功设置实体着火'
 			return
 		
 		if command == 'setplayerrespawnpos':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			x, y, z = cmdargs[1]
 			if x < 0:
 				x = int(x) - 1
@@ -140,126 +132,128 @@ class customcmdsPart(PartBase):
 			else:
 				z = int(z)
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置重生点'
+					return
 				CFServer.CreatePlayer(i).SetPlayerRespawnPos((x,y,z),cmdargs[2])
 			args['return_msg_key'] = '成功设置玩家重生点'
 			return
 		
 		if command == 'setplayerhealthlevel':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			if cmdargs[1] < 0 or cmdargs[1] > 20:
 				args['return_failed'] = True
-				args['return_msg_key'] = '无效的健康临界值'
+				args['return_msg_key'] = '无效的回血临界值'
 				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置回血临界值'
+					return
 				CFServer.CreatePlayer(i).SetPlayerHealthLevel(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家健康临界值'
+			args['return_msg_key'] = '成功设置玩家回血临界值'
 			return
 		
 		if command == 'setplayerstarvelevel':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			if cmdargs[1] < 0 or cmdargs[1] > 20:
 				args['return_failed'] = True
-				args['return_msg_key'] = '无效的饥饿临界值'
+				args['return_msg_key'] = '无效的扣血临界值'
 				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置扣血临界值'
+					return
 				CFServer.CreatePlayer(i).SetPlayerStarveLevel(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家饥饿临界值'
+			args['return_msg_key'] = '成功设置玩家扣血临界值'
 			return
 		
 		if command == 'setplayerhunger':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			if cmdargs[1] < 0 or cmdargs[1] > 20:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的饥饿度'
 				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置饥饿度'
+					return
 				CFServer.CreatePlayer(i).SetPlayerHunger(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家饥饿度'
 			return
 		
 		if command == 'setplayerattackspeedamplifier':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			if cmdargs[1] < 0.5 or cmdargs[1] > 2.0:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的倍率'
 				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置攻击速度倍率'
+					return
 				CFServer.CreatePlayer(i).SetPlayerAttackSpeedAmplifier(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家攻击速度倍率'
 			return
 		
 		if command == 'setplayerjumpable':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置跳跃能力'
+					return
 				CFServer.CreatePlayer(i).SetPlayerJumpable(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家跳跃'
+			args['return_msg_key'] = '成功设置玩家跳跃能力'
 			return
 		
 		if command == 'setplayermovable':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置移动能力'
+					return
 				CFServer.CreatePlayer(i).SetPlayerMovable(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家移动'
+			args['return_msg_key'] = '成功设置玩家移动能力'
 			return
 		
 		if command == 'setplayernaturalstarve':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置是否饥饿掉血'
+					return
 				CFServer.CreatePlayer(i).SetPlayerNaturalStarve(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家饥饿掉血'
+			args['return_msg_key'] = '成功设置玩家是否饥饿掉血'
 			return
-
 		
 		if command == 'setplayerprefixandsuffixname':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
-				CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1],serverApi.GenerateColor('WHITE'),cmdargs[2],serverApi.GenerateColor('WHITE'))
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置前缀和后缀名'
+					return
+				CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1],'§r',cmdargs[2],'§r')
 			args['return_msg_key'] = '成功设置前缀和后缀名'
 			return
 		
 		if command == 'setplayermaxexhaustionvalue':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置饥饿最大消耗度'
+					return
 				CFServer.CreatePlayer(i).SetPlayerMaxExhaustionValue(cmdargs[1])
 			args['return_msg_key'] = '成功设置玩家饥饿最大消耗度'
 			return
-			
 		
 		if command == 'setplayerhealthtick':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置自然回血速度'
+					return
 				CFServer.CreatePlayer(i).SetPlayerHealthTick(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家自然恢复速度'
+			args['return_msg_key'] = '成功设置玩家自然回血速度'
 			return
 		
 		if command == 'sethurtcd':
@@ -272,11 +266,7 @@ class customcmdsPart(PartBase):
 				return
 		
 		if command == 'setattacktarget':
-			if cmdargs[0] is None or cmdargs[1] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
-			if not len(cmdargs[1]) == 1:
+			if len(cmdargs[1]) != 1:
 				args['return_failed'] = True
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
 				return
@@ -287,80 +277,64 @@ class customcmdsPart(PartBase):
 			return
 		
 		if command == 'resetattacktarget':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
 				CFServer.CreateAction(i).ResetAttackTarget()
 			args['return_msg_key'] = '成功重置仇恨目标'
 			return
 		
 		if command == 'setbanplayerfishing':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置钓鱼能力'
+					return
 				CFServer.CreatePlayer(i).SetBanPlayerFishing(cmdargs[1])
-			args['return_msg_key'] = '成功设置禁止钓鱼'
+			args['return_msg_key'] = '成功设置钓鱼能力'
 			return
 		
 		if command == 'setactorcanpush':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
 				CFServer.CreateActorPushable(i).SetActorPushable(cmdargs[1])
 			args['return_msg_key'] = '成功设置实体推动'
 			return
 		
 		if command == 'setactorcollidable':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
 				CFServer.CreateActorCollidable(i).SetActorCollidable(cmdargs[1])
 			args['return_msg_key'] = '成功设置实体碰撞'
 			return
 		
 		if command == 'setmineability':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置挖掘权限'
+					return
 				CFServer.CreatePlayer(i).SetMineAbility(cmdargs[1])
 			args['return_msg_key'] = '成功设置挖掘权限'
 			return
 		
 		if command == 'setbuildability':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置放置权限'
+					return
 				CFServer.CreatePlayer(i).SetBuildAbility(cmdargs[1])
 			args['return_msg_key'] = '成功设置放置权限'
 			return
 		
 		if command == 'setcontrol':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
 				CFServer.CreateRide(i).SetControl(i,cmdargs[1])
 			args['return_msg_key'] = '已设置'
 		
 		if command == 'setpickuparea':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置拾取范围'
+					return
 				CFServer.CreatePlayer(i).SetPickUpArea(cmdargs[1])
 			args['return_msg_key'] = '成功设置拾取范围'
 			return
@@ -371,19 +345,11 @@ class customcmdsPart(PartBase):
 			return
 		
 		if command == 'setjumppower':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
 				CFServer.CreateGravity(i).SetJumpPower(cmdargs[1])
 			args['return_msg_key'] = '成功设置跳跃力度'
 		
 		if command == 'setgravity':
-			if cmdargs[0] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
 			for i in cmdargs[0]:
 				CFServer.CreateGravity(i).SetGravity(cmdargs[1])
 			args['return_msg_key'] = '成功设置重力'
@@ -433,16 +399,16 @@ class customcmdsPart(PartBase):
 			return
 		
 		if command == 'playeruseitemtoentity':
-			if cmdargs[0] is None or cmdargs[1] is None:
-				args['return_failed'] = True
-				args['return_msg_key'] = '没有与选择器匹配的目标'
-				return
-			if not len(cmdargs[1]) == 1:
+			if len(cmdargs[1]) != 1:
 				args['return_failed'] = True
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
 				return
 			entityId = cmdargs[1][0]
 			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置使用物品'
+					return
 				CFServer.CreateBlockInfo(i).PlayerUseItemToEntity(entityId)
 			args['return_msg_key'] = '已尝试使用物品'
 			return
