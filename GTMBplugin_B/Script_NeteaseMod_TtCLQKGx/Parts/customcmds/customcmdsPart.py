@@ -52,8 +52,9 @@ class customcmdsPart(PartBase):
 		PartBase.InitClient(self)
 
 	def OnCustomCommandClient(self, args):
-		if args['cmd'] == 'setplayerinteracterange':
-			clientApi.GetEngineCompFactory().CreatePlayer(args['target']).SetPickRange(args['cmdargs'][1])
+		playerId = clientApi.GetLocalPlayerId()
+		if args['cmd'] == 'setplayerinteracterange':	
+			clientApi.GetEngineCompFactory().CreatePlayer(playerId).SetPickRange(args['cmdargs'][1])
 			return
 		if args['cmd'] == 'hideairsupplygui':
 			clientApi.HideAirSupplyGUI(args['cmdargs'][1])
@@ -448,8 +449,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法打开下拉界面'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"openfoldgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"openfoldgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将界面指令发送至客户端'
 		
 		if command == 'setimmunedamage':
@@ -463,8 +463,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hideslotbargui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hideslotbargui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -474,8 +473,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehungergui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hidehungergui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -485,8 +483,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehudgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hidehudgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -496,8 +493,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehorsehealthgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hidehorsehealthgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -507,8 +503,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidehealthgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hidehealthgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -518,8 +513,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidefoldgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hidefoldgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -529,8 +523,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hideexpgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hideexpgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -540,8 +533,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidecrosshairgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hidecrosshairgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -551,8 +543,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hidearmorgui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hidearmorgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -562,8 +553,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					args['return_msg_key'] = '非玩家实体无法隐藏UI'
 					return
-			for i in cmdargs[0]:
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"hideairsupplygui",'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"hideairsupplygui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
@@ -712,23 +702,13 @@ class customcmdsPart(PartBase):
 		
 		if command == 'setsigntextstyle':
 			x, y, z = cmdargs[0]
-			if x < 0:
-				x = int(x) - 1
-			else:
-				x = int(x)
-			y = int(y)
-			if z < 0:
-				z = int(z) - 1
-			else:
-				z = int(z)
 			r,g,b = cmdargs[2]
-			a = cmdargs[3]
 			lighting = cmdargs[4]
 			if cmdargs[5] is True:
 				side = 1
 			else:
 				side = 0
-			if CFServer.CreateBlockEntity(levelId).SetSignTextStyle((x,y,z),cmdargs[1],(r,g,b,a),lighting,side):
+			if CFServer.CreateBlockEntity(levelId).SetSignTextStyle((intg(x), intg(y), intg(z)), cmdargs[1], (r, g, b, cmdargs[3]), lighting, side):
 				args['return_msg_key'] = '设置告示牌文本样式成功'
 				return
 			else:
@@ -742,7 +722,7 @@ class customcmdsPart(PartBase):
 				side = 1
 			else:
 				side = 0
-			if CFServer.CreateBlockInfo(levelId).SetSignBlockText((intg(x),intg(y),intg(z)),cmdargs[1],cmdargs[2],side):
+			if CFServer.CreateBlockInfo(levelId).SetSignBlockText((intg(x), intg(y), intg(z)), cmdargs[1], cmdargs[2], side):
 				args['return_msg_key'] = '设置告示牌文本成功'
 				return
 			else:
@@ -758,7 +738,7 @@ class customcmdsPart(PartBase):
 					return
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerInteracteRange(cmdargs[1])
-				serversystem.NotifyToClient(i, "CustomCommandClient", {'cmd':"setplayerinteracterange", 'target': i, 'cmdargs': cmdargs})
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setplayerinteracterange", 'cmdargs': cmdargs})
 			args['return_msg_key'] = '成功设置触及距离'
 			return
 		
@@ -1478,6 +1458,15 @@ class customcmdsPart(PartBase):
 				compAttr.SetPersistent(cmdargs[1])
 			args['return_msg_key'] = '设置成功'
 			return
+
+		if command == 'setpistonmaxinteractioncount':
+			if compGame.SetPistonMaxInteractionCount(cmdargs[0]):
+				args['return_msg_key'] = '设置成功'
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '无效的数值'
+			return
+	
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
