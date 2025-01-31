@@ -5,7 +5,11 @@
         "ui/customtips.json",
         "ui/enchant.json",
         "ui/getitem.json",
+        "ui/GTMB_EULA.json",
+        "ui/minimap.json",
         "ui/nbteditor.json",
+        "ui/anvil_screen.json",
+        "ui/command_block_screen.json",
         "ui/netease_editor_template_namespace.json"
     ]
 }

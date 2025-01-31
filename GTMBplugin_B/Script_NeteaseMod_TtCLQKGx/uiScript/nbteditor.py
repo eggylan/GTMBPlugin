@@ -4,6 +4,19 @@ ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 
+def encoder(input):
+	if isinstance(input, dict):
+		return {encoder(key): encoder(value) for key, value in input.iteritems()}
+	if isinstance(input, list):
+		return [encoder(element) for element in input]
+	if isinstance(input, str):
+		if input == 'True':
+			return True
+		elif input == 'False':
+			return False
+		return input.encode('raw_unicode_escape')
+	return input
+
 
 class nbteditor(ScreenNode):
 	def __init__(self, namespace, name, param):
@@ -19,17 +32,15 @@ class nbteditor(ScreenNode):
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 		import mod.client.extraClientApi as clientApi
 		comp = clientApi.GetEngineCompFactory().CreateItem(clientApi.GetLocalPlayerId())
-		carriedData = comp.GetCarriedItem(True)
-		carriedData.pop('enchantData')
+		carriedData = encoder(comp.GetCarriedItem(True))
+		for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
+			carriedData.pop(i) #删去多余键值对(这些已被弃用)
 		userData = carriedData.pop('userData')
 		carriedData = str(carriedData)
 		if userData:
-			if userData.has_key('display'):
-				if userData['display'].has_key('Name'):
-					userData['display']['Name']['__value__'] = userData['display']['Name']['__value__'].encode('raw_unicode_escape')
 			carriedData = carriedData[:-1]+", \"userData\": "+str(userData)+"}"
 		carriedData = carriedData.replace("'",'"').replace(": False",": \"False\"").replace(": True",": \"True\"")
-		self.GetBaseUIControl("/panel/nbt").asTextEditBox().SetEditText(carriedData)
+		self.GetBaseUIControl("/panel/nbt").asTextEditBox().SetEditText(carriedData.replace('\\xa7', '§').replace('\\\\','\\'))
 
 	def change(self, args):
 		import json

@@ -3,7 +3,10 @@ from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
 import mod.client.extraClientApi as clientApi
-
+CFServer = serverApi.GetEngineCompFactory()
+CFClient = clientApi.GetEngineCompFactory()
+levelId = serverApi.GetLevelId()
+compCmd = CFServer.CreateCommand(levelId)
 
 @registerGenericClass("MainLogicPart")
 class MainLogicPart(PartBase):
@@ -21,7 +24,17 @@ class MainLogicPart(PartBase):
 		PartBase.InitClient(self)
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
 		clientsystem.ListenForEvent("Minecraft", "preset", "openUI", self, self.UI)
-		clientsystem.ListenForEvent('Minecraft', 'preset', 'close', self, self.close)		
+		clientsystem.ListenForEvent('Minecraft', 'preset', 'close', self, self.close)
+		clientsystem.ListenForEvent(clientApi.GetEngineNamespace(), clientApi.GetEngineSystemName(),'OnLocalPlayerStopLoading', self, self.OnFinish)
+
+	def OnFinish(self, args):
+		clientApi.GetSystem("Minecraft", "preset").NotifyToServer('TryOpenEULA', {})
+
+	def TryOpenEULA(self, args):
+		serversystem = serverApi.GetSystem("Minecraft", "preset")
+		compExtra = CFServer.CreateExtraData(args['__id__'])
+		if not compExtra.GetExtraData('EULA'):
+			serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
 
 	def UI(self, args):
 		uiNodePreset = self.GetParent().GetChildPresetsByName(args["ui"])[0]
@@ -49,9 +62,9 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiVisible(False)
 
 	def enchant(self, enchantdata):
-		if CF.CreatePlayer(enchantdata["__id__"]).GetPlayerOperation() == 2:
+		if CFServer.CreatePlayer(enchantdata["__id__"]).GetPlayerOperation() == 2:
 			# 二次权限验证
-			compItem = CF.CreateItem(enchantdata["__id__"])
+			compItem = CFServer.CreateItem(enchantdata["__id__"])
 			itemDict = compItem.GetPlayerItem(2, 0, True)
 			if itemDict:
 				if itemDict["userData"] is None:
@@ -66,14 +79,11 @@ class MainLogicPart(PartBase):
 				compItem.SpawnItemToPlayerCarried(itemDict, enchantdata["__id__"])
 
 	def getitem(self, itemdata):
-		if CF.CreatePlayer(itemdata["__id__"]).GetPlayerOperation() == 2:
-			CF.CreateItem(itemdata["__id__"]).SpawnItemToPlayerInv(itemdata, itemdata["__id__"])
+		if CFServer.CreatePlayer(itemdata["__id__"]).GetPlayerOperation() == 2:
+			CFServer.CreateItem(itemdata["__id__"]).SpawnItemToPlayerInv(itemdata, itemdata["__id__"])
 
 	def InitServer(self):
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
-		global CF, compCmd
-		CF = serverApi.GetEngineCompFactory()
-		compCmd = CF.CreateCommand(serverApi.GetLevelId())
 		
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "ServerChatEvent", self, self.OnServerChat)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CommandEvent", self, self.OnCommandEvent)
@@ -86,8 +96,10 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent('Minecraft', 'preset', "changenbt", self, self.changenbt)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdbatch', self, self.cmdbatch)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdblockimport', self, self.cmdblockimport)
+		serversystem.ListenForEvent('Minecraft', 'preset', 'TryOpenEULA', self, self.TryOpenEULA)
+		serversystem.ListenForEvent('Minecraft', 'preset', 'EULA', self, self.eula)
 		compCmd.SetCommandPermissionLevel(4)
-		self.timer = CF.CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0, self.OnSecond)
+		self.timer = CFServer.CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0, self.OnSecond)
 
 		"""
 		@description 服务端的零件对象初始化入口
@@ -95,24 +107,30 @@ class MainLogicPart(PartBase):
 
 		PartBase.InitServer(self)
 
+	def eula(self, args):
+		if args["reason"] == "您没有接受EULA协议":
+			compCmd.SetCommand('/kick %s %s' % (CFServer.CreateName(args['__id__']).GetName(), args["reason"]), False)
+		else:
+			CFServer.CreateExtraData(args['__id__']).SetExtraData('EULA', True)
+
 	def changenbt(self, args):
-		if CF.CreatePlayer(args["__id__"]).GetPlayerOperation() == 2:
+		if CFServer.CreatePlayer(args["__id__"]).GetPlayerOperation() == 2:
 			print(args["nbt"])
-			CF.CreateItem(args["__id__"]).SpawnItemToPlayerCarried(args["nbt"], args["__id__"])
+			CFServer.CreateItem(args["__id__"]).SpawnItemToPlayerCarried(args["nbt"], args["__id__"])
 	
 	def cmdbatch(self, cmds):
 		playerid = cmds["__id__"]
 		cmd = cmds["cmds"]
-		if CF.CreatePlayer(playerid).GetPlayerOperation() == 2:
+		if CFServer.CreatePlayer(playerid).GetPlayerOperation() == 2:
 			cmd = cmd.split("\n")
 			for i in cmd:
 				if i and i[0] == '/':
 					i = i[1:]
-				CF.CreateCommand(serverApi.GetLevelId()).SetCommand('/execute as '+ CF.CreateName(playerid).GetName() +' at @s run ' + i, True)
+				compCmd.SetCommand('/execute as '+ CFServer.CreateName(playerid).GetName() +' at @s run ' + i, True)
 		
 	def changeTips(self, tips):
-		if CF.CreatePlayer(tips["__id__"]).GetPlayerOperation() == 2:
-			itemComp = CF.CreateItem(tips["__id__"])
+		if CFServer.CreatePlayer(tips["__id__"]).GetPlayerOperation() == 2:
+			itemComp = CFServer.CreateItem(tips["__id__"])
 			itemDict = itemComp.GetEntityItem(2, 0, True)
 			if tips["Tips"] == '':
 				del itemDict['userData']['ItemCustomTips']
@@ -121,9 +139,9 @@ class MainLogicPart(PartBase):
 
 	def cmdblockimport(self, cmdblockcmdsjson):
 		playerid = cmdblockcmdsjson["__id__"]
-		if CF.CreatePlayer(playerid).GetPlayerOperation() == 2:
+		if CFServer.CreatePlayer(playerid).GetPlayerOperation() == 2:
 			import json
-			playerpos = CF.CreatePos(playerid).GetFootPos()
+			playerpos = CFServer.CreatePos(playerid).GetFootPos()
 			player_X, player_Y, player_Z = playerpos
 			if player_X < 0:
 				player_X = int(player_X) - 1
@@ -141,18 +159,18 @@ class MainLogicPart(PartBase):
 				dimensionId = cmdblockcmdsjson["dimension"]
 				redstone_mode_mapping = {0: 1, 1: 0}
 				redstoneMode = redstone_mode_mapping.get(block["R"], None)
-				compcmdblk = CF.CreateBlockEntity(serverApi.GetLevelId())
-				cmdblkdata = compcmdblk.GetCommandBlock((x, y, z), dimensionId)
+				compBlockEntity = CFServer.CreateBlockEntity(levelId)
+				cmdblkdata = compBlockEntity.GetCommandBlock((x, y, z), dimensionId)
 				mode = int(cmdblkdata["mode"])
 				isConditional = int(cmdblkdata["isConditional"])
-				compcmdblk.SetCommandBlock((x, y, z), dimensionId, cmd, name, mode, isConditional, redstoneMode)
+				compBlockEntity.SetCommandBlock((x, y, z), dimensionId, cmd, name, mode, isConditional, redstoneMode)
 
 	def OnServerChat(self, args):
 		playerId = args["playerId"]
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
-		compMsg = CF.CreateMsg(playerId)
+		compMsg = CFServer.CreateMsg(playerId)
 		can_use_key = 0
-		if CF.CreatePlayer(playerId).GetPlayerOperation() == 2:
+		if CFServer.CreatePlayer(playerId).GetPlayerOperation() == 2:
 			can_use_key = 1
 		if args["message"] == "python.enchant":
 			args["cancel"] = True
@@ -198,7 +216,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7b(2025/1):1", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7b(2025/1):2", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
@@ -217,18 +235,18 @@ class MainLogicPart(PartBase):
 		else:
 			args["cancel"] = True
 			message = args["message"]
-			compdata = CF.CreateExtraData(playerId)
+			compdata = CFServer.CreateExtraData(playerId)
 			if compdata.GetExtraData("chatprefix"):
 				chatprefix = compdata.GetExtraData("chatprefix")
 			else:
 				chatprefix = ""
-			if not CF.CreateGame(serverApi.GetLevelId()).CheckWordsValid(message):
+			if not CFServer.CreateGame(levelId).CheckWordsValid(message):
 				message = "***"
 			message = message.replace('\\', '\\\\')
 			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message.replace('"', '\\"')))
 
 	def OnCommandEvent(self, args):
-		compMsg = CF.CreateMsg(args["entityId"])
+		compMsg = CFServer.CreateMsg(args["entityId"])
 		if args["command"] == "/kill @e":
 			args["cancel"] = True
 			compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
@@ -242,17 +260,17 @@ class MainLogicPart(PartBase):
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN 加入了游戏"
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
-		playername = CF.CreateName(args["playerId"]).GetName()
+		playername = CFServer.CreateName(args["playerId"]).GetName()
 		
 		# 禁用魔法指令功能
-		CF.CreateAiCommand(args["playerId"]).Disable()
+		CFServer.CreateAiCommand(args["playerId"]).Disable()
 		
-		if not CF.CreateGame(serverApi.GetLevelId()).CheckWordsValid(playername):
-			CF.CreatePlayer(args["playerId"]).SetPermissionLevel(0)
-			CF.CreateMsg(args["playerId"]).NotifyOneMessage(args["playerId"], "§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为游客权限。")
+		if not CFServer.CreateGame(levelId).CheckWordsValid(playername):
+			CFServer.CreatePlayer(args["playerId"]).SetPermissionLevel(0)
+			CFServer.CreateMsg(args["playerId"]).NotifyOneMessage(args["playerId"], "§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为游客权限。")
 			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为游客权限!"}]}',False)
 			compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}',False)
-			CF.CreateTag(args["playerId"]).AddEntityTag("banname")
+			CFServer.CreateTag(args["playerId"]).AddEntityTag("banname")
 	
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
@@ -276,20 +294,20 @@ class MainLogicPart(PartBase):
 
 	def OnSecond(self):
 		for i in ['王培衡很丁丁','EGGYLAN','EGGYLAN_','渡鸦哥与陌生人']:
-			CF.CreatePlayer(i).SetPermissionLevel(2)
+			CFServer.CreatePlayer(i).SetPermissionLevel(2)
 		playerIds = serverApi.GetPlayerList()
 		for player in playerIds:
-			playername = CF.CreateName(player).GetName()
-			operation = CF.CreatePlayer(player).GetPlayerOperation()
-			if CF.CreateExtraData(player).GetExtraData("isMaster"):
-				CF.CreatePlayer(player).SetPermissionLevel(2)		
+			playername = CFServer.CreateName(player).GetName()
+			operation = CFServer.CreatePlayer(player).GetPlayerOperation()
+			if CFServer.CreateExtraData(player).GetExtraData("isMaster"):
+				CFServer.CreatePlayer(player).SetPermissionLevel(2)		
 
 			if operation == 2:
 				compCmd.SetCommand('/tellraw @a[name=%s,tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}' % (playername))
-				CF.CreateTag(player).AddEntityTag("op")
+				CFServer.CreateTag(player).AddEntityTag("op")
 			else:
 				compCmd.SetCommand('/tellraw @a[name=%s,tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}' % (playername))
-				CF.CreateTag(player).RemoveEntityTag("op")
+				CFServer.CreateTag(player).RemoveEntityTag("op")
 
 	def DestroyClient(self):
 		"""
@@ -303,7 +321,7 @@ class MainLogicPart(PartBase):
 		"""
 		@description 服务端的零件对象销毁逻辑入口
 		"""
-		CF.CreateGame(serverApi.GetLevelId).CancelTimer(self.timer)
+		CFServer.CreateGame(serverApi.GetLevelId).CancelTimer(self.timer)
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		serversystem.UnListenAllEvents()
 		PartBase.DestroyServer(self)

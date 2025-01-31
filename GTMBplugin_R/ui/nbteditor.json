@@ -13,7 +13,7 @@
                                     77.5
                                 ],
                                 "shadow": true,
-                                "text": "如果有中文变成/uxxxx就删掉换回原内容",
+                                "text": "如果有中文变成/uxxxx，请不要惊慌，那就是原内容",
                                 "text_alignment": "center",
                                 "type": "label"
                             }
@@ -66,7 +66,12 @@
                                     357,
                                     122
                                 ],
-                                "type": "edit_box"
+                                "type": "edit_box",
+                                "$text_edit_box_label_anchor_point": "top_right",
+                                "$text_edit_box_label_size": [
+                                    "100%+0px",
+                                    "default"
+                                ]
                             }
                         },
                         {

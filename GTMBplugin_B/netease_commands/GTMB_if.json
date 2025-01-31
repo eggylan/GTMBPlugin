@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "if",
+	"description": "对命令的运行结果进行运算",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "命令1", "type": "str"},
+        {"name": "运算操作", "type": "str"},
+        {"name": "命令2", "type": "str", "default":null}
+	]
+}

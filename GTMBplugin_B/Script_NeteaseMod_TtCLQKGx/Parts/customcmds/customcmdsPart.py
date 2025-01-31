@@ -36,13 +36,35 @@ def intg(num):
 	else:
 		return int(num)-1
 
+def checkjson(data, playerId):
+	#type: (str, str|int) -> list
+	try:
+		itemDict = json.loads(data.replace("'",'"'))
+	except ValueError as errordata:
+		if str(errordata).find('char') == -1:
+			return ['无效的nbt', True]
+		if str(errordata).find('Extra') != 0:
+			index = int(str(errordata)[str(errordata).find('char')+5: -1])
+		else:
+			index = int(str(errordata)[str(errordata).find('char')+7: -1])
+		if playerId is None:
+			colors = ['§c', '§r']
+		else:
+			colors = ['§e', '§c']
+		if index >= 15:
+			return ['无效的nbt 位于 %s' % (data[index-15:index]+colors[0]+data[index]+colors[1]+data[index+1:index+15]), True]
+		return ['无效的nbt 位于 %s' % (data[:index]+colors[0]+data[index]+colors[1]+data[index+1:index+15]), True]
+	if type(itemDict) != dict:
+		return['无效的nbt', True]
+	return [itemDict, False]
+
 @registerGenericClass("customcmdsPart")
 class customcmdsPart(PartBase):
 	def __init__(self):
 		PartBase.__init__(self)
 		# 零件名称
 		self.name = "自定义指令零件"
-
+	
 	def InitClient(self):
 		"""
 		@description 客户端的零件对象初始化入口
@@ -55,40 +77,29 @@ class customcmdsPart(PartBase):
 		playerId = clientApi.GetLocalPlayerId()
 		if args['cmd'] == 'setplayerinteracterange':	
 			clientApi.GetEngineCompFactory().CreatePlayer(playerId).SetPickRange(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hideairsupplygui':
+		elif args['cmd'] == 'hideairsupplygui':
 			clientApi.HideAirSupplyGUI(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hidearmorgui':
+		elif args['cmd'] == 'hidearmorgui':
 			clientApi.HideArmorGui(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hidecrosshairgui':
+		elif args['cmd'] == 'hidecrosshairgui':
 			clientApi.HideCrossHairGUI(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hideexpgui':
+		elif args['cmd'] == 'hideexpgui':
 			clientApi.HideExpGui(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hidefoldgui':
+		elif args['cmd'] == 'hidefoldgui':
 			clientApi.HideFoldGUI(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hidehealthgui':
+		elif args['cmd'] == 'hidehealthgui':
 			clientApi.HideHealthGui(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hidehorsehealthgui':
+		elif args['cmd'] == 'hidehorsehealthgui':
 			clientApi.HideHorseHealthGui(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hidehudgui':
+		elif args['cmd'] == 'hidehudgui':
 			clientApi.HideHudGUI(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hidehungergui':
+		elif args['cmd'] == 'hidehungergui':
 			clientApi.HideHungerGui(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'hideslotbargui':
+		elif args['cmd'] == 'hideslotbargui':
 			clientApi.HideSlotBarGui(args['cmdargs'][1])
-			return
-		if args['cmd'] == 'openfoldgui':
+		elif args['cmd'] == 'openfoldgui':
 			clientApi.OpenFoldGui()
-			return
+		return
 		
 		# clientsystem.NotifyToServer("customCmdReturn", data)
 
@@ -114,7 +125,7 @@ class customcmdsPart(PartBase):
 			playerId = args['origin']['entityId']
 		except:
 			playerId = None
-		
+
 		if command == 'setentityonfire':
 			for i in cmdargs[0]:
 				CFServer.CreateAttr(i).SetEntityOnFire(cmdargs[1],cmdargs[2])
@@ -911,7 +922,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '解锁玩家权限成功'
 			return
 		
-		compExtra = CFServer.CreateExtraData(serverApi.GetLevelId())
+		compExtra = CFServer.CreateExtraData(levelId)
 		params = compExtra.GetExtraData('parameters')
 		input1 = cmdargs[0]
 		if command == 'param':
@@ -950,7 +961,7 @@ class customcmdsPart(PartBase):
 
 		if command == 'kickt':
 			for kickplayer in cmdargs[0]:
-				CFServer.CreateCommand(serverApi.GetLevelId()).SetCommand('/kick ' + CFServer.CreateName(kickplayer).GetName() + ' ' + cmdargs[1], False)
+				compcmd.SetCommand('/kick ' + CFServer.CreateName(kickplayer).GetName() + ' ' + cmdargs[1], False)
 			args['return_msg_key'] = '已踢出目标玩家'
 			return
 				
@@ -984,7 +995,7 @@ class customcmdsPart(PartBase):
 					cmd2 = "%s %s" % (cmd2, i)
 			else:
 				cmd2 = cmd
-			CFServer.CreateCommand(serverApi.GetLevelId()).SetCommand("/" + cmd2, False)
+			compcmd.SetCommand("/" + cmd2, False)
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 			return
 		
@@ -1269,28 +1280,12 @@ class customcmdsPart(PartBase):
 		if command == 'givewithnbt':
 			args['return_msg_key'] = '给予失败'
 			args['return_failed'] = True
-			try:
-				itemDict = json.loads(cmdargs[1].replace("'",'"'))
-			except ValueError as errordata:
-				if str(errordata).find('char') == -1:
-					args['return_failed'] = True
-					args['return_msg_key'] = '无效的nbt'
-					return
-				if str(errordata).find('Extra') != 0:
-					index = int(str(errordata)[str(errordata).find('char')+5: -1])
-				else:
-					index = int(str(errordata)[str(errordata).find('char')+7: -1])
-				if playerId is None:
-					colors = ['§c', '§r']
-				else:
-					colors = ['§e', '§c']
-				args['return_failed'] = True
-				args['return_msg_key'] = '无效的nbt 位于 %s' % (cmdargs[1][index-15:index]+colors[0]+cmdargs[1][index]+colors[1]+cmdargs[1][index+1:index+15])
+			result = checkjson(cmdargs[1], playerId)
+			if result[1]:
+				args['return_failed'] = result[1]
+				args['return_msg_key'] = result[0]
 				return
-			if type(itemDict) != dict:
-				args['return_failed'] = True
-				args['return_msg_key'] = '无效的nbt'
-				return
+			itemDict = result[0]
 			for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
 				itemDict.pop(i,False) #删去多余键值对(这些已被弃用)
 			for i in cmdargs[0]:
@@ -1299,38 +1294,24 @@ class customcmdsPart(PartBase):
 					args['return_msg_key'] = '非玩家实体无法给予物品'
 					return
 			for i in cmdargs[0]:
-				CFServer.CreateItem(i).SpawnItemToPlayerInv(unicode_convert(itemDict), i)
-				args['return_failed'] = False
-				args['return_msg_key'] = '成功给予物品'
+				if CFServer.CreateItem(i).SpawnItemToPlayerInv(unicode_convert(itemDict), i):
+					args['return_failed'] = False
+					args['return_msg_key'] = '成功给予物品'
 			return
 			
 		if command == 'spawnitemtocontainer':
-			args['return_msg_key'] = '成功给予物品'
+			args['return_msg_key'] = '给予失败'
+			args['return_failed'] = True
 			x = intg(cmdargs[2][0])
 			y = intg(cmdargs[2][1])
 			z = intg(cmdargs[2][2])
 			itemDict = compItemWorld.GetContainerItem((x, y, z,), cmdargs[1], cmdargs[3], True)
-			try:itemDict2 = unicode_convert(json.loads(cmdargs[0].replace("'", '"')))
-			except ValueError as errordata:
-				if str(errordata).find('char') == -1 :
-					args['return_failed'] = True
-					args['return_msg_key'] = '无效的nbt'
-					return
-				if str(errordata).find('Extra') != 0:
-					index = int(str(errordata)[str(errordata).find('char')+5: -1])
-				else:
-					index = int(str(errordata)[str(errordata).find('char')+7: -1])
-				if playerId is None:
-					colors = ['§c', '§r']
-				else:
-					colors = ['§e', '§c']
-				args['return_failed'] = True
-				args['return_msg_key'] = '无效的nbt 位于 %s' % (cmdargs[0][index-15:index]+colors[0]+cmdargs[0][index]+colors[1]+cmdargs[0][index+1:index+15])
+			result = checkjson(cmdargs[0], playerId)
+			if result[1]:
+				args['return_failed'] = result[1]
+				args['return_msg_key'] = result[0]
 				return
-			if type(itemDict2) != dict:
-				args['return_failed'] = True
-				args['return_msg_key'] = '无效的nbt'
-				return
+			itemDict2 = result[0]
 			for i in [('durability',0),('customTips',''),('extraId',''),('newAuxValue',0),('userData',None),('showInHand',True)]:
 				if not itemDict2.has_key(i[0]):
 					itemDict2[i[0]] = i[1]
@@ -1340,10 +1321,12 @@ class customcmdsPart(PartBase):
 					itemDict2.pop(i, False)
 				countOrign = itemDict.pop('count')
 			else:countOrign = 0
-			countAdd = itemDict2.pop('count')
+			countAdd = itemDict2.pop('count', 1)
 			if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd<=64:
 				itemDict2['count'] = countOrign+countAdd
-				compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z,), cmdargs[3])
+				if compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z,), cmdargs[3]):
+					args['return_msg_key'] = '成功给予物品'
+					args['return_failed'] = False
 			else:
 				args['return_failed'] = True
 				args['return_msg_key'] = '槽位已满'
@@ -1467,6 +1450,93 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的数值'
 			return
 	
+		if command == 'setplayeruiitem':
+			args['return_msg_key'] = '给予失败'
+			args['return_failed'] = True
+			result = checkjson(cmdargs[2], playerId)
+			if result[1]:
+				args['return_failed'] = result[1]
+				args['return_msg_key'] = result[0]
+				return
+			itemDict = result[0]
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置UI物品'
+					return
+			for i in cmdargs[0]:
+				if CFServer.CreateItem(i).SetPlayerUIItem(i, cmdargs[1], itemDict, cmdargs[3]):
+					args['return_msg_key'] = '成功设置玩家UI物品'
+					args['return_failed'] = False
+			return
+
+		if command == 'if':
+			if cmdargs[2] is None:
+				result = [compcmd.SetCommand(cmdargs[0].replace("'",'"'), playerId), compcmd.SetCommand(cmdargs[2], playerId)]
+			else:
+				result = [compcmd.SetCommand(cmdargs[0].replace("'",'"'), playerId), compcmd.SetCommand(cmdargs[2].replace("'",'"'), playerId)]
+			if cmdargs[1] == 'not':
+				if result[0]:
+					args['return_failed'] = True
+					args['return_msg_key'] = '运算符成立'
+				else:
+					args['return_msg_key'] = '运算符不成立'
+			elif cmdargs[1] == 'and':
+				if result[0] and result[1]:
+					args['return_msg_key'] = '运算符成立'
+				else:
+					args['return_failed'] = True
+					args['return_msg_key'] = '运算符不成立'
+			elif cmdargs[1] == 'or':
+				if result[0] or result[1]:
+					args['return_msg_key'] = '运算符成立'
+				else:
+					args['return_failed'] = True
+					args['return_msg_key'] = '运算符不成立'
+			elif cmdargs == 'xor':
+				if result[0] != result[1]:
+					args['return_msg_key'] = '运算符成立'
+				else:
+					args['return_failed'] = True
+					args['return_msg_key'] = '运算符不成立'
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '未知的逻辑运算符'
+			return
+		
+		if command == 'sit':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:panda':
+					args['return_failed'] = True
+					args['return_msg_key'] = '熊猫无法坐下'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreateEntityDefinitions(i).SetSitting(cmdargs[1])
+			args['return_msg_key'] = '成功设置坐下状态'
+			return
+			
+		if command == 'setteleportability':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置传送能力'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetTeleportAbility(cmdargs[1])
+			args['return_msg_key'] = '成功设置传送能力'
+			return
+
+		if command == 'settradelevel':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:villager':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非村民实体无法设置交易等级'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
+			args['return_msg_key'] = '成功设置交易等级'
+			return
+
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口

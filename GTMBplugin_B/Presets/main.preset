@@ -271,6 +271,43 @@
                 ]
             },
             "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {},
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "EULA",
+            "objId": "d7475c8a3d4140ddbfa14a3dbff85cac",
+            "presetId": "828ecb76-5632-4d72-94ac-d4ed24d06328",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "05c0692699434cc6a9a43e1a75c09f68",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
         }
     ],
     "classType": "PresetBase",
@@ -278,7 +315,7 @@
     "forceLoad": true,
     "name": "main",
     "notifyRemove": true,
-    "objId": "27296a457589496f818d949fc29c6b9e",
+    "objId": "56afb61825ca46e88ca13df8d3740853",
     "preLoad": true,
     "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
     "presetType": "空预设",
