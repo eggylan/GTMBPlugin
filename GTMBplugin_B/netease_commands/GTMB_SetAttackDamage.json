@@ -1,11 +1,10 @@
 {
 	"format_version": "0.0.1",
 	"name": "setattackdamage",
-	"description": "设置物品的攻击伤害值",
+	"description": "设置手持物品的攻击伤害值",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},
-        {"name": "物品信息Json", "type": "str"},
         {"name": "攻击伤害值", "type": "int"}
 	]
 }

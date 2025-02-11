@@ -70,11 +70,14 @@ class customcmdsPart(PartBase):
 		@description 客户端的零件对象初始化入口
 		"""
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
+		levelId = clientApi.GetLevelId()
+		CFClient.CreatePostProcess(levelId).SetEnableColorAdjustment(True)
 		clientsystem.ListenForEvent("Minecraft", "preset", "CustomCommandClient", self, self.OnCustomCommandClient)
 		PartBase.InitClient(self)
 
 	def OnCustomCommandClient(self, args):
 		playerId = clientApi.GetLocalPlayerId()
+		levelId = clientApi.GetLevelId()
 		if args['cmd'] == 'setplayerinteracterange':	
 			clientApi.GetEngineCompFactory().CreatePlayer(playerId).SetPickRange(args['cmdargs'][1])
 		elif args['cmd'] == 'hideairsupplygui':
@@ -99,6 +102,22 @@ class customcmdsPart(PartBase):
 			clientApi.HideSlotBarGui(args['cmdargs'][1])
 		elif args['cmd'] == 'openfoldgui':
 			clientApi.OpenFoldGui()
+		elif args['cmd'] == 'setcanpausescreen':
+			CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
+		elif args['cmd'] == 'setcolorbrightness':
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentBrightness(args['cmdargs'][1])
+		elif args['cmd'] == 'setcolorcontrast':
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentContrast(args['cmdargs'][1])
+		elif args['cmd'] == 'setcolorsaturation':
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentSaturation(args['cmdargs'][1])
+		elif args['cmd'] == 'setcolortint':
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentTint(args['cmdargs'][1],args['cmdargs'][2])
+		elif args['cmd'] == 'setcompassentity':
+			CFClient.CreateItem(playerId).SetCompassEntity(args['cmdargs'][1][0])
+		elif args['cmd'] == 'setcompasstarget':
+			CFClient.CreateItem(playerId).SetCompassTarget(args['cmdargs']['x'],args['cmdargs']['y'],args['cmdargs']['z'])
+
+
 		return
 		
 		# clientsystem.NotifyToServer("customCmdReturn", data)
@@ -132,7 +151,145 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置实体着火'
 			return
 		
-		if command == 'setplayerrespawnpos':
+		elif command == 'setcurrentairsupply':
+			for i in cmdargs[0]:
+				CFServer.CreateBreath(i).SetCurrentAirSupply(cmdargs[1])
+			args['return_msg_key'] = '成功设置氧气储备值'
+			return
+		
+		elif command == 'setcompasstarget':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置'
+					return
+			x,y,z = cmdargs[1]
+			compassdata = {'x':intg(x),'y':int(y),'z':intg(z)}
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcompasstarget",'cmdargs': compassdata})
+			args['return_msg_key'] = '已将设置指令发送至客户端'
+			return
+		
+		elif command == 'setcompassentity':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置'
+					return
+			if len(cmdargs[1]) > 1:
+				args['return_failed'] = True
+				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
+				return
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcompassentity",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将设置指令发送至客户端'
+			return
+			
+		elif command == 'setcolortint':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置'
+					return
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolortint",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将设置指令发送至客户端'
+			return
+		
+		elif command == 'setcolorsaturation':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置'
+					return
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolorsaturation",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将设置指令发送至客户端'
+			return
+
+		elif command == 'setcolorcontrast':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置'
+					return
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolorcontrast",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将设置指令发送至客户端'
+			return
+		
+		elif command == 'setcolorbrightness':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置'
+					return
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolorbrightness",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将设置指令发送至客户端'
+			return
+		
+		elif command == 'setchestboxitemnum':
+			x,y,z = cmdargs[0]
+			xyz = (intg(x),int(y),intg(z))
+			if CFServer.CreateChestBlock(levelId).SetChestBoxItemNum(None,xyz,cmdargs[1],cmdargs[2],cmdargs[3]):
+				args['return_msg_key'] = '成功设置箱子物品数量'
+				return
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '设置失败'
+				return
+		
+		elif command == 'setchestboxitemexchange':
+			x,y,z = cmdargs[0]
+			pid = CFServer.CreateEntityComponent(levelId).GetEntitiesBySelector("@r")[0]
+			if CFServer.CreateChestBlock(pid).SetChestBoxItemExchange(pid,(intg(x),int(y),intg(z)),cmdargs[1],cmdargs[2]):
+				args['return_msg_key'] = '成功设置箱子物品交换'
+				return
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '设置失败'
+				return
+
+
+		
+		elif command == 'setcanpausescreen':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置'
+					return
+			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcanpausescreen",'cmdargs': cmdargs})
+			args['return_msg_key'] = '已将设置指令发送至客户端'
+			return
+
+		elif command == 'setcanotherplayerride':
+			if cmdargs[0]:
+				for i in cmdargs[0]:
+					CFServer.CreateRide(i).SetCanOtherPlayerRide(i,cmdargs[1])
+				args['return_msg_key'] = '成功设置骑乘权限'
+			else:
+				args['return_failed'] = True
+				args['return_msg_key'] = '没有与选择器匹配的目标'
+			return
+		
+		elif command == 'setattackplayersability':
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetAttackPlayersAbility(cmdargs[1])
+			args['return_msg_key'] = '成功设置攻击玩家能力'
+			return
+		
+		elif command == 'setattackmobsability':
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetAttackMobsAbility(cmdargs[1])
+			args['return_msg_key'] = '成功设置攻击生物能力'
+			return
+
+		
+		elif command == 'setattackdamage':
+			for i in cmdargs[0]:
+				compItem = CFServer.CreateItem(i)
+				itemDict = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
+				if compItem.SetAttackDamage(itemDict, cmdargs[1]):
+					compItem.SpawnItemToPlayerCarried(itemDict,i)
+			args['return_msg_key'] = '成功设置攻击伤害'
+			return
+
+		elif command == 'setplayerrespawnpos':
 			x, y, z = cmdargs[1]
 			if x < 0:
 				x = int(x) - 1
@@ -153,7 +310,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家重生点'
 			return
 		
-		if command == 'setplayerhealthlevel':
+		elif command == 'setplayerhealthlevel':
 			if cmdargs[1] < 0 or cmdargs[1] > 20:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的回血临界值'
@@ -168,7 +325,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家回血临界值'
 			return
 		
-		if command == 'setplayerstarvelevel':
+		elif command == 'setplayerstarvelevel':
 			if cmdargs[1] < 0 or cmdargs[1] > 20:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的扣血临界值'
@@ -183,7 +340,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家扣血临界值'
 			return
 		
-		if command == 'setplayerhunger':
+		elif command == 'setplayerhunger':
 			if cmdargs[1] < 0 or cmdargs[1] > 20:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的饥饿度'
@@ -198,7 +355,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家饥饿度'
 			return
 		
-		if command == 'setplayerattackspeedamplifier':
+		elif command == 'setplayerattackspeedamplifier':
 			if cmdargs[1] < 0.5 or cmdargs[1] > 2.0:
 				args['return_failed'] = True
 				args['return_msg_key'] = '无效的倍率'
@@ -213,7 +370,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家攻击速度倍率'
 			return
 		
-		if command == 'setplayerjumpable':
+		elif command == 'setplayerjumpable':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -224,7 +381,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家跳跃能力'
 			return
 		
-		if command == 'setplayermovable':
+		elif command == 'setplayermovable':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -235,7 +392,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家移动能力'
 			return
 		
-		if command == 'setplayernaturalstarve':
+		elif command == 'setplayernaturalstarve':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -246,7 +403,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家是否饥饿掉血'
 			return
 		
-		if command == 'setplayerprefixandsuffixname':
+		elif command == 'setplayerprefixandsuffixname':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -257,7 +414,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置前缀和后缀名'
 			return
 		
-		if command == 'setplayermaxexhaustionvalue':
+		elif command == 'setplayermaxexhaustionvalue':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -268,7 +425,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家饥饿最大消耗度'
 			return
 		
-		if command == 'setplayerhealthtick':
+		elif command == 'setplayerhealthtick':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -279,7 +436,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家自然回血速度'
 			return
 		
-		if command == 'sethurtcd':
+		elif command == 'sethurtcd':
 			if compGame.SetHurtCD(cmdargs[0]):
 				args['return_msg_key'] = '成功设置全局受击间隔CD'
 				return
@@ -288,7 +445,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '设置全局受击间隔CD失败'
 				return
 		
-		if command == 'setattacktarget':
+		elif command == 'setattacktarget':
 			if len(cmdargs[1]) != 1:
 				args['return_failed'] = True
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
@@ -299,13 +456,13 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置仇恨目标'
 			return
 		
-		if command == 'resetattacktarget':
+		elif command == 'resetattacktarget':
 			for i in cmdargs[0]:
 				CFServer.CreateAction(i).ResetAttackTarget()
 			args['return_msg_key'] = '成功重置仇恨目标'
 			return
 		
-		if command == 'setbanplayerfishing':
+		elif command == 'setbanplayerfishing':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -316,19 +473,19 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置钓鱼能力'
 			return
 		
-		if command == 'setactorcanpush':
+		elif command == 'setactorcanpush':
 			for i in cmdargs[0]:
 				CFServer.CreateActorPushable(i).SetActorPushable(cmdargs[1])
 			args['return_msg_key'] = '成功设置实体推动'
 			return
 		
-		if command == 'setactorcollidable':
+		elif command == 'setactorcollidable':
 			for i in cmdargs[0]:
 				CFServer.CreateActorCollidable(i).SetActorCollidable(cmdargs[1])
 			args['return_msg_key'] = '成功设置实体碰撞'
 			return
 		
-		if command == 'setmineability':
+		elif command == 'setmineability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -339,7 +496,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置挖掘权限'
 			return
 		
-		if command == 'setbuildability':
+		elif command == 'setbuildability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -350,12 +507,12 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置放置权限'
 			return
 		
-		if command == 'setcontrol':
+		elif command == 'setcontrol':
 			for i in cmdargs[0]:
 				CFServer.CreateRide(i).SetControl(i,cmdargs[1])
 			args['return_msg_key'] = '已设置'
 		
-		if command == 'setpickuparea':
+		elif command == 'setpickuparea':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -366,22 +523,22 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置拾取范围'
 			return
 		
-		if command == 'setlevelgravity':
+		elif command == 'setlevelgravity':
 			compGame.SetLevelGravity(cmdargs[0])
 			args['return_msg_key'] = '成功设置世界重力'
 			return
 		
-		if command == 'setjumppower':
+		elif command == 'setjumppower':
 			for i in cmdargs[0]:
 				CFServer.CreateGravity(i).SetJumpPower(cmdargs[1])
 			args['return_msg_key'] = '成功设置跳跃力度'
 		
-		if command == 'setgravity':
+		elif command == 'setgravity':
 			for i in cmdargs[0]:
 				CFServer.CreateGravity(i).SetGravity(cmdargs[1])
 			args['return_msg_key'] = '成功设置重力'
 		
-		if command == 'setworldspawnd':
+		elif command == 'setworldspawnd':
 			x, y, z = cmdargs[1]
 			if x < 0:
 				x = int(x) - 1
@@ -400,7 +557,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '设置失败'
 				return
 			
-		if command == 'playeruseitemtopos':
+		elif command == 'playeruseitemtopos':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -412,11 +569,11 @@ class customcmdsPart(PartBase):
 				return
 			x, y, z = cmdargs[1]
 			for i in cmdargs[0]:
-				CFServer.CreateBlockInfo(i).PlayerUseItemToPos((intg(x),intg(y),intg(z)),cmdargs[3],cmdargs[4],cmdargs[2])
+				CFServer.CreateBlockInfo(i).PlayerUseItemToPos((intg(x),int(y),intg(z)),cmdargs[3],cmdargs[4],cmdargs[2])
 			args['return_msg_key'] = '已尝试使用物品'
 			return
 		
-		if command == 'playeruseitemtoentity':
+		elif command == 'playeruseitemtoentity':
 			if len(cmdargs[1]) != 1:
 				args['return_failed'] = True
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
@@ -432,7 +589,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已尝试使用物品'
 			return
 		
-		if command == 'playerdestoryblock':
+		elif command == 'playerdestoryblock':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -440,11 +597,11 @@ class customcmdsPart(PartBase):
 					return
 			x, y, z = cmdargs[1]
 			for i in cmdargs[0]:
-				CFServer.CreateBlockInfo(i).PlayerDestoryBlock((intg(x),intg(y),intg(z)),cmdargs[2],cmdargs[3])
+				CFServer.CreateBlockInfo(i).PlayerDestoryBlock((intg(x),int(y),intg(z)),cmdargs[2],cmdargs[3])
 			args['return_msg_key'] = '已尝试破坏方块'
 			return
 		
-		if command == 'openworkbench':
+		elif command == 'openworkbench':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -454,7 +611,7 @@ class customcmdsPart(PartBase):
 				CFServer.CreateBlockInfo(i).OpenWorkBench()
 			args['return_msg_key'] = '已打开工作台界面'
 		
-		if command == 'openfoldgui':
+		elif command == 'openfoldgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -463,12 +620,12 @@ class customcmdsPart(PartBase):
 			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"openfoldgui",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已将界面指令发送至客户端'
 		
-		if command == 'setimmunedamage':
+		elif command == 'setimmunedamage':
 			for i in cmdargs[0]:
 				CFServer.CreateHurt(i).ImmuneDamage(cmdargs[1])
 			args['return_msg_key'] = '设置免疫伤害成功'
 		
-		if command == 'hideslotbargui':
+		elif command == 'hideslotbargui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -478,7 +635,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hidehungergui':
+		elif command == 'hidehungergui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -488,7 +645,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hidehudgui':
+		elif command == 'hidehudgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -498,7 +655,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hidehorsehealthgui':
+		elif command == 'hidehorsehealthgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -508,7 +665,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hidehealthgui':
+		elif command == 'hidehealthgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -518,7 +675,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hidefoldgui':
+		elif command == 'hidefoldgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -528,7 +685,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hideexpgui':
+		elif command == 'hideexpgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -538,7 +695,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hidecrosshairgui':
+		elif command == 'hidecrosshairgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -548,7 +705,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hidearmorgui':
+		elif command == 'hidearmorgui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -558,7 +715,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'hideairsupplygui':
+		elif command == 'hideairsupplygui':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -568,7 +725,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已将隐藏界面指令发送至客户端'
 			return
 		
-		if command == 'setinvitemexchange':
+		elif command == 'setinvitemexchange':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -579,7 +736,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功交换物品'
 			return	
 		
-		if command == 'setinvitemnum':
+		elif command == 'setinvitemnum':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -594,7 +751,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置物品数量'
 			return
 		
-		if command == 'setitemdefenceangle':
+		elif command == 'setitemdefenceangle':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -613,7 +770,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置盾牌抵挡角度'
 			return
 		
-		if command == 'setitemdurability':
+		elif command == 'setitemdurability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -628,7 +785,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置物品耐久度'
 			return
 				
-		if command == 'setitemmaxdurability':
+		elif command == 'setitemmaxdurability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -643,7 +800,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置物品最大耐久度'
 			return
 			
-		if command == 'setitemtierlevel':
+		elif command == 'setitemtierlevel':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -660,7 +817,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置物品等级'
 			return
 		
-		if command == 'setitemtierspeed':
+		elif command == 'setitemtierspeed':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -673,7 +830,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置物品挖掘速度'
 			return
 		
-		if command == 'setmaxstacksize':
+		elif command == 'setmaxstacksize':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -696,7 +853,7 @@ class customcmdsPart(PartBase):
 					args['return_msg_key'] = '成功设置最大堆叠数量'
 			return
 		
-		if command == 'playerexhaustionratio':
+		elif command == 'playerexhaustionratio':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -711,7 +868,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家饥饿度消耗倍率'
 			return
 		
-		if command == 'setsigntextstyle':
+		elif command == 'setsigntextstyle':
 			x, y, z = cmdargs[0]
 			r,g,b = cmdargs[2]
 			lighting = cmdargs[4]
@@ -719,7 +876,7 @@ class customcmdsPart(PartBase):
 				side = 1
 			else:
 				side = 0
-			if CFServer.CreateBlockEntity(levelId).SetSignTextStyle((intg(x), intg(y), intg(z)), cmdargs[1], (r, g, b, cmdargs[3]), lighting, side):
+			if CFServer.CreateBlockEntity(levelId).SetSignTextStyle((intg(x), int(y), intg(z)), cmdargs[1], (r, g, b, cmdargs[3]), lighting, side):
 				args['return_msg_key'] = '设置告示牌文本样式成功'
 				return
 			else:
@@ -727,13 +884,13 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '设置失败'
 				return
 		
-		if command == 'setsignblocktext':
+		elif command == 'setsignblocktext':
 			x, y, z = cmdargs[0]
 			if cmdargs[3] is True:
 				side = 1
 			else:
 				side = 0
-			if CFServer.CreateBlockInfo(levelId).SetSignBlockText((intg(x), intg(y), intg(z)), cmdargs[1], cmdargs[2], side):
+			if CFServer.CreateBlockInfo(levelId).SetSignBlockText((intg(x), int(y), intg(z)), cmdargs[1], cmdargs[2], side):
 				args['return_msg_key'] = '设置告示牌文本成功'
 				return
 			else:
@@ -741,7 +898,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '设置失败'
 				return
 
-		if command == 'setplayerinteracterange':
+		elif command == 'setplayerinteracterange':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -753,7 +910,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置触及距离'
 			return
 		
-		if command == 'summonprojectile':
+		elif command == 'summonprojectile':
 			try:
 				targetlen = len(cmdargs[7])
 				target = cmdargs[7][0]
@@ -781,7 +938,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功生成抛射物'
 			return
 		
-		if command == 'setstepheight':
+		elif command == 'setstepheight':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -795,7 +952,7 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 
-		if command == 'setsize':
+		elif command == 'setsize':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
 					CFServer.CreateCollisionBox(i).SetSize((cmdargs[1],cmdargs[2]))
@@ -804,7 +961,7 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 			
-		if command == 'playerchatprefix':
+		elif command == 'playerchatprefix':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -818,7 +975,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置玩家聊天前缀'
 			return
 
-		if command == 'writehealthtoscoreboard':
+		elif command == 'writehealthtoscoreboard':
 			objects = compGame.GetAllScoreboardObjects()
 			scoreboard_name = cmdargs[1]
 			if not any(obj['name'] == scoreboard_name for obj in objects):
@@ -835,7 +992,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功将生命值写入计分板'
 			return
 			
-		if command == 'writehungertoscoreboard':
+		elif command == 'writehungertoscoreboard':
 			objects = compGame.GetAllScoreboardObjects()
 			scoreboard_name = cmdargs[1]
 			if not any(obj['name'] == scoreboard_name for obj in objects):
@@ -852,7 +1009,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功将饥饿值写入计分板'
 			return	
 
-		if command == 'writearmortoscoreboard':
+		elif command == 'writearmortoscoreboard':
 			objects = compGame.GetAllScoreboardObjects()
 			scoreboard_name = cmdargs[1]
 			if not any(obj['name'] == scoreboard_name for obj in objects):
@@ -869,7 +1026,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功将盔甲值写入计分板'
 			return
 		
-		if command == 'writespeedtoscoreboard':
+		elif command == 'writespeedtoscoreboard':
 			objects = compGame.GetAllScoreboardObjects()
 			scoreboard_name = cmdargs[1]
 			if not any(obj['name'] == scoreboard_name for obj in objects):
@@ -886,7 +1043,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功将速度值写入计分板'
 			return
 		
-		if command == 'executecb':
+		elif command == 'executecb':
 			success = CFServer.CreateBlockEntity(levelId).ExecuteCommandBlock((cmdargs[0], cmdargs[1], cmdargs[2]), cmdargs[3])
 			if success:
 				args['return_msg_key'] = '成功执行命令方块'
@@ -896,26 +1053,26 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '执行命令方块失败'
 				return
 		
-		if command == 'setname':
+		elif command == 'setname':
 			for i in cmdargs[0]:
 				CFServer.CreateName(i).SetName(cmdargs[1])
 			args['return_msg_key'] = '成功设置名称'
 			return
 		
-		if command == 'aicontrol':
+		elif command == 'aicontrol':
 			for i in cmdargs[0]:
 				CFServer.CreateControlAi(i).SetBlockControlAi(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '成功设置实体AI'
 			return
 		
-		if command == 'master':
+		elif command == 'master':
 			for i in cmdargs[0]:
 				compExtra = CFServer.CreateExtraData(i)
 				compExtra.SetExtraData("isMaster", True)
 			args['return_msg_key'] = '锁定玩家权限成功'
 			return
 
-		if command == 'demaster':
+		elif command == 'demaster':
 			for i in cmdargs[0]:
 				compExtra = CFServer.CreateExtraData(i)
 				compExtra.SetExtraData("isMaster", False)
@@ -925,6 +1082,7 @@ class customcmdsPart(PartBase):
 		compExtra = CFServer.CreateExtraData(levelId)
 		params = compExtra.GetExtraData('parameters')
 		input1 = cmdargs[0]
+		
 		if command == 'param':
 			if cmdargs[0] is None:
 				args['return_msg_key'] = str(params)
@@ -938,7 +1096,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = True
 					return
 
-		if command == 'paramdel':
+		elif command == 'paramdel':
 			if type(params) == dict and params.has_key(cmdargs[0]):
 				args['return_msg_key'] = '删除变量成功'
 				del params[input1]
@@ -949,7 +1107,7 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				return
 
-		if command == 'paramwrite':
+		elif command == 'paramwrite':
 			args['return_msg_key'] = '修改变量成功'
 			input2 = cmdargs[1]
 			if type(params) == dict:
@@ -959,20 +1117,20 @@ class customcmdsPart(PartBase):
 			compExtra.SetExtraData('parameters', params)
 			return
 
-		if command == 'kickt':
+		elif command == 'kickt':
 			for kickplayer in cmdargs[0]:
 				compcmd.SetCommand('/kick ' + CFServer.CreateName(kickplayer).GetName() + ' ' + cmdargs[1], False)
 			args['return_msg_key'] = '已踢出目标玩家'
 			return
 				
-		if command == 'explode':
+		elif command == 'explode':
 			for i in cmdargs[0]:
 				position = CFServer.CreatePos(i).GetFootPos()
 				CFServer.CreateExplosion(levelId).CreateExplosion(position,cmdargs[1],cmdargs[3],cmdargs[2],i,None)
 			args['return_msg_key'] = '爆炸已成功创建'
 			return
 	
-		if command == 'explodebypos':
+		elif command == 'explodebypos':
 			if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0],cmdargs[1],cmdargs[3],cmdargs[2],None,None):
 				args['return_msg_key'] = '爆炸已成功创建'
 				return
@@ -981,7 +1139,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '爆炸创建失败'
 				return
 	
-		if command == "console":
+		elif command == "console":
 			cmd = cmdargs[0]
 			if cmd.startswith("/"):
 				cmd = cmd[1:]
@@ -999,7 +1157,7 @@ class customcmdsPart(PartBase):
 			args["return_msg_key"] = "已尝试将指令发送到控制台执行。"
 			return
 		
-		if command == 'addaroundentitymotion' or command == 'addaroundpointmotion':
+		elif command == 'addaroundentitymotion' or command == 'addaroundpointmotion':
 			if len(cmdargs[1]) != 1 and command == 'addaroundentitymotion':
 				args['return_msg_key'] = '只允许一个实体,但提供的选择器允许多个实体'
 				args['return_failed'] = True
@@ -1042,7 +1200,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置运动器'
 			return
 
-		if command == 'addvelocitymotion':
+		elif command == 'addvelocitymotion':
 			for i in cmdargs[0]:
 				compExtra = CFServer.CreateExtraData(i)
 				CompMotion = CFServer.CreateActorMotion(i)
@@ -1067,7 +1225,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置运动器'
 			return
 		
-		if command == 'startmotion':
+		elif command == 'startmotion':
 			args['return_msg_key'] = ''
 			for i in cmdargs[0]:
 				compExtra = CFServer.CreateExtraData(i)
@@ -1089,7 +1247,7 @@ class customcmdsPart(PartBase):
 					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
 			return
 		
-		if command == 'stopmotion':
+		elif command == 'stopmotion':
 			args['return_msg_key'] = ''
 			for i in cmdargs[0]:
 				compExtra = CFServer.CreateExtraData(i)
@@ -1111,7 +1269,7 @@ class customcmdsPart(PartBase):
 					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
 			return
 		
-		if command == 'removemotion':
+		elif command == 'removemotion':
 			args['return_msg_key'] = ''
 			for i in cmdargs[0]:
 				compExtra = CFServer.CreateExtraData(i)
@@ -1135,7 +1293,7 @@ class customcmdsPart(PartBase):
 					CompMsg.NotifyOneMessage(playerId, '实体没有绑定运动器', "§c")
 			return
 
-		if command == 'addenchant':
+		elif command == 'addenchant':
 			if cmdargs[0]:
 				for i in cmdargs[0]:
 					compItem = CFServer.CreateItem(i)
@@ -1169,7 +1327,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '没有与选择器匹配的目标'
 				return
 
-		if command == 'addtrackmotion':
+		elif command == 'addtrackmotion':
 			for i in cmdargs[0]:
 				compExtra = CFServer.CreateExtraData(i)
 				CompMotion = CFServer.CreateActorMotion(i)
@@ -1199,24 +1357,24 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置运动器'
 			return
 
-		if command == 'setactorcanburnbylightning':
+		elif command == 'setactorcanburnbylightning':
 			compGame.SetCanActorSetOnFireByLightning(cmdargs[0])
 			args['return_msg_key'] = '设置成功'
 			return
 
-		if command == 'setblockcanburnbylightning':
+		elif command == 'setblockcanburnbylightning':
 			compGame.SetCanBlockSetOnFireByLightning(cmdargs[0])
 			args['return_msg_key'] = '设置成功'
 			return
 
-		if command == 'cancelshearsdestoryblockspeedall':
+		elif command == 'cancelshearsdestoryblockspeedall':
 			for i in cmdargs[0]:
 				compItem = CFServer.CreateItem(i)
 				compItem.CancelShearsDestoryBlockSpeedAll()
 				args['return_msg_key'] = '取消成功'
 			return
 
-		if command == 'cancelshearsdestoryblockspeed':
+		elif command == 'cancelshearsdestoryblockspeed':
 			for i in cmdargs[0]:
 				compItem = CFServer.CreateItem(i)
 				if not compItem.CancelShearsDestoryBlockSpeed(cmdargs[1]):
@@ -1225,7 +1383,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '取消成功'
 			return
 
-		if command == 'setshearsdestoryblockspeed':
+		elif command == 'setshearsdestoryblockspeed':
 			if cmdargs[2] < 1:
 				args['return_failed'] = True
 				args['return_msg_key'] = '速度必须大于1'
@@ -1239,7 +1397,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '设置成功'
 			return
 
-		if command == 'changeselectslot':
+		elif command == 'changeselectslot':
 			for i in cmdargs[0]:
 				CompType = CFServer.CreateEngineType(i)
 				EntityType = CompType.GetEngineTypeStr()
@@ -1253,7 +1411,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '设置成功'
 			return
 
-		if command == 'forbidliquidflow':
+		elif command == 'forbidliquidflow':
 			if compGame.ForbidLiquidFlow(cmdargs[0]):
 				args['return_msg_key'] = '已成功修改液体流动性'
 				return
@@ -1262,7 +1420,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '修改失败'
 				return
 
-		if command == 'getuid':
+		elif command == 'getuid':
 			uid_dict = {}
 			for i in cmdargs[0]:
 				CompType = CFServer.CreateEngineType(i)
@@ -1277,7 +1435,7 @@ class customcmdsPart(PartBase):
 			return
 			# serversystem.NotifyToMultiClients(list(cmdargs[0]), "CustomCommandClient", {'cmd':"getuid", 'origin': playerId})
 
-		if command == 'givewithnbt':
+		elif command == 'givewithnbt':
 			args['return_msg_key'] = '给予失败'
 			args['return_failed'] = True
 			result = checkjson(cmdargs[1], playerId)
@@ -1299,11 +1457,11 @@ class customcmdsPart(PartBase):
 					args['return_msg_key'] = '成功给予物品'
 			return
 			
-		if command == 'spawnitemtocontainer':
+		elif command == 'spawnitemtocontainer':
 			args['return_msg_key'] = '给予失败'
 			args['return_failed'] = True
 			x = intg(cmdargs[2][0])
-			y = intg(cmdargs[2][1])
+			y = int(cmdargs[2][1])
 			z = intg(cmdargs[2][2])
 			itemDict = compItemWorld.GetContainerItem((x, y, z,), cmdargs[1], cmdargs[3], True)
 			result = checkjson(cmdargs[0], playerId)
@@ -1332,7 +1490,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '槽位已满'
 			return
 
-		if command == 'removeenchant':
+		elif command == 'removeenchant':
 			args['return_msg_key'] = '删除失败'
 			args['return_failed'] = True
 			for i in cmdargs[0]:
@@ -1341,13 +1499,13 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = False
 			return
 
-		if command == 'resetattacktarget':
+		elif command == 'resetattacktarget':
 			for i in cmdargs[0]:
 				CFServer.CreateAction(i).ResetAttackTarget()
 			args['return_msg_key'] = '清除仇恨成功'
 			return
 			
-		if command == 'resetmotion':
+		elif command == 'resetmotion':
 			for i in cmdargs[0]:
 				CompType = CFServer.CreateEngineType(i)
 				CompMotion = CFServer.CreateActorMotion(i)
@@ -1358,7 +1516,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '重置运动成功'
 			return
 	
-		if command == 'setleashholder':
+		elif command == 'setleashholder':
 			if len(cmdargs[0]) == 1:
 				for i in cmdargs[1]:
 					compEntityD = CFServer.CreateEntityDefinitions(i)
@@ -1370,27 +1528,27 @@ class customcmdsPart(PartBase):
 				args['return_failed'] = True
 				return
 	
-		if command == 'setlootdropped':
+		elif command == 'setlootdropped':
 			for i in cmdargs[0]:
 				compEntityD = CFServer.CreateEntityDefinitions(i)
 				compEntityD.SetLootDropped(cmdargs[1])
 			args['return_msg_key'] = '设置成功'
 			return
 
-		if command == 'setmaxairsupply':
+		elif command == 'setmaxairsupply':
 			for i in cmdargs[0]:
 				compBrea = CFServer.CreateBreath(i)
 				compBrea.SetMaxAirSupply(cmdargs[1])
 			args['return_msg_key'] = '设置成功'
 			return
 
-		if command == 'setmobknockback':
+		elif command == 'setmobknockback':
 			for i in cmdargs[0]:
 				CFServer.CreateAction(i).SetMobKnockback(cmdargs[1], cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
 			args['return_msg_key'] = '设置成功'
 			return
 	
-		if command == 'setmotion':
+		elif command == 'setmotion':
 			for i in cmdargs[0]:
 				CompType = CFServer.CreateEngineType(i)
 				CompMotion = CFServer.CreateActorMotion(i)
@@ -1401,7 +1559,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '设置运动成功'
 			return
 	
-		if command == 'setopencontainersability':
+		elif command == 'setopencontainersability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -1412,7 +1570,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置打开容器的能力'
 			return
 		
-		if command == 'setoperatedoorability':
+		elif command == 'setoperatedoorability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -1423,7 +1581,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置开门能力'
 			return
 
-		if command == 'setorbexperience':
+		elif command == 'setorbexperience':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:xp_orb':
 					args['return_failed'] = True
@@ -1435,14 +1593,14 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '设置成功'
 			return
 	
-		if command == 'setpersistent':
+		elif command == 'setpersistent':
 			for i in cmdargs[0]:
 				compAttr = CFServer.CreateAttr(i)
 				compAttr.SetPersistent(cmdargs[1])
 			args['return_msg_key'] = '设置成功'
 			return
 
-		if command == 'setpistonmaxinteractioncount':
+		elif command == 'setpistonmaxinteractioncount':
 			if compGame.SetPistonMaxInteractionCount(cmdargs[0]):
 				args['return_msg_key'] = '设置成功'
 			else:
@@ -1450,7 +1608,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '无效的数值'
 			return
 	
-		if command == 'setplayeruiitem':
+		elif command == 'setplayeruiitem':
 			args['return_msg_key'] = '给予失败'
 			args['return_failed'] = True
 			result = checkjson(cmdargs[2], playerId)
@@ -1470,7 +1628,7 @@ class customcmdsPart(PartBase):
 					args['return_failed'] = False
 			return
 
-		if command == 'if':
+		elif command == 'if':
 			if cmdargs[2] is None:
 				result = [compcmd.SetCommand(cmdargs[0].replace("'",'"'), playerId), compcmd.SetCommand(cmdargs[2], playerId)]
 			else:
@@ -1504,7 +1662,7 @@ class customcmdsPart(PartBase):
 				args['return_msg_key'] = '未知的逻辑运算符'
 			return
 		
-		if command == 'sit':
+		elif command == 'sit':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:panda':
 					args['return_failed'] = True
@@ -1515,7 +1673,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置坐下状态'
 			return
 			
-		if command == 'setteleportability':
+		elif command == 'setteleportability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
@@ -1526,7 +1684,7 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '成功设置传送能力'
 			return
 
-		if command == 'settradelevel':
+		elif command == 'settradelevel':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:villager':
 					args['return_failed'] = True

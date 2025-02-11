@@ -26,6 +26,7 @@ class EULA(ScreenNode):
 
 	def exit(self, args):
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
+		clientApi.PopTopUI()
 		clientsystem.NotifyToServer('EULA', {'reason': '您没有接受EULA协议'})
 
 	def Destroy(self):
