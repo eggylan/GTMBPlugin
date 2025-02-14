@@ -217,22 +217,22 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置跳跃能力'
+					args['return_msg_key'] = '非玩家实体无法设置跳跃权限'
 					return
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerJumpable(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家跳跃能力'
+			args['return_msg_key'] = '成功设置玩家跳跃权限'
 			return
 		
 		if command == 'setplayermovable':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置移动能力'
+					args['return_msg_key'] = '非玩家实体无法设置移动权限'
 					return
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerMovable(cmdargs[1])
-			args['return_msg_key'] = '成功设置玩家移动能力'
+			args['return_msg_key'] = '成功设置玩家移动权限'
 			return
 		
 		if command == 'setplayernaturalstarve':
@@ -309,11 +309,11 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置钓鱼能力'
+					args['return_msg_key'] = '非玩家实体无法设置钓鱼权限'
 					return
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetBanPlayerFishing(cmdargs[1])
-			args['return_msg_key'] = '成功设置钓鱼能力'
+			args['return_msg_key'] = '成功设置钓鱼权限'
 			return
 		
 		if command == 'setactorcanpush':
@@ -1340,12 +1340,6 @@ class customcmdsPart(PartBase):
 					args['return_msg_key'] = '删除成功'
 					args['return_failed'] = False
 			return
-
-		if command == 'resetattacktarget':
-			for i in cmdargs[0]:
-				CFServer.CreateAction(i).ResetAttackTarget()
-			args['return_msg_key'] = '清除仇恨成功'
-			return
 			
 		if command == 'resetmotion':
 			for i in cmdargs[0]:
@@ -1405,22 +1399,22 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置打开容器的能力'
+					args['return_msg_key'] = '非玩家实体无法设置打开容器的权限'
 					return
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetOpenContainersAbility(cmdargs[1])
-			args['return_msg_key'] = '成功设置打开容器的能力'
+			args['return_msg_key'] = '成功设置打开容器的权限'
 			return
 		
 		if command == 'setoperatedoorability':
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置开门能力'
+					args['return_msg_key'] = '非玩家实体无法设置开门权限'
 					return
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetOperateDoorsAndSwitchesAbility(cmdargs[1])
-			args['return_msg_key'] = '成功设置开门能力'
+			args['return_msg_key'] = '成功设置开门权限'
 			return
 
 		if command == 'setorbexperience':
@@ -1519,11 +1513,11 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置传送能力'
+					args['return_msg_key'] = '非玩家实体无法设置传送权限'
 					return
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetTeleportAbility(cmdargs[1])
-			args['return_msg_key'] = '成功设置传送能力'
+			args['return_msg_key'] = '成功设置传送权限'
 			return
 
 		if command == 'settradelevel':
@@ -1535,6 +1529,48 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				CFServer.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
 			args['return_msg_key'] = '成功设置交易等级'
+			return
+
+		if command == 'setattackdamage':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法访问背包'
+					return
+			for i in cmdargs[0]:
+				compItem = CFServer.CreateItem(i)
+				compItem.SetAttackDamage(compItem.GetPlayerItem(2, 0, True), cmdargs[1])
+			args['return_msg_key'] = '设置成功'
+			return
+
+		if command == 'setattackmobsability':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置攻击生物权限'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetAttackMobsAbility(cmdargs[1])
+			args['return_msg_key'] = '成功设置攻击生物权限'
+			return
+
+		if command == 'setattackplayersability':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置攻击玩家权限'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetAttackPlayersAbility(cmdargs[1])
+			args['return_msg_key'] = '成功设置攻击玩家权限'
+			return
+
+		if False and command == 'setblockbasicinfo':#暂时没得用
+			args['return_failed'] = True
+			args['return_msg_key'] = '设置失败'
+			if CFServer.CreateBlockInfo(levelId).SetBlockBasicInfo(cmdargs[0], {'destroyTime':cmdargs[1], 'explosionResistance':cmdargs[2]}, cmdargs[3]):
+				args['return_failed'] = False
+				args['return_msg_key'] = '设置成功'
 			return
 
 	def TickClient(self):
