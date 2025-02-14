@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "sethurtcd",
-	"description": "设置全局受击间隔CD",
+	"description": "设置全局受击间隔",
 	"permission_level": "game_directors",
 	"args": [
         {"name":"单位帧数","type":"int"}

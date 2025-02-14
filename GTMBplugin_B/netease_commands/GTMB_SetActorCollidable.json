@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "setactorcollidable",
-	"description": "设置实体是否可碰撞",
+	"description": "设置实体是否可碰撞，开启后实体会像方块一样可站立在上面",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},

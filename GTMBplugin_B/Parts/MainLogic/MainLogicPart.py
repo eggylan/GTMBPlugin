@@ -216,7 +216,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7b(2025/1):2", "§b")
+			compMsg.NotifyOneMessage(playerId, "v0.7b(2025/1):4", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
