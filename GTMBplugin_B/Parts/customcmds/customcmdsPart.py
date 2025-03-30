@@ -136,6 +136,7 @@ class customcmdsPart(PartBase):
 	def OnCustomCommand(self, args):
 		command = args['command']
 		cmdargs = []
+		variant = args['variant']
 		for i in args["args"]:
 			cmdargs.append(i["value"])
 		try:
@@ -389,7 +390,17 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				CFServer.CreatePlayer(i).SetPlayerHealthTick(cmdargs[1])
 			args['return_msg_key'] = '已设置玩家自然回血速度'
-		
+
+		elif command == 'setplayerstarvetick':
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置自然扣血速度'
+					return
+			for i in cmdargs[0]:
+				CFServer.CreatePlayer(i).SetPlayerStarveTick(cmdargs[1])
+			args['return_msg_key'] = '已设置玩家自然扣血速度'
+
 		elif command == 'sethurtcd':
 			if compGame.SetHurtCD(cmdargs[0]):
 				args['return_msg_key'] = '已设置全局受击间隔'
@@ -1006,35 +1017,76 @@ class customcmdsPart(PartBase):
 		
 		compExtra = CFServer.CreateExtraData(levelId)
 		params = compExtra.GetExtraData('parameters')
-		input1 = cmdargs[0]
-		
+
 		if command == 'param':
-			if cmdargs[0] is None:
-				args['return_msg_key'] = str(params)
-			else:
-				if type(params) == dict and params.has_key(cmdargs[0]):
-					args['return_msg_key'] = "变量\"%s\"为 %s" % (input1, params[input1])
+			if variant == 0:
+				if cmdargs[1] is None:
+					args['return_msg_key'] = str(params)
 				else:
-					args['return_msg_key'] = "未知的变量\"%s\"" % (input1)
+					if type(params) == dict and params.has_key(cmdargs[1]):
+						args['return_msg_key'] = "变量\"%s\"为 %s" % (cmdargs[1], params[cmdargs[1]])
+					else:
+						args['return_msg_key'] = "未知的变量\"%s\"" % (cmdargs[1])
+						args['return_failed'] = True
+						return
+			elif variant == 2:
+				if type(params) == dict and params.has_key(cmdargs[1]):
+					args['return_msg_key'] = '删除变量成功'
+					del params[cmdargs[1]]
+					compExtra.SetExtraData('parameters', params)
+				else:
+					args['return_msg_key'] = "未知的变量\"%s\"" % (cmdargs[1])
 					args['return_failed'] = True
-
-		elif command == 'paramdel':
-			if type(params) == dict and params.has_key(cmdargs[0]):
-				args['return_msg_key'] = '删除变量成功'
-				del params[input1]
+					return
+			elif variant in [1,4]:
+				args['return_msg_key'] = '修改变量成功'
+				input2 = str(cmdargs[2])
+				if type(params) == dict:
+					params[cmdargs[1]] = input2
+				else:
+					params = {cmdargs[1]: input2}
 				compExtra.SetExtraData('parameters', params)
-			else:
-				args['return_msg_key'] = "未知的变量\"%s\"" % (input1)
-				args['return_failed'] = True
-
-		elif command == 'paramwrite':
-			args['return_msg_key'] = '修改变量成功'
-			input2 = cmdargs[1]
-			if type(params) == dict:
-				params[input1] = input2
-			else:
-				params = {input1: input2}
-			compExtra.SetExtraData('parameters', params)
+			elif variant == 3:
+				if not (type(params) == dict and params.has_key(cmdargs[1])):
+					args['return_msg_key'] = "未知的变量\"%s\"" % (cmdargs[1])
+					args['return_failed'] = True
+					return
+				if params[cmdargs[1]].replace(".","",1).isdigit():
+					params[cmdargs[1]] = float(params[cmdargs[1]])
+				elif not cmdargs[2] in ['加','乘']:
+					args['return_msg_key'] = '操作符\"%s\"无法参与字符串运算' % (cmdargs[2])
+					args['return_failed'] = True
+					return
+				if cmdargs[3].replace(".","",1).isdigit():
+					cmdargs[3] = float(cmdargs[3])
+				elif cmdargs[2] != "加":
+					args['return_msg_key'] = '字符串\"%s\"无法参与%s运算' % (cmdargs[3], cmdargs[2])
+					args['return_failed'] = True
+					return
+				if cmdargs[2] == '加':
+					if not type(params[cmdargs[1]]) == type(cmdargs[3]) == int:
+						params[cmdargs[1]] = str(params[cmdargs[1]])
+						cmdargs[3] = str(cmdargs[3])
+					params[cmdargs[1]] += cmdargs[3]
+				elif cmdargs[2] == '乘':
+					if cmdargs[3] != int(cmdargs[3]):
+						args['return_msg_key'] = '\"%s\"无法用于重复字符串' % (cmdargs[3])
+						args['return_failed'] = True
+						return
+					params[cmdargs[1]] *= int(cmdargs[3])
+				elif cmdargs[2] == '除':
+					params[cmdargs[1]] /= cmdargs[3]
+				elif cmdargs[2] == '减':
+					params[cmdargs[1]] -= cmdargs[3]
+				elif cmdargs[2] == '乘方':
+					params[cmdargs[1]] **= cmdargs[3]
+				elif cmdargs[2] == '取余':	
+					params[cmdargs[1]] %= cmdargs[3]
+				elif cmdargs[2] == '整除':
+					params[cmdargs[1]] //= cmdargs[3]
+				params[cmdargs[1]] = str(params[cmdargs[1]])
+				compExtra.SetExtraData('parameters', params)
+				args['return_msg_key'] = '变量运算成功'
 
 		elif command == 'kickt':
 			for kickplayer in cmdargs[0]:
@@ -1065,11 +1117,12 @@ class customcmdsPart(PartBase):
 					for ii in compExtra.GetExtraData('parameters').keys():
 						index = i.find("param:%s" % (ii))
 						if not index == -1:
-							i = compExtra.GetExtraData('parameters')[i[index+6:]]
+							i = i.replace("param:%s" % (ii),compExtra.GetExtraData('parameters')[ii])
 					cmd2 = "%s %s" % (cmd2, i)
 			else:
 				cmd2 = cmd
-			compcmd.SetCommand("/" + cmd2, False)
+			print(cmd2.replace("'",'"'))
+			compcmd.SetCommand("/" + cmd2.replace("'",'"'), False)
 			args["return_msg_key"] = "已将指令处理后执行"
 		
 		elif command == 'addaroundentitymotion' or command == 'addaroundpointmotion':
@@ -1569,6 +1622,7 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				CFServer.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
 			args['return_msg_key'] = '已设置交易等级'	
+		
 		return
 		
 		if command == 'setblockbasicinfo':#暂时没得用

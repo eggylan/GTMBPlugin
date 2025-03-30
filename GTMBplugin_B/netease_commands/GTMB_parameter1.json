@@ -1,9 +1,30 @@
 {
 	"format_version": "0.0.1",
 	"name": "param",
-	"description": "查看存储于世界中的变量",
+	"description": "访问存储于世界中的变量",
 	"permission_level": "game_directors",
 	"args": [
+		{"name":"模式", "type":"enum", "options": ["show"]},
 		{"name": "变量", "type": "str", "default": null}
+	],
+	"args1": [
+		{"name":"模式", "type":"enum", "options": ["write"]},
+		{"name": "变量", "type": "str"},
+		{"name": "字符", "type": "str"}
+	],
+	"args2": [
+		{"name":"模式", "type":"enum", "options": ["del"]},
+		{"name": "变量", "type": "str"}
+	],
+	"args3": [
+		{"name":"模式", "type":"enum", "options": ["operation"]},
+		{"name": "变量", "type": "str"},
+		{"name":"操作", "type":"enum_short", "options": ["加", "减", "乘", "除","乘方","取余","整除"]},
+		{"name": "参数(\"字符串数字\"会自动转换成数字运算，字符串只支持\"+\"与\"*\")", "type": "str"}
+	],
+	"args4":[
+		{"name":"模式", "type":"enum", "options": ["write"]},
+		{"name": "变量", "type": "str"},
+		{"name": "数", "type": "float"}
 	]
 }

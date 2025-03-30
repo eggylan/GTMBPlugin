@@ -4,8 +4,8 @@
 	"description": "生成物品到末影箱",
 	"permission_level": "game_directors",
 	"args": [
-        {"name": "目标玩家", "type": "target"},
         {"name": "itemJson", "type": "str"},
-        {"name": "箱子槽位", "type": "int"}
+        {"name": "箱子槽位", "type": "int"},
+        {"name": "目标玩家", "type": "target"}
 	]
 }
