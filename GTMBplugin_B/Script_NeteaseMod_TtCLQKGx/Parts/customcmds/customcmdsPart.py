@@ -103,13 +103,13 @@ class customcmdsPart(PartBase):
 		elif args['cmd'] == 'setcanpausescreen':
 			CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
 		elif args['cmd'] == 'setcolorbrightness':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentBrightness(args['cmdargs'][1])
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentBrightness(args['cmdargs'][2])
 		elif args['cmd'] == 'setcolorcontrast':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentContrast(args['cmdargs'][1])
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentContrast(args['cmdargs'][2])
 		elif args['cmd'] == 'setcolorsaturation':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentSaturation(args['cmdargs'][1])
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentSaturation(args['cmdargs'][2])
 		elif args['cmd'] == 'setcolortint':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentTint(args['cmdargs'][1],args['cmdargs'][2])
+			CFClient.CreatePostProcess(levelId).SetColorAdjustmentTint(args['cmdargs'][2],args['cmdargs'][3])
 		elif args['cmd'] == 'setcompassentity':
 			CFClient.CreateItem(playerId).SetCompassEntity(args['cmdargs'][1][0])
 		elif args['cmd'] == 'setcompasstarget':
@@ -178,41 +178,39 @@ class customcmdsPart(PartBase):
 			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcompassentity",'cmdargs': cmdargs})
 			args['return_msg_key'] = '已设置指南针指向'
 			
-		elif command == 'setcolortint':
-			for i in cmdargs[0]:
-				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置屏幕色调'
-					return
-			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolortint",'cmdargs': cmdargs})
-			args['return_msg_key'] = '已设置玩家屏幕色调'
-		
-		elif command == 'setcolorsaturation':
-			for i in cmdargs[0]:
-				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置屏幕色彩饱和度'
-					return
-			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolorsaturation",'cmdargs': cmdargs})
-			args['return_msg_key'] = '已设置玩家屏幕色彩饱和度'
-
-		elif command == 'setcolorcontrast':
-			for i in cmdargs[0]:
-				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置屏幕色彩对比度'
-					return
-			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolorcontrast",'cmdargs': cmdargs})
-			args['return_msg_key'] = '已设置玩家屏幕色彩对比度'
-		
-		elif command == 'setcolorbrightness':
-			for i in cmdargs[0]:
-				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法设置屏幕色彩亮度'
-					return
-			serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"setcolorbrightness",'cmdargs': cmdargs})
-			args['return_msg_key'] = '已设置玩家屏幕色彩亮度'
+		elif command == 'setcolor':
+			if variant == 3:
+				for i in cmdargs[1]:
+					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+						args['return_failed'] = True
+						args['return_msg_key'] = '非玩家实体无法设置屏幕色调'
+						return
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolortint",'cmdargs': cmdargs})
+				args['return_msg_key'] = '已设置玩家屏幕色调'
+			elif variant == 2:
+				for i in cmdargs[1]:
+					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+						args['return_failed'] = True
+						args['return_msg_key'] = '非玩家实体无法设置屏幕色彩饱和度'
+						return
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolorsaturation",'cmdargs': cmdargs})
+				args['return_msg_key'] = '已设置玩家屏幕色彩饱和度'
+			elif variant == 1:
+				for i in cmdargs[1]:
+					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+						args['return_failed'] = True
+						args['return_msg_key'] = '非玩家实体无法设置屏幕色彩对比度'
+						return
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolorcontrast",'cmdargs': cmdargs})
+				args['return_msg_key'] = '已设置玩家屏幕色彩对比度'
+			else:
+				for i in cmdargs[1]:
+					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+						args['return_failed'] = True
+						args['return_msg_key'] = '非玩家实体无法设置屏幕色彩亮度'
+						return
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolorbrightness",'cmdargs': cmdargs})
+				args['return_msg_key'] = '已设置玩家屏幕色彩亮度'
 		
 		elif command == 'setchestboxitemnum':
 			x,y,z = cmdargs[0]
@@ -1038,7 +1036,7 @@ class customcmdsPart(PartBase):
 					args['return_msg_key'] = "未知的变量\"%s\"" % (cmdargs[1])
 					args['return_failed'] = True
 					return
-			elif variant in [1,4]:
+			elif variant == 1:
 				args['return_msg_key'] = '修改变量成功'
 				input2 = str(cmdargs[2])
 				if type(params) == dict:

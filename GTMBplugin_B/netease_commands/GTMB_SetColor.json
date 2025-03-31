@@ -1,0 +1,27 @@
+{
+	"format_version": "0.0.1",
+	"name": "setcolor",
+	"description": "调整玩家屏幕色彩",
+	"permission_level": "game_directors",
+	"args": [
+		{"name":"模式", "type":"enum", "options": ["brightness"]},
+        {"name":"目标","type" : "target"},
+        {"name":"亮度","type" : "float"}
+	],
+	"args1": [
+		{"name":"模式", "type":"enum", "options": ["contrast"]},
+    	{"name":"目标","type" : "target"},
+    	{"name":"对比度","type" : "float"}
+	],
+	"args2": [
+		{"name":"模式", "type":"enum", "options": ["saturation"]},
+        {"name":"目标","type" : "target"},
+        {"name":"饱和度","type" : "float"}
+	],
+	"args3": [
+		{"name":"模式", "type":"enum", "options": ["tint"]},
+        {"name":"目标","type" : "target"},
+        {"name":"色调强度","type" : "float"},
+        {"name":"RGB值","type" : "pos"}
+	]
+}
