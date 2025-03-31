@@ -1,0 +1,32 @@
+{
+	"format_version": "0.0.1",
+	"name": "setvignette",
+	"description": "设置玩家的屏幕暗角",
+	"permission_level": "game_directors",
+	"args": [
+		{"name":"模式", "type":"enum", "options": ["center"]},
+        {"name": "目标", "type": "target"},
+        {"name": "x", "type": "float"},
+        {"name": "y", "type": "float"}
+	],
+	"args1": [
+		{"name":"模式", "type":"enum", "options": ["rad"]},
+        {"name": "目标", "type": "target"},
+        {"name": "半径", "type": "float"}
+	],
+	"args2": [
+		{"name":"模式", "type":"enum", "options": ["color"]},
+        {"name": "目标", "type": "target"},
+        {"name": "RGB值", "type": "pos"}
+	],
+	"args3": [
+		{"name":"模式", "type":"enum", "options": ["smooth"]},
+        {"name": "目标", "type": "target"},
+        {"name": "值，范围为[0,1]", "type": "float"}
+	],
+	"args4": [
+		{"name":"模式", "type":"enum", "options": ["enable"]},
+        {"name":"目标","type" : "target"},
+        {"name":"是否开启","type" : "bool"}
+	]
+}

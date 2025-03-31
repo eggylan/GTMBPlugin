@@ -44,9 +44,7 @@ def checkjson(data, playerId):
 		if str(errordata).find('char') == -1:
 			return ['无效的nbt', True]
 		if str(errordata).find('Extra') != 0:
-			index = int(str(errordata)[str(errordata).find('char')+5: -1])
-		else:
-			index = int(str(errordata)[str(errordata).find('char')+7: -1])
+			index = int(str(errordata)[str(errordata).find('char') + (5 if str(errordata).find('Extra') != 0 else 7): -1])
 		if playerId is None:
 			colors = ['§c', '§r']
 		else:
@@ -114,8 +112,16 @@ class customcmdsPart(PartBase):
 			CFClient.CreateItem(playerId).SetCompassEntity(args['cmdargs'][1][0])
 		elif args['cmd'] == 'setcompasstarget':
 			CFClient.CreateItem(playerId).SetCompassTarget(args['cmdargs']['x'],args['cmdargs']['y'],args['cmdargs']['z'])
-
-
+		elif args['cmd'] == 'setvignettecenter':
+			CFClient.CreatePostProcess(levelId).SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
+		elif args['cmd'] == 'setvignetteradius':
+			CFClient.CreatePostProcess(levelId).SetVignetteRadius(args['cmdargs'][2])
+		elif args['cmd'] == 'setvignettecolor':
+			CFClient.CreatePostProcess(levelId).SetVignetteRGB(args['cmdargs'][2])
+		elif args['cmd'] == 'setvignettesmooth':
+			CFClient.CreatePostProcess(levelId).SetVignetteSmoothness(args['cmdargs'][2])
+		elif args['cmd'] == 'setvignette':
+			CFClient.CreatePostProcess(levelId).SetEnableVignette(args['cmdargs'][2])
 		return
 		
 		# clientsystem.NotifyToServer("customCmdReturn", data)
@@ -179,36 +185,21 @@ class customcmdsPart(PartBase):
 			args['return_msg_key'] = '已设置指南针指向'
 			
 		elif command == 'setcolor':
+			for i in cmdargs[1]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法设置屏幕色彩'
+					return
 			if variant == 3:
-				for i in cmdargs[1]:
-					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-						args['return_failed'] = True
-						args['return_msg_key'] = '非玩家实体无法设置屏幕色调'
-						return
 				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolortint",'cmdargs': cmdargs})
 				args['return_msg_key'] = '已设置玩家屏幕色调'
 			elif variant == 2:
-				for i in cmdargs[1]:
-					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-						args['return_failed'] = True
-						args['return_msg_key'] = '非玩家实体无法设置屏幕色彩饱和度'
-						return
 				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolorsaturation",'cmdargs': cmdargs})
 				args['return_msg_key'] = '已设置玩家屏幕色彩饱和度'
 			elif variant == 1:
-				for i in cmdargs[1]:
-					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-						args['return_failed'] = True
-						args['return_msg_key'] = '非玩家实体无法设置屏幕色彩对比度'
-						return
 				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolorcontrast",'cmdargs': cmdargs})
 				args['return_msg_key'] = '已设置玩家屏幕色彩对比度'
 			else:
-				for i in cmdargs[1]:
-					if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-						args['return_failed'] = True
-						args['return_msg_key'] = '非玩家实体无法设置屏幕色彩亮度'
-						return
 				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setcolorbrightness",'cmdargs': cmdargs})
 				args['return_msg_key'] = '已设置玩家屏幕色彩亮度'
 		
@@ -1438,12 +1429,67 @@ class customcmdsPart(PartBase):
 			countAdd = itemDict2.pop('count', 1)
 			if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
 				itemDict2['count'] = countOrign+countAdd
-				if compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z,), cmdargs[3]):
+				if compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z,), args['origin']['dimension'] if cmdargs[3] is None else cmdargs[3]):
 					args['return_msg_key'] = '成功给予物品'
 					args['return_failed'] = False
 			else:
 				args['return_failed'] = True
 				args['return_msg_key'] = '槽位已满'
+
+		elif command == 'spawnitemtoenderchest':
+			args['return_msg_key'] = '给予失败'
+			args['return_failed'] = True
+			for player in cmdargs[2]:
+				if CFServer.CreateEngineType(player).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法给予物品'
+					return
+			result = checkjson(cmdargs[0], playerId)
+			if result[1]:
+				args['return_failed'] = True
+				args['return_msg_key'] = result[0]
+				return
+			itemDict2 = result[0]
+			for i in [('durability',0),('customTips',''),('extraId',''),('newAuxValue',0),('userData',None),('showInHand',True)]:
+				if not itemDict2.has_key(i[0]):
+					itemDict2[i[0]] = i[1]
+			countAdd = itemDict2.pop('count', 1)
+			for player in cmdargs[2]:
+				compItem = CFServer.CreateItem(player)
+				itemDict = compItem.GetEnderChestItem(player, cmdargs[1], True)
+				if itemDict:
+					for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
+						itemDict.pop(i) #删去多余键值对(这些已被弃用)
+						itemDict2.pop(i, False)
+					countOrign = itemDict.pop('count')
+				else: countOrign = 0
+				if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
+					itemDict2['count'] = countOrign+countAdd
+					if compItem.SpawnItemToEnderChest(itemDict2, cmdargs[1]):
+						args['return_msg_key'] = '成功给予物品'
+						args['return_failed'] = False
+				else:
+					args['return_failed'] = True
+					args['return_msg_key'] = '槽位已满'
+
+		elif command == 'replaceitemtocarried':
+			args['return_msg_key'] = '替换失败'
+			args['return_failed'] = True
+			for i in cmdargs[0]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法给予物品'
+					return
+			result = checkjson(cmdargs[1], playerId)
+			if result[1]:
+				args['return_failed'] = True
+				args['return_msg_key'] = result[0]
+				return
+			itemDict = result[0]
+			for i in cmdargs[0]:
+				if CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i):
+					args['return_msg_key'] = '成功替换物品'
+					args['return_failed'] = False
 
 		elif command == 'removeenchant':
 			args['return_msg_key'] = '删除失败'
@@ -1490,10 +1536,10 @@ class customcmdsPart(PartBase):
 				compBrea.SetMaxAirSupply(cmdargs[1])
 			args['return_msg_key'] = '设置成功'
 
-		elif command == 'setmobknockback':
+		elif command == 'knockback':
 			for i in cmdargs[0]:
 				CFServer.CreateAction(i).SetMobKnockback(cmdargs[1], cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
-			args['return_msg_key'] = '设置成功'
+			args['return_msg_key'] = '已击飞实体'
 	
 		elif command == 'setmotion':
 			for i in cmdargs[0]:
@@ -1621,6 +1667,27 @@ class customcmdsPart(PartBase):
 				CFServer.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
 			args['return_msg_key'] = '已设置交易等级'	
 		
+		elif command == 'setvignette':
+			for i in cmdargs[1]:
+				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					args['return_failed'] = True
+					args['return_msg_key'] = '非玩家实体无法拥有屏幕暗角'
+					return	
+			if variant == 0:
+				args['return_msg_key'] = '已将玩家的屏幕暗角中心设为 %f, %f' % (cmdargs[2], cmdargs[3])
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setvignettecenter",'cmdargs': cmdargs})
+			if variant == 1:
+				args['return_msg_key'] = '已将玩家的屏幕暗角半径设为 %f' % (cmdargs[2])
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setvignetteradius",'cmdargs': cmdargs})
+			if variant == 2:
+				args['return_msg_key'] = '已将玩家的屏幕暗角颜色设为 %d, %d, %d' % (cmdargs[2][0], cmdargs[2][1], cmdargs[2][2])
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setvignettecolor",'cmdargs': cmdargs})
+			if variant == 3:
+				args['return_msg_key'] = '已将玩家的屏幕暗角平滑度设为 %f' % (cmdargs[2])
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setvignettesmooth",'cmdargs': cmdargs})
+			if variant == 4:
+				args['return_msg_key'] = '已%s玩家的屏幕暗角' % ('启用' if cmdargs[2] else '禁用')
+				serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setvignette",'cmdargs': cmdargs})
 		return
 		
 		if command == 'setblockbasicinfo':#暂时没得用

@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
-	"name": "setmobknockback",
-	"description": "设置击退的初始速度，需要考虑阻力的影响",
+	"name": "knockback",
+	"description": "击飞实体",
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
