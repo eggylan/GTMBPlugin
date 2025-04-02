@@ -1,6 +1,6 @@
 # 《联机大厅服务器模板》配套附加包
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)[![Minecraft China Edition](https://img.shields.io/badge/Minecraft-Netease_Edition-green)]()
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Minecraft China Edition](https://img.shields.io/badge/Minecraft-Netease_Edition-green)](https://mc.163.com)
 
 这是Minecraft（我的世界）中国版端游联机地图《联机大厅服务器模板》的配套附加包的开源仓库。
 
@@ -77,7 +77,7 @@
 
 如果这个项目对您有帮助，请考虑支持我们的开发：
 
-[![捐赠](https://img.shields.io/badge/Donate-Afdian-green.svg)](捐赠链接)
+[![捐赠](https://img.shields.io/badge/Donate-Afdian-green.svg)](https://afdian.com/a/eggylan)
 
 您的支持将帮助我们持续改进这个项目！
 
