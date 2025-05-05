@@ -21,13 +21,11 @@ class cmdblockimportui(ScreenNode):
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.cmdblk_path_mode)
 
 	def close(self, args):
-		import mod.client.extraClientApi as clientApi
 		clientApi.PopTopUI()
 
 	def cmdblockimport(self, args):
 		if self.GetBaseUIControl("/panel/jsoncmd").asTextEditBox().GetEditText():
 			cmdblockcmdsjson = self.GetBaseUIControl("/panel/jsoncmd").asTextEditBox().GetEditText()
-			import mod.client.extraClientApi as clientApi
 			Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 			cmdblockcmdsjson = {"cmdblockcmdsjson": cmdblockcmdsjson,"dimension":Dimension}
 			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdblockimport", cmdblockcmdsjson)
@@ -37,7 +35,6 @@ class cmdblockimportui(ScreenNode):
 			path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
 			with open(path, 'r') as file:
 				cmdblockcmdsjson = file.read()
-			import mod.client.extraClientApi as clientApi
 			Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 			cmdblockcmdsjson = {"cmdblockcmdsjson": cmdblockcmdsjson,"dimension":Dimension}
 			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdblockimport", cmdblockcmdsjson)

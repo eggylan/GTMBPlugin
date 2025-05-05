@@ -20,11 +20,9 @@ class itemTips(ScreenNode):
 
 	def changeTip(self, args):
 		itemTips = {"Tips": self.GetBaseUIControl("/panel/edit_box").asTextEditBox().GetEditText()}
-		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changeTip", itemTips)
 
 	def close(self, args):
-		import mod.client.extraClientApi as clientApi
 		clientApi.PopTopUI()
 	
 	def Destroy(self):

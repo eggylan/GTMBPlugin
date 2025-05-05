@@ -30,7 +30,6 @@ class nbteditor(ScreenNode):
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.change)
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
-		import mod.client.extraClientApi as clientApi
 		comp = clientApi.GetEngineCompFactory().CreateItem(clientApi.GetLocalPlayerId())
 		carriedData = encoder(comp.GetCarriedItem(True))
 		for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
@@ -44,14 +43,12 @@ class nbteditor(ScreenNode):
 
 	def change(self, args):
 		import json
-		import mod.client.extraClientApi as clientApi
 		strnbt = self.GetBaseUIControl("/panel/nbt").asTextEditBox().GetEditText()
 		nbt = json.loads(strnbt)
 		nbtdata = {"nbt": nbt}
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changenbt", nbtdata)
 
 	def close(self, args):
-		import mod.client.extraClientApi as clientApi
 		clientApi.PopTopUI()
 
 	def Destroy(self):

@@ -62,6 +62,14 @@ class customcmdsPart(PartBase):
 		PartBase.__init__(self)
 		# 零件名称
 		self.name = "自定义指令零件"
+
+		# 注册处理函数
+		self.clientcustomcmd = {
+			"setplayerinteracterange":self.setplayerinteracterange,
+			"hideairsupplygui":self.hideairsupplygui
+		}
+		self.servercustomcmd = {}
+		
 	
 	def InitClient(self):
 		"""
@@ -70,59 +78,81 @@ class customcmdsPart(PartBase):
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
 		CFClient.CreatePostProcess(levelId).SetEnableColorAdjustment(True)
 		clientsystem.ListenForEvent("Minecraft", "preset", "CustomCommandClient", self, self.OnCustomCommandClient)
+		global localPlayerId
+		localPlayerId = clientApi.GetLocalPlayerId()
 		PartBase.InitClient(self)
 
+	
 	def OnCustomCommandClient(self, args):
-		playerId = clientApi.GetLocalPlayerId()
-		if args['cmd'] == 'setplayerinteracterange':	
-			clientApi.GetEngineCompFactory().CreatePlayer(playerId).SetPickRange(args['cmdargs'][1])
-		elif args['cmd'] == 'hideairsupplygui':
-			clientApi.HideAirSupplyGUI(args['cmdargs'][1])
-		elif args['cmd'] == 'hidearmorgui':
-			clientApi.HideArmorGui(args['cmdargs'][1])
-		elif args['cmd'] == 'hidecrosshairgui':
-			clientApi.HideCrossHairGUI(args['cmdargs'][1])
-		elif args['cmd'] == 'hideexpgui':
-			clientApi.HideExpGui(args['cmdargs'][1])
-		elif args['cmd'] == 'hidefoldgui':
-			clientApi.HideFoldGUI(args['cmdargs'][1])
-		elif args['cmd'] == 'hidehealthgui':
-			clientApi.HideHealthGui(args['cmdargs'][1])
-		elif args['cmd'] == 'hidehorsehealthgui':
-			clientApi.HideHorseHealthGui(args['cmdargs'][1])
-		elif args['cmd'] == 'hidehudgui':
-			clientApi.HideHudGUI(args['cmdargs'][1])
-		elif args['cmd'] == 'hidehungergui':
-			clientApi.HideHungerGui(args['cmdargs'][1])
-		elif args['cmd'] == 'hideslotbargui':
-			clientApi.HideSlotBarGui(args['cmdargs'][1])
-		elif args['cmd'] == 'openfoldgui':
-			clientApi.OpenFoldGui()
-		elif args['cmd'] == 'setcanpausescreen':
-			CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
-		elif args['cmd'] == 'setcolorbrightness':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentBrightness(args['cmdargs'][2])
-		elif args['cmd'] == 'setcolorcontrast':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentContrast(args['cmdargs'][2])
-		elif args['cmd'] == 'setcolorsaturation':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentSaturation(args['cmdargs'][2])
-		elif args['cmd'] == 'setcolortint':
-			CFClient.CreatePostProcess(levelId).SetColorAdjustmentTint(args['cmdargs'][2],args['cmdargs'][3])
-		elif args['cmd'] == 'setcompassentity':
-			CFClient.CreateItem(playerId).SetCompassEntity(args['cmdargs'][1][0])
-		elif args['cmd'] == 'setcompasstarget':
-			CFClient.CreateItem(playerId).SetCompassTarget(args['cmdargs']['x'],args['cmdargs']['y'],args['cmdargs']['z'])
-		elif args['cmd'] == 'setvignettecenter':
-			CFClient.CreatePostProcess(levelId).SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
-		elif args['cmd'] == 'setvignetteradius':
-			CFClient.CreatePostProcess(levelId).SetVignetteRadius(args['cmdargs'][2])
-		elif args['cmd'] == 'setvignettecolor':
-			CFClient.CreatePostProcess(levelId).SetVignetteRGB(args['cmdargs'][2])
-		elif args['cmd'] == 'setvignettesmooth':
-			CFClient.CreatePostProcess(levelId).SetVignetteSmoothness(args['cmdargs'][2])
-		elif args['cmd'] == 'setvignette':
-			CFClient.CreatePostProcess(levelId).SetEnableVignette(args['cmdargs'][2])
+		# 从dict中选取处理函数
+		handler = self.clientcustomcmd.get(args['cmd'])
+		if handler:
+			handler(args)
+	
+
+	# 客户端函数部分
+	def setplayerinteracterange(self, args):
+		clientApi.GetEngineCompFactory().CreatePlayer(localPlayerId).SetPickRange(args['cmdargs'][1])
 		return
+
+	def hideairsupplygui(self, args):
+		clientApi.HideAirSupplyGUI(args['cmdargs'][1])
+		return
+
+
+		# 以此类推...
+		
+		
+		
+		
+		# if args['cmd'] == 'setplayerinteracterange':	
+		# 	clientApi.GetEngineCompFactory().CreatePlayer(playerId).SetPickRange(args['cmdargs'][1])
+		# elif args['cmd'] == 'hideairsupplygui':
+		# 	clientApi.HideAirSupplyGUI(args['cmdargs'][1])
+		# elif args['cmd'] == 'hidearmorgui':
+		# 	clientApi.HideArmorGui(args['cmdargs'][1])
+		# elif args['cmd'] == 'hidecrosshairgui':
+		# 	clientApi.HideCrossHairGUI(args['cmdargs'][1])
+		# elif args['cmd'] == 'hideexpgui':
+		# 	clientApi.HideExpGui(args['cmdargs'][1])
+		# elif args['cmd'] == 'hidefoldgui':
+		# 	clientApi.HideFoldGUI(args['cmdargs'][1])
+		# elif args['cmd'] == 'hidehealthgui':
+		# 	clientApi.HideHealthGui(args['cmdargs'][1])
+		# elif args['cmd'] == 'hidehorsehealthgui':
+		# 	clientApi.HideHorseHealthGui(args['cmdargs'][1])
+		# elif args['cmd'] == 'hidehudgui':
+		# 	clientApi.HideHudGUI(args['cmdargs'][1])
+		# elif args['cmd'] == 'hidehungergui':
+		# 	clientApi.HideHungerGui(args['cmdargs'][1])
+		# elif args['cmd'] == 'hideslotbargui':
+		# 	clientApi.HideSlotBarGui(args['cmdargs'][1])
+		# elif args['cmd'] == 'openfoldgui':
+		# 	clientApi.OpenFoldGui()
+		# elif args['cmd'] == 'setcanpausescreen':
+		# 	CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
+		# elif args['cmd'] == 'setcolorbrightness':
+		# 	CFClient.CreatePostProcess(levelId).SetColorAdjustmentBrightness(args['cmdargs'][2])
+		# elif args['cmd'] == 'setcolorcontrast':
+		# 	CFClient.CreatePostProcess(levelId).SetColorAdjustmentContrast(args['cmdargs'][2])
+		# elif args['cmd'] == 'setcolorsaturation':
+		# 	CFClient.CreatePostProcess(levelId).SetColorAdjustmentSaturation(args['cmdargs'][2])
+		# elif args['cmd'] == 'setcolortint':
+		# 	CFClient.CreatePostProcess(levelId).SetColorAdjustmentTint(args['cmdargs'][2],args['cmdargs'][3])
+		# elif args['cmd'] == 'setcompassentity':
+		# 	CFClient.CreateItem(playerId).SetCompassEntity(args['cmdargs'][1][0])
+		# elif args['cmd'] == 'setcompasstarget':
+		# 	CFClient.CreateItem(playerId).SetCompassTarget(args['cmdargs']['x'],args['cmdargs']['y'],args['cmdargs']['z'])
+		# elif args['cmd'] == 'setvignettecenter':
+		# 	CFClient.CreatePostProcess(levelId).SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
+		# elif args['cmd'] == 'setvignetteradius':
+		# 	CFClient.CreatePostProcess(levelId).SetVignetteRadius(args['cmdargs'][2])
+		# elif args['cmd'] == 'setvignettecolor':
+		# 	CFClient.CreatePostProcess(levelId).SetVignetteRGB(args['cmdargs'][2])
+		# elif args['cmd'] == 'setvignettesmooth':
+		# 	CFClient.CreatePostProcess(levelId).SetVignetteSmoothness(args['cmdargs'][2])
+		# elif args['cmd'] == 'setvignette':
+		# 	CFClient.CreatePostProcess(levelId).SetEnableVignette(args['cmdargs'][2])
 		
 		# clientsystem.NotifyToServer("customCmdReturn", data)
 
@@ -990,19 +1020,6 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				CFServer.CreateControlAi(i).SetBlockControlAi(cmdargs[1], cmdargs[2])
 			args['return_msg_key'] = '已设置实体AI'
-		
-		elif command == 'master':
-			for i in cmdargs[0]:
-				compExtra = CFServer.CreateExtraData(i)
-				compExtra.SetExtraData("isMaster", True)
-			args['return_msg_key'] = '锁定玩家权限成功'
-			return
-
-		elif command == 'demaster':
-			for i in cmdargs[0]:
-				compExtra = CFServer.CreateExtraData(i)
-				compExtra.SetExtraData("isMaster", False)
-			args['return_msg_key'] = '解锁玩家权限成功'
 		
 		compExtra = CFServer.CreateExtraData(levelId)
 		params = compExtra.GetExtraData('parameters')

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
@@ -7,6 +8,7 @@ CFServer = serverApi.GetEngineCompFactory()
 CFClient = clientApi.GetEngineCompFactory()
 levelId = serverApi.GetLevelId()
 compCmd = CFServer.CreateCommand(levelId)
+compGame = CFServer.CreateGame(levelId)
 
 @registerGenericClass("MainLogicPart")
 class MainLogicPart(PartBase):
@@ -16,6 +18,7 @@ class MainLogicPart(PartBase):
 		# 零件名称
 		self.name = "主逻辑零件"
 		self.etsFiles = []
+		self.last_operation_cache = {}  # 缓存操作员状态
 
 	def InitClient(self):
 		"""
@@ -115,7 +118,6 @@ class MainLogicPart(PartBase):
 
 	def changenbt(self, args):
 		if CFServer.CreatePlayer(args["__id__"]).GetPlayerOperation() == 2:
-			print(args["nbt"])
 			CFServer.CreateItem(args["__id__"]).SpawnItemToPlayerCarried(args["nbt"], args["__id__"])
 	
 	def cmdbatch(self, cmds):
@@ -123,10 +125,9 @@ class MainLogicPart(PartBase):
 		cmd = cmds["cmds"]
 		if CFServer.CreatePlayer(playerid).GetPlayerOperation() == 2:
 			cmd = cmd.split("\n")
+			playername = CFServer.CreateName(playerid).GetName()
 			for i in cmd:
-				if i and i[0] == '/':
-					i = i[1:]
-				compCmd.SetCommand('/execute as '+ CFServer.CreateName(playerid).GetName() +' at @s run ' + i, True)
+				compCmd.SetCommand('/execute as "'+ playername +'" at @s run ' + i, True)
 		
 	def changeTips(self, tips):
 		if CFServer.CreatePlayer(tips["__id__"]).GetPlayerOperation() == 2:
@@ -150,12 +151,16 @@ class MainLogicPart(PartBase):
 			if player_Z < 0:
 				player_Z = int(player_Z) - 1
 			data = json.loads(cmdblockcmdsjson["cmdblockcmdsjson"])
+			blockEntitycomp = serverApi.GetEngineCompFactory().CreateBlockInfo(levelId)
 			for block in data:
+				
 				cmd = block["C"].encode("utf-8")
 				name = block["N"].encode("utf-8")
 				x = int(block["x"] + player_X)
 				y = int(block["y"] + player_Y)
 				z = int(block["z"] + player_Z)
+				delay = int(block["D"])
+				print("delay:", delay)
 				dimensionId = cmdblockcmdsjson["dimension"]
 				redstone_mode_mapping = {0: 1, 1: 0}
 				redstoneMode = redstone_mode_mapping.get(block["R"], None)
@@ -163,7 +168,16 @@ class MainLogicPart(PartBase):
 				cmdblkdata = compBlockEntity.GetCommandBlock((x, y, z), dimensionId)
 				mode = int(cmdblkdata["mode"])
 				isConditional = int(cmdblkdata["isConditional"])
+				
+				# 设置命令方块的延迟，通过网易接口设置后返回True，但实际上并没有设置成功
+
+				# blockEntityData = blockEntitycomp.GetBlockEntityData(dimensionId, (x,y,z))
+				# if blockEntityData:
+				# 	blockEntityData['TickDelay']['__value__'] = delay
+				# 	blockEntitycomp.SetBlockEntityData(dimensionId, (x,y,z), blockEntityData)
+				
 				compBlockEntity.SetCommandBlock((x, y, z), dimensionId, cmd, name, mode, isConditional, redstoneMode)
+		
 
 	def OnServerChat(self, args):
 		playerId = args["playerId"]
@@ -216,7 +230,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "v0.7b(2025/1):7", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/1):8\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
@@ -240,10 +254,15 @@ class MainLogicPart(PartBase):
 				chatprefix = compdata.GetExtraData("chatprefix")
 			else:
 				chatprefix = ""
-			if not CFServer.CreateGame(levelId).CheckWordsValid(message):
+			if not compGame.CheckWordsValid(message):
 				message = "***"
-			message = message.replace('\\', '\\\\')
-			compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message.replace('"', '\\"')))
+
+			compGame.SetNotifyMsg("%s%s >>> %s" % (chatprefix, args["username"], message))
+			# 注意：使用setnotifymsg会被视为系统消息而非玩家消息，无法使用“静音玩家聊天”屏蔽
+
+			# 旧版，使用tellraw，遇到引号会报错
+			# message = message.replace('\\', '\\\\')
+			# compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message.replace('"', '\\"')))
 
 	def OnCommandEvent(self, args):
 		compMsg = CFServer.CreateMsg(args["entityId"])
@@ -254,10 +273,15 @@ class MainLogicPart(PartBase):
 	def OnAddPlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 加入了游戏"
-		if args["name"] == "EGGYLAN_":
+			CFServer.CreatePlayer(args["id"]).SetPermissionLevel(2)
+		elif args["name"] == "EGGYLAN_":
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 加入了游戏"
-		if args["name"] == "EGGYLAN":
+			CFServer.CreatePlayer(args["id"]).SetPermissionLevel(2)
+		elif args["name"] == "EGGYLAN":
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN 加入了游戏"
+			CFServer.CreatePlayer(args["id"]).SetPermissionLevel(2)
+		elif args["name"] == "渡鸦哥与陌生人":
+			CFServer.CreatePlayer(args["id"]).SetPermissionLevel(2)
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
 		playername = CFServer.CreateName(args["playerId"]).GetName()
@@ -265,7 +289,7 @@ class MainLogicPart(PartBase):
 		# 禁用魔法指令功能
 		CFServer.CreateAiCommand(args["playerId"]).Disable()
 		
-		if not CFServer.CreateGame(levelId).CheckWordsValid(playername):
+		if not compGame.CheckWordsValid(playername):
 			CFServer.CreatePlayer(args["playerId"]).SetPermissionLevel(0)
 			CFServer.CreateMsg(args["playerId"]).NotifyOneMessage(args["playerId"], "§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为游客权限。")
 			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为游客权限!"}]}',False)
@@ -275,9 +299,9 @@ class MainLogicPart(PartBase):
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 离开了游戏"
-		if args["name"] == "EGGYLAN_":
+		elif args["name"] == "EGGYLAN_":
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 离开了游戏"
-		if args["name"] == "EGGYLAN":
+		elif args["name"] == "EGGYLAN":
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
 
 	def TickClient(self):
@@ -293,21 +317,29 @@ class MainLogicPart(PartBase):
 		PartBase.TickServer(self)
 
 	def OnSecond(self):
-		for i in ['王培衡很丁丁','EGGYLAN','EGGYLAN_','渡鸦哥与陌生人']:
-			CFServer.CreatePlayer(i).SetPermissionLevel(2)
+		# 轮询性能消耗较大，但我们不得不使用，因为网易并未给出权限事件触发的接口
+		# 目前的做法是每秒轮询一次，获取所有玩家的权限，并设置权限
 		playerIds = serverApi.GetPlayerList()
 		for player in playerIds:
-			playername = CFServer.CreateName(player).GetName()
-			operation = CFServer.CreatePlayer(player).GetPlayerOperation()
-			if CFServer.CreateExtraData(player).GetExtraData("isMaster"):
-				CFServer.CreatePlayer(player).SetPermissionLevel(2)		
 
-			if operation == 2:
-				compCmd.SetCommand('/tellraw @a[name=%s,tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}' % (playername))
-				CFServer.CreateTag(player).AddEntityTag("op")
-			else:
-				compCmd.SetCommand('/tellraw @a[name=%s,tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}' % (playername))
-				CFServer.CreateTag(player).RemoveEntityTag("op")
+			current_op = CFServer.CreatePlayer(player).GetPlayerOperation()
+			
+			# 旧 master 指令现已弃用，玩家需改用命令方块内/console "/op"命令设置权限
+			# if CFServer.CreateExtraData(player).GetExtraData("isMaster"):
+			# 	CFServer.CreatePlayer(player).SetPermissionLevel(2)		
+			
+			if (self.last_operation_cache.get(player) != current_op):
+				
+				playername = CFServer.CreateName(player).GetName()
+
+				if current_op == 2:
+					compCmd.SetCommand('/tellraw @a[name=%s,tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}' % (playername))
+					CFServer.CreateTag(player).AddEntityTag("op")
+				else:
+					compCmd.SetCommand('/tellraw @a[name=%s,tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}' % (playername))
+					CFServer.CreateTag(player).RemoveEntityTag("op")
+				
+				self.last_operation_cache[player] = current_op # 更新缓存
 
 	def DestroyClient(self):
 		"""
