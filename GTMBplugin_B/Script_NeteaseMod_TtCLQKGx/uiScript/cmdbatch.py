@@ -23,7 +23,6 @@ class cmdbatch(ScreenNode):
 	def cmdbatch(self, args):
 		if self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText():
 			cmds = self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText()
-			import mod.client.extraClientApi as clientApi
 			cmds = {"cmds": cmds}
 			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdbatch", cmds)
 
@@ -32,13 +31,11 @@ class cmdbatch(ScreenNode):
 			path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
 			with open(path, 'r') as file:
 				cmds = file.read()
-			import mod.client.extraClientApi as clientApi
 			cmds = {"cmds": cmds}
 			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("cmdbatch", cmds)
 
 	
 	def close(self, args):
-		import mod.client.extraClientApi as clientApi
 		clientApi.PopTopUI()
 	
 	def Destroy(self):

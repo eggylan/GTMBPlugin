@@ -23,16 +23,13 @@ class enchantUI(ScreenNode):
 	def enchant(self, args):
 		if self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText():
 			enchantdata = {"id": self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText(), "lvl": self.GetBaseUIControl("/panel/lvl").asTextEditBox().GetEditText()}
-			import mod.client.extraClientApi as clientApi
 			clientApi.GetSystem("Minecraft", "preset").NotifyToServer("enchant", enchantdata)
 
 	def delenchant(self, args):
 		enchantdata = {"id": "del", "lvl": "1"}
-		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("enchant", enchantdata)
 
 	def close(self, args):
-		import mod.client.extraClientApi as clientApi
 		clientApi.PopTopUI()
 	
 	def Destroy(self):

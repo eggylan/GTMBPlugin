@@ -24,11 +24,9 @@ class getitemUI(ScreenNode):
 			itemData["newAuxValue"] = 0
 		else:
 			itemData["newAuxValue"] = int(self.GetBaseUIControl("/panel/aux").asTextEditBox().GetEditText())
-		import mod.client.extraClientApi as clientApi
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("getitem", itemData)
 
 	def close(self, args):	
-		import mod.client.extraClientApi as clientApi
 		clientApi.PopTopUI()
 	
 	def Destroy(self):
