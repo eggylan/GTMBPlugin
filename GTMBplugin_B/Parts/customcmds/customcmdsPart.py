@@ -899,13 +899,10 @@ class customcmdsPart(PartBase):
 			for i in cmdargs[0]:
 				if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 					args['return_failed'] = True
-					args['return_msg_key'] = '非玩家实体无法访问背包'
+					args['return_msg_key'] = '非玩家实体无法设置聊天前缀'
 					return
 			for i in cmdargs[0]:
-				if CFServer.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
-					CFServer.CreateExtraData(i).SetExtraData('chatprefix', cmdargs[1])
-				else:
-					CFServer.CreateMsg(i).NotifyOneMessage(playerId, '非玩家实体无法设置聊天前缀', "§c")
+				CFServer.CreateExtraData(i).SetExtraData('chatprefix', cmdargs[1])
 			args['return_msg_key'] = '已设置玩家聊天前缀'
 
 		elif command == 'writehealthtoscoreboard':
@@ -1393,7 +1390,7 @@ class customcmdsPart(PartBase):
 					return
 			result = checkjson(cmdargs[1], playerId)
 			if result[1]:
-				args['return_failed'] = result[1]
+				args['return_failed'] = True
 				args['return_msg_key'] = result[0]
 				return
 			itemDict = result[0]
@@ -1413,7 +1410,7 @@ class customcmdsPart(PartBase):
 			itemDict = compItemWorld.GetContainerItem((x, y, z,), cmdargs[1], cmdargs[3], True)
 			result = checkjson(cmdargs[0], playerId)
 			if result[1]:
-				args['return_failed'] = result[1]
+				args['return_failed'] = True
 				args['return_msg_key'] = result[0]
 				return
 			itemDict2 = result[0]
@@ -1605,7 +1602,7 @@ class customcmdsPart(PartBase):
 					return
 			result = checkjson(cmdargs[2], playerId)
 			if result[1]:
-				args['return_failed'] = result[1]
+				args['return_failed'] = True
 				args['return_msg_key'] = result[0]
 				return
 			itemDict = result[0]
