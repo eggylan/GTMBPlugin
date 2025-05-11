@@ -1,8 +1,18 @@
-# 《联机大厅服务器模板》配套附加包
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Minecraft China Edition](https://img.shields.io/badge/Minecraft-Netease_Edition-green)](https://mc.163.com)
-
-这是Minecraft（我的世界）中国版端游联机地图《联机大厅服务器模板》的配套附加包的开源仓库。
+<p align="center">
+    <img
+        src="https://raw.githubusercontent.com/eggylan/GTMBPlugin/main/readmeimg/icon.png"
+        width="120px"
+        align="center" alt="GTMB Logo"
+    />
+    <h1 align="center">《联机大厅服务器模板》配套附加包</h1>
+    <p align="center">
+        这是Minecraft（我的世界）中国版端游联机地图《联机大厅服务器模板》的配套附加包的开源仓库。
+    </p>
+    <p align="center">
+        <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"/>
+        <img src="https://img.shields.io/badge/Minecraft-Netease_Edition-green" alt="Minecraft China Edition"/>
+    </p>
+</p>
 
 ---
 
