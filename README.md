@@ -1,17 +1,28 @@
 <p align="center">
-    <img
-        src="https://raw.githubusercontent.com/eggylan/GTMBPlugin/main/readmeimg/icon.png"
-        width="120px"
-        align="center" alt="GTMB Logo"
-    />
-    <h1 align="center">《联机大厅服务器模板》配套附加包</h1>
-    <p align="center">
-        这是Minecraft（我的世界）中国版端游联机地图《联机大厅服务器模板》的配套附加包的开源仓库。
-    </p>
-    <p align="center">
-        <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"/>
-        <img src="https://img.shields.io/badge/Minecraft-Netease_Edition-green" alt="Minecraft China Edition"/>
-    </p>
+	<img
+		src="https://raw.githubusercontent.com/eggylan/GTMBPlugin/main/readmeimg/icon.png"
+		width="120px"
+		align="center" alt="GTMB Logo"
+	/>
+	<h1 align="center">《联机大厅服务器模板》配套附加包</h1>
+	<p align="center">
+		这是Minecraft（我的世界）中国版端游联机地图《联机大厅服务器模板》的配套附加包的开源仓库。
+	</p>
+</p>
+
+<p align="center">
+	<a href="https://www.gnu.org/licenses/gpl-3.0">
+		<img
+			src="https://img.shields.io/badge/License-GPLv3-blue.svg"
+			alt="License: GPL v3"
+		/>
+	</a>
+	<a href="https://mc.163.com">
+		<img
+			src="https://img.shields.io/badge/Minecraft-Netease_Edition-green"
+			alt="Minecraft Netease Edition"
+		/>
+	</a>
 </p>
 
 ---
