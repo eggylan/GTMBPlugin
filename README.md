@@ -23,6 +23,12 @@
 			alt="Minecraft Netease Edition"
 		/>
 	</a>
+	<a href="https://deepwiki.com/eggylan/GTMBPlugin">
+		<img 
+			src="https://deepwiki.com/badge.svg" 
+			alt="Ask DeepWiki"
+			>
+	</a>
 </p>
 
 ---
