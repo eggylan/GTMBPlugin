@@ -308,6 +308,43 @@
                 ]
             },
             "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {},
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "struimport",
+            "objId": "9e18ceb007df4df2bff4be70c7d00d3d",
+            "presetId": "87a570a3-d1b4-4321-b3c9-83c1f0ba3925",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "d7865d6f3a0d42cf825a48cc0450fba2",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
         }
     ],
     "classType": "PresetBase",
@@ -315,7 +352,7 @@
     "forceLoad": true,
     "name": "main",
     "notifyRemove": true,
-    "objId": "56afb61825ca46e88ca13df8d3740853",
+    "objId": "c9edbafca7484fd985f6fd00bb9efb4d",
     "preLoad": true,
     "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
     "presetType": "空预设",

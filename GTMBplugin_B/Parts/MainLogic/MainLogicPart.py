@@ -154,16 +154,16 @@ class MainLogicPart(PartBase):
 			blockEntitycomp = serverApi.GetEngineCompFactory().CreateBlockInfo(levelId)
 			for block in data:
 				
-				cmd = block["C"].encode("utf-8")
-				name = block["N"].encode("utf-8")
+				cmd = block["Command"].encode("utf-8")
+				name = block["CustomName"].encode("utf-8")
 				x = int(block["x"] + player_X)
 				y = int(block["y"] + player_Y)
 				z = int(block["z"] + player_Z)
-				delay = int(block["D"])
+				delay = int(block["Delay"])
 				print("delay:", delay)
 				dimensionId = cmdblockcmdsjson["dimension"]
 				redstone_mode_mapping = {0: 1, 1: 0}
-				redstoneMode = redstone_mode_mapping.get(block["R"], None)
+				redstoneMode = redstone_mode_mapping.get(block["isAuto"], None)
 				compBlockEntity = CFServer.CreateBlockEntity(levelId)
 				cmdblkdata = compBlockEntity.GetCommandBlock((x, y, z), dimensionId)
 				mode = int(cmdblkdata["mode"])
@@ -178,7 +178,6 @@ class MainLogicPart(PartBase):
 				
 				compBlockEntity.SetCommandBlock((x, y, z), dimensionId, cmd, name, mode, isConditional, redstoneMode)
 		
-
 	def OnServerChat(self, args):
 		playerId = args["playerId"]
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
@@ -228,9 +227,16 @@ class MainLogicPart(PartBase):
 				serversystem.NotifyToClient(playerId, "openUI", {"ui":"cmdblockimportui"})
 			else:
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
+		elif args["message"] == "python.structureimport":
+			args["cancel"] = True
+			if can_use_key == 1:
+				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了导入结构面板]"}]}' % (args["username"], args["username"]))
+				serversystem.NotifyToClient(playerId, "openUI", {"ui":"struimport"})
+			else:
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/1):9\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/1):10\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
