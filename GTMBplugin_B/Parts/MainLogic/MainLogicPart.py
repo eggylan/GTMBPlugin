@@ -4,11 +4,47 @@ from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
 import mod.client.extraClientApi as clientApi
+import json
+
 CFServer = serverApi.GetEngineCompFactory()
 CFClient = clientApi.GetEngineCompFactory()
 levelId = serverApi.GetLevelId()
 compCmd = CFServer.CreateCommand(levelId)
 compGame = CFServer.CreateGame(levelId)
+
+def unicode_convert(input):
+	#type: (dict|str) -> dict|list|str|bool
+	if isinstance(input, dict):
+		return {unicode_convert(key): unicode_convert(value) for key, value in input.iteritems()}
+	elif isinstance(input, list):
+		return [unicode_convert(element) for element in input]
+	elif isinstance(input, unicode): # type: ignore
+		output = input.encode('utf-8')
+		if output == 'True':
+			return True
+		elif output == 'False':
+			return False
+		else:
+			return output
+	else:
+		return input
+
+def conver_to_nbt(input):
+	if isinstance(input, str):
+		return {'__type__':8, '__value__':input}
+	elif isinstance(input, list):
+		return [conver_to_nbt(element) for element in input]
+	elif isinstance(input, bool):
+		return {'__type__':1, '__value__':int(input)}
+	elif isinstance(input, int):
+		return {'__type__':3, '__value__':input}
+	elif isinstance(input, float):
+		return {'__type__':5, '__value__':input}
+	elif isinstance(input, dict) and not input.has_key('__type__'):
+		return {key: conver_to_nbt(value) for key, value in input.iteritems()}
+
+def intg(num):
+	return int(num)-1 if num < 0 else int(num)
 
 @registerGenericClass("MainLogicPart")
 class MainLogicPart(PartBase):
@@ -45,24 +81,10 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiVisible(True)
 		
 	def close(self, args):
-		uiNodePreset = self.GetParent().GetChildPresetsByName("enchant")[0]
-		uiNodePreset.SetUiActive(False)
-		uiNodePreset.SetUiVisible(False)
-		uiNodePreset = self.GetParent().GetChildPresetsByName("getitem")[0]
-		uiNodePreset.SetUiActive(False)
-		uiNodePreset.SetUiVisible(False)
-		uiNodePreset = self.GetParent().GetChildPresetsByName("nbteditor")[0]
-		uiNodePreset.SetUiActive(False)
-		uiNodePreset.SetUiVisible(False)
-		uiNodePreset = self.GetParent().GetChildPresetsByName("itemTips")[0]
-		uiNodePreset.SetUiActive(False)
-		uiNodePreset.SetUiVisible(False)
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdbatch")[0]
-		uiNodePreset.SetUiActive(False)
-		uiNodePreset.SetUiVisible(False)
-		uiNodePreset = self.GetParent().GetChildPresetsByName("cmdblockimportui")[0]
-		uiNodePreset.SetUiActive(False)
-		uiNodePreset.SetUiVisible(False)
+		for i in ["enchant","getitem","nbteditor","itemTips","cmdbatch","cmdblockimportui","struimport"]:
+			uiNodePreset = self.GetParent().GetChildPresetsByName(i)[0]
+			uiNodePreset.SetUiActive(False)
+			uiNodePreset.SetUiVisible(False)
 
 	def enchant(self, enchantdata):
 		if CFServer.CreatePlayer(enchantdata["__id__"]).GetPlayerOperation() == 2:
@@ -85,6 +107,36 @@ class MainLogicPart(PartBase):
 		if CFServer.CreatePlayer(itemdata["__id__"]).GetPlayerOperation() == 2:
 			CFServer.CreateItem(itemdata["__id__"]).SpawnItemToPlayerInv(itemdata, itemdata["__id__"])
 
+	def loadstructure(self, data):
+		playerid = data["__id__"]
+		if CFServer.CreatePlayer(playerid).GetPlayerOperation() == 2:
+			playerpos = CFServer.CreatePos(playerid).GetFootPos()
+			player_X, player_Y, player_Z = playerpos
+			player_X = intg(player_X)
+			player_Y = intg(player_Y)
+			player_Z = intg(player_Z)
+			structure = unicode_convert(json.loads(data["structuredata"]))
+			block_palette = structure['structure']['palette']['default']['block_palette']
+			block_entity_data = structure['structure']['palette']['default']['block_position_data']
+			blockEntitycomp = CFServer.CreateBlockInfo(levelId)
+			blockcomp = CFServer.CreateBlockInfo(levelId)
+			i = 0
+			for x in range(structure["size"][0]):
+				for y in range(structure['size'][1]):
+					for z in range(structure['size'][2]):
+						if structure['structure']['block_indices'][0][i] != -1:
+							blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
+							 					{'name':block_palette[structure['structure']['block_indices'][0][i]]['name'], 'aux':block_palette[structure['structure']['block_indices'][0][i]]['val']}, 
+												0, 
+												data['dimension'], 
+												True, 
+												False)
+							if block_entity_data.has_key(str(i)):
+								print(conver_to_nbt(block_entity_data[str(i)]['block_entity_data']))
+								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), conver_to_nbt(block_entity_data[str(i)]['block_entity_data']))
+						i += 1
+
+
 	def InitServer(self):
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		
@@ -99,6 +151,7 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent('Minecraft', 'preset', "changenbt", self, self.changenbt)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdbatch', self, self.cmdbatch)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdblockimport', self, self.cmdblockimport)
+		serversystem.ListenForEvent('Minecraft', 'preset', 'loadstructure', self, self.loadstructure)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'TryOpenEULA', self, self.TryOpenEULA)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'EULA', self, self.eula)
 		compCmd.SetCommandPermissionLevel(4)
@@ -141,24 +194,17 @@ class MainLogicPart(PartBase):
 	def cmdblockimport(self, cmdblockcmdsjson):
 		playerid = cmdblockcmdsjson["__id__"]
 		if CFServer.CreatePlayer(playerid).GetPlayerOperation() == 2:
-			import json
 			playerpos = CFServer.CreatePos(playerid).GetFootPos()
 			player_X, player_Y, player_Z = playerpos
-			if player_X < 0:
-				player_X = int(player_X) - 1
-			if player_Y < 0:
-				player_Y = int(player_Y) - 1
-			if player_Z < 0:
-				player_Z = int(player_Z) - 1
 			data = json.loads(cmdblockcmdsjson["cmdblockcmdsjson"])
 			blockEntitycomp = serverApi.GetEngineCompFactory().CreateBlockInfo(levelId)
 			for block in data:
 				
 				cmd = block["Command"].encode("utf-8")
 				name = block["CustomName"].encode("utf-8")
-				x = int(block["x"] + player_X)
-				y = int(block["y"] + player_Y)
-				z = int(block["z"] + player_Z)
+				x = int(block["x"] + intg(player_X))
+				y = int(block["y"] + intg(player_Y))
+				z = int(block["z"] + intg(player_Z))
 				delay = int(block["Delay"])
 				print("delay:", delay)
 				dimensionId = cmdblockcmdsjson["dimension"]
@@ -236,7 +282,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/1):10\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/5):11\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:

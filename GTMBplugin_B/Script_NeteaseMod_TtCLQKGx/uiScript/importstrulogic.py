@@ -27,7 +27,22 @@ class importstrulogic(ScreenNode):
 		pass
 
 	def import_path_mode(self, args):
-		pass
+		path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
+		try:
+			with open(path, 'r') as file:
+				structure = file.read()
+		except:
+			err_control = self.GetBaseUIControl('/panel/err')
+			def hide_err():
+				err_control.SetVisible(False)
+			err_control.SetVisible(True)
+			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
+			comp.AddTimer(1, hide_err)
+			return
+		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
+		structuredata = {"structuredata": structure, "dimension": Dimension}
+		#cmdblockcmdsjson = {"cmdblockcmdsjson": cmdblockcmdsjson,"dimension":Dimension}
+		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
 
 	def Destroy(self):
 		"""
