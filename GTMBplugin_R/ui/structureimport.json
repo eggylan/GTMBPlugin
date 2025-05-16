@@ -14,7 +14,7 @@
                                     0.5,
                                     -0.5
                                 ],
-                                "layer": 2,
+                                "layer": 1,
                                 "alpha": 0.5,
                                 "clip_direction": "left",
                                 "clip_ratio": 0.02,
@@ -71,14 +71,14 @@
                                     "default"
                                 ],
                                 "offset": [
-                                    0,
-                                    44
+                                    6.0,
+                                    3.0
                                 ],
                                 "size": [
                                     356,
-                                    27
+                                    25
                                 ],
-                                "layer": 3,
+                                "layer": 2,
                                 "max_length": 512
                             }
                         },
@@ -89,7 +89,7 @@
                                     0,
                                     -96
                                 ],
-                                "layer": 26,
+                                "layer": 25,
                                 "color": [
                                     0.7098,
                                     0.5843,
@@ -101,36 +101,6 @@
                                 "text": "§l结构方块导入",
                                 "text_alignment": "center",
                                 "controls": []
-                            }
-                        },
-                        {
-                            "cmds@command_block.command_block_text_edit_box": {
-                                "type": "edit_box",
-                                "$font_scale_factor": 1,
-                                "$font_size": "normal",
-                                "$place_holder_text": "在此处输入JSON...",
-                                "$place_holder_text_color": [
-                                    0.5,
-                                    0.5,
-                                    0.5
-                                ],
-                                "$text_box_name": "%netease_editor_template_namespace.message",
-                                "$text_box_text_color": [
-                                    1,
-                                    1,
-                                    1
-                                ],
-                                "offset": [
-                                    0,
-                                    -23.5
-                                ],
-                                "size": [
-                                    357,
-                                    74
-                                ],
-                                "layer": 27,
-                                "enabled_newline": true,
-                                "max_length": 2147483646
                             }
                         },
                         {
@@ -174,7 +144,7 @@
                                     65,
                                     28
                                 ],
-                                "layer": 50,
+                                "layer": 49,
                                 "button_mappings": [],
                                 "default_control": "default",
                                 "hover_control": "hover",
@@ -246,7 +216,7 @@
                                     43,
                                     20
                                 ],
-                                "layer": 60,
+                                "layer": 59,
                                 "button_mappings": [],
                                 "default_control": "default",
                                 "hover_control": "hover",
@@ -280,7 +250,7 @@
                                 "type": "label",
                                 "anchor_from": "bottom_right",
                                 "anchor_to": "bottom_right",
-                                "layer": 70,
+                                "layer": 69,
                                 "font_size": "small",
                                 "font_type": "default",
                                 "shadow": true,
@@ -329,7 +299,7 @@
                                     73,
                                     28
                                 ],
-                                "layer": 71,
+                                "layer": 70,
                                 "button_mappings": [],
                                 "default_control": "default",
                                 "hover_control": "hover",
@@ -365,7 +335,7 @@
                                     -3.5,
                                     -75
                                 ],
-                                "layer": 81,
+                                "layer": 80,
                                 "font_type": "default",
                                 "shadow": true,
                                 "text": "在下方输入处理过的结构json\n导入大型结构可能卡顿",

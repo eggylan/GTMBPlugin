@@ -34,14 +34,17 @@ def conver_to_nbt(input):
 		return {'__type__':8, '__value__':input}
 	elif isinstance(input, list):
 		return [conver_to_nbt(element) for element in input]
-	elif isinstance(input, bool):
-		return {'__type__':1, '__value__':int(input)}
+	#elif input in [0, 1]:
+	#	return {'__type__':1, '__value__':input}
 	elif isinstance(input, int):
 		return {'__type__':3, '__value__':input}
 	elif isinstance(input, float):
 		return {'__type__':5, '__value__':input}
-	elif isinstance(input, dict) and not input.has_key('__type__'):
-		return {key: conver_to_nbt(value) for key, value in input.iteritems()}
+	elif isinstance(input, dict):
+		if input.has_key('__type__'):
+			return input
+		else:
+			return {key: conver_to_nbt(value) for key, value in input.iteritems()}
 
 def intg(num):
 	return int(num)-1 if num < 0 else int(num)
@@ -126,14 +129,15 @@ class MainLogicPart(PartBase):
 					for z in range(structure['size'][2]):
 						if structure['structure']['block_indices'][0][i] != -1:
 							blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
-							 					{'name':block_palette[structure['structure']['block_indices'][0][i]]['name'], 'aux':block_palette[structure['structure']['block_indices'][0][i]]['val']}, 
+							 					{'name':block_palette[structure['structure']['block_indices'][0][i]]['name'], 
+			  										'aux':block_palette[structure['structure']['block_indices'][0][i]]['val']}, 
 												0, 
 												data['dimension'], 
 												True, 
 												False)
 							if block_entity_data.has_key(str(i)):
 								print(conver_to_nbt(block_entity_data[str(i)]['block_entity_data']))
-								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), conver_to_nbt(block_entity_data[str(i)]['block_entity_data']))
+								print(blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), conver_to_nbt(block_entity_data[str(i)]['block_entity_data'])))
 						i += 1
 
 
@@ -273,7 +277,7 @@ class MainLogicPart(PartBase):
 				serversystem.NotifyToClient(playerId, "openUI", {"ui":"cmdblockimportui"})
 			else:
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.structureimport":
+		elif args["message"] == "python.structureimport" and False: #  该功能未完全实现
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了导入结构面板]"}]}' % (args["username"], args["username"]))
@@ -282,7 +286,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/5):11\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/5):12\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
