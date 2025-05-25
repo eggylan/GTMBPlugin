@@ -5,10 +5,10 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "方块位置", "type": "pos"},
-        {"name": "维度id", "type": "int"},
+        {"name": "维度", "type": "dimension"},
         {"name":"颜色RGB通道","type":"pos"},
         {"name":"颜色通道值A","type":"float"},
         {"name":"是否发光","type":"bool"},
-        {"name":"正反面","type":"bool","default":false}
+        {"name":"是否反面","type":"bool","default":false}
 	]
 }

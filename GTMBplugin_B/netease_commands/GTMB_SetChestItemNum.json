@@ -1,12 +1,12 @@
 {
 	"format_version": "0.0.1",
-	"name": "setchestboxitemnum",
+	"name": "setchestitemnum",
 	"description": "设置箱子槽位物品数目",
 	"permission_level": "game_directors",
 	"args": [
         {"name":"箱子坐标","type" : "pos"},
         {"name":"箱子槽位","type" : "int"},
         {"name":"物品数目","type" : "int"},
-        {"name":"维度id","type" : "int","default":0}
+        {"name":"维度","type" : "dimension"}
 	]
 }

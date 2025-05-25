@@ -5,7 +5,7 @@
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},
-        {"name": "附魔id", "type": "int"},
+        {"name": "附魔", "type": "enchant"},
         {"name":"附魔等级", "type":"int"},
         {"name":"槽位（留空为主手）", "type":"int","default":null}
 	]

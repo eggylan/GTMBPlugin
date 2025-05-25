@@ -5,7 +5,7 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name":"方块位置","type" : "pos"},
-        {"name":"维度id","type" : "int"},
+        {"name":"维度","type" : "dimension"},
         {"name":"旋转角度（取值范围：[0,360]）","type" : "float"}
 	]
 }

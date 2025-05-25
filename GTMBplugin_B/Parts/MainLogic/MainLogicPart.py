@@ -116,13 +116,15 @@ class MainLogicPart(PartBase):
 			playerpos = CFServer.CreatePos(playerid).GetFootPos()
 			player_X, player_Y, player_Z = playerpos
 			player_X = intg(player_X)
-			player_Y = intg(player_Y)
+			player_Y = int(player_Y)
 			player_Z = intg(player_Z)
 			structure = unicode_convert(json.loads(data["structuredata"]))
 			block_palette = structure['structure']['palette']['default']['block_palette']
 			block_entity_data = structure['structure']['palette']['default']['block_position_data']
+			serversystem = serverApi.GetSystem("Minecraft", "preset")
 			blockEntitycomp = CFServer.CreateBlockInfo(levelId)
 			blockcomp = CFServer.CreateBlockInfo(levelId)
+			blockStateComp = CFServer.CreateBlockState(levelId)
 			i = 0
 			for x in range(structure["size"][0]):
 				for y in range(structure['size'][1]):
@@ -130,15 +132,31 @@ class MainLogicPart(PartBase):
 						if structure['structure']['block_indices'][0][i] != -1:
 							blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
 							 					{'name':block_palette[structure['structure']['block_indices'][0][i]]['name'], 
-			  										'aux':block_palette[structure['structure']['block_indices'][0][i]]['val']}, 
+			  									'aux':0}, 
 												0, 
 												data['dimension'], 
 												True, 
 												False)
-							if block_entity_data.has_key(str(i)):
-								print(conver_to_nbt(block_entity_data[str(i)]['block_entity_data']))
-								print(blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), conver_to_nbt(block_entity_data[str(i)]['block_entity_data'])))
+							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),block_palette[structure['structure']['block_indices'][0][i]]['states'], data['dimension'])
+							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
+								#print(block_entity_data[str(i)]['block_entity_data'])
+								print(i)
+								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), (block_entity_data[str(i)]['block_entity_data']))
+							pass
 						i += 1
+			for i in structure['structure']['entities']:
+				x, y, z = i['Pos']
+				x = x['__value__']
+				y = y['__value__']
+				z = z['__value__']
+				x -= structure['structure_world_origin'][0]
+				y -= structure['structure_world_origin'][1]
+				z -= structure['structure_world_origin'][2]
+				x += player_X
+				y += player_Y
+				z += player_Z
+				print((x, y, z))
+				print(serversystem.CreateEngineEntityByNBT(i, (x, y, z), None, data['dimension']))
 
 
 	def InitServer(self):
@@ -207,7 +225,7 @@ class MainLogicPart(PartBase):
 				cmd = block["Command"].encode("utf-8")
 				name = block["CustomName"].encode("utf-8")
 				x = int(block["x"] + intg(player_X))
-				y = int(block["y"] + intg(player_Y))
+				y = int(block["y"] + int(player_Y))
 				z = int(block["z"] + intg(player_Z))
 				delay = int(block["Delay"])
 				print("delay:", delay)
@@ -277,7 +295,7 @@ class MainLogicPart(PartBase):
 				serversystem.NotifyToClient(playerId, "openUI", {"ui":"cmdblockimportui"})
 			else:
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.structureimport" and False: #  该功能未完全实现
+		elif args["message"] == "python.structureimport":
 			args["cancel"] = True
 			if can_use_key == 1:
 				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了导入结构面板]"}]}' % (args["username"], args["username"]))
@@ -286,7 +304,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/5):12\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/5):13\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:

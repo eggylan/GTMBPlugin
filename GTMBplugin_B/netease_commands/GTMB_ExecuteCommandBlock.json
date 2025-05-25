@@ -4,9 +4,7 @@
 	"description": "执行一次命令方块",
 	"permission_level": "game_directors",
 	"args": [
-		{"name": "X", "type": "int"},
-		{"name": "Y", "type": "int"},
-		{"name": "Z", "type": "int"},
-        {"name": "维度id", "type": "int"}
+		{"name": "坐标", "type": "pos"},
+        {"name": "维度", "type": "dimension"}
 	]
 }

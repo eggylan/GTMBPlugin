@@ -73,6 +73,27 @@
             "type": "str"
         }
     ],
+    "args4": [
+        {
+           "name": "模式",
+           "options": [
+               "random"
+           ],
+           "type": "enum"
+       },
+       {
+           "name": "变量",
+           "type": "str"
+       },
+       {
+           "name": "最小值",
+           "type": "int"
+       },
+       {
+           "name": "最大值",
+           "type": "int"
+       }
+    ],
     "description": "访问存储于世界中的变量",
     "format_version": "0.0.1",
     "name": "param",

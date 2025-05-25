@@ -1,11 +1,11 @@
 {
 	"format_version": "0.0.1",
 	"name": "setinputslotitem",
-	"description": "设置熔炉输入栏物品",
+	"description": "设置三种熔炉的输入栏物品",
 	"permission_level": "game_directors",
 	"args": [
         {"name":"itemJson","type":"str"},
         {"name":"位置","type":"pos"},
-        {"name":"维度id","type":"int"}
+        {"name":"维度","type":"dimension"}
 	]
 }

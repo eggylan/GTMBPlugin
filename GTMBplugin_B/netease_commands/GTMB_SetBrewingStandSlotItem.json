@@ -7,6 +7,6 @@
 		{"name": "itemJson", "type": "str"},
         {"name": "槽位 (0~2)", "type": "int"},
         {"name":"位置", "type":"pos"},
-        {"name":"维度id", "type":"int"}
+        {"name":"维度", "type":"dimension"}
 	]
 }

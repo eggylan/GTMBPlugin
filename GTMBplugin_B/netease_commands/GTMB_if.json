@@ -4,8 +4,15 @@
 	"description": "对命令的运行结果进行运算",
 	"permission_level": "game_directors",
 	"args": [
+		{"name": "type", "type": "enum", "options": ["cmd"]},
         {"name": "命令1", "type": "str"},
-        {"name": "运算操作", "type": "str"},
-        {"name": "命令2", "type": "str", "default":null}
+        {"name": "运算操作", "type": "enum_short", "options": ["and", "not", "or", "xor"]},
+        {"name": "命令2(留''''视为False)", "type": "str"}
+	],
+	"args1": [
+		{"name": "type", "type": "enum", "options": ["param"]},
+		{"name": "变量", "type": "str"},
+		{"name": "判断符", "type": "enum_short", "options": ["equals", "not_equals", "greater_than", "less_than", "not_less", "not_greater"]},
+		{"name": "值", "type": "float"}
 	]
 }

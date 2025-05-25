@@ -4,8 +4,8 @@
 	"description": "以NBT形式放置方块",
 	"permission_level": "game_directors",
 	"args": [
-        {"name": "维度id", "type": "int"},
-        {"name":"坐标", "type":"pos"},
+		{"name":"坐标", "type":"pos"},
+        {"name": "维度", "type": "dimension"},
         {"name": "nbtJson(留空为获取)", "type": "str", "default": null}
 	]
 }

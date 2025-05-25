@@ -41,7 +41,6 @@ class importstrulogic(ScreenNode):
 			return
 		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 		structuredata = {"structuredata": structure, "dimension": Dimension}
-		#cmdblockcmdsjson = {"cmdblockcmdsjson": cmdblockcmdsjson,"dimension":Dimension}
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
 
 	def Destroy(self):

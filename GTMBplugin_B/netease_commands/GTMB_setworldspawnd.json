@@ -4,7 +4,7 @@
 	"description": "设置世界出生点维度与坐标",
 	"permission_level": "game_directors",
 	"args": [
-		{"name": "维度id", "type": "int"},
+		{"name": "维度", "type": "dimension"},
         {"name": "坐标", "type": "pos"}
 	]
 }
