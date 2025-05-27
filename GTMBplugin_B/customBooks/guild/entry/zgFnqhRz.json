@@ -1,0 +1,11 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "“标准命令”就是指你平常用的那种命令，比如\n/setblock ~ ~ ~ tnt\n这样的，本地图添加了大量的“标准命令”，详见“标准命令”目录\n\n这种命令就像原版的命令那样，可以你自己执行，也可以用命令方块执行，这些命令远比原版命令功能更多样",
+            "type": "textPage"
+        }
+    ],
+    "parent": "FyzHsyhu",
+    "title": "标准命令"
+}

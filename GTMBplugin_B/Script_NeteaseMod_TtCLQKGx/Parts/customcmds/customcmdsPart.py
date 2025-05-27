@@ -373,7 +373,10 @@ class customcmdsPart(PartBase):
 	
 	def setchestboxitemexchange(self, cmdargs, playerId, variant):
 		x,y,z = cmdargs[0]
-		pid = CFServer.CreateEntityComponent(levelId).GetEntitiesBySelector("@r")[0]
+		if playerId is None:
+			pid = serverApi.GetPlayerList()[random.randint(0, len(serverApi.GetPlayerList())-1)]
+		else:
+			pid = playerId #尽可能让命令在同维度执行
 		if CFServer.CreateChestBlock(pid).SetChestBoxItemExchange(pid,(intg(x),int(y),intg(z)),cmdargs[1],cmdargs[2]):
 			return False,'已交换箱子物品'
 		else:
@@ -840,7 +843,7 @@ class customcmdsPart(PartBase):
 			else:
 				return False,'已设置最大堆叠数量'
 	
-	def playerexhaustionratio(self,cmdargs,playerId,variant):
+	def playerexhaustionratio(self, cmdargs, playerId, variant):
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True,'非玩家实体无法设置饥饿度消耗倍率'

@@ -1,0 +1,22 @@
+{
+    "categoryConfig": {
+        "title": ""
+    },
+    "content": "这里是《联机大厅服务器模板》的功能使用教程",
+    "editor_identifier": "guild",
+    "item": "ycgnw:guild",
+    "pageConfig": {
+        "subtitle": ""
+    },
+    "title1": "主标题",
+    "title2": "",
+    "titleArea": {
+        "offset": [
+            0.0,
+            0.0
+        ],
+        "padding": 1,
+        "textSize1": 10,
+        "textSize2": 0
+    }
+}

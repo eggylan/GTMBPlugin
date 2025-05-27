@@ -1,0 +1,28 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "物品NBT，存储着物品的\n§c耐久/附魔/挖掘速度§r等信息\n如图，这个NBT描述的是一把附魔火焰保护II的下界合金剑\n§o和JAVA版的NBT区别还是很大的",
+            "image": "textures/guild_nbt",
+            "imageSize": [
+                120.0,
+                60.0
+            ],
+            "type": "imagePage"
+        },
+        {
+            "content": "NBT结构如下\n最外层:存储物品§b基本信息§r，如\nid/耐久/数量\nuserdata内:存储§pNBT数据§r，如\n附魔\\烟花信息等高级数据，为了兼容原版NBT类型，\nuserdata内采用的是\n{'__type__':类型代号,'__value__':值}\n的格式，编写时需注意",
+            "type": "textPage"
+        },
+        {
+            "content": "你一般可以使用\n“§upython.nbteditor§r”\n短命令来查看物品的NBT属性(详见“短命令”目录)",
+            "type": "textPage"
+        },
+        {
+            "content": "对于有NBT基础的玩家，这里提供几个类型代号(userdata中__type__的值):\n1: §c字节型§r\n2: §5短整型§r\n3: §9整形§r\n4: §3长整形§r\n5: §g单精度浮点形§r\n6: §2双精度浮点型§r\n7: §4字节型数组§r\n8: §f字符串§r",
+            "type": "textPage"
+        }
+    ],
+    "parent": "rcTYWJwm",
+    "title": "物品NBT"
+}
