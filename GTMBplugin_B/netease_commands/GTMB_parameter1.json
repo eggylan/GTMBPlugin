@@ -2,9 +2,7 @@
     "args": [
         {
             "name": "模式",
-            "options": [
-                "show"
-            ],
+            "options": ["show"],
             "type": "enum"
         },
         {
@@ -16,9 +14,7 @@
     "args1": [
         {
             "name": "模式",
-            "options": [
-                "write"
-            ],
+            "options": ["write"],
             "type": "enum"
         },
         {
@@ -33,9 +29,7 @@
     "args2": [
         {
             "name": "模式",
-            "options": [
-                "del"
-            ],
+            "options": ["del"],
             "type": "enum"
         },
         {
@@ -46,9 +40,7 @@
     "args3": [
         {
             "name": "模式",
-            "options": [
-                "operation"
-            ],
+            "options": ["operation"],
             "type": "enum"
         },
         {
@@ -57,15 +49,7 @@
         },
         {
             "name": "操作",
-            "options": [
-                "加",
-                "减",
-                "乘",
-                "除",
-                "乘方",
-                "取余",
-                "整除"
-            ],
+            "options": ["加", "减", "乘", "除", "乘方", "取余", "整除"],
             "type": "enum_short"
         },
         {
@@ -75,26 +59,45 @@
     ],
     "args4": [
         {
-           "name": "模式",
-           "options": [
-               "random"
-           ],
-           "type": "enum"
-       },
-       {
-           "name": "变量",
-           "type": "str"
-       },
-       {
-           "name": "最小值",
-           "type": "int"
-       },
-       {
-           "name": "最大值",
-           "type": "int"
-       }
+            "name": "模式",
+            "options": ["random"],
+            "type": "enum"
+        },
+        {
+            "name": "变量",
+            "type": "str"
+        },
+        {
+            "name": "最小值",
+            "type": "int"
+        },
+        {
+            "name": "最大值",
+            "type": "int"
+        }
     ],
-    "description": "访问存储于世界中的变量",
+    "args5": [
+        {
+            "name": "模式",
+            "options": ["create"],
+            "type": "enum"
+        },
+        {
+            "name": "变量",
+            "type": "str"
+        },
+        {
+            "name": "类型",
+            "options": ["int", "float", "str"],
+            "type": "enum"
+        },
+        {
+            "name": "初始值(可选)",
+            "default": null,
+            "type": "str"
+        }
+    ],
+    "description": "访问存储于世界中的变量，支持创建 int/float/str 类型",
     "format_version": "0.0.1",
     "name": "param",
     "permission_level": "game_directors"
