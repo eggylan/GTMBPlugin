@@ -3,7 +3,7 @@
     "pages": [
         {
             "content": "物品NBT，存储着物品的\n§c耐久/附魔/挖掘速度§r等信息\n如图，这个NBT描述的是一把附魔火焰保护II的下界合金剑\n§o和JAVA版的NBT区别还是很大的",
-            "image": "textures/guild_nbt",
+            "image": "textures/books/guild_nbt",
             "imageSize": [
                 120.0,
                 60.0
@@ -11,7 +11,8 @@
             "type": "imagePage"
         },
         {
-            "content": "NBT结构如下\n最外层:存储物品§b基本信息§r，如\nid/耐久/数量\nuserdata内:存储§pNBT数据§r，如\n附魔\\烟花信息等高级数据，为了兼容原版NBT类型，\nuserdata内采用的是\n{'__type__':类型代号,'__value__':值}\n的格式，编写时需注意",
+            "content": "NBT结构如下\n比如一个物品的当前耐久是1234\n那么nbt中描述耐久的数据就是\n\"durablity\": 1234，\ndurablity是键，代表当前数值的名字，1234就是值，这样的组合我们叫做§n键值对§r\n§l§o实际物品数据结构存储如下:§r\n最外层:存储物品§b基本信息§r，如\nid/耐久/数量\nuserdata内:存储§pNBT数据§r，如\n附魔\\烟花信息等高级数据，为了兼容原版NBT类型，\nuserdata内的值采用的是\n{'__type__':类型代号,'__value__':值}\n的格式，编写时需注意",
+            "contentTextSize": 7,
             "type": "textPage"
         },
         {
@@ -20,6 +21,16 @@
         },
         {
             "content": "对于有NBT基础的玩家，这里提供几个类型代号(userdata中__type__的值):\n1: §c字节型§r\n2: §5短整型§r\n3: §9整形§r\n4: §3长整形§r\n5: §g单精度浮点形§r\n6: §2双精度浮点型§r\n7: §4字节型数组§r\n8: §f字符串§r",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§b示例1：锋利200的金斧§r\n{\"count\": 1, \"newItemName\": \"minecraft:golden_axe\", \"durability\": 32, \"customTips\": \"\", \"extraId\": \"\", \"newAuxValue\": 0, \"showInHand\": \"True\", \"userData\": {\"RepairCost\": {\"__type__\": 3, \"__value__\": 0}, \"ench\": [{\"lvl\": {\"__type__\": 2,\n\"__value__\": 10}, \"id\": {\"__type__\": 2, \"__value__\": 17}, \"modEnchant\": {\"__type__\": 8, \"__value__\": \"\"}},{\"lvl\": {\"__type__\": 2, \"__value__\": 200}, \"id\": {\"__type__\": 2, \"__value__\": 9}, \"modEnchant\": {\"__type__\": 8, \"__value__\": \n\"\"}}], \"display\": {\"Name\": {\"__type__\": 8, \"__value__\": \"Killer\"}}}}",
+            "contentTextSize": 5,
+            "type": "textPage"
+        },
+        {
+            "content": "§l§b示例2：效率V的钻石镐§r\n{\"count\": 1, \"newItemName\": \"minecraft:diamond_pickaxe\", \"durability\": 1561, \"customTips\": \"\", \"extraId\": \"\", \"newAuxValue\": 0, \"showInHand\": \"True\", \"userData\": {\"RepairCost\": {\"__type__\": 3, \"__value__\": 5}, \"ench\": [{\"lvl\": \n{\"__type__\": 2, \"__value__\": 5}, \"id\": {\"__type__\": 2, \"__value__\": 15}, \"modEnchant\": {\"__type__\": 8, \"__value__\": \"\"}}]}}",
+            "contentTextSize": 5,
             "type": "textPage"
         }
     ],

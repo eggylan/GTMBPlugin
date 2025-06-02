@@ -2,7 +2,7 @@
     "resource_pack_name": "vanilla",
     "texture_data": {
         "ycgnw:guild": {
-            "textures": "textures/book_portfolio"
+            "textures": "textures/items/book_portfolio"
         }
     },
     "texture_name": "atlas.items"

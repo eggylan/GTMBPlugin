@@ -1,46 +1,50 @@
 {
     "main": {
+        "type": "screen",
         "controls": [
             {
                 "panel": {
+                    "type": "panel",
+                    "layer": 1,
                     "controls": [
                         {
                             "tip": {
-                                "font_type": "default",
-                                "layer": 2,
+                                "type": "label",
                                 "offset": [
                                     0,
                                     77.5
                                 ],
+                                "layer": 2,
+                                "font_type": "default",
                                 "shadow": true,
                                 "text": "如果有中文变成/uxxxx，请不要惊慌，那就是原内容",
-                                "text_alignment": "center",
-                                "type": "label"
+                                "text_alignment": "center"
                             }
                         },
                         {
                             "label": {
+                                "type": "label",
+                                "offset": [
+                                    -1,
+                                    -85
+                                ],
+                                "layer": 2,
                                 "color": [
                                     1,
                                     0.3333,
                                     1
                                 ],
-                                "controls": [],
                                 "font_scale_factor": 2,
                                 "font_type": "default",
-                                "layer": 2,
-                                "offset": [
-                                    -1,
-                                    -85
-                                ],
                                 "shadow": true,
                                 "text": "NBT修改",
                                 "text_alignment": "center",
-                                "type": "label"
+                                "controls": []
                             }
                         },
                         {
                             "nbt@command_block.command_block_text_edit_box": {
+                                "type": "edit_box",
                                 "$font_scale_factor": 1,
                                 "$font_size": "normal",
                                 "$place_holder_text": "在此处输入数据",
@@ -55,9 +59,11 @@
                                     1,
                                     1
                                 ],
-                                "enabled_newline": true,
-                                "layer": 3,
-                                "max_length": 1000000,
+                                "$text_edit_box_label_anchor_point": "top_right",
+                                "$text_edit_box_label_size": [
+                                    "100%+0px",
+                                    "default"
+                                ],
                                 "offset": [
                                     0,
                                     11.5
@@ -66,16 +72,15 @@
                                     357,
                                     122
                                 ],
-                                "type": "edit_box",
-                                "$text_edit_box_label_anchor_point": "top_right",
-                                "$text_edit_box_label_size": [
-                                    "100%+0px",
-                                    "default"
-                                ]
+                                "layer": 3,
+                                "enabled_newline": true,
+                                "max_length": 1000000
                             }
                         },
                         {
                             "image": {
+                                "type": "image",
+                                "layer": 1,
                                 "alpha": 0.5,
                                 "clip_direction": "left",
                                 "clip_ratio": 0.02,
@@ -84,15 +89,14 @@
                                     1,
                                     1
                                 ],
-                                "controls": [],
                                 "keep_ratio": false,
-                                "layer": 1,
                                 "texture": "textures/ui/gray",
-                                "type": "image"
+                                "controls": []
                             }
                         },
                         {
                             "button@common.button": {
+                                "type": "button",
                                 "$control_alpha": 1,
                                 "$default_texture": "textures/netease/common/button/default",
                                 "$hover_texture": "textures/netease/common/button/hover",
@@ -123,14 +127,27 @@
                                 "$pressed_button_name": "%netease_editor_template_namespace.click",
                                 "$pressed_texture": "textures/netease/common/button/pressed",
                                 "$texture_layer": 2,
+                                "offset": [
+                                    0,
+                                    103
+                                ],
+                                "size": [
+                                    65,
+                                    28
+                                ],
+                                "layer": 2,
+                                "button_mappings": [],
+                                "default_control": "default",
+                                "hover_control": "hover",
+                                "is_handle_button_move_event": true,
+                                "pressed_control": "pressed",
                                 "bindings": [
                                     {
+                                        "binding_type": "collection_details",
                                         "binding_collection_name": "",
-                                        "binding_condition": "always_when_visible",
-                                        "binding_type": "collection_details"
+                                        "binding_condition": "always_when_visible"
                                     }
                                 ],
-                                "button_mappings": [],
                                 "controls": [
                                     {
                                         "default@netease_editor_template_namespace.default": {}
@@ -144,25 +161,12 @@
                                     {
                                         "button_label@netease_editor_template_namespace.button_label": {}
                                     }
-                                ],
-                                "default_control": "default",
-                                "hover_control": "hover",
-                                "is_handle_button_move_event": true,
-                                "layer": 2,
-                                "offset": [
-                                    0,
-                                    103
-                                ],
-                                "pressed_control": "pressed",
-                                "size": [
-                                    65,
-                                    28
-                                ],
-                                "type": "button"
+                                ]
                             }
                         },
                         {
                             "closebutton@common.button": {
+                                "type": "button",
                                 "$control_alpha": 1,
                                 "$default_texture": "textures/netease/common/button/default",
                                 "$hover_texture": "textures/netease/common/button/hover",
@@ -195,14 +199,27 @@
                                 "$texture_layer": 2,
                                 "anchor_from": "top_right",
                                 "anchor_to": "top_right",
+                                "offset": [
+                                    -16,
+                                    14
+                                ],
+                                "size": [
+                                    43,
+                                    20
+                                ],
+                                "layer": 2,
+                                "button_mappings": [],
+                                "default_control": "default",
+                                "hover_control": "hover",
+                                "is_handle_button_move_event": true,
+                                "pressed_control": "pressed",
                                 "bindings": [
                                     {
+                                        "binding_type": "collection_details",
                                         "binding_collection_name": "",
-                                        "binding_condition": "always_when_visible",
-                                        "binding_type": "collection_details"
+                                        "binding_condition": "always_when_visible"
                                     }
                                 ],
-                                "button_mappings": [],
                                 "controls": [
                                     {
                                         "default@netease_editor_template_namespace.default": {}
@@ -216,30 +233,13 @@
                                     {
                                         "button_label@netease_editor_template_namespace.button_label": {}
                                     }
-                                ],
-                                "default_control": "default",
-                                "hover_control": "hover",
-                                "is_handle_button_move_event": true,
-                                "layer": 2,
-                                "offset": [
-                                    -16,
-                                    14
-                                ],
-                                "pressed_control": "pressed",
-                                "size": [
-                                    43,
-                                    20
-                                ],
-                                "type": "button"
+                                ]
                             }
                         }
-                    ],
-                    "layer": 1,
-                    "type": "panel"
+                    ]
                 }
             }
-        ],
-        "type": "screen"
+        ]
     },
     "namespace": "nbteditor"
 }

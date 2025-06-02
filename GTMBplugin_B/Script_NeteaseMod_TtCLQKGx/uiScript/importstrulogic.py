@@ -13,8 +13,6 @@ class importstrulogic(ScreenNode):
 		"""
 		@description UI创建成功时调用
 		"""
-		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.importstru)
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().AddTouchEventParams({"isSwallow": True})
@@ -22,19 +20,23 @@ class importstrulogic(ScreenNode):
 
 	def close(self, args):
 		clientApi.PopTopUI()
-
-	def importstru(self, args):
-		pass
-
+		
 	def import_path_mode(self, args):
+		def hide_err():
+			err_control.SetVisible(False)
+		err_control = self.GetBaseUIControl('/panel/err')
 		path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
+		if not path.endswith('.covstructure'):
+			err_control.asLabel().SetText('§c⚠无效的文件')
+			err_control.SetVisible(True)
+			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
+			comp.AddTimer(1, hide_err)
+			return
 		try:
 			with open(path, 'r') as file:
 				structure = file.read()
 		except:
-			err_control = self.GetBaseUIControl('/panel/err')
-			def hide_err():
-				err_control.SetVisible(False)
+			err_control.asLabel().SetText('§c⚠无效的路径')
 			err_control.SetVisible(True)
 			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 			comp.AddTimer(1, hide_err)

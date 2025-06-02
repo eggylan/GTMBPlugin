@@ -1,0 +1,6 @@
+{
+    "content": "这里的命令只需要在聊天框发出即可使用\n在命令方块中无法运行",
+    "editor_identifier": "guild",
+    "icon": "textures/items/book_portfolio",
+    "title": "短命令"
+}

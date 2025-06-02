@@ -1,0 +1,19 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "image": "textures/books/guild_nbt",
+            "imageSize": [
+                120.0,
+                60.0
+            ],
+            "type": "imagePage"
+        },
+        {
+            "content": "在聊天框发出\n“§lpython.nbteditor§r”\n即可使用，打开一个nbt修改器面板，内置一些提示\nnbt修改器是一个强大的工具，可以改变物品的§c各种数据§r，比如§b附魔§r\\§n耐久§r等等\n在面板打开时会自动填充\n§l主手物品§r的nbt数据\n\n§o当数据格式出现错误时，下方会给出提示",
+            "type": "textPage"
+        }
+    ],
+    "parent": "YfFEmtdB",
+    "title": "nbteditor"
+}

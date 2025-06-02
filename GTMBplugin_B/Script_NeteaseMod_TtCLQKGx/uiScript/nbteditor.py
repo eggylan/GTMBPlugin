@@ -44,7 +44,14 @@ class nbteditor(ScreenNode):
 	def change(self, args):
 		import json
 		strnbt = self.GetBaseUIControl("/panel/nbt").asTextEditBox().GetEditText()
-		nbt = json.loads(strnbt)
+		try:
+			nbt = json.loads(strnbt)
+		except ValueError as err:
+			def resetText():
+				self.GetBaseUIControl("/panel/tip").asLabel().SetText("如果有中文变成/uxxxx，请不要惊慌，那就是原内容")
+			self.GetBaseUIControl("/panel/tip").asLabel().SetText("§c⚠数据错误: %s" % (err))
+			clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).AddTimer(2, resetText)
+			return
 		nbtdata = {"nbt": nbt}
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changenbt", nbtdata)
 

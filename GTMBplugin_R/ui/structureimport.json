@@ -104,76 +104,6 @@
                             }
                         },
                         {
-                            "button@common.button": {
-                                "type": "button",
-                                "$control_alpha": 1,
-                                "$default_texture": "textures/netease/common/button/default",
-                                "$hover_texture": "textures/netease/common/button/hover",
-                                "$is_new_nine_slice": false,
-                                "$label_color": [
-                                    1,
-                                    1,
-                                    1
-                                ],
-                                "$label_font_scale_factor": 1,
-                                "$label_font_size": "large",
-                                "$label_layer": 3,
-                                "$label_offset": [
-                                    0,
-                                    0
-                                ],
-                                "$label_text": "生成",
-                                "$nine_slice_buttom": 0,
-                                "$nine_slice_left": 0,
-                                "$nine_slice_right": 0,
-                                "$nine_slice_top": 0,
-                                "$nineslice_size": [
-                                    0,
-                                    0,
-                                    0,
-                                    0
-                                ],
-                                "$pressed_button_name": "%netease_editor_template_namespace.click",
-                                "$pressed_texture": "textures/netease/common/button/pressed",
-                                "$texture_layer": 2,
-                                "offset": [
-                                    -72,
-                                    85
-                                ],
-                                "size": [
-                                    65,
-                                    28
-                                ],
-                                "layer": 49,
-                                "button_mappings": [],
-                                "default_control": "default",
-                                "hover_control": "hover",
-                                "is_handle_button_move_event": true,
-                                "pressed_control": "pressed",
-                                "bindings": [
-                                    {
-                                        "binding_type": "collection_details",
-                                        "binding_collection_name": "",
-                                        "binding_condition": "always_when_visible"
-                                    }
-                                ],
-                                "controls": [
-                                    {
-                                        "default@netease_editor_template_namespace.default": {}
-                                    },
-                                    {
-                                        "hover@netease_editor_template_namespace.hover": {}
-                                    },
-                                    {
-                                        "pressed@netease_editor_template_namespace.pressed": {}
-                                    },
-                                    {
-                                        "button_label@netease_editor_template_namespace.button_label": {}
-                                    }
-                                ]
-                            }
-                        },
-                        {
                             "closebutton@common.button": {
                                 "type": "button",
                                 "$control_alpha": 1,
@@ -216,7 +146,7 @@
                                     43,
                                     20
                                 ],
-                                "layer": 59,
+                                "layer": 36,
                                 "button_mappings": [],
                                 "default_control": "default",
                                 "hover_control": "hover",
@@ -250,7 +180,7 @@
                                 "type": "label",
                                 "anchor_from": "bottom_right",
                                 "anchor_to": "bottom_right",
-                                "layer": 69,
+                                "layer": 46,
                                 "font_size": "small",
                                 "font_type": "default",
                                 "shadow": true,
@@ -299,7 +229,7 @@
                                     73,
                                     28
                                 ],
-                                "layer": 70,
+                                "layer": 47,
                                 "button_mappings": [],
                                 "default_control": "default",
                                 "hover_control": "hover",
@@ -335,7 +265,7 @@
                                     -3.5,
                                     -75
                                 ],
-                                "layer": 80,
+                                "layer": 57,
                                 "font_type": "default",
                                 "shadow": true,
                                 "text": "在下方输入处理过的结构json\n导入大型结构可能卡顿",
@@ -349,7 +279,7 @@
                                     -152.0,
                                     66.0
                                 ],
-                                "layer": 81,
+                                "layer": 58,
                                 "visible": false,
                                 "color": [
                                     1.0,

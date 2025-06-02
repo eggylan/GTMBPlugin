@@ -30,18 +30,20 @@ def unicode_convert(input):
 		return input
 
 def conver_to_nbt(input):
-	if isinstance(input, str):
-		return {'__type__':8, '__value__':input}
-	elif isinstance(input, list):
+	#if isinstance(input, str):
+	#	return {'__type__':8, '__value__':input}
+	if isinstance(input, list):
 		return [conver_to_nbt(element) for element in input]
 	#elif input in [0, 1]:
 	#	return {'__type__':1, '__value__':input}
-	elif isinstance(input, int):
-		return {'__type__':3, '__value__':input}
-	elif isinstance(input, float):
-		return {'__type__':5, '__value__':input}
+	#elif isinstance(input, int):
+	#	return {'__type__':3, '__value__':input}
+	#elif isinstance(input, float):
+	#	return {'__type__':5, '__value__':input}
 	elif isinstance(input, dict):
 		if input.has_key('__type__'):
+			if input['__type__'] == 4: 
+				return {'__type__':4, '__value__': (input['__value__'])}
 			return input
 		else:
 			return {key: conver_to_nbt(value) for key, value in input.iteritems()}
@@ -120,7 +122,7 @@ class MainLogicPart(PartBase):
 			player_Z = intg(player_Z)
 			structure = unicode_convert(json.loads(data["structuredata"]))
 			block_palette = structure['structure']['palette']['default']['block_palette']
-			block_entity_data = structure['structure']['palette']['default']['block_position_data']
+			block_entity_data = conver_to_nbt(structure['structure']['palette']['default']['block_position_data'])
 			serversystem = serverApi.GetSystem("Minecraft", "preset")
 			blockEntitycomp = CFServer.CreateBlockInfo(levelId)
 			blockcomp = CFServer.CreateBlockInfo(levelId)
@@ -139,8 +141,7 @@ class MainLogicPart(PartBase):
 												False)
 							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),block_palette[structure['structure']['block_indices'][0][i]]['states'], data['dimension'])
 							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
-								#print(block_entity_data[str(i)]['block_entity_data'])
-								print(i)
+								print(block_entity_data[str(i)]['block_entity_data'])
 								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), (block_entity_data[str(i)]['block_entity_data']))
 							pass
 						i += 1
@@ -304,7 +305,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/5):14\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.7b(2025/5):15\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
