@@ -13,6 +13,7 @@ compcmd = CFServer.CreateCommand(levelId)
 compGame = CFServer.CreateGame(levelId)
 compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
+compBlockEntity = CFServer.CreateBlockEntity(levelId)
 
 def unicode_convert(input):
 	#type: (dict|str) -> dict|list|str|bool
@@ -91,7 +92,12 @@ class customcmdsPart(PartBase):
 			"setvignetteradius":self.client_setvignetteradius,
 			"setvignettecolor":self.client_setvignettecolor,
 			"setvignettesmooth":self.client_setvignettesmooth,
-			"setvignette":self.client_setvignette
+			"setvignette":self.client_setvignette,
+			"setgaussian":self.client_setgaussian,
+			"setgaussianradius":self.client_setgaussianradius,
+			"sethudchatstackposition":self.client_sethudchatstackposition,
+			"sethudchatstackvisible":self.client_sethudchatstackvisible,
+
 		}
 
 		# 服务端
@@ -216,6 +222,25 @@ class customcmdsPart(PartBase):
 			"setteleportability":self.setteleportability,
 			"settradelevel":self.settradelevel,
 			"setvignette":self.setvignette,
+			# "setbrewingstandslotitem":self.setbrewingstandslotitem,
+			"setdisablecontainers":self.setdisablecontainers,
+			"setdisabledropitem":self.setdisabledropitem,
+			"setdisablehunger":self.setdisablehunger,
+			"setenchantmentseed":self.setenchantmentseed,
+			"setentityitem":self.setentityitem,
+			"setentityowner":self.setentityowner,
+			"setentityride":self.setentityride,
+			"setframeitemdropchange":self.setframeitemdropchange,
+			"setframerotation":self.setframerotation,
+			"sethopperspeed":self.sethopperspeed,
+			"sethudchatstackposition":self.sethudchatstackposition,
+			"sethudchatstackvisible":self.sethudchatstackvisible,
+			"setshowrideui":self.setshowrideui,
+			# "spawnitemtoplayercarried":self.spawnitemtoplayercarried,
+			# "summonitem":self.summonitem,
+			# "summonnbt":self.summonnbt,
+			"setgaussian":self.setgaussian,
+			"scoreparam": self.scoreparam,
 		}
 		
 	
@@ -236,8 +261,8 @@ class customcmdsPart(PartBase):
 		# 从dict中选取处理函数
 		handler = self.clientcustomcmd.get(args['cmd'])
 		if handler:
-			data = handler(args)
-		clientsystem.NotifyToServer("customCmdReturn", data)
+			handler(args)
+		# clientsystem.NotifyToServer("customCmdReturn", data)
 	# 客户端函数部分由此开始
 	def client_setplayerinteracterange(self, args):
 		clientApi.GetEngineCompFactory().CreatePlayer(localPlayerId).SetPickRange(args['cmdargs'][1])
@@ -287,7 +312,16 @@ class customcmdsPart(PartBase):
 		CFClient.CreatePostProcess(levelId).SetVignetteSmoothness(args['cmdargs'][2])
 	def client_setvignette(self, args):
 		CFClient.CreatePostProcess(levelId).SetEnableVignette(args['cmdargs'][2])
+	def client_setgaussian(self, args):
+		CFClient.CreatePostProcess(levelId).SetEnableGaussianBlur(args['cmdargs'][2])
+	def client_setgaussianradius(self, args):
+		CFClient.CreatePostProcess(levelId).SetGaussianBlurRadius(args['cmdargs'][2])
+	def client_sethudchatstackposition(self, args):
+		clientApi.SetHudChatStackPosition((args['cmdargs'][1],args['cmdargs'][2]))
+	def client_sethudchatstackvisible(self, args):
+		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
 	# 客户端函数部分到此结束
+	
 	def InitServer(self):
 		"""
 		@description 服务端的零件对象初始化入口
@@ -298,11 +332,11 @@ class customcmdsPart(PartBase):
 		serversystem.ListenForEvent("Minecraft", "preset", "customCmdReturn", self, self.OnReturn)
 		PartBase.InitServer(self)
 
-	def OnReturn(self, args):
-		pass
-		# 客户端返回
-		#compMsg = CFServer.CreateMsg(args['target'])
-		#compName = CFServer.CreateName(args['__id__'])
+	# def OnReturn(self, args):
+	# 	pass
+	# 	# 客户端返回
+	# 	#compMsg = CFServer.CreateMsg(args['target'])
+	# 	#compName = CFServer.CreateName(args['__id__'])
 
 	def OnCustomCommand(self, args):
 		cmdargs = []
@@ -857,7 +891,7 @@ class customcmdsPart(PartBase):
 		x, y, z = cmdargs[0]
 		r,g,b = cmdargs[2]
 		lighting = cmdargs[4]
-		if CFServer.CreateBlockEntity(levelId).SetSignTextStyle((intg(x), int(y), intg(z)), cmdargs[1]['id'], (r, g, b, cmdargs[3]), lighting, int(cmdargs[5])):
+		if compBlockEntity.SetSignTextStyle((intg(x), int(y), intg(z)), cmdargs[1]['id'], (r, g, b, cmdargs[3]), lighting, int(cmdargs[5])):
 			return False, '设置告示牌文本样式成功'
 		else:
 			return True,'设置告示牌文本样式失败'
@@ -987,7 +1021,7 @@ class customcmdsPart(PartBase):
 		return False,'已将速度值写入计分板'
 	
 	def executecb(self, cmdargs, playerId, variant):
-		success = CFServer.CreateBlockEntity(levelId).ExecuteCommandBlock((intg(cmdargs[0][0]), intg(cmdargs[0][1]), intg(cmdargs[0][2])), cmdargs[1]['id'])
+		success = compBlockEntity.ExecuteCommandBlock((intg(cmdargs[0][0]), intg(cmdargs[0][1]), intg(cmdargs[0][2])), cmdargs[1]['id'])
 		if success:
 			return False,'已执行命令方块'
 		else:
@@ -1005,84 +1039,168 @@ class customcmdsPart(PartBase):
 
 	def param(self, cmdargs, playerId, variant):
 		params = compExtra.GetExtraData('parameters')
-		if variant == 0:
+		
+		# 兼容旧版本
+		if type(params) is dict:
+			need_upgrade = False
+			for key, value in params.items():
+				if not isinstance(value, dict):
+					if value.replace(".", "", 1).isdigit():
+						params[key] = {'type': 'float', 'value': value} if '.' in value else {'type': 'int', 'value': value}
+					else:
+						params[key] = {'type': 'str', 'value': value}
+					need_upgrade = True
+			
+			if need_upgrade:
+				compExtra.SetExtraData('parameters', params)
+		
+		if variant == 0:  # show
 			if cmdargs[1] is None:
-				return False, str(params)
+				output = ["当前存储的变量:"]
+				if params and type(params) is dict:
+					for key, value_info in params.items():
+						output.append(" - %s (%s): %s" % (key, value_info.get('type', 'unknown'), value_info.get('value', '')))
+				return False, "\n".join(output)
 			else:
-				if type(params) == dict and params.has_key(cmdargs[1]):
-					return False, "变量\"%s\"为 %s" % (cmdargs[1], params[cmdargs[1]])
+				if type(params) == dict and params.get(cmdargs[1]):
+					var_info = params[cmdargs[1]]
+					return False, "变量\"%s\" [%s]: %s" % (cmdargs[1], var_info.get('type', 'unknown'), var_info.get('value', ''))
 				else:
-					return True,"未知的变量\"%s\"" % (cmdargs[1])
-				
-		elif variant == 2:
-			if type(params) == dict and params.has_key(cmdargs[1]):
+					return True, "未知的变量\"%s\"" % cmdargs[1]
+					
+		elif variant == 2:  # del
+			if type(params) == dict and params.get(cmdargs[1]):
 				del params[cmdargs[1]]
 				compExtra.SetExtraData('parameters', params)
 				return False, '已删除变量'
 			else:
-				return True,"未知的变量\"%s\"" % (cmdargs[1])
+				return True, "未知的变量\"%s\"" % cmdargs[1]
 		
-		elif variant == 1:
-			input2 = str(cmdargs[2])
-			if type(params) == dict:
-				params[cmdargs[1]] = input2
-			else:
-				params = {cmdargs[1]: input2}
+		elif variant == 1:  # write
+			# 字符串类型
+			if not type(params) == dict:
+				params = {}
+			
+			params[cmdargs[1]] = {
+				'type': 'str', 
+				'value': str(cmdargs[2])
+			}
+			
 			compExtra.SetExtraData('parameters', params)
-			return False,'已将 %s 修改为 %s' % (cmdargs[1], input2)
+			return False, '已将 %s 修改为 %s' % (cmdargs[1], cmdargs[2])
 		
-		elif variant == 3:
-			if not (type(params) == dict and params.has_key(cmdargs[1])):
-				return True,"未知的变量\"%s\"" % (cmdargs[1])
+		elif variant == 3:  # operation
+			if not (type(params) == dict and params.get(cmdargs[1])):
+				return True, "未知的变量\"%s\"" % cmdargs[1]
 			
-			if params[cmdargs[1]].replace(".","",1).isdigit():
-				params[cmdargs[1]] = float(params[cmdargs[1]])
+			var_info = params[cmdargs[1]]
+			var_type = var_info['type']
+			current_value = var_info['value']
 			
-			elif not cmdargs[2] in ['加','乘']:
-				return True,'操作符\"%s\"无法参与字符串运算' % (cmdargs[2])
+			try:
+				if var_type in ['int', 'float']:
+					operand_value = float(cmdargs[3]) if '.' in cmdargs[3] else int(cmdargs[3])
+				else:
+					operand_value = cmdargs[3]
+			except:
+				operand_value = cmdargs[3]
 			
-			if cmdargs[3].replace(".","",1).isdigit():
-				cmdargs[3] = float(cmdargs[3])
-			
-			elif cmdargs[2] != "加":
-				return True,'字符串\"%s\"无法参与%s运算' % (cmdargs[3], cmdargs[2])
+			if var_type == 'int':
+				try:
+					current_value = int(current_value)
+				except:
+					return True, '变量\"%s\"的当前值无法转换为整数' % cmdargs[1]
+			elif var_type == 'float':
+				try:
+					current_value = float(current_value)
+				except:
+					return True, '变量\"%s\"的当前值无法转换为浮点数' % cmdargs[1]
 			
 			if cmdargs[2] == '加':
-				if not type(params[cmdargs[1]]) == type(cmdargs[3]) == int:
-					params[cmdargs[1]] = str(params[cmdargs[1]])
-					cmdargs[3] = str(cmdargs[3])
-				params[cmdargs[1]] += cmdargs[3]
-			
+				if isinstance(operand_value, (int, float)) and isinstance(current_value, (int, float)):
+					result = current_value + operand_value
+				else:
+					result = str(current_value) + str(operand_value)
+				
 			elif cmdargs[2] == '乘':
-				if cmdargs[3] != int(cmdargs[3]):
-					return True,'\"%s\"无法用于重复字符串' % (cmdargs[3])
-				params[cmdargs[1]] *= int(cmdargs[3])
+				if isinstance(operand_value, (int, float)) and isinstance(current_value, (int, float)):
+					result = current_value * operand_value
+				else:
+					if isinstance(operand_value, int) and isinstance(current_value, str):
+						result = current_value * operand_value
+					else:
+						return True, '仅支持整数与字符串的乘法'
 			
-			elif cmdargs[2] == '除':
-				params[cmdargs[1]] /= cmdargs[3]
-			
-			elif cmdargs[2] == '减':
-				params[cmdargs[1]] -= cmdargs[3]
-			
-			elif cmdargs[2] == '乘方':
-				params[cmdargs[1]] **= cmdargs[3]
-			
-			elif cmdargs[2] == '取余':	
-				params[cmdargs[1]] %= cmdargs[3]
-			
-			elif cmdargs[2] == '整除':
-				params[cmdargs[1]] //= cmdargs[3]
-			params[cmdargs[1]] = str(params[cmdargs[1]])
-			compExtra.SetExtraData('parameters', params)
-			return False,'变量运算成功'
-
-		elif variant == 4:
-			if type(params) == dict:
-				params[cmdargs[1]] = random.randint(cmdargs[2], cmdargs[3])
+			elif var_type in ['int', 'float']:
+				if not isinstance(operand_value, (int, float)):
+					return True, '操作数必须是数字'
+				
+				if cmdargs[2] == '减':
+					result = current_value - operand_value
+				elif cmdargs[2] == '除':
+					if operand_value == 0:
+						return True, '除数不能为零'
+					result = current_value / operand_value
+				elif cmdargs[2] == '乘方':
+					result = current_value ** operand_value
+				elif cmdargs[2] == '取余':
+					if operand_value == 0:
+						return True, '取余操作数不能为零'
+					result = current_value % operand_value
+				elif cmdargs[2] == '整除':
+					if operand_value == 0:
+						return True, '除数不能为零'
+					result = current_value // operand_value
+				else:
+					return True, '未知操作'
 			else:
-				params = {cmdargs[1]: random.randint(cmdargs[2], cmdargs[3])}
+				return True, '字符串不支持该操作'
+			
+			# 更新结果并转换类型
+			if var_type == 'int' and isinstance(result, float):
+				result = int(result)
+			elif var_type == 'float' and isinstance(result, int):
+				result = float(result)
+		
+			params[cmdargs[1]]['value'] = result
 			compExtra.SetExtraData('parameters', params)
-			return False,'已将 %s 修改为 %s' % (cmdargs[1], params[cmdargs[1]])		
+			return False, '操作完成: 结果 %s' % result
+		
+		elif variant == 4:  # random
+			if not type(params) == dict:
+				params = {}
+			
+			params[cmdargs[1]] = {
+				'type': 'int',
+				'value': random.randint(cmdargs[2], cmdargs[3])
+			}
+			compExtra.SetExtraData('parameters', params)
+			return False, '已将 %s 设置为随机值 %s' % (cmdargs[1], params[cmdargs[1]]['value'])
+		
+		elif variant == 5:  # create 
+			if not type(params) == dict:
+				params = {}
+			
+			if cmdargs[3] is not None:
+				try:
+					if cmdargs[2] == 'int':
+						value = int(cmdargs[3])
+					elif cmdargs[2] == 'float':
+						value = float(cmdargs[3])
+					else:  # str
+						value = str(cmdargs[3])
+				except:
+					return True, '初始值无法转换为 %s 类型' % cmdargs[2]
+			else:
+				value = 0 if cmdargs[2] == 'int' else 0.0 if cmdargs[2] == 'float' else ""
+			
+			params[cmdargs[1]] = {
+				'type': cmdargs[2],
+				'value': value
+			}
+			
+			compExtra.SetExtraData('parameters', params)
+			return False, '已创建 %s 类型变量 %s = %s' % (cmdargs[2], cmdargs[1], value)	
 
 	def kickt(self, cmdargs, playerId, variant):
 		for kickplayer in cmdargs[0]:
@@ -1107,18 +1225,34 @@ class customcmdsPart(PartBase):
 		cmd = cmdargs[0]
 		if cmd.startswith("/"):
 			cmd = cmd[1:]
+		params = compExtra.GetExtraData('parameters')
+		
 		cmd2 = ""
-		if compExtra.GetExtraData('parameters'):
-			for i in cmd.split(" "):
-				for ii in compExtra.GetExtraData('parameters').keys():
-					index = i.find("param:%s" % (ii))
-					if not index == -1:
-						i = i.replace("param:%s" % (ii),compExtra.GetExtraData('parameters')[ii])
-				cmd2 = "%s %s" % (cmd2, i)
-		else:
+		if params and isinstance(params, dict):
+			for word in cmd.split(" "):
+				if word.startswith("param:"):
+					var_name = word.split(":", 1)[1]
+					# 查找变量
+					if var_name in params:
+						var_info = params[var_name]
+						# 根据变量类型格式化
+						if var_info['type'] == 'str':
+							word = '"%s"' % var_info['value']  # 字符串添加引号
+						elif var_info['type'] == 'int' or var_info['type'] == 'float':
+							word = str(var_info['value'])
+						else:  # 未知类型保持原格式
+							word = str(var_info['value'])
+					else:
+						pass
+				
+				cmd2 = ("%s %s" % (cmd2, word)).strip()
+		
+		if not cmd2:
 			cmd2 = cmd
-		compcmd.SetCommand("/" + cmd2.replace("'",'"'), False)
-		return False,"已将指令处理后执行"
+		
+		final_cmd = "/" + cmd2.replace("'", '"')
+		compcmd.SetCommand(final_cmd, False)
+		return False, "已将指令处理后执行: " + final_cmd
 	
 	def addaroundentitymotion(self, cmdargs, playerId, variant):
 		if len(cmdargs[1]) > 1:
@@ -1257,37 +1391,57 @@ class customcmdsPart(PartBase):
 		return False,'已移除运动器'
 
 	def addenchant(self, cmdargs, playerId, variant):
-		# args['return_msg_key'] = '添加失败'
-		# args['return_failed'] = True
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		
+		failed_players = [] 
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True,'非玩家实体无法访问背包'
-		for i in cmdargs[0]:
-			compItem = CFServer.CreateItem(i)
-			if type(cmdargs[3]) == int:
-				slotType = 0
-				slot = cmdargs[3]
-			else:
-				slotType = 2
-				slot = 0
-			itemDict = compItem.GetPlayerItem(slotType, slot, True)
-			if itemDict:
+				failed_players.append(i)
+				continue 
+				
+			try:
+				compItem = CFServer.CreateItem(i)
+				if type(cmdargs[3]) == int:
+					slotType = 0
+					slot = cmdargs[3]
+				else:
+					slotType = 2
+					slot = 0
+			
+				itemDict = compItem.GetPlayerItem(slotType, slot, True)
+				if not itemDict:
+					failed_players.append(i)
+					continue 
+			
 				if itemDict["userData"] is None:
 					itemDict["userData"] = {}
 				if itemDict["userData"].get('ench', None) is None:
 					itemDict["userData"]['ench'] = []
-				itemDict["userData"]['ench'].insert(0, {'lvl': {'__type__': 2, '__value__': cmdargs[2]}, 
-														'id':  {'__type__': 2, '__value__': cmdargs[1]['type']}, 
-														'modEnchant': {'__type__': 8, '__value__': ''}})
+				
+				itemDict["userData"]['ench'].insert(0, {
+					'lvl': {'__type__': 2, '__value__': cmdargs[2]},
+					'id':  {'__type__': 2, '__value__': cmdargs[1]['type']},
+					'modEnchant': {'__type__': 8, '__value__': ''}
+				})
 				itemDict["enchantData"] = []
-			else:
-				return True,'该槽位没有物品或没有该槽位'
-			if slotType == 0:
-				if compItem.SpawnItemToPlayerInv(itemDict, i, slot):
-					return False,'添加附魔成功'
-			else:
-				if compItem.SpawnItemToPlayerCarried(itemDict, i):
-					return False,'添加附魔成功'
+				
+				result = False
+				if slotType == 0:
+					result = compItem.SpawnItemToPlayerInv(itemDict, i, slot)
+				else:
+					result = compItem.SpawnItemToPlayerCarried(itemDict, i)
+					
+				if not result:  # 失败
+					failed_players.append(i)
+					
+			except Exception: 
+				failed_players.append(i)
+		
+		if failed_players:
+			return True, "部分实体执行过程中出现错误：" + str(failed_players)  # 有失败情况
+		else:
+			return False, "添加附魔成功"  # 全部成功
 
 	def addtrackmotion(self, cmdargs, playerId, variant):
 		for i in cmdargs[0]:
@@ -1520,20 +1674,52 @@ class customcmdsPart(PartBase):
 		return False,'设置动量成功'
 
 	def setopencontainersability(self, cmdargs, playerId, variant):
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True,'非玩家实体无法设置打开容器的权限'
-		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetOpenContainersAbility(cmdargs[1])
-		return False,'已设置打开容器的权限'
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		
+		failed_players = []
+		
+		for player_id in cmdargs[0]:
+			try:
+				engine_type = CFServer.CreateEngineType(player_id).GetEngineTypeStr()
+				if engine_type != 'minecraft:player':
+					failed_players.append(player_id)
+					continue
+			except Exception:
+				failed_players.append(player_id)
+				continue
+				
+			try:
+				player = CFServer.CreatePlayer(player_id)
+				player.SetOpenContainersAbility(cmdargs[1])
+			except Exception:
+				failed_players.append(player_id)
+		
+		if failed_players:
+			return True, "部分实体执行过程中出现错误：" + str(failed_players)
+		else:
+			return False, "已设置打开容器的权限"
 	
 	def setoperatedoorability(self, cmdargs, playerId, variant):
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True,'非玩家实体无法设置开门权限'
-		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetOperateDoorsAndSwitchesAbility(cmdargs[1])
-		return False,'已设置开门权限'
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		
+		failed_players = []
+		
+		for player_id in cmdargs[0]:
+			if CFServer.CreateEngineType(player_id).GetEngineTypeStr() != 'minecraft:player':
+				failed_players.append(player_id)
+				continue
+				
+			try:
+				CFServer.CreatePlayer(player_id).SetOperateDoorsAndSwitchesAbility(cmdargs[1])
+			except Exception:
+				failed_players.append(player_id)
+		
+		if failed_players:
+			return True, "部分实体执行过程中出现错误：" + str(failed_players)
+		else:
+			return False, '已设置开门权限'
 
 	def setorbexperience(self, cmdargs, playerId, variant):
 		for i in cmdargs[0]:
@@ -1557,22 +1743,30 @@ class customcmdsPart(PartBase):
 			return True, '无效的数值'
 
 	def setplayeruiitem(self, cmdargs, playerId, variant):
-		# args['return_msg_key'] = '给予失败'
-		# args['return_failed'] = True
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True,'非玩家实体无法设置界面内物品'
 		result = checkjson(cmdargs[2], playerId)
 		if result[1]:
-			return True,result[0]
+			return True, result[0]
+		failed_players = []
 		itemDict = result[0]
-		for i in cmdargs[0]:
-			if not CFServer.CreateItem(i).SetPlayerUIItem(i, cmdargs[1], itemDict, cmdargs[3]):
-				return True,'命令执行过程中发生了错误。'
-		return False,'已设置玩家界面内物品'
+		for player_id in cmdargs[0]:
+			if CFServer.CreateEngineType(player_id).GetEngineTypeStr() != 'minecraft:player':
+				failed_players.append(player_id)
+				continue
+				
+			try:
+				if not CFServer.CreateItem(player_id).SetPlayerUIItem(player_id, cmdargs[1], itemDict, cmdargs[3]):
+					failed_players.append(player_id) 
+					
+			except Exception:
+				failed_players.append(player_id)
+		
+		if failed_players:
+			return True, "部分实体执行过程中出现错误：" + str(failed_players) 
+		else:
+			return False, '已设置合成容器内物品'
 
 	def _if(self, cmdargs, playerId, variant):
-		if variant == 0:
+		if variant == 0:  # cmd模式不变
 			if cmdargs[3] is None:
 				result = [compcmd.SetCommand(cmdargs[1].replace("'",'"'), playerId), compcmd.SetCommand(cmdargs[3], playerId)]
 			else:
@@ -1600,55 +1794,88 @@ class customcmdsPart(PartBase):
 			else:
 				return True,'未知的逻辑运算符'
 		
-		else:
+		else:  # param模式 (variant1)
 			params = compExtra.GetExtraData('parameters')
-			if type(params) == dict and params.has_key(cmdargs[1]):
-				cmdargs[3] = round(cmdargs[3], 6)
-				param = params[cmdargs[1]]
-				try:
-					param = float(param)
-				except:
-					return True,"\"%s\"不是一个数字变量" % (cmdargs[1])
-				if cmdargs[2] == 'equals':
-					if param == cmdargs[3]:
-						return False,"表达式成立(%s == %s)" % (param, cmdargs[3])
-					else:
-						return True,"表达式不成立(%s == %s)" % (param, cmdargs[3])
-				elif cmdargs[2] == 'not_equals':
-					if param != cmdargs[3]:
-						return False,"表达式成立(%s != %s)" % (param, cmdargs[3])
-					else:
-						return True,"表达式不成立(%s != %s)" % (param, cmdargs[3])
-				elif cmdargs[2] == 'greater_than':
-					if param > cmdargs[3]:
-						return False,"表达式成立(%s > %s)" % (param, cmdargs[3])
-					else:
-						return True,"表达式不成立(%s > %s)" % (param, cmdargs[3])
-				elif cmdargs[2] == 'less_than':
-					if param < cmdargs[3]:
-						return False,"表达式成立(%s < %s)" % (param, cmdargs[3])
-					else:
-						return True,"表达式不成立(%s < %s)" % (param, cmdargs[3])
-				elif cmdargs[2] == 'not_less':
-					if param >= cmdargs[3]:
-						return False,"表达式成立(%s >= %s)" % (param, cmdargs[3])
-					else:
-						return True,"表达式不成立(%s >= %s)" % (param, cmdargs[3])
-				elif cmdargs[2] == 'not_greater':
-					if param <= cmdargs[3]:
-						return False,"表达式成立(%s <= %s)" % (param, cmdargs[3])
-					else:
-						return True,"表达式不成立(%s <= %s)" % (param, cmdargs[3])
+			
+			# 检查变量是否存在
+			if not (type(params) == dict and cmdargs[1] in params):
+				return True, "未知的变量\"%s\"" % cmdargs[1]
+			
+			var_info = params[cmdargs[1]]
+			var_value = var_info['value']
+			var_type = var_info['type']
+			
+			# 尝试将输入值转换为变量相应类型
+			try:
+				if var_type == 'int':
+					input_value = int(cmdargs[3])
+				elif var_type == 'float':
+					input_value = float(cmdargs[3])
+				else:  # str
+					input_value = str(cmdargs[3])
+			except:
+				return True, "无法将\"%s\"转换为%s类型进行比较" % (cmdargs[3], var_type)
+			
+			# 执行比较操作
+			if cmdargs[2] == 'equals':
+				result = var_value == input_value
+				symbol = '=='
+			elif cmdargs[2] == 'not_equals':
+				result = var_value != input_value
+				symbol = '!='
 			else:
-				return True,"未知的变量\"%s\"" % (cmdargs[1])
+				# 检查类型是否支持比较
+				if var_type == 'str':
+					return True, "字符串变量只支持等于(equals)和不等于(not_equals)比较"
+				
+				# 执行数值比较
+				if cmdargs[2] == 'greater_than':
+					result = var_value > input_value
+					symbol = '>'
+				elif cmdargs[2] == 'less_than':
+					result = var_value < input_value
+					symbol = '<'
+				elif cmdargs[2] == 'not_less':
+					result = var_value >= input_value
+					symbol = '>='
+				elif cmdargs[2] == 'not_greater':
+					result = var_value <= input_value
+					symbol = '<='
+				else:
+					return True, "未知的比较操作符"
+			
+			# 格式化显示值（避免浮点数精度问题）
+			if var_type == 'float':
+				display_value = round(var_value, 6)
+				display_input = round(input_value, 6)
+			else:
+				display_value = var_value
+				display_input = input_value
+			
+			if result:
+				return False, "表达式成立(%s %s %s)" % (display_value, symbol, display_input)
+			else:
+				return True, "表达式不成立(%s %s %s)" % (display_value, symbol, display_input)
 	
 	def setteleportability(self, cmdargs, playerId, variant):
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True,'非玩家实体无法设置传送权限'
-		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetTeleportAbility(cmdargs[1])
-		return False,'已设置传送权限'
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		failed_players = []
+		for player_id in cmdargs[0]:
+			try:
+				if CFServer.CreateEngineType(player_id).GetEngineTypeStr() != 'minecraft:player':
+					failed_players.append(player_id)
+					continue
+					
+				CFServer.CreatePlayer(player_id).SetTeleportAbility(cmdargs[1])
+					
+			except Exception:
+				failed_players.append(player_id)
+		
+		if failed_players:
+			return True, "部分实体执行过程中出现错误：" + str(failed_players) 
+		else:
+			return False, "已设置传送权限"
 
 	def settradelevel(self, cmdargs, playerId, variant):
 		for i in cmdargs[0]:
@@ -1677,6 +1904,299 @@ class customcmdsPart(PartBase):
 		elif variant == 4:
 			serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setvignette",'cmdargs': cmdargs})
 			return False,'已%s玩家的屏幕暗角' % ('启用' if cmdargs[2] else '禁用')
+		
+	# def setbrewingstandslotitem(self, cmdargs, playerId, variant):
+	# 	x = intg(cmdargs[2][0])
+	# 	y = int(cmdargs[2][1])
+	# 	z = intg(cmdargs[2][2])
+	# 	itemDict = compItemWorld.GetBrewingStandSlotItem(cmdargs[1],(x, y, z,), cmdargs[3]['id'])
+	# 	result = checkjson(cmdargs[0], playerId)
+	# 	if result[1]:
+	# 		return True,result[0]
+	# 	itemDict2 = result[0]
+	# 	for i in [('durability',0),('customTips',''),('extraId',''),('newAuxValue',0),('userData',None),('showInHand',True)]:
+	# 		if not itemDict2.has_key(i[0]):
+	# 			itemDict2[i[0]] = i[1]
+	# 	if itemDict:
+	# 		for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
+	# 			itemDict.pop(i)
+	# 			itemDict2.pop(i, False)
+	# 		countOrign = itemDict.pop('count')
+	# 	else: countOrign = 0
+	# 	countAdd = itemDict2.pop('count', 1)
+	# 	if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
+	# 		itemDict2['count'] = countOrign+countAdd
+	# 		if compItemWorld.SetBrewingStandSlotItem(itemDict2, cmdargs[1], (x, y, z), cmdargs[3]['id']):
+	# 			return False,'成功设置酿造台槽位物品'
+	# 		else:
+	# 			return True, '设置失败'
+	# 	else:
+	# 		return True,'槽位已满'
+
+
+	def setdisablecontainers(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		
+		failed_players = []
+		
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				failed_players.append(i)
+				continue 
+			
+			try:
+				CFServer.CreateGame(i).SetDisableContainers(cmdargs[1])
+				
+			except Exception:
+				failed_players.append(i)
+		
+		if failed_players:
+			return True,  "部分实体执行过程中出现错误：" + str(failed_players)
+		else:
+			return False, "成功设置容器界面打开权限"
+		
+	def setdisabledropitem(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		
+		failed_players = []
+		
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				failed_players.append(i)
+				continue 
+			
+			try:
+				CFServer.CreateGame(i).SetDisableDropItem(cmdargs[1])
+				
+			except Exception:
+				failed_players.append(i)
+		
+		if failed_players:
+			return True,  "部分实体执行过程中出现错误：" + str(failed_players)
+		else:
+			return False, "成功设置丢弃物品权限"
+		
+	def setdisablehunger(self, cmdargs, playerId, variant):
+		if not cmdargs[0] or not cmdargs[1]:
+			return True, '没有与选择器匹配的目标'
+		failed_players = []
+		
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				failed_players.append(i)
+				continue 
+			
+			try:
+				CFServer.CreateGame(i).SetDisableHunger(cmdargs[1])
+				
+			except Exception:
+				failed_players.append(i)
+		
+		if failed_players:
+			return True,  "部分实体执行过程中出现错误：" + str(failed_players)
+		else:
+			return False, "成功设置是否屏蔽饥饿度"
+
+	def setenchantmentseed(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		failed_players = []
+		
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				failed_players.append(i)
+				continue 
+			
+			try:
+				CFServer.CreatePlayer(i).SetEnchantmentSeed(cmdargs[1])
+				
+			except Exception:
+				failed_players.append(i)
+		
+		if failed_players:
+			return True,  "部分实体执行过程中出现错误：" + str(failed_players)
+		else:
+			return False, "成功设置附魔种子"
+
+	def setentityitem(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		result = checkjson(cmdargs[2], playerId)
+		if result[1]:
+			return True, result[0]
+		failed_entities = []
+		itemDict = result[0]
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player': # 对玩家无效
+				failed_entities.append(i)
+				continue 
+				
+			compItem = CFServer.CreateItem(i)
+			if not compItem.SetEntityItem(cmdargs[1], itemDict,cmdargs[3]):
+				failed_entities.append(i) 
+					
+		
+		if failed_entities:
+			return True, "部分实体执行过程中出现错误：" + str(failed_entities) 
+		else:
+			return False, '已设置实体物品'
+		
+
+	def setentityowner(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		if cmdargs[1] is None:
+			ownerid = None
+		else:
+			if len(cmdargs[1]) > 1:
+				return True, '只允许一个实体,但提供的选择器允许多个实体'
+			ownerid = cmdargs[1][0]
+
+		failed_entities = []
+		
+		for i in cmdargs[0]:
+			if not CFServer.CreateActorOwner(i).SetEntityOwner(ownerid):
+				failed_entities.append(i)
+		
+		if failed_entities:
+			return True, "部分实体执行过程中出现错误：" + str(failed_entities) 
+		else:
+			return False, '已设置实体属主'
+		
+	def setentityride(self, cmdargs, playerId, variant):
+		if not cmdargs[0] or not cmdargs[1]:
+			return True, '没有与选择器匹配的目标'
+		if len(cmdargs[0]) > 1:
+			return True, '只允许一个实体,但提供的选择器允许多个实体'
+		failed_entities = []
+		
+		for i in cmdargs[1]:
+			if not CFServer.CreateRide(i).SetEntityRide(cmdargs[0][0],i):
+				failed_entities.append(i)
+		
+		if failed_entities:
+			return True, "部分实体执行过程中出现错误：" + str(failed_entities) 
+		else:
+			return False, '已驯服生物'
+		
+	def setframeitemdropchange(self, cmdargs, playerId, variant):
+		x,y,z = cmdargs[0]
+		x = intg(x)
+		y = int(y)
+		z = intg(z)
+		if compBlockEntity.SetFrameItemDropChange((x, y, z), cmdargs[1]["id"], cmdargs[2]):
+			return False,'已设置掉落几率'
+		else:
+			return True,'设置失败'
+		
+	def setframerotation(self, cmdargs, playerId, variant):
+		x,y,z = cmdargs[0]
+		x = intg(x)
+		y = int(y)
+		z = intg(z)
+		if compBlockEntity.SetFrameRotation((x, y, z), cmdargs[1]["id"], cmdargs[2]):
+			return False,'已设置物品框旋转角度'
+		else:
+			return True,'设置失败'
+		
+
+	def sethopperspeed(self, cmdargs, playerId, variant):
+		x,y,z = cmdargs[0]
+		x = intg(x)
+		y = int(y)
+		z = intg(z)
+		if compBlockEntity.SetHopperSpeed((x, y, z), cmdargs[1]["id"], cmdargs[2]):
+			return False,'已设置漏斗速度'
+		else:
+			return True,'设置失败'
+		
+	def sethudchatstackposition(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				return True,'非玩家实体无法设置聊天UI位置'
+		serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"sethudchatstackposition",'cmdargs': cmdargs})
+		return False,'已设置聊天UI位置为 %f, %f' % (cmdargs[1], cmdargs[2])
+	
+	def sethudchatstackvisible(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				return True,'非玩家实体无法设置聊天UI可见性'
+		serversystem.NotifyToMultiClients(cmdargs[0], "CustomCommandClient", {'cmd':"sethudchatstackvisible",'cmdargs': cmdargs})
+		return False,'已%s聊天UI' % ('启用' if cmdargs[1] else '禁用')
+	
+	def setshowrideui(self, cmdargs, playerId, variant):
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		failed_entities = []
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
+				failed_entities.append(i)
+				continue 
+			try:
+				CFServer.CreateRide(i).SetShowRideUI(i,cmdargs[1])
+			except Exception:
+				failed_entities.append(i)
+		if failed_entities:
+			return True, "部分实体执行过程中出现错误：" + str(failed_entities)
+		else:
+			return False, '已%s马匹的UI' % ('启用' if cmdargs[1] else '禁用')
+	
+	def setgaussian(self, cmdargs, playerId, variant):
+		if not cmdargs[1]:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[1]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				return True,'非玩家实体无法拥有高斯模糊'
+		if variant == 0:
+			serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setgaussian",'cmdargs': cmdargs})
+			return False,'已%s玩家的高斯模糊' % ('启用' if cmdargs[2] else '禁用')
+		elif variant == 1:
+			serversystem.NotifyToMultiClients(cmdargs[1], "CustomCommandClient", {'cmd':"setgaussianradius",'cmdargs': cmdargs})
+			return False,'已将玩家的高斯模糊半径设为 %f' % (cmdargs[2])
+		
+	def scoreparam(self, cmdargs, playerId, variant):
+		scoreboard_name = cmdargs[1]
+		
+		objects = compGame.GetAllScoreboardObjects()
+		found = False
+		for obj in objects:
+			if obj['name'] == scoreboard_name:
+				found = True
+				break
+		
+		if not found:
+			return True, '未找到该计分板对象'
+		
+		target_name = cmdargs[0]
+		params = compExtra.GetExtraData('parameters')
+		
+		if not (params and type(params) is dict and params.get(target_name)):
+			return True, '未找到变量: %s' % target_name
+		
+		var_info = params[target_name]
+		var_value = var_info.get('value', None)
+		
+		try:
+			score = int(var_value)
+		except (TypeError, ValueError):
+			return True, '无法将变量值转换为整数: %s' % target_name
+		
+		command = '/scoreboard players set %s %s %d' % (target_name, scoreboard_name, score)
+		
+		if not compcmd.SetCommand(command):
+			return True, '设置计分板失败'
+		
+		return False, '已将变量 %s 的值(%d)设置到计分板 %s 中' % (target_name, score, scoreboard_name)
+	
+			
+		
+
 		
 	# def setblockbasicinfo(self, cmdargs, playerId, variant):#暂时没得用
 	# 	args['return_failed'] = True
