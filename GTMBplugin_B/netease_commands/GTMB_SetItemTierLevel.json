@@ -5,6 +5,6 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
-        {"name": "等级", "type": "int"}
+        {"name": "挖掘等级", "type": "int"}
 	]
 }

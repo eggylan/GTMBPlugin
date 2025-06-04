@@ -14,7 +14,7 @@
     "args1": [
         {
             "name": "模式",
-            "options": ["write"],
+            "options": ["set"],
             "type": "enum"
         },
         {
@@ -22,7 +22,13 @@
             "type": "str"
         },
         {
-            "name": "内容",
+            "name": "类型",
+            "options": ["int", "float", "str"],
+            "type": "enum"
+        },
+        {
+            "name": "值(可选)",
+            "default": null,
             "type": "str"
         }
     ],
@@ -53,7 +59,7 @@
             "type": "enum_short"
         },
         {
-            "name": "参数(\"字符串数字\"会自动转换成数字运算，字符串只支持\"+\"与\"*\")",
+            "name": "参数(字符串只支持加与乘)",
             "type": "str"
         }
     ],
@@ -74,27 +80,6 @@
         {
             "name": "最大值",
             "type": "int"
-        }
-    ],
-    "args5": [
-        {
-            "name": "模式",
-            "options": ["create"],
-            "type": "enum"
-        },
-        {
-            "name": "变量",
-            "type": "str"
-        },
-        {
-            "name": "类型",
-            "options": ["int", "float", "str"],
-            "type": "enum"
-        },
-        {
-            "name": "初始值(可选)",
-            "default": null,
-            "type": "str"
         }
     ],
     "description": "访问存储于世界中的变量，支持创建 int/float/str 类型",

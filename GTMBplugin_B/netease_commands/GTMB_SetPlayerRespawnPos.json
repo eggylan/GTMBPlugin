@@ -1,12 +1,12 @@
 {
 	"format_version": "0.0.1",
-	"name": "setplayerrespawnpos",
+	"name": "setspawnpoint",
 	"description": "设置玩家重生的位置与维度",
 	"permission_level": "game_directors",
 	"args": [
-        {"name": "目标", "type": "target"},
-        {"name": "位置", "type": "pos"},
-        {"name": "维度", "type": "dimension"}
+        {"name": "目标", "type": "target", "default": "null(can't replace to null,will be a bug)"},
+        {"name": "位置", "type": "pos", "default": null},
+        {"name": "维度", "type": "dimension", "default": null}
 
 	]
 }

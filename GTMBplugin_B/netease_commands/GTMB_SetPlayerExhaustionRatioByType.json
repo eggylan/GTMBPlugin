@@ -5,7 +5,7 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "玩家", "type": "target"},
-        {"name": "行为id(0~4, 9)", "type": "int"},
+        {"name": "行为", "type": "enum_short", "options":["heal","jump","sprint_jump","mine","attack","global"]},
         {"name": "倍率", "type": "float"}
 	]
 }

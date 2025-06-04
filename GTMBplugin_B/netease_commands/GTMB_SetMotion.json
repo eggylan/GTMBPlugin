@@ -5,6 +5,6 @@
 	"permission_level": "game_directors",
 	"args": [
         {"name": "目标", "type": "target"},
-        {"name": "世界坐标系下的向量", "type": "pos"}
+        {"name": "世界坐标系下的向量(xz的值一定要带小数点)", "type": "pos"}
 	]
 }

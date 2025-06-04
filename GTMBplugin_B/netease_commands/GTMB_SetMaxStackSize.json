@@ -1,6 +1,6 @@
 {
 	"format_version": "0.0.1",
-	"name": "setmaxstacksize",
+	"name": "setitemmaxstacksize",
 	"description": "设置主手物品的最大堆叠数量",
 	"permission_level": "game_directors",
 	"args": [
