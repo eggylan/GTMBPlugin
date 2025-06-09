@@ -46,7 +46,7 @@ def intg(num):
 		return int(num)-1
 
 def checkjson(data, playerId):
-	#type: (str, str|int) -> list
+	#type: (str, str|int) -> list[dict, bool]
 	try:
 		itemDict = json.loads(data.replace("'", '"'))
 	except ValueError as errordata:
@@ -61,7 +61,7 @@ def checkjson(data, playerId):
 		if index >= 15:
 			return ['无效的nbt 位于 %s' % (data[index-15:index]+colors[0]+data[index]+colors[1]+data[index+1:index+15]), True]
 		return ['无效的nbt 位于 %s' % (data[:index]+colors[0]+data[index]+colors[1]+data[index+1:index+15]), True]
-	if type(itemDict) != dict:
+	if not isinstance(itemDict, dict):
 		return['无效的nbt', True]
 	return [itemDict, False]
 
@@ -240,10 +240,11 @@ class customcmdsPart(PartBase):
 			'sethudchatstackposition':self.sethudchatstackposition,
 			'sethudchatstackvisible':self.sethudchatstackvisible,
 			'setshowrideui':self.setshowrideui,
-			# 'summonitem':self.summonitem,
+			'summonitem':self.summonitem,
 			# 'summonnbt':self.summonnbt,
 			'setgaussian':self.setgaussian,
 			'scoreparam': self.scoreparam,
+			'setblocknbt': self.setblocknbt
 		}
 		
 	def InitClient(self):
@@ -2165,6 +2166,32 @@ class customcmdsPart(PartBase):
 		
 		return False, '已将变量 %s 的值(%d)设置到计分板 %s 中' % (target_name, score, scoreboard_name)
 	
+	def setblocknbt(self, cmdargs, playerId, variant, data):
+		x, y, z = cmdargs[0]
+		xyz = (intg(x), int(y), intg(z))
+		if cmdargs[2] is None:
+			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CFServer.CreateBlockInfo(levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
+		else:
+			result = checkjson(cmdargs[2], playerId)
+			if result[1]:
+				return True, result[0]
+			blockDict = unicode_convert(result[0])
+			CFServer.CreateBlockInfo(levelId).SetBlockEntityData(cmdargs[1]['id'], xyz, blockDict)
+			return False, '已设置 Pos%s 的方块nbt' % (xyz,)
+
+	def summonitem(self, cmdargs, playerId, variant, data):
+		result = checkjson(cmdargs[1], playerId)
+		if result[1]:
+			return True, result[0]
+		itemDict = result[0]
+		x, y, z = cmdargs[0]
+		xyz = (intg(x), int(y), intg(z))
+		itemDict.setdefault('count', 1)
+		if not itemDict.has_key('newItemName'):
+			return True, '物品数据中缺少 newItemName 键'
+		if not serversystem.CreateEngineItemEntity(itemDict, data['origin']['dimension'], xyz):
+			return True, '生成失败'
+		return False, str('已在 Pos%s 处生成 %s * %d' % (xyz, itemDict['newItemName'], itemDict['count']))
 
 	def TickClient(self):
 		'''
