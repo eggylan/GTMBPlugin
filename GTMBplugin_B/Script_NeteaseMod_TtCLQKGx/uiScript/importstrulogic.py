@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import mod.client.extraClientApi as clientApi
+import json
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
@@ -33,8 +34,8 @@ class importstrulogic(ScreenNode):
 			comp.AddTimer(1, hide_err)
 			return
 		try:
-			with open(path, 'r') as file:
-				structure = file.read()
+			with open(path) as f:
+				structure = json.load(f)
 		except:
 			err_control.asLabel().SetText('§c⚠无效的路径')
 			err_control.SetVisible(True)

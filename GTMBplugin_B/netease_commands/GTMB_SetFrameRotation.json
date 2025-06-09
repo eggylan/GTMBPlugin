@@ -6,6 +6,6 @@
 	"args": [
         {"name":"方块位置","type" : "pos"},
         {"name":"维度","type" : "dimension"},
-        {"name":"旋转角度（取值范围：[0,360]）","type" : "float"}
+        {"name":"旋转角度","type" : "float"}
 	]
 }

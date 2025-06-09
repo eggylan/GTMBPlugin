@@ -10,7 +10,7 @@
             "type": "imagePage"
         },
         {
-            "content": "在聊天框发出\n“§lpython.enchant§r”\n即可使用，打开一个附魔面板，跟随指引即可使用\n该附魔面板附魔等级为\n§l§b-32768~32767§r\n并且§c无视附魔冲突§r",
+            "content": "在聊天框发出\n“§lpython.enchant§r”\n即可使用，\n打开一个附魔面板，跟随指引即可使用\n该附魔面板附魔等级为\n§l§b-32768~32767§r\n并且§c无视附魔冲突§r",
             "type": "textPage"
         }
     ],

@@ -5,8 +5,8 @@
             "type": "target"
         },
         {
-            "name": "方块命名空间id",
-            "type": "str"
+            "name": "方块",
+            "type": "block"
         },
         {
             "name": "速度",

@@ -1,6 +1,6 @@
 {
 	"format_version": "0.0.1",
-	"name": "setsignblocktext",
+	"name": "setsigntext",
 	"description": "设置告示牌文本内容",
 	"permission_level": "game_directors",
 	"args": [

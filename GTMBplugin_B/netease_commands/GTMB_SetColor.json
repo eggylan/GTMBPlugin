@@ -22,6 +22,8 @@
 		{"name":"模式", "type":"enum", "options": ["tint"]},
         {"name":"目标","type" : "target"},
         {"name":"色调强度","type" : "float"},
-        {"name":"RGB值","type" : "pos"}
+        {"name":"R","type" : "float"},
+		{"name":"G","type" : "float"},
+		{"name":"B","type" : "float"}
 	]
 }

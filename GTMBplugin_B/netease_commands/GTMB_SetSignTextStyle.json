@@ -6,8 +6,10 @@
 	"args": [
         {"name": "方块位置", "type": "pos"},
         {"name": "维度", "type": "dimension"},
-        {"name":"颜色RGB通道","type":"pos"},
-        {"name":"颜色通道值A","type":"float"},
+        {"name":"R","type":"float"},
+        {"name":"G","type":"float"},
+        {"name":"B","type":"float"},
+        {"name":"A","type":"float"},
         {"name":"是否发光","type":"bool"},
         {"name":"是否反面","type":"bool","default":false}
 	]

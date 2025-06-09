@@ -120,7 +120,7 @@ class MainLogicPart(PartBase):
 			player_X = intg(player_X)
 			player_Y = int(player_Y)
 			player_Z = intg(player_Z)
-			structure = unicode_convert(json.loads(data["structuredata"]))
+			structure = data["structuredata"]
 			block_palette = structure['structure']['palette']['default']['block_palette']
 			block_entity_data = conver_to_nbt(structure['structure']['palette']['default']['block_position_data'])
 			serversystem = serverApi.GetSystem("Minecraft", "preset")
@@ -141,7 +141,7 @@ class MainLogicPart(PartBase):
 												False)
 							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),block_palette[structure['structure']['block_indices'][0][i]]['states'], data['dimension'])
 							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
-								print(block_entity_data[str(i)]['block_entity_data'])
+								#print(block_entity_data[str(i)]['block_entity_data'])
 								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), (block_entity_data[str(i)]['block_entity_data']))
 							pass
 						i += 1
@@ -305,7 +305,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.8(2025/6):1\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.8a(2025/6):2\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
