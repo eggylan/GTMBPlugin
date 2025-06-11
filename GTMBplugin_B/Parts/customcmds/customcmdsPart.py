@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+#from __future__ import print_function
 from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
 import mod.client.extraClientApi as clientApi
 import json
 import random
+import math
 CFServer = serverApi.GetEngineCompFactory()
 CFClient = clientApi.GetEngineCompFactory()
 levelId = serverApi.GetLevelId()
@@ -39,10 +40,7 @@ def unicode_convert(input):
 
 def intg(num):
 	#type: (float) -> int
-	if num >= 0:
-		return int(num)
-	else:
-		return int(num)-1
+	return int(math.floor(num))
 
 def checkjson(data):
 	#type: (str) -> list[dict, bool]
