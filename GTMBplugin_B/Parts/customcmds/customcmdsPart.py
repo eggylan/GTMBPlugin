@@ -33,8 +33,7 @@ def unicode_convert(input):
 			return True
 		elif output == 'False':
 			return False
-		else:
-			return output
+		return output
 	else:
 		return input
 
@@ -45,22 +44,22 @@ def intg(num):
 	else:
 		return int(num)-1
 
-def checkjson(data, playerId):
-	#type: (str, str|int) -> list[dict, bool]
+def checkjson(data):
+	#type: (str) -> list[dict, bool]
 	try:
 		itemDict = json.loads(data.replace("'", '"'))
 	except ValueError as errordata:
-		if str(errordata).find('char') == -1:
+		errordata = str(errordata)
+		if errordata.find('char') == -1:
 			return ['无效的nbt', True]
-		if str(errordata).find('Extra') != 0:
-			index = int(str(errordata)[str(errordata).find('char') + (5 if str(errordata).find('Extra') != 0 else 7): -1])
-		if playerId is None:
-			colors = ['§c', '§r']
+		if errordata.find('Extra') != -1:
+			split = errordata.split(' - ')
+			start = int(split[1][split[1].find('char') + 5:])
+			end = int(split[2][0:-1])
 		else:
-			colors = ['§e', '§c']
-		if index >= 15:
-			return ['无效的nbt 位于 %s' % (data[index-15:index]+colors[0]+data[index]+colors[1]+data[index+1:index+15]), True]
-		return ['无效的nbt 位于 %s' % (data[:index]+colors[0]+data[index]+colors[1]+data[index+1:index+15]), True]
+			start = int(errordata[errordata.find('char') + 5:-1])
+			end = start + 1
+		return ['无效的nbt 位于 %s>>%s<<%s' % (data[:start], data[start:end], data[end:]), True]
 	if not isinstance(itemDict, dict):
 		return['无效的nbt', True]
 	return [itemDict, False]
@@ -241,10 +240,10 @@ class customcmdsPart(PartBase):
 			'sethudchatstackvisible':self.sethudchatstackvisible,
 			'setshowrideui':self.setshowrideui,
 			'summonitem':self.summonitem,
-			# 'summonnbt':self.summonnbt,
+			'summonnbt':self.summonnbt,
 			'setgaussian':self.setgaussian,
 			'scoreparam': self.scoreparam,
-			'setblocknbt': self.setblocknbt
+			#'setblocknbt': self.setblocknbt
 		}
 		
 	def InitClient(self):
@@ -385,7 +384,7 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		if len(cmdargs[1]) > 1:
+		if len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcompassentity', 'cmdargs': cmdargs})
 		return False, '将以下玩家的指南针指向 %s:%s' % (CFServer.CreateEngineType(cmdargs[1][0]).GetEngineTypeStr(), create_players_str(cmdargs[0]))
@@ -1338,7 +1337,7 @@ class customcmdsPart(PartBase):
 	def addaroundentitymotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None or cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
-		if len(cmdargs[1]) > 1:
+		if len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		for i in cmdargs[0]:
 			compExtra = CFServer.CreateExtraData(i)
@@ -1475,7 +1474,7 @@ class customcmdsPart(PartBase):
 					removeMotion = CompMotion.RemovePlayerMotion
 				else:
 					removeMotion = CompMotion.RemoveEntityMotion
-				for ii in Motions:
+				for ii in Motions.copy():
 					removeMotion(ii)
 					Motions.remove(ii)
 				compExtra.SetExtraData('Motions', Motions)
@@ -1619,16 +1618,20 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[1], playerId)
+		result = checkjson(cmdargs[1])
 		if result[1]:
 			return True, result[0]
 		itemDict = result[0]
 		for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
 			itemDict.pop(i, False) #删去多余键值对(这些已被弃用)
+		if itemDict.get('newItemName') is None:
+			return True, '物品数据中缺少 newItemName 键'
+		if itemDict.get('count') is None:
+			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
 			if not CFServer.CreateItem(i).SpawnItemToPlayerInv(unicode_convert(itemDict), i):
-				return True, '命令执行过程中发生了错误。'
-		return False, '成功给予 %s 物品' % create_players_str(cmdargs[0])
+				return True, '此JSON生成物品失败'
+		return False, '成功给予 %s 物品 %s * %d' % (create_players_str(cmdargs[0]), str(itemDict['newItemName']), int(itemDict['count']))
 		
 	def spawnitemtocontainer(self, cmdargs, playerId, variant, data):
 		# args['return_msg_key'] = '给予失败'
@@ -1637,7 +1640,7 @@ class customcmdsPart(PartBase):
 		y = int(cmdargs[2][1])
 		z = intg(cmdargs[2][2])
 		itemDict = compItemWorld.GetContainerItem((x, y, z), cmdargs[1], cmdargs[3]['id'], True)
-		result = checkjson(cmdargs[0], playerId)
+		result = checkjson(cmdargs[0])
 		if result[1]:
 			return True, result[0]
 		itemDict2 = result[0]
@@ -1651,6 +1654,8 @@ class customcmdsPart(PartBase):
 			countOrign = itemDict.pop('count')
 		else: countOrign = 0
 		countAdd = itemDict2.pop('count', 1)
+		if itemDict.get('newItemName') is None:
+			return True, '物品数据中缺少 newItemName 键'
 		if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
 			itemDict2['count'] = countOrign+countAdd
 			if compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z), cmdargs[3]['id']):
@@ -1666,7 +1671,7 @@ class customcmdsPart(PartBase):
 		for player in cmdargs[2]:
 			if CFServer.CreateEngineType(player).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[0], playerId)
+		result = checkjson(cmdargs[0])
 		if result[1]:
 			return True, result[0]
 		itemDict2 = result[0]
@@ -1696,10 +1701,14 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[1], playerId)
+		result = checkjson(cmdargs[1])
 		if result[1]:
 			return True, result[0]
 		itemDict = result[0]
+		if itemDict.get('newItemName') is None:
+			return True, '物品数据中缺少 newItemName 键'
+		if itemDict.get('count') is None:
+			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
 		return False, str('将 %s 的主手物品替换为 %s * %d' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
@@ -1823,10 +1832,14 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[2], playerId)
+		result = checkjson(cmdargs[2])
 		if result[1]:
 			return True, result[0]
 		itemDict = result[0]
+		if itemDict.get('newItemName') is None:
+			return True, '物品数据中缺少 newItemName 键'
+		if itemDict.get('count') is None:
+			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetPlayerUIItem(i, cmdargs[1], itemDict, cmdargs[3])
 		return False, str('将 %s 的UI物品设置为 %s * %d' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
@@ -1967,10 +1980,14 @@ class customcmdsPart(PartBase):
 			return True, '无效的槽位'
 		x, y, z = cmdargs[2]
 		xyz = (intg(x), int(y), intg(z))
-		result = checkjson(cmdargs[0], playerId)
+		result = checkjson(cmdargs[0])
 		if result[1]:
 			return True, result[0]
 		itemDict = unicode_convert(result[0])
+		if itemDict.get('newItemName') is None:
+			return True, '物品数据中缺少 newItemName 键'
+		if itemDict.get('count') is None:
+			return True, '物品数据中缺少 count 键'
 		if compItemWorld.SetBrewingStandSlotItem(itemDict, cmdargs[1], xyz, cmdargs[3]['id']):
 			return False, '将槽位 %d 的物品设置为 %s' % (cmdargs[1], itemDict['itemName'])
 		else:
@@ -2019,13 +2036,17 @@ class customcmdsPart(PartBase):
 	def setentityitem(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		result = checkjson(cmdargs[2], playerId)
+		result = checkjson(cmdargs[2])
 		if result[1]:
 			return True, result[0]
 		itemDict = result[0]
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
 				return True, '选择器必须为非玩家类型'
+		if itemDict.get('newItemName') is None:
+			return True, '物品数据中缺少 newItemName 键'
+		if itemDict.get('count') is None:
+			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetEntityItem(cmdargs[1], itemDict, cmdargs[3])
 		return False, '已设置 %d 个实体的物品' % (len(cmdargs[0]))
@@ -2036,7 +2057,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[1] is None:
 			ownerid = None
 		else:
-			if len(cmdargs[1]) > 1:
+			if len(cmdargs[1]) != 1:
 				return True, '只允许一个实体, 但提供的选择器允许多个实体'
 			ownerid = cmdargs[1][0]
 
@@ -2054,7 +2075,7 @@ class customcmdsPart(PartBase):
 	def setentityride(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None or cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
-		if len(cmdargs[0]) > 1:
+		if len(cmdargs[0]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		failed_entities = []
 		
@@ -2172,7 +2193,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[2] is None:
 			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CFServer.CreateBlockInfo(levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
 		else:
-			result = checkjson(cmdargs[2], playerId)
+			result = checkjson(cmdargs[2])
 			if result[1]:
 				return True, result[0]
 			blockDict = unicode_convert(result[0])
@@ -2180,18 +2201,33 @@ class customcmdsPart(PartBase):
 			return False, '已设置 Pos%s 的方块nbt' % (xyz,)
 
 	def summonitem(self, cmdargs, playerId, variant, data):
-		result = checkjson(cmdargs[1], playerId)
+		result = checkjson(cmdargs[1])
 		if result[1]:
 			return True, result[0]
 		itemDict = result[0]
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
 		itemDict.setdefault('count', 1)
-		if not itemDict.has_key('newItemName'):
+		if itemDict.get('newItemName') is None:
 			return True, '物品数据中缺少 newItemName 键'
 		if not serversystem.CreateEngineItemEntity(itemDict, data['origin']['dimension'], xyz):
 			return True, '生成失败'
 		return False, str('已在 Pos%s 处生成 %s * %d' % (xyz, itemDict['newItemName'], itemDict['count']))
+
+	def summonnbt(self, cmdargs, playerId, variant, data):
+		pass
+		#result = checkjson(cmdargs[2])
+		#if result[1]:
+		#	return True, result[0]
+		#entityDict = unicode_convert(result[0])
+		#entityDict['identifier'] = {'__type__': 8,'__value__': cmdargs[0]['entityType']}
+		#if entityDict.get('Rotation') is None:
+		#	rot = (0, 0)
+		#else:
+		#	rot = None
+		#print(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
+		#serversystem.CreateEngineEntityByNBT(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
+		#return False, '已生成实体'
 
 	def TickClient(self):
 		'''

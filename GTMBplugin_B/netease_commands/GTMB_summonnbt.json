@@ -4,6 +4,8 @@
 	"description": "根据NBT数据创建实体",
 	"permission_level": "game_directors",
 	"args": [
+		{"name": "实体id", "type": "entity"},
+		{"name": "坐标", "type": "pos"},
 		{"name": "nbtJson", "type": "str"},
         {"name": "维度", "type": "dimension"},
         {"name": "是否为NPC", "type": "bool","default":false}

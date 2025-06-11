@@ -41,12 +41,12 @@ def conver_to_nbt(input):
 	#elif isinstance(input, float):
 	#	return {'__type__':5, '__value__':input}
 	elif isinstance(input, dict):
-		if input.has_key('__type__'):
+		if input.get('__type__', None) is not None:
 			if input['__type__'] == 4: 
 				return {'__type__':4, '__value__': (input['__value__'])}
 			return input
 		else:
-			return {key: conver_to_nbt(value) for key, value in input.iteritems()}
+			return {key: conver_to_nbt(value) for key, value in input.items()}
 
 def intg(num):
 	return int(num)-1 if num < 0 else int(num)
@@ -305,7 +305,7 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
 		elif args["message"] == "python.getversion":
 			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.8a(2025/6):3\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
+			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.8a(2025/6):4\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
 		elif args["message"] == "python.gettps":
 			args["cancel"] = True
 			if can_use_key == 1:
