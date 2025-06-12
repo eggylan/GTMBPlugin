@@ -1,0 +1,15 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_mega_taiga_hills", 
+            "inherits": "mega_taiga_hills"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "mutate_transformation": "dm23_redwood_taiga_hills_mutated"
+            },
+            "dm23": {}
+        }
+    }
+}

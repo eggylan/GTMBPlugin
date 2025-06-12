@@ -1,0 +1,18 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_swampland", 
+            "inherits": "swampland"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "mutate_transformation": "dm25_swampland_mutated", 
+                "generate_for_climates": [
+                    ["medium", 1]
+                ]
+            },
+            "dm25": {}
+        }
+    }
+}

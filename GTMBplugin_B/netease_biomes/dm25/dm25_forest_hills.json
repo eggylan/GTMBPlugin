@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_forest_hills", 
+            "inherits": "forest_hills"
+        },
+        "components": {
+            "dm25": {}
+        }
+    }
+}

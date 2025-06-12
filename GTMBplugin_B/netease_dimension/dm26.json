@@ -1,0 +1,43 @@
+{
+    "format_version": "1.14.0",
+    "netease:dimension_info": {
+        "components": {
+            "netease:ban_vanilla_mansion": {
+
+            },
+            "netease:ban_vanilla_mineshaft": {
+
+            },
+            "netease:ban_vanilla_pillageroutpost": {
+
+            },
+            "netease:ban_vanilla_ruinedportal": {
+
+            },
+            "netease:ban_vanilla_stronghold": {
+
+            },
+            "netease:ban_vanilla_temple": {
+
+            },
+            "netease:ban_vanilla_village": {
+
+            },
+            "netease:biome_source": [
+                {
+                    "pool": [
+                        {
+                            "biome_type": "ocean",
+                            "weight": 1
+                        }
+                    ],
+                    "type": "random_with_weight"
+                }
+            ],
+            "netease:dimension_type": "minecraft:overworld",
+            "netease:generator_noise": {
+
+            }
+        }
+    }
+}

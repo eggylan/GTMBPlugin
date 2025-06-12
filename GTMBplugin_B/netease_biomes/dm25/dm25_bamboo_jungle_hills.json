@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_bamboo_jungle_hills", 
+            "inherits": "bamboo_jungle_hills"
+        },
+        "components": {
+            "dm25": {}
+        }
+    }
+}

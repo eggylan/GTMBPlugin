@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_cold_taiga_mutated", 
+            "inherits": "cold_taiga_mutated"
+        },
+        "components": {
+            "dm23": {}
+        }
+    }
+}

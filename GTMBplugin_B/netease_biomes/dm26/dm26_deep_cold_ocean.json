@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm26_deep_cold_ocean", 
+            "inherits": "deep_cold_ocean"
+        },
+        "components": {
+            "dm26": {}
+        }
+    }
+}

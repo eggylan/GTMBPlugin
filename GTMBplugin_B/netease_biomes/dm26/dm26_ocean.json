@@ -1,0 +1,99 @@
+{
+    "format_version": "1.14.0",
+    "minecraft:biome": {
+        "components": {
+            "dm26": {
+
+            },
+            "minecraft:overworld_generation_rules": {
+                "generate_for_climates": [
+                    [
+                        "frozen",
+                        0
+                    ],
+                    [
+                        "cold",
+                        0
+                    ],
+                    [
+                        "medium",
+                        0
+                    ],
+                    [
+                        "lukewarm",
+                        0
+                    ],
+                    [
+                        "warm",
+                        0
+                    ]
+                ],
+                "hills_transformation": "dm26_ocean",
+                "mutate_transformation": "dm26_ocean"
+            },
+            "minecraft:overworld_height": {
+                "noise_type": "default"
+            },
+            "minecraft:surface_parameters": {
+                "foundation_material": "minecraft:water",
+                "mid_material": "minecraft:water",
+                "sea_floor_depth": 50,
+                "sea_floor_material": "minecraft:water",
+                "sea_material": "minecraft:water",
+                "top_material": "minecraft:water"
+            },
+            "netease:overworld_surface": {
+                "adjustments": [
+                    {
+                        "max_height": 25,
+                        "min_height": 2,
+                        "pool": [
+                            {
+                                "fill_block": "minecraft:stone",
+                                "weight": 10
+                            }
+                        ],
+                        "type": "fill"
+                    },
+                    {
+                        "max_height": 27,
+                        "min_height": 25,
+                        "pool": [
+                            {
+                                "fill_block": "minecraft:gravel",
+                                "weight": 10
+                            }
+                        ],
+                        "type": "fill"
+                    },
+                    {
+                        "max_height": 64,
+                        "min_height": 11,
+                        "pool": [
+                            {
+                                "fill_block": "minecraft:water",
+                                "weight": 10
+                            }
+                        ],
+                        "type": "fill"
+                    },
+                    {
+                        "max_height": 2,
+                        "min_height": 1,
+                        "pool": [
+                            {
+                                "fill_block": "minecraft:bedrock",
+                                "weight": 10
+                            }
+                        ],
+                        "type": "fill"
+                    }
+                ]
+            }
+        },
+        "description": {
+            "identifier": "dm26_ocean",
+            "inherits": "ocean"
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "format_version": "1.14.0",
+    "netease:dimension_info": {
+        "components": {
+            "netease:biome_source": [
+
+            ],
+            "netease:dimension_type": "minecraft:overworld",
+            "netease:generator_noise": {
+
+            },
+            "netease:spawn_biomes": [
+                "forest",
+                "forest_hills",
+                "plains",
+                "taiga",
+                "taiga_hills",
+                "jungle",
+                "jungle_hills"
+            ]
+        }
+    }
+}

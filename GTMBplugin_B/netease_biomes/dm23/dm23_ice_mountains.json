@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_ice_mountains", 
+            "inherits": "ice_mountains"
+        },
+        "components": {
+            "dm23": {}
+        }
+    }
+}

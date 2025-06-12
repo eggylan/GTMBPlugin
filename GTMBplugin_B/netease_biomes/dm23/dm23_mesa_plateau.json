@@ -1,0 +1,19 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_mesa_plateau", 
+            "inherits": "mesa_plateau"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm23_mesa", 
+                "mutate_transformation": "dm23_mesa_plateau_mutated", 
+                "generate_for_climates": [
+                    ["warm", 1]
+                ]
+            },
+            "dm23": {}
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_birch_forest_hills_mutated", 
+            "inherits": "birch_forest_hills_mutated"
+        },
+        "components": {
+            "dm25": {}
+        }
+    }
+}

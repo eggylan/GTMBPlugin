@@ -1,0 +1,19 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_jungle", 
+            "inherits": "jungle"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm25_jungle_hills", 
+                "mutate_transformation": "dm25_jungle_mutated", 
+                "generate_for_climates": [
+                    ["medium", 1]
+                ]
+            },
+            "dm25": {}
+        }
+    }
+}

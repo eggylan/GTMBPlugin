@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_legacy_frozen_ocean", 
+            "inherits": "legacy_frozen_ocean"
+        },
+        "components": {
+            "dm23": {}
+        }
+    }
+}

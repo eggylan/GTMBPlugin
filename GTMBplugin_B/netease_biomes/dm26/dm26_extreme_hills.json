@@ -1,0 +1,20 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm26_extreme_hills", 
+            "inherits": "extreme_hills"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm26_extreme_hills_plus_trees", 
+                "mutate_transformation": "dm26_extreme_hills_mutated", 
+                "generate_for_climates": [
+                    ["medium", 1], 
+                    ["cold", 1]
+                ]
+            },
+            "dm26": {}
+        }
+    }
+}

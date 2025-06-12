@@ -1,0 +1,17 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm24_cold_ocean", 
+            "inherits": "cold_ocean"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "generate_for_climates": [
+                    ["cold", 1]
+                ]
+            },
+            "dm24": {}
+        }
+    }
+}

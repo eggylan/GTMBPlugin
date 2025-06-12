@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_swampland_mutated", 
+            "inherits": "swampland_mutated"
+        },
+        "components": {
+            "dm23": {}
+        }
+    }
+}

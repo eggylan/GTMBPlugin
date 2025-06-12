@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_mesa_plateau_stone_mutated", 
+            "inherits": "mesa_plateau_stone_mutated"
+        },
+        "components": {
+            "dm23": {}
+        }
+    }
+}

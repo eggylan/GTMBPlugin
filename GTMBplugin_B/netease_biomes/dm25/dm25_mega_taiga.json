@@ -1,0 +1,19 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_mega_taiga", 
+            "inherits": "mega_taiga"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm25_mega_taiga_hills", 
+                "mutate_transformation": "dm25_redwood_taiga_mutated", 
+                "generate_for_climates": [
+                    ["cold", 1]
+                ]
+            },
+            "dm25": {}
+        }
+    }
+}

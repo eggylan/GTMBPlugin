@@ -1,0 +1,19 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm26_ice_plains", 
+            "inherits": "ice_plains"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm26_ice_mountains", 
+                "mutate_transformation": "dm26_ice_plains_spikes", 
+                "generate_for_climates": [
+                    ["frozen", 3]
+                ]
+            },
+            "dm26": {}
+        }
+    }
+}

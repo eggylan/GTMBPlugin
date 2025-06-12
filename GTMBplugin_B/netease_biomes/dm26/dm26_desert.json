@@ -1,0 +1,19 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm26_desert", 
+            "inherits": "desert"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm26_desert_hills", 
+                "mutate_transformation": "dm26_desert_mutated", 
+                "generate_for_climates": [
+                    ["warm", 3]
+                ]
+            },
+            "dm26": {}
+        }
+    }
+}

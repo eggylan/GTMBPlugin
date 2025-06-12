@@ -1,0 +1,19 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_roofed_forest", 
+            "inherits": "roofed_forest"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm25_plains", 
+                "mutate_transformation": "dm25_roofed_forest_mutated", 
+                "generate_for_climates": [
+                    ["medium", 1]
+                ]
+            },
+            "dm25": {}
+        }
+    }
+}

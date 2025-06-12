@@ -1,0 +1,17 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_lukewarm_ocean", 
+            "inherits": "lukewarm_ocean"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "generate_for_climates": [
+                    ["lukewarm", 1]
+                ]
+            },
+            "dm25": {}
+        }
+    }
+}

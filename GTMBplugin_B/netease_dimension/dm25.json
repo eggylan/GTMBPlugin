@@ -1,0 +1,28 @@
+{
+    "format_version": "1.14.0",
+    "netease:dimension_info": {
+        "components": {
+            "netease:ban_vanilla_ruinedportal": {
+
+            },
+            "netease:ban_vanilla_stronghold": {
+
+            },
+            "netease:biome_source": [
+                {
+                    "pool": [
+                        {
+                            "biome_type": "plains",
+                            "weight": 1
+                        }
+                    ],
+                    "type": "random_with_weight"
+                }
+            ],
+            "netease:dimension_type": "minecraft:overworld",
+            "netease:generator_noise": {
+
+            }
+        }
+    }
+}

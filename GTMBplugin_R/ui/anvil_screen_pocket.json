@@ -1,0 +1,110 @@
+{
+  "namespace": "anvil_pocket",
+
+  "text_edit_control": {
+    "max_length": 100000
+  },
+  
+  "newline_text_edit_control@common.multiline_text_edit_box": {
+    "anchor_from": "top_left", 
+    "anchor_to": "top_left", 
+    "size": [ "30%", "100%" ],
+
+    "property_bag": {
+      "#property_field": "#item_name"
+    },
+    "max_length": 100000,
+    "$text_edit_binding_name": "#text_box_item_name",
+    "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "newline_text_edit_1",
+              "source_property_name": "#toggle_state",
+              "target_property_name": "#visible"
+            }
+          ]
+  },
+  
+  "anvil_contents_panel": {
+    "type": "panel",
+    "size": [ 144, 100 ],
+    "offset": [ 0, 16 ],
+    "anchor_from": "center",
+    "anchor_to": "center",
+    "controls": [
+      {
+        "red_cost@anvil_pocket.cost_label": {
+          "offset": [ 40, -27 ],
+          "color": "$anvil_cost_fail_text_color",
+          "bindings": [
+            {
+              "binding_name": "#cost_text",
+              "binding_name_override": "#text"
+            },
+            {
+              "binding_name": "#cost_text_red",
+              "binding_name_override": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "green_cost@anvil_pocket.cost_label": {
+          "offset": [ 40, -27 ],
+          "color": "$anvil_cost_success_text_color",
+          "bindings": [
+            {
+              "binding_name": "#cost_text",
+              "binding_name_override": "#text"
+            },
+            {
+              "binding_name": "#cost_text_green",
+              "binding_name_override": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "slots_panel@anvil_pocket.slots_panel": {
+          "offset": [ 0, -2 ]
+        }
+      },
+      {
+        "anvil_title_and_text_panel@anvil_pocket.anvil_title_and_text_panel": {
+          "offset": [ 0, -50 ]
+        }
+      },
+      {
+      "newline_text_edit_toggle@common_toggles.light_text_toggle": {
+      "anchor_from": "top_right",
+      "anchor_to": "top_right",
+      "offset": [ 0, -30 ],
+      "size": [ 60, 18 ],
+      "$button_text": "可换行文本框",
+      "$toggle_view_binding_name": "newline_text_edit_1"
+      }
+      }
+    ]
+  },
+
+  "anvil_panel": {
+    "type": "panel",
+    "controls": [
+      { "bg@anvil_pocket.background_image": {} },
+      { "root_panel@common.root_panel": { "size": [ "85%", "85%" ], "layer": 1  } },
+      { "header_and_content_stack_panel@anvil_pocket.header_and_content_stack_panel": {} },
+
+      { "container_gamepad_helpers@common.container_gamepad_helpers": { "layer": 2 } },
+      { "inventory_selected_icon_button@common.inventory_selected_icon_button": {} },
+      { "hold_icon@common.inventory_take_progress_icon_button": {} },
+      { "flying_item_renderer@common.flying_item_renderer": {} },
+      { "selected_item_details_factory@common.selected_item_details_factory": {} },
+      {
+        "item_lock_notification_factory@common.item_lock_notification_factory": {
+          "$offset": [ 0, "85%" ]
+        }
+      },
+      { "newline_text_edit_control@anvil_pocket.newline_text_edit_control": { "layer": 100 } }
+    ]
+  }
+}

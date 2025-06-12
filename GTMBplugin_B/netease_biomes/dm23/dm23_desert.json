@@ -1,0 +1,51 @@
+{
+    "format_version": "1.14.0",
+    "minecraft:biome": {
+        "components": {
+            "dm23": {
+
+            },
+            "minecraft:overworld_generation_rules": {
+                "generate_for_climates": [
+                    [
+                        "frozen",
+                        0
+                    ],
+                    [
+                        "cold",
+                        0
+                    ],
+                    [
+                        "medium",
+                        0
+                    ],
+                    [
+                        "lukewarm",
+                        0
+                    ],
+                    [
+                        "warm",
+                        0
+                    ]
+                ],
+                "hills_transformation": "dm23_desert",
+                "mutate_transformation": "dm23_desert"
+            },
+            "minecraft:overworld_height": {
+                "noise_type": "default"
+            },
+            "minecraft:surface_parameters": {
+                "foundation_material": "minecraft:iron_block",
+                "mid_material": "minecraft:gold_block",
+                "sea_floor_depth": 7,
+                "sea_floor_material": "minecraft:emerald_block",
+                "sea_material": "minecraft:water",
+                "top_material": "minecraft:diamond_block"
+            }
+        },
+        "description": {
+            "identifier": "dm23_desert",
+            "inherits": "desert"
+        }
+    }
+}

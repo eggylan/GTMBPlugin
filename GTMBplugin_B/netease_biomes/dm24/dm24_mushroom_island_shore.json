@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm24_mushroom_island_shore", 
+            "inherits": "mushroom_island_shore"
+        },
+        "components": {
+            "dm24": {}
+        }
+    }
+}

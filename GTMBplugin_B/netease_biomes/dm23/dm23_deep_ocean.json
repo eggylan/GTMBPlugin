@@ -1,0 +1,21 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_deep_ocean", 
+            "inherits": "deep_ocean"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": [
+                    "dm23_plains", 
+                    "dm23_forest"
+                ], 
+                "generate_for_climates": [
+                    ["medium", 1]
+                ]
+            },
+            "dm23": {}
+        }
+    }
+}

@@ -1,99 +1,49 @@
 {
   "namespace": "anvil",
-  
-  "说明": "此文件代码与精简版基本相同，可以随便使用",
 
   "text_edit_control": {
     "max_length": 100000
   },
 
+  "newline_text_edit_control@common.multiline_text_edit_box": {
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "size": [ "30%", "100%" ],
+    "property_bag": {
+      "#property_field": "#item_name"
+    },
+    "max_length": 100000,
+    "$text_edit_binding_name": "#text_box_item_name",
+    "$text_edit_box_label_size": [ "default", "100%" ],
+    "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "newline_text_edit_1",
+              "source_property_name": "#toggle_state",
+              "target_property_name": "#visible"
+            }
+          ]
+  },
+
   "top_half_panel": {
+    "type": "panel",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "size": [ "100% - 14px", "50% - 14px" ],
+    "offset": [ 7, 7 ],
     "controls": [
       { "icon_and_text_panel@anvil.icon_and_text_panel": { } },
       { "recipe_panel@anvil.recipe_panel": { } },
       {
-        "newline_text_edit_toggle_button@common_toggles.light_text_toggle": {
-          "anchor_from": "left_middle",
-          "anchor_to": "left_middle",
-          "offset": [ 26, 34 ],
-          "size": [ 60, 18 ],
-          "$button_text": "可换行文本框",
-          "$toggle_view_binding_name": "newline_text_edit_toggle"
-        }
+      "newline_text_edit_toggle@common_toggles.light_text_toggle": {
+      "anchor_from": "left_middle",
+      "anchor_to": "left_middle",
+      "offset": [ 26, 34 ],
+      "size": [ 60, 18 ],
+      "$button_text": "可换行文本框",
+      "$toggle_view_binding_name": "newline_text_edit_1"
       }
-    ]
-  },
-  
-  "center_fold@common.root_panel": {
-    "controls": [
-      {
-        "center_bg": {
-          "type": "image",
-          "texture": "textures/ui/recipe_back_panel",
-          "size": [ "100% + 8px", "100% - 6px" ]
-        }
       }
-    ]
-  },
-  
-  "newline_text_edit_root_panel@common.common_panel": {
-    "size": [ "fill", "100%" ],
-    "layer": 1,
-    "controls": [
-      {
-        "common_panel@common.common_panel": {
-          "$dialog_background": "dialog_background_hollow_4",
-          "$fill_alpha": 0,
-          "$show_close_button": false
-        }
-      },
-      {
-        "newline_text_edit_image": {
-          "type": "image",
-          "size": [ "95%", "95%" ],
-          "texture": "textures/ui/recipe_book_pane_bg"
-       }
-      },
-      {
-        "newline_text_edit_control@common.multiline_text_edit_box": {
-          "size": [ "100% - 16px", "100% - 16px" ],
-          "property_bag": {
-            "#property_field": "#item_name"
-           },
-           "max_length": 100000,
-           "$text_edit_binding_name": "#text_box_item_name",
-           "$text_edit_box_label_size": [ "default", "100%" ]
-        }
-      }
-    ],
-    "bindings": [
-      {
-        "binding_type": "view",
-        "source_control_name": "newline_text_edit_toggle",
-        "source_property_name": "#toggle_state",
-        "target_property_name": "#visible"
-      }
-    ]
-  },
-  
-  "anvil_root_panel@common.root_panel": {
-    "layer": 1,
-    "controls": [
-      { "common_panel@common.common_panel": {} },
-      {
-        "anvil_screen_inventory": {
-          "type": "panel",
-          "layer": 2,
-          "controls": [
-            { "top_half_panel@anvil.top_half_panel": {} },
-            { "inventory_panel_bottom_half_with_label@common.inventory_panel_bottom_half_with_label": {} },
-            { "hotbar_grid@common.hotbar_grid_template": {} },
-            { "inventory_take_progress_icon_button@common.inventory_take_progress_icon_button": {} }
-          ]
-        }
-      },
-      { "inventory_selected_icon_button@common.inventory_selected_icon_button": {} },
-      { "gamepad_cursor@common.gamepad_cursor_button": {} }
     ]
   },
 
@@ -101,36 +51,53 @@
     "type": "panel",
     "controls": [
       { "container_gamepad_helpers@common.container_gamepad_helpers": {} },
+      {
+        "flying_item_renderer@common.flying_item_renderer": {
+          "layer": 8
+        }
+      },
       { "selected_item_details_factory@common.selected_item_details_factory": {} },
       { "item_lock_notification_factory@common.item_lock_notification_factory": {} },
       {
-        "panel": {
-          "type": "stack_panel",
-          "orientation": "horizontal",
-          "size": [ 326, 166 ],
+        "root_panel@common.root_panel": {
+          "layer": 1,
           "controls": [
-            { "newline_text_edit_root_panel@anvil.newline_text_edit_root_panel": {} },
-            { "center_fold@anvil.center_fold": { "size": [ 4, 166 ] } },
-            { "anvil_padding": { "type": "panel", "size": [ 75, "100%" ] } },
-            { "anvil_root_panel@anvil.anvil_root_panel": {} }
+            { "common_panel@common.common_panel": {} },
+            {
+              "anvil_screen_inventory": {
+                "type": "panel",
+                "layer": 2,
+                "controls": [
+                  { "top_half_panel@anvil.top_half_panel": {} },
+                  { "inventory_panel_bottom_half_with_label@common.inventory_panel_bottom_half_with_label": {} },
+                  { "hotbar_grid@common.hotbar_grid_template": {} },
+                  { "inventory_take_progress_icon_button@common.inventory_take_progress_icon_button": {} }
+                ]
+              }
+            },
+            { "inventory_selected_icon_button@common.inventory_selected_icon_button": {} },
+            { "gamepad_cursor@common.gamepad_cursor_button": {} }
           ]
         }
-      }
+      },
+      { "newline_text_edit_control@anvil.newline_text_edit_control": { "layer": 100 } }
     ]
   },
-  
   "anvil_screen@common.inventory_screen_common": {
     "$close_on_player_hurt|default": true,
     "close_on_player_hurt": "$close_on_player_hurt",
-    "$screen_bg_content": "vanilla_optimizations_common.debug_renderer",
     "variables": [
       {
         "requires": "$desktop_screen",
-        "$screen_content": "anvil.anvil_panel"
+        "$screen_content": "anvil.anvil_panel",
+        "$screen_bg_content": "common.screen_background",
+        "$screen_background_alpha": 0
       },
       {
         "requires": "$pocket_screen",
-        "$screen_content": "anvil_pocket.anvil_panel"
+        "$screen_content": "anvil_pocket.anvil_panel",
+        "$screen_bg_content": "common.screen_background",
+        "$screen_background_alpha": 0
       }
     ]
   }

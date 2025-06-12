@@ -1,0 +1,19 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_savanna", 
+            "inherits": "savanna"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "hills_transformation": "dm25_savanna_plateau", 
+                "mutate_transformation": "dm25_savanna_mutated", 
+                "generate_for_climates": [
+                    ["warm", 2]
+                ]
+            },
+            "dm25": {}
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "format_version": "1.13.0",
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm23_birch_forest_mutated", 
+            "inherits": "birch_forest_mutated"
+        },
+        "components": {
+            "dm23": {}
+        }
+    }
+}

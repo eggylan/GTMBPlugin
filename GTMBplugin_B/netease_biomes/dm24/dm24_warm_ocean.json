@@ -1,0 +1,17 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm24_warm_ocean", 
+            "inherits": "warm_ocean"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "generate_for_climates": [
+                    ["warm", 1]
+                ]
+            },
+            "dm24": {}
+        }
+    }
+}

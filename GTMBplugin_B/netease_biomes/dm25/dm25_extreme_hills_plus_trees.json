@@ -1,0 +1,15 @@
+{
+    "format_version": "1.13.0", 
+    "minecraft:biome": {
+        "description": {
+            "identifier": "dm25_extreme_hills_plus_trees", 
+            "inherits": "extreme_hills_plus_trees"
+        }, 
+        "components": {
+            "minecraft:world_generation_rules": {
+                "mutate_transformation": "dm25_extreme_hills_plus_trees_mutated"
+            },
+            "dm25": {}
+        }
+    }
+}

@@ -1,0 +1,66 @@
+{
+    "format_version": "1.14.0",
+    "minecraft:biome": {
+        "components": {
+            "dm24": {
+
+            },
+            "minecraft:overworld_generation_rules": {
+                "generate_for_climates": [
+                    [
+                        "frozen",
+                        0
+                    ],
+                    [
+                        "cold",
+                        0
+                    ],
+                    [
+                        "medium",
+                        0
+                    ],
+                    [
+                        "lukewarm",
+                        0
+                    ],
+                    [
+                        "warm",
+                        0
+                    ]
+                ],
+                "hills_transformation": "dm24_plains",
+                "mutate_transformation": "dm24_plains"
+            },
+            "minecraft:overworld_height": {
+                "noise_type": "default"
+            },
+            "minecraft:surface_parameters": {
+                "foundation_material": "minecraft:air",
+                "mid_material": "minecraft:air",
+                "sea_floor_depth": 0,
+                "sea_floor_material": "minecraft:air",
+                "sea_material": "minecraft:air",
+                "top_material": "minecraft:air"
+            },
+            "netease:overworld_surface": {
+                "adjustments": [
+                    {
+                        "max_height": 10,
+                        "min_height": 1,
+                        "pool": [
+                            {
+                                "fill_block": "minecraft:air",
+                                "weight": 10
+                            }
+                        ],
+                        "type": "fill"
+                    }
+                ]
+            }
+        },
+        "description": {
+            "identifier": "dm24_plains",
+            "inherits": "plains"
+        }
+    }
+}

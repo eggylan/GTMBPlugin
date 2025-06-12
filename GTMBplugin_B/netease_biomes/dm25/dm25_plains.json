@@ -1,0 +1,54 @@
+{
+    "format_version": "1.14.0",
+    "minecraft:biome": {
+        "components": {
+            "dm25": {
+
+            },
+            "minecraft:overworld_generation_rules": {
+                "generate_for_climates": [
+                    [
+                        "frozen",
+                        0
+                    ],
+                    [
+                        "cold",
+                        0
+                    ],
+                    [
+                        "medium",
+                        0
+                    ],
+                    [
+                        "lukewarm",
+                        0
+                    ],
+                    [
+                        "warm",
+                        0
+                    ]
+                ],
+                "hills_transformation": "dm25_plains",
+                "mutate_transformation": "dm25_plains"
+            },
+            "minecraft:overworld_height": {
+                "noise_params": [
+                    4.0,
+                    4.0
+                ]
+            },
+            "minecraft:surface_parameters": {
+                "foundation_material": "minecraft:diamond_ore",
+                "mid_material": "minecraft:diamond_ore",
+                "sea_floor_depth": 7,
+                "sea_floor_material": "minecraft:water",
+                "sea_material": "minecraft:water",
+                "top_material": "minecraft:diamond_ore"
+            }
+        },
+        "description": {
+            "identifier": "dm25_plains",
+            "inherits": "plains"
+        }
+    }
+}
