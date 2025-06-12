@@ -110,40 +110,12 @@
           "size": [ 326, 166 ],
           "controls": [
             { "newline_text_edit_root_panel@anvil.newline_text_edit_root_panel": {} },
-            {
-              "center_fold@anvil.center_fold": {
-                "size": [ 4, 166 ],
-                "bindings": [
-                  {
-                    "binding_type": "view",
-                    "source_control_name": "newline_text_edit_toggle",
-                    "source_property_name": "#toggle_state",
-                    "target_property_name": "#visible"
-                  }
-                ]
-              }
-            },
-            {
-              "anvil_padding": {
-                "type": "panel",
-                "size": [ 75, "100%" ],
-                "bindings": [
-                  {
-                    "binding_type": "view",
-                    "source_control_name": "newline_text_edit_toggle",
-                    "source_property_name": "(not #toggle_state)",
-                    "target_property_name": "#visible"
-                  }
-                ]
-              }
-            },
+            { "center_fold@anvil.center_fold": { "size": [ 4, 166 ] } },
+            { "anvil_padding": { "type": "panel", "size": [ 75, "100%" ] } },
             { "anvil_root_panel@anvil.anvil_root_panel": {} }
           ]
         }
-      },
-      { "flying_item_renderer@common.flying_item_renderer": { "layer": 12 } },
-      { "bundle_touch_tooltip@gameplay.bundle_touch_tooltip": {} },
-      { "bundle_cursor_tooltip@gameplay.bundle_cursor_tooltip": {} }
+      }
     ]
   },
   

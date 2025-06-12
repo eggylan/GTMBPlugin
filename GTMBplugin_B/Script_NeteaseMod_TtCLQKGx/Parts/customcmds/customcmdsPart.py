@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#from __future__ import print_function
+from __future__ import print_function
 from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
@@ -356,14 +356,14 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateAttr(i).SetEntityOnFire(cmdargs[1], cmdargs[2])
-		return False, '已点燃 %d 个实体 %d 秒,伤害为 %d' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
+		return False, '已点燃 %s 个实体 %s 秒,伤害为 %s' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setcurrentairsupply(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateBreath(i).SetCurrentAirSupply(cmdargs[1])
-		return False, '已设置 %d 个实体氧气储备值为 %d' % (len(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 个实体氧气储备值为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setcompasstarget(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -395,22 +395,22 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		if variant == 3:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolortint', 'cmdargs': cmdargs})
-			return False, '已设置以下玩家的屏幕色调为 %.1f(%.1f,%.1f,%.1f):%s' % (cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5], create_players_str(cmdargs[1]))
+			return False, '已设置以下玩家的屏幕色调为 %s(%s,%s,%s):%s' % (cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5], create_players_str(cmdargs[1]))
 		elif variant == 2:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorsaturation', 'cmdargs': cmdargs})
-			return False, '已设置以下玩家的屏幕色彩饱和度为 %.1f:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
+			return False, '已设置以下玩家的屏幕色彩饱和度为 %s:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
 		elif variant == 1:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorcontrast', 'cmdargs': cmdargs})
-			return False, '已设置以下玩家的屏幕色彩对比度为 %.1f:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
+			return False, '已设置以下玩家的屏幕色彩对比度为 %s:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
 		else:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorbrightness', 'cmdargs': cmdargs})
-			return False, '已设置以下玩家的屏幕色彩亮度为 %.1f:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
+			return False, '已设置以下玩家的屏幕色彩亮度为 %s:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
 	
 	def setchestitemnum(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
 		if CFServer.CreateChestBlock(levelId).SetChestBoxItemNum(None, xyz, cmdargs[1], cmdargs[2], cmdargs[3]['id']):
-			return False, '已设置槽位 %d 的物品数量为 %d' % (cmdargs[1], cmdargs[2])
+			return False, '已设置槽位 %s 的物品数量为 %s' % (cmdargs[1], cmdargs[2])
 		else:
 			return True, '位于 Pos%s 的方块不是箱子' % (xyz,)
 	
@@ -422,7 +422,7 @@ class customcmdsPart(PartBase):
 		else:
 			pid = playerId #尽可能让命令在同维度执行
 		if CFServer.CreateChestBlock(pid).SetChestBoxItemExchange(pid, xyz, cmdargs[1], cmdargs[2]):
-			return False, '已交换槽位 %d 与槽位 %d 的物品' % (cmdargs[1], cmdargs[2])
+			return False, '已交换槽位 %s 与槽位 %s 的物品' % (cmdargs[1], cmdargs[2])
 		else:
 			return True, '位于 Pos%s 的方块不是箱子' % (xyz,)
 	
@@ -440,7 +440,7 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateRide(i).SetCanOtherPlayerRide(i, cmdargs[1])
-		return False, '已%s %d 个实体被骑乘' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
+		return False, '已%s %s 个实体被骑乘' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
 	
 	def setattackplayersability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -473,7 +473,7 @@ class customcmdsPart(PartBase):
 			itemDict = compItem.GetPlayerItem(2, 0, True)
 			if compItem.SetAttackDamage(itemDict, cmdargs[1]):
 				compItem.SpawnItemToPlayerCarried(itemDict, i)
-		return False, '已将 %s 的手持物品攻击伤害设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '已将 %s 的手持物品攻击伤害设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def setspawnpoint(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None or cmdargs[0][0] is None:
@@ -496,57 +496,57 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		if cmdargs[1] < 0 :#or cmdargs[1] > 20:
-			return True, '无效的回血临界值 (%d < 0)' % cmdargs[1]
+			return True, '无效的回血临界值 (%s < 0)' % cmdargs[1]
 		elif cmdargs[1] > 20:
-			return True, '无效的回血临界值 (%d > 20)' % cmdargs[1]
+			return True, '无效的回血临界值 (%s > 20)' % cmdargs[1]
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerHealthLevel(cmdargs[1])
-		return False, '将 %s 的回血临界值设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的回血临界值设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerstarvelevel(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		if cmdargs[1] < 0:
-			return True, '无效的扣血临界值 (%d < 0)' % cmdargs[1]
+			return True, '无效的扣血临界值 (%s < 0)' % cmdargs[1]
 		elif cmdargs[1] > 20:
-			return True, '无效的扣血临界值 (%d > 20)' % cmdargs[1]
+			return True, '无效的扣血临界值 (%s > 20)' % cmdargs[1]
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerStarveLevel(cmdargs[1])
-		return False, '将 %s 的扣血临界值设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的扣血临界值设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerhunger(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		if cmdargs[1] < 0 :
-			return True, '无效的饥饿度 (%d < 0)' % cmdargs[1]
+			return True, '无效的饥饿度 (%s < 0)' % cmdargs[1]
 		elif cmdargs[1] > 20:
-			return True, '无效的饥饿度 (%d > 20)' % cmdargs[1]
+			return True, '无效的饥饿度 (%s > 20)' % cmdargs[1]
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerHunger(cmdargs[1])
-		return False, '将 %s 的饥饿度设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的饥饿度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerattackspeedamplifier(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		if cmdargs[1] < 0.5:
-			return True, '无效的倍率 (%.2f < 0.5)' % cmdargs[1]
+			return True, '无效的倍率 (%s < 0.5)' % cmdargs[1]
 		elif cmdargs[1] > 2.0:
-			return True, '无效的倍率 (%.2f > 2.0)' % cmdargs[1]
+			return True, '无效的倍率 (%s > 2.0)' % cmdargs[1]
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerAttackSpeedAmplifier(cmdargs[1])
-		return False, '将 %s 的攻击速度倍率设置为 %.2f' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的攻击速度倍率设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerjumpable(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -596,7 +596,7 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerMaxExhaustionValue(cmdargs[1])
-		return False, '将 %s 的饥饿最大消耗度设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的饥饿最大消耗度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerhealthtick(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -606,7 +606,7 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerHealthTick(cmdargs[1])
-		return False, '将 %s 的自然回血速度设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的自然回血速度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def setplayerstarvetick(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -616,11 +616,11 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerStarveTick(cmdargs[1])
-		return False, '将 %s 的自然扣血速度设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的自然扣血速度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def sethurtcd(self, cmdargs, playerId, variant, data):
 		if compGame.SetHurtCD(cmdargs[0]):
-			return False, '将全局受击间隔设置为 %d' % (cmdargs[0])
+			return False, '将全局受击间隔设置为 %s' % (cmdargs[0])
 		else:
 			return True, '设置失败'
 	
@@ -632,14 +632,14 @@ class customcmdsPart(PartBase):
 		attackTargetId = cmdargs[1][0]
 		for i in cmdargs[0]:
 			CFServer.CreateAction(i).SetAttackTarget(attackTargetId)
-		return False, '将 %d 个实体的仇恨目标设置为 %s' % (len(cmdargs[0]), CFServer.CreateEngineType(attackTargetId).GetEngineTypeStr())
+		return False, '将 %s 个实体的仇恨目标设置为 %s' % (len(cmdargs[0]), CFServer.CreateEngineType(attackTargetId).GetEngineTypeStr())
 	
 	def resetattacktarget(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateAction(i).ResetAttackTarget()
-		return False, '成功重置 %d 个实体的仇恨目标' % (len(cmdargs[0]))
+		return False, '成功重置 %s 个实体的仇恨目标' % (len(cmdargs[0]))
 	
 	def setbanplayerfishing(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -656,14 +656,14 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateActorPushable(i).SetActorPushable(cmdargs[1])
-		return False, '已%s %d个 实体被推动' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
+		return False, '已%s %s个 实体被推动' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
 	
 	def	setactorcollidable(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateActorCollidable(i).SetActorCollidable(cmdargs[1])
-		return False, '已%s %d 实体拥有固体碰撞箱' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
+		return False, '已%s %s 实体拥有固体碰撞箱' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
 	
 	def setmineability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -690,7 +690,7 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateRide(i).SetControl(i, cmdargs[1])
-		return False, '已设置 %d 个实体的控制权' % (len(cmdargs[0]))
+		return False, '已设置 %s 个实体的控制权' % (len(cmdargs[0]))
 	
 	def setpickuparea(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -704,19 +704,19 @@ class customcmdsPart(PartBase):
 	
 	def setlevelgravity(self, cmdargs, playerId, variant, data):
 		compGame.SetLevelGravity(cmdargs[0])
-		return False , '已将世界重力设置为 %.2f' % (cmdargs[0])
+		return False , '已将世界重力设置为 %s' % (cmdargs[0])
 	
 	def setjumppower(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateGravity(i).SetJumpPower(cmdargs[1])
-		return False, '已设置 %d 个实体的跳跃力度为 %.2f' % (len(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 个实体的跳跃力度为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setgravity(self, cmdargs, playerId, variant, data):
 		for i in cmdargs[0]:
 			CFServer.CreateGravity(i).SetGravity(cmdargs[1])
-		return False, '已设置 %d 个实体的重力为 %.2f' % (len(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 个实体的重力为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setworldspawnd(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[1]
@@ -787,7 +787,7 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateHurt(i).ImmuneDamage(cmdargs[1])
-		return False, '将 %d 个实体的伤害免疫设置为 %s' % (len(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
+		return False, '将 %s 个实体的伤害免疫设置为 %s' % (len(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def hideslotbargui(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -887,7 +887,7 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetInvItemExchange(cmdargs[1], cmdargs[2])
-		return False, '已交换 %s 物品栏槽位 %d 与槽位 %d 中的物品' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
+		return False, '已交换 %s 物品栏槽位 %s 与槽位 %s 中的物品' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setinvitemnum(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -899,7 +899,7 @@ class customcmdsPart(PartBase):
 			return True, '无效的物品数量'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetInvItemNum(cmdargs[1], cmdargs[2])
-		return False, '已将 %s 物品栏槽位 %s 中的物品数量设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
+		return False, '已将 %s 物品栏槽位 %s 中的物品数量设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setitemdurability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -911,7 +911,7 @@ class customcmdsPart(PartBase):
 			return True, '无效的耐久度'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetItemDurability(2, 0, cmdargs[1])
-		return False, '已设置 %s 的手持物品物品耐久度为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 的手持物品物品耐久度为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 			
 	def setitemmaxdurability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -923,7 +923,7 @@ class customcmdsPart(PartBase):
 			return True, '无效的耐久度'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetItemMaxDurability(2, 0, cmdargs[1], True)
-		return False, '已设置 %s 的手持物品最大耐久度为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 的手持物品最大耐久度为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 		
 	def setitemtierlevel(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -937,7 +937,7 @@ class customcmdsPart(PartBase):
 			itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
 			CFServer.CreateItem(i).SetItemTierLevel(itemdata, cmdargs[1])
 			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
-		return False, '已设置 %s 的手持物品挖掘等级为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 的手持物品挖掘等级为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setitemtierspeed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -951,7 +951,7 @@ class customcmdsPart(PartBase):
 			itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
 			CFServer.CreateItem(i).SetItemTierSpeed(itemdata, cmdargs[1])
 			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
-		return False, '已设置 %s 的手持物品挖掘速度为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 的手持物品挖掘速度为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setitemmaxstacksize(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -960,14 +960,14 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 1:
-			return True, '无效的堆叠数量 (%d < 1)' % (cmdargs[1])
+			return True, '无效的堆叠数量 (%s < 1)' % (cmdargs[1])
 		elif cmdargs[1] > 64:
-			return True, '无效的堆叠数量 (%d > 64)' % (cmdargs[1])
+			return True, '无效的堆叠数量 (%s > 64)' % (cmdargs[1])
 		for i in cmdargs[0]:
 			itemDict = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
 			CFServer.CreateItem(i).SetMaxStackSize(itemDict, cmdargs[1])
 			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
-		return False, '已设置 %s 的手持物品最大堆叠数量为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 的手持物品最大堆叠数量为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def playerexhaustionratio(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -979,7 +979,7 @@ class customcmdsPart(PartBase):
 		exhaustiontype = exhaustion[cmdargs[1]]
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetPlayerExhaustionRatioByType(exhaustiontype, cmdargs[2])
-		return False, '已设置 %s 的 %s 行为饥饿度消耗倍率为 %.2f' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
+		return False, '已设置 %s 的 %s 行为饥饿度消耗倍率为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setsigntextstyle(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
@@ -1050,7 +1050,7 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateCollisionBox(i).SetSize((cmdargs[1], cmdargs[2]))
-		return False, '已设置 %d 个实体的碰撞箱为 (%.2f, %.2f)' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
+		return False, '已设置 %s 个实体的碰撞箱为 (%s, %s)' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
 		
 	def playerchatprefix(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1073,7 +1073,7 @@ class customcmdsPart(PartBase):
 			health = CFServer.CreateAttr(entity).GetAttrValue(0)
 			health = int(round(health))
 			compcmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, health), entity, False)
-		return False, '已将 %d 个实体的生命值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
+		return False, '已将 %s 个实体的生命值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
 		
 	def writehungertoscoreboard(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1086,7 +1086,7 @@ class customcmdsPart(PartBase):
 			hunger = CFServer.CreateAttr(entity).GetAttrValue(4)
 			hunger = int(round(hunger))
 			compcmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, hunger), entity, False)
-		return False, '已将 %d 个实体的饥饿值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
+		return False, '已将 %s 个实体的饥饿值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
 
 	def writearmortoscoreboard(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1099,7 +1099,7 @@ class customcmdsPart(PartBase):
 			armor = CFServer.CreateAttr(entity).GetAttrValue(12)
 			armor = int(round(armor))
 			compcmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, armor), entity, False)
-		return False, '已将 %d 个实体的盔甲值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
+		return False, '已将 %s 个实体的盔甲值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
 	
 	def writespeedtoscoreboard(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1113,7 +1113,7 @@ class customcmdsPart(PartBase):
 			speed = (speed[0]**2 + speed[1]**2 + speed[2]**2)**0.5  # 计算速度
 			speed = int(round(speed*20))
 			compcmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, speed), entity, False)
-		return False, '已将 %d 个实体的速度值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
+		return False, '已将 %s 个实体的速度值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
 	
 	def executecb(self, cmdargs, playerId, variant, data):
 		xyz = (intg(cmdargs[0][0]), int(cmdargs[0][1]), intg(cmdargs[0][2]))
@@ -1128,14 +1128,14 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateName(i).SetName(cmdargs[1])
-		return False, '已设置 %d 个实体的名称为 %s' % (len(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 个实体的名称为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def aicontrol(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateControlAi(i).SetBlockControlAi(cmdargs[1], cmdargs[2])
-		return False, '已%s %d 个实体的AI' % ('启用' if cmdargs[1] else '禁用', len(cmdargs[0]))
+		return False, '已%s %s 个实体的AI' % ('启用' if cmdargs[1] else '禁用', len(cmdargs[0]))
 
 	def param(self, cmdargs, playerId, variant, data):
 		params = compExtra.GetExtraData('parameters')
@@ -1291,7 +1291,7 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			position = CFServer.CreatePos(i).GetFootPos()
 			CFServer.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], None, None)
-		return False, '已引爆 %d 个实体' % len(cmdargs[0])
+		return False, '已引爆 %s 个实体' % len(cmdargs[0])
 
 	def explodebypos(self, cmdargs, playerId, variant, data):
 		if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], 0, 0):
@@ -1430,7 +1430,7 @@ class customcmdsPart(PartBase):
 					startMotion(ii)
 				tot += 1
 		if tot:
-			return False, '已启用 %d 个实体的运动器' % tot
+			return False, '已启用 %s 个实体的运动器' % tot
 		else:
 			return True, '实体没有绑定运动器'
 	
@@ -1453,7 +1453,7 @@ class customcmdsPart(PartBase):
 					stopMotion(ii)
 				tot += 1
 		if tot:
-			return False, '已暂停 %d 个实体的运动器' % tot
+			return False, '已暂停 %s 个实体的运动器' % tot
 		else:
 			return True, '实体没有绑定运动器'
 	
@@ -1478,7 +1478,7 @@ class customcmdsPart(PartBase):
 				compExtra.SetExtraData('Motions', Motions)
 				tot += 1
 		if tot:
-			return False, '已移除 %d 个实体的运动器' % tot
+			return False, '已移除 %s 个实体的运动器' % tot
 		else:
 			return True, '实体没有绑定运动器'
 
@@ -1558,7 +1558,7 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			compItem = CFServer.CreateItem(i)
 			compItem.CancelShearsDestoryBlockSpeedAll()
-		return False, '已取消 %d 个实体剪刀破坏方块速度的所有设置' % (len(cmdargs[0]))
+		return False, '已取消 %s 个实体剪刀破坏方块速度的所有设置' % (len(cmdargs[0]))
 
 	def cancelshearsdestoryblockspeed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1567,7 +1567,7 @@ class customcmdsPart(PartBase):
 			compItem = CFServer.CreateItem(i)
 			compItem.CancelShearsDestoryBlockSpeed(cmdargs[1])
 			#	return True, '无效的命名空间id'
-		return False, '已取消 %d 个实体剪刀破坏 %s 速度的设置' % (len(cmdargs[0]), cmdargs[1])
+		return False, '已取消 %s 个实体剪刀破坏 %s 速度的设置' % (len(cmdargs[0]), cmdargs[1])
 
 	def setshearsdestoryblockspeed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1578,7 +1578,7 @@ class customcmdsPart(PartBase):
 			compItem = CFServer.CreateItem(i)
 			compItem.SetShearsDestoryBlockSpeed(cmdargs[1], cmdargs[2])
 			#	return True, '无效的命名空间id'
-		return False, '已设置 %d 个实体剪刀破坏 %s 速度为 %d' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
+		return False, '已设置 %s 个实体剪刀破坏 %s 速度为 %s' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
 
 	def changeselectslot(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1590,7 +1590,7 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			CompPlayer = CFServer.CreatePlayer(i)
 			CompPlayer.ChangeSelectSlot(cmdargs[1])
-		return False, '将 %s 的选择槽位设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的选择槽位设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def forbidliquidflow(self, cmdargs, playerId, variant, data):
 		compGame.ForbidLiquidFlow(cmdargs[0])
@@ -1629,7 +1629,7 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			if not CFServer.CreateItem(i).SpawnItemToPlayerInv(unicode_convert(itemDict), i):
 				return True, '此JSON生成物品失败'
-		return False, '成功给予 %s 物品 %s * %d' % (create_players_str(cmdargs[0]), str(itemDict['newItemName']), int(itemDict['count']))
+		return False, '成功给予 %s 物品 %s * %s' % (create_players_str(cmdargs[0]), str(itemDict['newItemName']), int(itemDict['count']))
 		
 	def spawnitemtocontainer(self, cmdargs, playerId, variant, data):
 		# args['return_msg_key'] = '给予失败'
@@ -1657,9 +1657,9 @@ class customcmdsPart(PartBase):
 		if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
 			itemDict2['count'] = countOrign+countAdd
 			if compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z), cmdargs[3]['id']):
-				return False, str('向槽位 %d 添加 %s * %d' % (cmdargs[1], itemDict2['newItemName'], countAdd)) #为什么这东西是个unicode?我排查了老半天lol
+				return False, str('向槽位 %s 添加 %s * %s' % (cmdargs[1], itemDict2['newItemName'], countAdd)) #为什么这东西是个unicode?我排查了老半天lol
 			else:
-				return True, '位于 Pos(%d,%d,%d) 的方块不是容器' % (x,y,z)
+				return True, '位于 Pos(%s,%s,%s) 的方块不是容器' % (x,y,z)
 		else:
 			return True, '槽位已满'
 
@@ -1689,7 +1689,7 @@ class customcmdsPart(PartBase):
 			if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
 				itemDict2['count'] = countOrign+countAdd
 				if compItem.SpawnItemToEnderChest(itemDict2, cmdargs[1]):
-					return False, str('向 %s 的末影箱中的槽位 %d 添加 %s * %d' % (create_players_str(cmdargs[2]), cmdargs[1], itemDict2['newItemName'], countAdd))
+					return False, str('向 %s 的末影箱中的槽位 %s 添加 %s * %s' % (create_players_str(cmdargs[2]), cmdargs[1], itemDict2['newItemName'], countAdd))
 			else:
 				return True, '槽位已满'
 
@@ -1709,7 +1709,7 @@ class customcmdsPart(PartBase):
 			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
-		return False, str('将 %s 的主手物品替换为 %s * %d' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
+		return False, str('将 %s 的主手物品替换为 %s * %s' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
 
 	def removeenchant(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1731,7 +1731,7 @@ class customcmdsPart(PartBase):
 				CompMotion.SetPlayerMotion((0, 0, 0))
 			else:
 				CompMotion.ResetMotion()
-		return False, '已重置 %d 个实体的运动状态' % len(cmdargs[0])
+		return False, '已重置 %s 个实体的运动状态' % len(cmdargs[0])
 
 	def setleashholder(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1750,7 +1750,7 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			compEntityD = CFServer.CreateEntityDefinitions(i)
 			compEntityD.SetLootDropped(cmdargs[1])
-		return False, '将 %d 个实体的掉落概率设置为 %s' % (len(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 个实体的掉落概率设置为 %s' % (len(cmdargs[0]), cmdargs[1])
 
 	def setmaxairsupply(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1758,14 +1758,14 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			compBrea = CFServer.CreateBreath(i)
 			compBrea.SetMaxAirSupply(cmdargs[1])
-		return False, '将 %d 个实体的最大氧气量设置为 %d' % (len(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 个实体的最大氧气量设置为 %s' % (len(cmdargs[0]), cmdargs[1])
 
 	def knockback(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CFServer.CreateAction(i).SetMobKnockback(cmdargs[1], cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
-		return False, '已击飞 %d 个实体' % (len(cmdargs[0]))
+		return False, '已击飞 %s 个实体' % (len(cmdargs[0]))
 
 	def setmotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1777,7 +1777,7 @@ class customcmdsPart(PartBase):
 				CompMotion.SetPlayerMotion(cmdargs[1])
 			else:
 				CompMotion.SetMotion(cmdargs[1])
-		return False, '将 %d 个实体的动量设置为 %s' % (len(cmdargs[0]), str(cmdargs[1]))
+		return False, '将 %s 个实体的动量设置为 %s' % (len(cmdargs[0]), str(cmdargs[1]))
 
 	def setopencontainersability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1808,7 +1808,7 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			compAttr = CFServer.CreateExp(i)
 			compAttr.SetOrbExperience(cmdargs[1])
-		return False, '将 %d 个经验球的经验值设置为 %d' % (len(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 个经验球的经验值设置为 %s' % (len(cmdargs[0]), cmdargs[1])
 
 	def setpersistent(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1816,11 +1816,11 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			compAttr = CFServer.CreateAttr(i)
 			compAttr.SetPersistent(cmdargs[1])
-		return False, '将 %d 个实体的自动清除设置为 %s' % (len(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
+		return False, '将 %s 个实体的自动清除设置为 %s' % (len(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 
 	def setpistonmaxinteractioncount(self, cmdargs, playerId, variant, data):
 		if compGame.SetPistonMaxInteractionCount(cmdargs[0]):
-			return False, '将活塞最大推动数设置为 %d' % cmdargs[0]
+			return False, '将活塞最大推动数设置为 %s' % cmdargs[0]
 		else:
 			return True, '无效的数值'
 
@@ -1840,7 +1840,7 @@ class customcmdsPart(PartBase):
 			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetPlayerUIItem(i, cmdargs[1], itemDict, cmdargs[3])
-		return False, str('将 %s 的UI物品设置为 %s * %d' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
+		return False, str('将 %s 的UI物品设置为 %s * %s' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
 
 	def _if(self, cmdargs, playerId, variant, data):
 		if variant == 0:  # cmd模式不变
@@ -1949,7 +1949,7 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
-		return False, '已设置 %d 个村民的交易等级为 %d' % (len(cmdargs[0]), cmdargs[1])
+		return False, '已设置 %s 个村民的交易等级为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setvignette(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1959,16 +1959,16 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		if variant == 0:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettecenter', 'cmdargs': cmdargs})
-			return False, '已将 %s 的屏幕暗角中心设置为 %.1f, %.1f' % (create_players_str(cmdargs[1]), cmdargs[2], cmdargs[3])
+			return False, '已将 %s 的屏幕暗角中心设置为 %s, %s' % (create_players_str(cmdargs[1]), cmdargs[2], cmdargs[3])
 		elif variant == 1:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignetteradius', 'cmdargs': cmdargs})
-			return False, '已将 %s 的屏幕暗角半径设置为 %.1f' % (create_players_str(cmdargs[1]), cmdargs[2])
+			return False, '已将 %s 的屏幕暗角半径设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		elif variant == 2:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettecolor', 'cmdargs': cmdargs})
 			return False, '已将 %s 的屏幕暗角颜色设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		elif variant == 3:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettesmooth', 'cmdargs': cmdargs})
-			return False, '已将 %s 的屏幕暗角平滑度设置为 %.1f' % (create_players_str(cmdargs[1]), cmdargs[2])
+			return False, '已将 %s 的屏幕暗角平滑度设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		elif variant == 4:
 			serversystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignette', 'cmdargs': cmdargs})
 			return False, '已%s %s 的屏幕暗角' % ('启用' if cmdargs[2] else '禁用', create_players_str(cmdargs[1]))
@@ -1987,7 +1987,7 @@ class customcmdsPart(PartBase):
 		if itemDict.get('count') is None:
 			return True, '物品数据中缺少 count 键'
 		if compItemWorld.SetBrewingStandSlotItem(itemDict, cmdargs[1], xyz, cmdargs[3]['id']):
-			return False, '将槽位 %d 的物品设置为 %s' % (cmdargs[1], itemDict['itemName'])
+			return False, '将槽位 %s 的物品设置为 %s' % (cmdargs[1], itemDict['itemName'])
 		else:
 			return True, '设置 Pos%s 的方块时失败' % (xyz,)
 
@@ -2029,7 +2029,7 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreatePlayer(i).SetEnchantmentSeed(cmdargs[1])
-		return False, '将 %s 的附魔种子设置为 %d' % (create_players_str(cmdargs[0]), cmdargs[1])
+		return False, '将 %s 的附魔种子设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def setentityitem(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -2047,7 +2047,7 @@ class customcmdsPart(PartBase):
 			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).SetEntityItem(cmdargs[1], itemDict, cmdargs[3])
-		return False, '已设置 %d 个实体的物品' % (len(cmdargs[0]))
+		return False, '已设置 %s 个实体的物品' % (len(cmdargs[0]))
 		
 	def setentityowner(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -2066,9 +2066,9 @@ class customcmdsPart(PartBase):
 				failed_entities.append(CFServer.CreateEngineType(i).GetEngineTypeStr())
 		
 		if failed_entities:
-			return True, '部分实体执行过程中出现错误: %s' % str(failed_entities) 
+			return True, '部分实体执行过程中出现错误: %s' % failed_entities,
 		else:
-			return False, '已设置 %d 个实体的属主' % (len(cmdargs[0]))
+			return False, '已设置 %s 个实体的属主' % (len(cmdargs[0]))
 		
 	def setentityride(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None or cmdargs[1] is None:
@@ -2082,15 +2082,15 @@ class customcmdsPart(PartBase):
 				failed_entities.append(CFServer.CreateEngineType(i).GetEngineTypeStr())
 		
 		if failed_entities:
-			return True, '部分实体执行过程中出现错误: %s' % str(failed_entities) 
+			return True, '部分实体执行过程中出现错误: %s' % failed_entities,
 		else:
-			return False, '已驯服 %d 个生物' % (len(cmdargs[1]))
+			return False, '已驯服 %s 个生物' % (len(cmdargs[1]))
 		
 	def setframeitemdropchange(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
 		if compBlockEntity.SetFrameItemDropChange(xyz, cmdargs[1]['id'], cmdargs[2]):
-			return False, '已设置 Pos%s 的展示框掉落几率为 %s%' % (xyz, cmdargs[2]*100)
+			return False, '已设置 Pos%s 的展示框掉落几率为 %s' % (xyz, cmdargs[2]*100)
 		else:
 			return True, '位于 Pos%s 的方块不是展示框' % (xyz,)
 		
@@ -2098,7 +2098,7 @@ class customcmdsPart(PartBase):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
 		if compBlockEntity.SetFrameRotation(xyz, cmdargs[1]['id'], cmdargs[2]):
-			return False, '已设置 Pos%s 的展示框旋转角度为 %d 度' % (xyz, cmdargs[2])
+			return False, '已设置 Pos%s 的展示框旋转角度为 %s 度' % (xyz, cmdargs[2])
 		else:
 			return True, '位于 Pos%s 的方块不是展示框' % (xyz,)
 		
@@ -2106,7 +2106,7 @@ class customcmdsPart(PartBase):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
 		if compBlockEntity.SetHopperSpeed(xyz, cmdargs[1]['id'], cmdargs[2]):
-			return False, '已设置 %s 的漏斗运输用时为 %d 红石刻' % (xyz, cmdargs[2])
+			return False, '已设置 %s 的漏斗运输用时为 %s 红石刻' % (xyz, cmdargs[2])
 		else:
 			return True, '位于 Pos%s 的方块不是漏斗' % (xyz,)
 		
@@ -2117,7 +2117,7 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'sethudchatstackposition', 'cmdargs': cmdargs})
-		return False, '将 %s 的聊天UI位置设置为 %f, %f' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
+		return False, '将 %s 的聊天UI位置设置为 %s, %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def sethudchatstackvisible(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -2178,12 +2178,12 @@ class customcmdsPart(PartBase):
 		except (TypeError, ValueError):
 			return True, '无法将变量值转换为整数: %s' % target_name
 		
-		command = '/scoreboard players set %s %s %d' % (target_name, scoreboard_name, score)
+		command = '/scoreboard players set %s %s %s' % (target_name, scoreboard_name, score)
 		
 		if not compcmd.SetCommand(command):
 			return True, '设置计分板失败'
 		
-		return False, '已将变量 %s 的值(%d)设置到计分板 %s 中' % (target_name, score, scoreboard_name)
+		return False, '已将变量 %s 的值(%s)设置到计分板 %s 中' % (target_name, score, scoreboard_name)
 	
 	def setblocknbt(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
@@ -2210,7 +2210,7 @@ class customcmdsPart(PartBase):
 			return True, '物品数据中缺少 newItemName 键'
 		if not serversystem.CreateEngineItemEntity(itemDict, data['origin']['dimension'], xyz):
 			return True, '生成失败'
-		return False, str('已在 Pos%s 处生成 %s * %d' % (xyz, itemDict['newItemName'], itemDict['count']))
+		return False, str('已在 Pos%s 处生成 %s * %s' % (xyz, itemDict['newItemName'], itemDict['count']))
 
 	def summonnbt(self, cmdargs, playerId, variant, data):
 		pass
