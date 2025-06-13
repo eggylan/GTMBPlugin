@@ -25,25 +25,24 @@ def create_players_str(players):
 def unicode_convert(input):
 	#type: (dict|str) -> dict|list|str|bool
 	if isinstance(input, dict):
-		return {unicode_convert(key): unicode_convert(value) for key, value in input.iteritems()}
+		return {unicode_convert(key): unicode_convert(value) for key, value in input.items()}
 	elif isinstance(input, list):
 		return [unicode_convert(element) for element in input]
 	elif isinstance(input, unicode): # type: ignore
-		output = input.encode('utf-8')
+		output = str(input)
 		if output == 'True':
 			return True
 		elif output == 'False':
 			return False
 		return output
-	else:
-		return input
+	return input
 
 def intg(num):
 	#type: (float) -> int
 	return int(math.floor(num))
 
 def checkjson(data):
-	#type: (str) -> list[dict, bool]
+	#type: (str) -> list
 	try:
 		itemDict = json.loads(data.replace("'", '"'))
 	except ValueError as errordata:
@@ -58,10 +57,9 @@ def checkjson(data):
 			start = int(errordata[errordata.find('char') + 5:-1])
 			end = start + 1
 		return ['无效的nbt 位于 %s>>%s<<%s' % (data[:start], data[start:end], data[end:]), True]
-	if not isinstance(itemDict, dict):
-		return['无效的nbt', True]
-	return [itemDict, False]
-
+	if isinstance(itemDict, dict):
+		return [unicode_convert(itemDict), False]
+	return['无效的nbt', True]
 @registerGenericClass('customcmdsPart')
 class customcmdsPart(PartBase):
 	def __init__(self):
@@ -1290,11 +1288,11 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			position = CFServer.CreatePos(i).GetFootPos()
-			CFServer.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], None, None)
+			CFServer.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], '', '')
 		return False, '已引爆 %s 个实体' % len(cmdargs[0])
 
 	def explodebypos(self, cmdargs, playerId, variant, data):
-		if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], 0, 0):
+		if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], '', ''):
 			return False, '爆炸已创建于 Pos%s' % (cmdargs[0],)
 		else:
 			return True, '爆炸创建失败'
@@ -1617,19 +1615,22 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[1])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
 		itemDict = result[0]
-		for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
-			itemDict.pop(i, False) #删去多余键值对(这些已被弃用)
-		if itemDict.get('newItemName') is None:
-			return True, '物品数据中缺少 newItemName 键'
-		if itemDict.get('count') is None:
-			return True, '物品数据中缺少 count 键'
-		for i in cmdargs[0]:
-			if not CFServer.CreateItem(i).SpawnItemToPlayerInv(unicode_convert(itemDict), i):
-				return True, '此JSON生成物品失败'
-		return False, '成功给予 %s 物品 %s * %s' % (create_players_str(cmdargs[0]), str(itemDict['newItemName']), int(itemDict['count']))
+		if isinstance(itemDict, dict):
+			for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
+				itemDict.pop(i, False) #删去多余键值对(这些已被弃用)
+			if itemDict.get('newItemName') is None:
+				return True, '物品数据中缺少 newItemName 键'
+			if itemDict.get('count') is None:
+				return True, '物品数据中缺少 count 键'
+			for i in cmdargs[0]:
+				if not CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i):
+					return True, '此JSON生成物品失败'
+			return False, '成功给予 %s 物品 %s * %s' % (create_players_str(cmdargs[0]), itemDict.get('newItemName'), itemDict.get('count'))
+		else:
+			return True, '无效的nbt'
 		
 	def spawnitemtocontainer(self, cmdargs, playerId, variant, data):
 		# args['return_msg_key'] = '给予失败'
@@ -1639,29 +1640,31 @@ class customcmdsPart(PartBase):
 		z = intg(cmdargs[2][2])
 		itemDict = compItemWorld.GetContainerItem((x, y, z), cmdargs[1], cmdargs[3]['id'], True)
 		result = checkjson(cmdargs[0])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
 		itemDict2 = result[0]
-		for i in [('durability', 0), ('customTips', ''), ('extraId', ''), ('newAuxValue', 0), ('userData', None), ('showInHand', True)]:
-			if not itemDict2.has_key(i[0]):
-				itemDict2[i[0]] = i[1]
-		if itemDict:
-			for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
-				itemDict.pop(i) #删去多余键值对(这些已被弃用)
-				itemDict2.pop(i, False)
-			countOrign = itemDict.pop('count')
-		else: countOrign = 0
-		countAdd = itemDict2.pop('count', 1)
-		if itemDict.get('newItemName') is None:
-			return True, '物品数据中缺少 newItemName 键'
-		if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
-			itemDict2['count'] = countOrign+countAdd
-			if compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z), cmdargs[3]['id']):
-				return False, str('向槽位 %s 添加 %s * %s' % (cmdargs[1], itemDict2['newItemName'], countAdd)) #为什么这东西是个unicode?我排查了老半天lol
+		if isinstance(itemDict2, dict):
+			for k,v in [('durability', 0), ('customTips', ''), ('extraId', ''), ('newAuxValue', 0), ('userData', None), ('showInHand', True)]:
+				itemDict2.setdefault(k, v)
+			if itemDict is not None:
+				for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
+					itemDict.pop(i) #删去多余键值对(这些已被弃用)
+					itemDict2.pop(i, False)
+				countOrign = itemDict.pop('count')
+			else: countOrign = 0
+			countAdd = itemDict2.pop('count', 1)
+			if itemDict2.get('newItemName') is None:
+				return True, '物品数据中缺少 newItemName 键'
+			if ((itemDict is None) or itemDict == itemDict2) and countOrign+countAdd <= 64:
+				itemDict2.update({'count': countOrign+countAdd})
+				if compItemWorld.SpawnItemToContainer(itemDict2, cmdargs[1], (x, y, z), cmdargs[3]['id']):
+					return False, '向槽位 %s 添加 %s * %s' % (cmdargs[1], itemDict2.get('newItemName'), countAdd)
+				else:
+					return True, '位于 Pos(%s,%s,%s) 的方块不是容器' % (x,y,z)
 			else:
-				return True, '位于 Pos(%s,%s,%s) 的方块不是容器' % (x,y,z)
+				return True, '槽位已满'
 		else:
-			return True, '槽位已满'
+			return True, '无效的nbt'
 
 	def spawnitemtoenderchest(self, cmdargs, playerId, variant, data):
 		# args['return_msg_key'] = '给予失败'
@@ -1670,28 +1673,32 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(player).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[0])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
 		itemDict2 = result[0]
-		for i in [('durability', 0), ('customTips', ''), ('extraId', ''), ('newAuxValue', 0), ('userData', None), ('showInHand', True)]:
-			if not itemDict2.has_key(i[0]):
-				itemDict2[i[0]] = i[1]
-		countAdd = itemDict2.pop('count', 1)
-		for player in cmdargs[2]:
-			compItem = CFServer.CreateItem(player)
-			itemDict = compItem.GetEnderChestItem(player, cmdargs[1], True)
-			if itemDict:
-				for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
-					itemDict.pop(i) #删去多余键值对(这些已被弃用)
-					itemDict2.pop(i, False)
-				countOrign = itemDict.pop('count')
-			else: countOrign = 0
-			if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
-				itemDict2['count'] = countOrign+countAdd
-				if compItem.SpawnItemToEnderChest(itemDict2, cmdargs[1]):
-					return False, str('向 %s 的末影箱中的槽位 %s 添加 %s * %s' % (create_players_str(cmdargs[2]), cmdargs[1], itemDict2['newItemName'], countAdd))
-			else:
-				return True, '槽位已满'
+		if isinstance(itemDict2, dict):
+			for k,v in [('durability', 0), ('customTips', ''), ('extraId', ''), ('newAuxValue', 0), ('userData', None), ('showInHand', True)]:
+				itemDict2.setdefault(k, v)
+			countAdd = itemDict2.pop('count', 1)
+			for player in cmdargs[2]:
+				compItem = CFServer.CreateItem(player)
+				itemDict = compItem.GetEnderChestItem(player, cmdargs[1], True)
+				if itemDict:
+					for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
+						itemDict.pop(i) #删去多余键值对(这些已被弃用)
+						itemDict2.pop(i, False)
+					countOrign = itemDict.pop('count')
+				else: countOrign = 0
+				if itemDict2.get('newItemName') is None:
+					return True, '物品数据中缺少 newItemName 键'
+				if ((not itemDict) or itemDict == itemDict2) and countOrign+countAdd <= 64:
+					itemDict2.update({'count': countOrign+countAdd})
+					if compItem.SpawnItemToEnderChest(itemDict2, cmdargs[1]):
+						return False, '向 %s 的末影箱中的槽位 %s 添加 %s * %s' % (create_players_str(cmdargs[2]), cmdargs[1], itemDict2.get('newItemName'), countAdd)
+				else:
+					return True, '槽位已满'
+		else:
+			return True, '无效的nbt'
 
 	def replaceitemtocarried(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1700,16 +1707,19 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[1])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
 		itemDict = result[0]
-		if itemDict.get('newItemName') is None:
-			return True, '物品数据中缺少 newItemName 键'
-		if itemDict.get('count') is None:
-			return True, '物品数据中缺少 count 键'
-		for i in cmdargs[0]:
-			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
-		return False, str('将 %s 的主手物品替换为 %s * %s' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
+		if isinstance(itemDict, dict):
+			if itemDict.get('newItemName') is None:
+				return True, '物品数据中缺少 newItemName 键'
+			if itemDict.get('count') is None:
+				return True, '物品数据中缺少 count 键'
+			for i in cmdargs[0]:
+				CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
+			return False, '将 %s 的主手物品替换为 %s * %s' % (create_players_str(cmdargs[0]), itemDict.get('newItemName'), itemDict.get('count'))
+		else:
+			return True, '无效的nbt'
 
 	def removeenchant(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1719,7 +1729,7 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CFServer.CreateItem(i).RemoveEnchantToInvItem(cmdargs[2], cmdargs[1]['type'])
-		return False, '将 %s 背包物品中的 %s 附魔移除' % (create_players_str[cmdargs[0]], cmdargs[1]['identifier'])
+		return False, '将 %s 背包物品中的 %s 附魔移除' % (create_players_str(cmdargs[0]), cmdargs[1]['identifier'])
 
 	def resetmotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1831,16 +1841,19 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[2])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
 		itemDict = result[0]
-		if itemDict.get('newItemName') is None:
-			return True, '物品数据中缺少 newItemName 键'
-		if itemDict.get('count') is None:
-			return True, '物品数据中缺少 count 键'
-		for i in cmdargs[0]:
-			CFServer.CreateItem(i).SetPlayerUIItem(i, cmdargs[1], itemDict, cmdargs[3])
-		return False, str('将 %s 的UI物品设置为 %s * %s' % (create_players_str(cmdargs[0]), itemDict['newItemName'], itemDict['count']))
+		if isinstance(itemDict, dict):
+			if itemDict.get('newItemName') is None:
+				return True, '物品数据中缺少 newItemName 键'
+			if itemDict.get('count') is None:
+				return True, '物品数据中缺少 count 键'
+			for i in cmdargs[0]:
+				CFServer.CreateItem(i).SetPlayerUIItem(i, cmdargs[1], itemDict, cmdargs[3])
+			return False, '将 %s 的UI物品设置为 %s * %s' % (create_players_str(cmdargs[0]), itemDict.get('newItemName'), itemDict.get('count'))
+		else:
+			return True, '无效的nbt'
 
 	def _if(self, cmdargs, playerId, variant, data):
 		if variant == 0:  # cmd模式不变
@@ -1979,17 +1992,20 @@ class customcmdsPart(PartBase):
 		x, y, z = cmdargs[2]
 		xyz = (intg(x), int(y), intg(z))
 		result = checkjson(cmdargs[0])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
-		itemDict = unicode_convert(result[0])
-		if itemDict.get('newItemName') is None:
-			return True, '物品数据中缺少 newItemName 键'
-		if itemDict.get('count') is None:
-			return True, '物品数据中缺少 count 键'
-		if compItemWorld.SetBrewingStandSlotItem(itemDict, cmdargs[1], xyz, cmdargs[3]['id']):
-			return False, '将槽位 %s 的物品设置为 %s' % (cmdargs[1], itemDict['itemName'])
+		itemDict = result[0]
+		if isinstance(itemDict, dict):
+			if itemDict.get('newItemName') is None:
+				return True, '物品数据中缺少 newItemName 键'
+			if itemDict.get('count') is None:
+				return True, '物品数据中缺少 count 键'
+			if compItemWorld.SetBrewingStandSlotItem(itemDict, cmdargs[1], xyz, cmdargs[3]['id']):
+				return False, '将槽位 %s 的物品设置为 %s' % (cmdargs[1], itemDict.get('itemName'))
+			else:
+				return True, '设置 Pos%s 的方块时失败' % (xyz,)
 		else:
-			return True, '设置 Pos%s 的方块时失败' % (xyz,)
+			return True, '无效的nbt'
 
 	def setdisablecontainers(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -2035,9 +2051,11 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		result = checkjson(cmdargs[2])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
 		itemDict = result[0]
+		if not isinstance(itemDict, dict):
+			return True, '无效的nbt'
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
 				return True, '选择器必须为非玩家类型'
@@ -2192,32 +2210,34 @@ class customcmdsPart(PartBase):
 			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CFServer.CreateBlockInfo(levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
 		else:
 			result = checkjson(cmdargs[2])
-			if result[1]:
+			if result[1] == True:
 				return True, result[0]
-			blockDict = unicode_convert(result[0])
+			blockDict = result[0]
 			CFServer.CreateBlockInfo(levelId).SetBlockEntityData(cmdargs[1]['id'], xyz, blockDict)
 			return False, '已设置 Pos%s 的方块nbt' % (xyz,)
 
 	def summonitem(self, cmdargs, playerId, variant, data):
 		result = checkjson(cmdargs[1])
-		if result[1]:
+		if result[1] == True:
 			return True, result[0]
 		itemDict = result[0]
-		x, y, z = cmdargs[0]
-		xyz = (intg(x), int(y), intg(z))
-		itemDict.setdefault('count', 1)
-		if itemDict.get('newItemName') is None:
-			return True, '物品数据中缺少 newItemName 键'
-		if not serversystem.CreateEngineItemEntity(itemDict, data['origin']['dimension'], xyz):
-			return True, '生成失败'
-		return False, str('已在 Pos%s 处生成 %s * %s' % (xyz, itemDict['newItemName'], itemDict['count']))
+		if isinstance(itemDict, dict):
+			x, y, z = cmdargs[0]
+			xyz = (intg(x), int(y), intg(z))
+			itemDict.setdefault('count', 1)
+			if itemDict.get('newItemName') is None:
+				return True, '物品数据中缺少 newItemName 键'
+			if not serversystem.CreateEngineItemEntity(itemDict, data['origin']['dimension'], xyz):
+				return True, '生成失败'
+			return False, '已在 Pos%s 处生成 %s * %s' % (xyz, itemDict.get('newItemName'), itemDict.get('count'))
+		return True, '无效的nbt'
 
 	def summonnbt(self, cmdargs, playerId, variant, data):
 		pass
 		#result = checkjson(cmdargs[2])
-		#if result[1]:
+		#if result[1] == True:
 		#	return True, result[0]
-		#entityDict = unicode_convert(result[0])
+		#entityDict = result[0]
 		#entityDict['identifier'] = {'__type__': 8,'__value__': cmdargs[0]['entityType']}
 		#if entityDict.get('Rotation') is None:
 		#	rot = (0, 0)
