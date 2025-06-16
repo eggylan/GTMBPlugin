@@ -1,0 +1,8 @@
+{
+	"format_version": "0.0.1",
+	"name": "chatclear",
+	"description": "清空聊天栏",
+	"permission_level": "any",
+	"args": [
+    ]
+}

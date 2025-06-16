@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "openui",
+	"description": "打开管理面板",
+	"permission_level": "admin",
+	"args": [
+		{"name": "type", "type": "enum", "options": ["enchant","getitem","changetips","nbteditor","cmdbatch","cmdblockimport","structureimport"]}
+    ]
+}

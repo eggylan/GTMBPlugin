@@ -17,6 +17,7 @@ compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
+copyrightInfo = "§b---------\n版本： v0.8a(2025/6):9\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -62,6 +63,7 @@ def checkjson(data):
 	return['无效的nbt', True]
 @registerGenericClass('customcmdsPart')
 class customcmdsPart(PartBase):
+		
 	def __init__(self):
 		PartBase.__init__(self)
 		# 零件名称
@@ -98,6 +100,8 @@ class customcmdsPart(PartBase):
 			'setgaussianradius':self.client_setgaussianradius,
 			'sethudchatstackposition':self.client_sethudchatstackposition,
 			'sethudchatstackvisible':self.client_sethudchatstackvisible,
+			'chatclear': self.client_chatclear,
+			"openui": self.client_openui,
 
 		}
 
@@ -239,6 +243,12 @@ class customcmdsPart(PartBase):
 			'summonnbt':self.summonnbt,
 			'setgaussian':self.setgaussian,
 			'scoreparam': self.scoreparam,
+			'mute': self.mute,
+			"chatclear": self.chatclear,
+			"openui": self.openui,
+			"gettps": self.gettps,
+			"copyright": self.copyright,
+			"chatlimit":self.chatlimit,
 			#'setblocknbt': self.setblocknbt
 		}
 		
@@ -318,6 +328,34 @@ class customcmdsPart(PartBase):
 		clientApi.SetHudChatStackPosition((args['cmdargs'][1], args['cmdargs'][2]))
 	def client_sethudchatstackvisible(self, args):
 		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
+	def client_chatclear(self, args):
+		CFClient.CreateTextNotifyClient(levelId).SetLeftCornerNotify("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+	def client_openui(self, args):
+		if args['cmdargs'][0] == "enchant":
+			uiWillbeOpen = "enchant"
+			uiWillbeOpenName = "自定义附魔"
+		elif args['cmdargs'][0] == "getitem":
+			uiWillbeOpen = "getitem"
+			uiWillbeOpenName = "获取隐藏物品"
+		elif args['cmdargs'][0] == "nbteditor":
+			uiWillbeOpen = "nbteditor"
+			uiWillbeOpenName = "NBT编辑器"
+		elif args['cmdargs'][0] == "changetips":
+			uiWillbeOpen = "itemTips"
+			uiWillbeOpenName = "修改物品注释"
+		elif args['cmdargs'][0] == "cmdbatch":
+			uiWillbeOpen = "cmdbatch"
+			uiWillbeOpenName = "指令批处理"
+		elif args['cmdargs'][0] == "cmdblockimport":
+			uiWillbeOpen = "cmdblockimportui"
+			uiWillbeOpenName = "命令方块导入"
+		elif args['cmdargs'][0] == "structureimport":
+			uiWillbeOpen = "struimport"
+			uiWillbeOpenName = "结构导入"
+		uiNodePreset = self.GetParent().GetChildPresetsByName(uiWillbeOpen)[0]
+		uiNodePreset.SetUiActive(True)
+		uiNodePreset.SetUiVisible(True)
+		CFClient.CreateTextNotifyClient(levelId).SetLeftCornerNotify("已打开 %s 界面" % uiWillbeOpenName)
 	# 客户端函数部分到此结束
 	
 	def InitServer(self):
@@ -2231,6 +2269,43 @@ class customcmdsPart(PartBase):
 				return True, '生成失败'
 			return False, '已在 Pos%s 处生成 %s * %s' % (xyz, itemDict.get('newItemName'), itemDict.get('count'))
 		return True, '无效的nbt'
+	
+	def mute(self, cmdargs, playerId, variant, data):
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				return True, '选择器必须为玩家类型'
+		for i in cmdargs[0]:
+			CFServer.CreateExtraData(i).SetExtraData('mute', cmdargs[1])
+		return False, '将 %s 的禁言状态设置为 %s' % (create_players_str(cmdargs[0]), '启用' if cmdargs[1] else '停用')
+	
+	def chatclear(self, cmdargs, playerId, variant, data):
+		if playerId is None:
+			return True, '该命令无法在命令方块或控制台执行'	
+		serversystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'chatclear'})
+		return False, '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+	
+	def openui(self, cmdargs, playerId, variant, data):
+		serversystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'openui', 'cmdargs': cmdargs})
+		return False, ''
+	
+	def gettps(self, cmdargs, playerId, variant, data):
+		tick_time = serverApi.GetServerTickTime()
+		TPS = "20.0*" if tick_time <= 50 else "%.1f" % (1000 / tick_time)
+		return False,"§r§eTPS:%s mspt:%.2fms" % (TPS,tick_time)
+	
+	def copyright(self, cmdargs, playerId, variant, data):
+		return False, copyrightInfo
+	
+	def chatlimit(self, cmdargs, playerId, variant, data):
+		if cmdargs[0] < 0:
+			return True, '发言间隔不能小于0'
+		if compExtra.SetExtraData('limitFrequency', cmdargs[0]):
+			return False, '已将发言间隔限制设置为 %.1f 秒' % cmdargs[0]
+		else:
+			return True, '设置失败'
+
 
 	def summonnbt(self, cmdargs, playerId, variant, data):
 		pass
@@ -2246,6 +2321,9 @@ class customcmdsPart(PartBase):
 		#print(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
 		#serversystem.CreateEngineEntityByNBT(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
 		#return False, '已生成实体'
+
+
+	# 服务端函数部分到此结束
 
 	def TickClient(self):
 		'''

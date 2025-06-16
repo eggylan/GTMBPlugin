@@ -1,0 +1,8 @@
+{
+	"format_version": "0.0.1",
+	"name": "gettps",
+	"description": "获取服务器TPS",
+	"permission_level": "admin",
+	"args": [
+    ]
+}

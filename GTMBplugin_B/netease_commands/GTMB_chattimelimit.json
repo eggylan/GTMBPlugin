@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "chatlimit",
+	"description": "设置发言限频（管理员无限制）",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "两次发言间隔（单位：秒），0为不限制", "type": "float"}
+	]
+}

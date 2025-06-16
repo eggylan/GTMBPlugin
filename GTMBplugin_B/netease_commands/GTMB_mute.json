@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "mute",
+	"description": "设置玩家禁言",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+        {"name": "是否禁言", "type": "bool","default":true}
+	]
+}

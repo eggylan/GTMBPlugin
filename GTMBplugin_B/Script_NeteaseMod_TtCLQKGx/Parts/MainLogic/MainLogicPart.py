@@ -5,12 +5,16 @@ from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
 import mod.client.extraClientApi as clientApi
 import json
+import time
 
 CFServer = serverApi.GetEngineCompFactory()
 CFClient = clientApi.GetEngineCompFactory()
 levelId = serverApi.GetLevelId()
 compCmd = CFServer.CreateCommand(levelId)
 compGame = CFServer.CreateGame(levelId)
+compExtra = CFServer.CreateExtraData(levelId)
+compHttp = CFServer.CreateHttp(levelId)
+
 
 def unicode_convert(input):
 	#type: (dict|str) -> dict|list|str|bool
@@ -60,6 +64,7 @@ class MainLogicPart(PartBase):
 		self.name = "主逻辑零件"
 		self.etsFiles = []
 		self.last_operation_cache = {}  # 缓存操作员状态
+		self.last_message_time = {} # 初始化发言限频字典
 
 	def InitClient(self):
 		"""
@@ -75,10 +80,40 @@ class MainLogicPart(PartBase):
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer('TryOpenEULA', {})
 
 	def TryOpenEULA(self, args):
-		serversystem = serverApi.GetSystem("Minecraft", "preset")
-		compExtra = CFServer.CreateExtraData(args['__id__'])
-		if not compExtra.GetExtraData('EULA'):
-			serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
+		playerId = args['__id__']
+		playerUid = compHttp.GetPlayerUid(playerId)
+		EULA_Agreed_Local = None
+		def checkEULAgreed_callback(EULAdata):
+			if EULAdata is None:
+				EULA_Agreed_Local = None
+				compMsg = CFServer.CreateMsg(playerId)
+				compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
+				serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
+				return
+			
+			result = {}
+			
+			for item in EULAdata["entity"]["data"]:
+				result[item["key"]] = item["value"]
+			
+			if "EULA_Agreed" in result:
+				EULA_Agreed_Local = result["EULA_Agreed"]
+
+				if EULA_Agreed_Local:
+					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
+					return
+				else:
+					serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
+
+			else:
+				EULA_Agreed_Local = None # 未设置
+				serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
+		compHttp.LobbyGetStorage(checkEULAgreed_callback, playerUid, ["EULA_Agreed"])
+
+		# compExtra = CFServer.CreateExtraData(playerId)
+		
+		# if not compExtra.GetExtraData('EULA'):
+		# 	serversystem.NotifyToClient(playerId, 'openUI', {"ui": "EULA"})
 
 	def UI(self, args):
 		uiNodePreset = self.GetParent().GetChildPresetsByName(args["ui"])[0]
@@ -161,8 +196,8 @@ class MainLogicPart(PartBase):
 
 
 	def InitServer(self):
+		global serversystem
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
-		
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "ServerChatEvent", self, self.OnServerChat)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CommandEvent", self, self.OnCommandEvent)
 		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerJoinMessageEvent", self, self.OnAddPlayerEvent)
@@ -179,6 +214,7 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent('Minecraft', 'preset', 'EULA', self, self.eula)
 		compCmd.SetCommandPermissionLevel(4)
 		self.timer = CFServer.CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0, self.OnSecond)
+		CFServer.CreatePet(levelId).Disable() 
 
 		"""
 		@description 服务端的零件对象初始化入口
@@ -187,10 +223,33 @@ class MainLogicPart(PartBase):
 		PartBase.InitServer(self)
 
 	def eula(self, args):
-		if args["reason"] == "您没有接受EULA协议":
-			compCmd.SetCommand('/kick %s %s' % (CFServer.CreateName(args['__id__']).GetName(), args["reason"]), False)
+		playerId = args['__id__']
+		if args["reason"] == "EULA_FAILED_ERROR":
+			compCmd.SetCommand('/kick %s %s' % (CFServer.CreateName(playerId).GetName(), "您没有接受EULA协议"), False)
 		else:
-			CFServer.CreateExtraData(args['__id__']).SetExtraData('EULA', True)
+			compMsg = CFServer.CreateMsg(playerId)
+			playerUid = compHttp.GetPlayerUid(playerId)
+			def callback(result):
+				if result is None:
+					compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
+					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！", "§a")
+					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
+					return
+				if result["code"] == 0:
+					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！EULA状态已同步至云服务器。", "§a")
+					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
+				else:
+					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！", "§a")
+					compMsg.NotifyOneMessage(playerId, "与云服务器同步EULA状态失败。错误码：%s ，错误信息：%s" % (result['code'],result['message']), "§c")
+					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
+			def entities_getter():
+				return [{
+					"key": "EULA_Agreed",
+					"value": True
+				}]
+			compHttp.LobbySetStorageAndUserItem(callback, playerUid, None, entities_getter)
+			
+
 
 	def changenbt(self, args):
 		if CFServer.CreatePlayer(args["__id__"]).GetPlayerOperation() == 2:
@@ -246,104 +305,116 @@ class MainLogicPart(PartBase):
 				# 	blockEntitycomp.SetBlockEntityData(dimensionId, (x,y,z), blockEntityData)
 				
 				compBlockEntity.SetCommandBlock((x, y, z), dimensionId, cmd, name, mode, isConditional, redstoneMode)
-		
+
 	def OnServerChat(self, args):
-		playerId = args["playerId"]
-		serversystem = serverApi.GetSystem("Minecraft", "preset")
-		compMsg = CFServer.CreateMsg(playerId)
-		can_use_key = 0
-		if CFServer.CreatePlayer(playerId).GetPlayerOperation() == 2:
-			can_use_key = 1
-		if args["message"] == "python.enchant":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了自定义附魔面板]"}]}' % (args["username"], args["username"]))
-				serversystem.NotifyToClient(playerId, "openUI", {"ui":"enchant"})
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.getitem":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了获取隐藏物品面板]"}]}' % (args["username"], args["username"]))
-				serversystem.NotifyToClient(playerId, "openUI", {"ui":"getitem"})
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.nbteditor":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了NBT修改器]"}]}' % (args["username"], args["username"]))
-				serversystem.NotifyToClient(playerId, "openUI", {"ui":"nbteditor"})
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.changetips":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了修改物品注释面板]"}]}' % (args["username"], args["username"]))
-				serversystem.NotifyToClient(playerId, "openUI", {"ui":"itemTips"})
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.cmdbatch":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了批量执行命令面板]"}]}' % (args["username"], args["username"]))
-				serversystem.NotifyToClient(playerId, "openUI", {"ui":"cmdbatch"})
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.cmdblockimport":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了命令方块设置工具面板]"}]}' % (args["username"], args["username"]))
-				serversystem.NotifyToClient(playerId, "openUI", {"ui":"cmdblockimportui"})
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.structureimport":
-			args["cancel"] = True
-			if can_use_key == 1:
-				compCmd.SetCommand('/tellraw @a[tag=op,name=!%s] {"rawtext":[{"text":"§7§o[%s: 打开了导入结构面板]"}]}' % (args["username"], args["username"]))
-				serversystem.NotifyToClient(playerId, "openUI", {"ui":"struimport"})
-			else:
-				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限", "§c")
-		elif args["message"] == "python.getversion":
-			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "---------\n版本： v0.8a(2025/6):8\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------", "§b")
-		elif args["message"] == "python.gettps":
-			args["cancel"] = True
-			if can_use_key == 1:
-				if serverApi.GetServerTickTime() <= 50:
-					TPS = "20.0*"
+		
+		def check_time_limit(playerId,current_time):
+			# 管理员无限制
+			if CFServer.CreatePlayer(playerId).GetPlayerOperation() == 2:
+				return True
+			
+			limitFrequency = compExtra.GetExtraData("limitFrequency") if compExtra.GetExtraData("limitFrequency") else 0 # 如未定义，默认为0，即无限制
+			if (limitFrequency - 0) < 0.01: # 处理浮点数误差 
+				return True
+			elif playerId in self.last_message_time:
+				last_time = self.last_message_time[playerId]
+				time_elapsed = current_time - last_time
+				if time_elapsed < limitFrequency:
+					compMsg = CFServer.CreateMsg(playerId)
+					compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§e您发送消息过于频繁，请等待 %.1f 秒后再试" % (limitFrequency - time_elapsed))
+					return False # 未超过限定时间
 				else:
-					TPS = "%.1f" % (1000/serverApi.GetServerTickTime())
-				compMsg.NotifyOneMessage(playerId, "TPS:%s mspt:%.2fms" % (TPS,serverApi.GetServerTickTime()) , "§e")
+					return True # 超过限定时间，允许发言
 			else:
+				return True # 从未发言的玩家，允许发言
+
+		playerId = args["playerId"]
+		message = args["message"]
+		username = args["username"]
+		args["cancel"] = True
+		CFServer.CreateEntityComponent(playerId).GetEntitiesBySelector
+
+		if CFServer.CreateExtraData(playerId).GetExtraData("mute"):
+			compMsg = CFServer.CreateMsg(playerId)
+			compMsg.NotifyOneMessage(playerId, "您无法在被禁言状态下发送消息，请联系房间管理解除禁言。", "§e")
+			return
+		
+		
+		for token in ("", "", ""):
+			if token in message:
+				compMsg = CFServer.CreateMsg(playerId)
+				compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言", "§c")
+				compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§e检测到玩家§c【%s】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/mute§e命令"}]}' % username)
+				CFServer.CreateExtraData(playerId).SetExtraData("mute", True)
+				return
+			
+		commands = {
+			"python.enchant": ("自定义附魔面板", "enchant"),
+			"python.getitem": ("获取隐藏物品面板", "getitem"),
+			"python.nbteditor": ("NBT修改器", "nbteditor"),
+			"python.changetips": ("修改物品注释面板", "itemTips"),
+			"python.cmdbatch": ("批量执行命令面板", "cmdbatch"),
+			"python.cmdblockimport": ("命令方块设置工具面板", "cmdblockimportui"),
+			"python.structureimport": ("导入结构面板", "struimport")
+		}
+
+		if message in commands:
+			desc, ui_name = commands[message]
+			can_use_key = (CFServer.CreatePlayer(playerId).GetPlayerOperation() == 2)
+			if can_use_key:
+				compMsg = CFServer.CreateMsg(playerId)
+				serversystem.NotifyToClient(playerId, "openUI", {"ui": ui_name})
+				compMsg.NotifyOneMessage(playerId, "[警告] 通过此命令打开管理面板的方式将在未来的版本中被移除，建议使用命令 /openui 代替。", "§e")
+			else:
+				compMsg = CFServer.CreateMsg(playerId)
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
-		elif "" in args["message"] or "" in args["message"] or "" in args["message"]:
-			args["cancel"] = True
-			compMsg.NotifyOneMessage(playerId, "§6§l反崩服系统>>> §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言")
-			compCmd.SetCommand('/tellraw @a[tag=op] {\"rawtext\":[{\"text\":\"§6§l管理小助手>>> §r§e检测到玩家§c【%s】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/ability§e命令\"}]}' % (args["username"]))
-			compCmd.SetCommand('/ability %s mute true' % (args["username"]), False)
-		else:
-			args["cancel"] = True
-			message = args["message"]
-			compdata = CFServer.CreateExtraData(playerId)
-			if compdata.GetExtraData("chatprefix"):
-				chatprefix = compdata.GetExtraData("chatprefix")
+			return
+
+		if message == "python.gettps":
+			can_use_key = (CFServer.CreatePlayer(playerId).GetPlayerOperation() == 2)
+			if can_use_key:
+				tick_time = serverApi.GetServerTickTime()
+				TPS = "20.0*" if tick_time <= 50 else "%.1f" % (1000 / tick_time)
+				compMsg = CFServer.CreateMsg(playerId)
+				compMsg.NotifyOneMessage(playerId, "TPS:%s mspt:%.2fms" % (TPS,tick_time), "§e")
+				compMsg.NotifyOneMessage(playerId, "[警告] 通过此命令获取TPS的方式将在未来的版本中被移除，建议使用命令 /gettps 代替。", "§e")
 			else:
-				chatprefix = ""
-			if not compGame.CheckWordsValid(message):
-				message = "***"
+				compMsg = CFServer.CreateMsg(playerId)
+				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
+			return
+		
+		# 普通消息
+		current_time = time.time()
+		if check_time_limit(playerId,current_time):
+			compdata = CFServer.CreateExtraData(playerId)
+			chatprefix = compdata.GetExtraData("chatprefix") if compdata.GetExtraData("chatprefix") else ""
+			sanitized_msg = message if compGame.CheckWordsValid(message) else "***"
+			compGame.SetNotifyMsg("%s%s >>> %s" % (chatprefix, username, sanitized_msg), playerId)
+			self.last_message_time[playerId] = current_time
 
-			compGame.SetNotifyMsg("%s%s >>> %s" % (chatprefix, args["username"], message))
-			# 注意：使用setnotifymsg会被视为系统消息而非玩家消息，无法使用“静音玩家聊天”屏蔽
+		# 注意：使用setnotifymsg会被视为系统消息而非玩家消息，无法使用“静音玩家聊天”屏蔽
 
-			# 旧版，使用tellraw，遇到引号会报错
-			# message = message.replace('\\', '\\\\')
-			# compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message.replace('"', '\\"')))
+		# 旧版，使用tellraw，遇到引号会报错
+		# message = message.replace('\\', '\\\\')
+		# compCmd.SetCommand('/tellraw @a {\"rawtext\":[{\"text\":\"%s%s >>> §r%s\"}]}' % (chatprefix, args['username'], message.replace('"', '\\"')))
 
 	def OnCommandEvent(self, args):
 		compMsg = CFServer.CreateMsg(args["entityId"])
-		if args["command"] == "/kill @e":
-			args["cancel"] = True
-			compMsg.NotifyOneMessage(args["entityId"], '命令 /kill @e 已在本地图被禁止。', "§c")
+		cmd = args["command"].strip().lower()
+		entityId = args["entityId"]
+		if cmd.startswith("/kill @e"):
+			# 检查命令的剩余部分是否只有空格（忽略首尾空格）
+			if not cmd[9:].strip():
+				args["cancel"] = True
+				compMsg.NotifyOneMessage(entityId, '命令 /kill @e 已在本地图被禁止。', "§c")
+		
+		if any(cmd.startswith(prefix) for prefix in ("/msg", "/me", "/tell","/w")):
+			ifmute = CFServer.CreateExtraData(entityId).GetExtraData("mute")
+			if ifmute:
+				args["cancel"] = True
+				compMsg.NotifyOneMessage(entityId, 
+										"您无法在被禁言状态下发送消息，请联系房间管理解除禁言。", 
+										"§e")
 
 	def OnAddPlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
