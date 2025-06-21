@@ -53,7 +53,8 @@ def conver_to_nbt(input):
 			return {key: conver_to_nbt(value) for key, value in input.items()}
 
 def intg(num):
-	return int(num)-1 if num < 0 else int(num)
+	#type: (float) -> int
+	return int(math.floor(num))
 
 @registerGenericClass("MainLogicPart")
 class MainLogicPart(PartBase):
