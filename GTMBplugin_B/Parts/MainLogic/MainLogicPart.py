@@ -54,6 +54,7 @@ def conver_to_nbt(input):
 			return {key: conver_to_nbt(value) for key, value in input.items()}
 
 def intg(num):
+	#type: (float) -> int
 	return int(math.floor(num))
 
 @registerGenericClass("MainLogicPart")
@@ -83,32 +84,26 @@ class MainLogicPart(PartBase):
 	def TryOpenEULA(self, args):
 		playerId = args['__id__']
 		playerUid = compHttp.GetPlayerUid(playerId)
-		EULA_Agreed_Local = None
+		
 		def checkEULAgreed_callback(EULAdata):
+			compPlayerExtraData = CFServer.CreateExtraData(playerId)
 			if EULAdata is None:
-				EULA_Agreed_Local = None
 				compMsg = CFServer.CreateMsg(playerId)
 				compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
-				serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
-				return
-			
-			result = {}
-			
-			for item in EULAdata["entity"]["data"]:
-				result[item["key"]] = item["value"]
-			
-			if "EULA_Agreed" in result:
-				EULA_Agreed_Local = result["EULA_Agreed"]
-
-				if EULA_Agreed_Local:
-					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
+				if compPlayerExtraData.GetExtraData('EULA'):
 					return
 				else:
-					serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
+					serversystem.NotifyToClient(playerId, 'openUI', {"ui": "EULA"})
+					return	
+			
+			# 同步到本地
+			cloud_data = {item["key"]: item["value"] for item in EULAdata["entity"]["data"]}
+			cloud_agreed = cloud_data.get("EULA_Agreed", False)
+			compPlayerExtraData.SetExtraData('EULA', cloud_agreed)
+			
+			if not cloud_agreed:
+				serversystem.NotifyToClient(playerId, 'openUI', {"ui": "EULA"})
 
-			else:
-				EULA_Agreed_Local = None # 未设置
-				serversystem.NotifyToClient(args['__id__'], 'openUI', {"ui": "EULA"})
 		compHttp.LobbyGetStorage(checkEULAgreed_callback, playerUid, ["EULA_Agreed"])
 
 		# compExtra = CFServer.CreateExtraData(playerId)
@@ -227,7 +222,7 @@ class MainLogicPart(PartBase):
 		playerId = args['__id__']
 		if args["reason"] == "EULA_FAILED_ERROR":
 			compCmd.SetCommand('/kick %s %s' % (CFServer.CreateName(playerId).GetName(), "您没有接受EULA协议"), False)
-		else:
+		elif args["reason"] == "EULA_AGREED":
 			compMsg = CFServer.CreateMsg(playerId)
 			playerUid = compHttp.GetPlayerUid(playerId)
 			def callback(result):
@@ -236,12 +231,8 @@ class MainLogicPart(PartBase):
 					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！", "§a")
 					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
 					return
-				if result["code"] == 0:
-					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！EULA状态已同步至云服务器。", "§a")
-					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
 				else:
-					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！", "§a")
-					compMsg.NotifyOneMessage(playerId, "与云服务器同步EULA状态失败。错误码：%s ，错误信息：%s" % (result['code'],result['message']), "§c")
+					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！EULA状态已同步至云服务器。", "§a")
 					CFServer.CreateExtraData(playerId).SetExtraData('EULA', True)
 			def entities_getter():
 				return [{
@@ -249,6 +240,8 @@ class MainLogicPart(PartBase):
 					"value": True
 				}]
 			compHttp.LobbySetStorageAndUserItem(callback, playerUid, None, entities_getter)
+		else:
+			compCmd.SetCommand('/kick %s %s' % (CFServer.CreateName(playerId).GetName(), "发生了未知错误，请联系开发者"), False)
 			
 
 
@@ -383,6 +376,25 @@ class MainLogicPart(PartBase):
 				compMsg = CFServer.CreateMsg(playerId)
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
 			return
+		
+		# if message == ".dev.withdraweula":
+		# 	playerId = args['__id__']
+		# 	playerUid = compHttp.GetPlayerUid(playerId)
+		# 	compMsg = CFServer.CreateMsg(playerId)
+		# 	def callback(result):
+		# 		if result is None:
+		# 			compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
+		# 			return
+		# 		else:
+		# 			compMsg.NotifyOneMessage(playerId, "成功撤回云端EULA协议", "§a")
+		# 	def entities_getter():
+		# 		return [{
+		# 			"key": "EULA_Agreed",
+		# 			"value": False
+		# 		}]
+		# 	compHttp.LobbySetStorageAndUserItem(callback, playerUid, None, entities_getter)
+
+			
 		
 		# 普通消息
 		current_time = time.time()

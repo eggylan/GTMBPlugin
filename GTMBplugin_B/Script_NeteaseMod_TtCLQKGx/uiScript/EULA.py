@@ -21,7 +21,7 @@ class EULA(ScreenNode):
 	def accept(self, args):
 		clientsystem = clientApi.GetSystem("Minecraft", "preset")
 		if self.GetBaseUIControl('/panel/switch_toggle').asSwitchToggle().GetToggleState():
-			clientsystem.NotifyToServer('EULA', {'reason': ''})
+			clientsystem.NotifyToServer('EULA', {'reason': 'EULA_AGREED'})
 			clientApi.PopTopUI()
 
 	def exit(self, args):
