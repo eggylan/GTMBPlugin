@@ -17,7 +17,7 @@ compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8a(2025/6):11.11\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8a(2025/6):12\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -249,6 +249,7 @@ class customcmdsPart(PartBase):
 			"gettps": self.gettps,
 			"copyright": self.copyright,
 			"chatlimit":self.chatlimit,
+			"allowmsg":self.allowmsg,
 			#'setblocknbt': self.setblocknbt
 		}
 		
@@ -2305,6 +2306,14 @@ class customcmdsPart(PartBase):
 			return False, '已将发言间隔限制设置为 %.1f 秒' % cmdargs[0]
 		else:
 			return True, '设置失败'
+		
+	def allowmsg(self, cmdargs, playerId, variant, data):
+		if cmdargs[0]:
+			compExtra.SetExtraData('allow_msg', True)
+			return False, '已允许玩家间私聊'
+		else:
+			compExtra.SetExtraData('allow_msg', False)
+			return False, '已禁止玩家间私聊'
 
 
 	def summonnbt(self, cmdargs, playerId, variant, data):

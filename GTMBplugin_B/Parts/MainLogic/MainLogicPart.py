@@ -377,25 +377,6 @@ class MainLogicPart(PartBase):
 				compMsg.NotifyOneMessage(playerId, "你没有使用此命令的权限。", "§c")
 			return
 		
-		# if message == ".dev.withdraweula":
-		# 	playerId = args['__id__']
-		# 	playerUid = compHttp.GetPlayerUid(playerId)
-		# 	compMsg = CFServer.CreateMsg(playerId)
-		# 	def callback(result):
-		# 		if result is None:
-		# 			compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
-		# 			return
-		# 		else:
-		# 			compMsg.NotifyOneMessage(playerId, "成功撤回云端EULA协议", "§a")
-		# 	def entities_getter():
-		# 		return [{
-		# 			"key": "EULA_Agreed",
-		# 			"value": False
-		# 		}]
-		# 	compHttp.LobbySetStorageAndUserItem(callback, playerUid, None, entities_getter)
-
-			
-		
 		# 普通消息
 		current_time = time.time()
 		if check_time_limit(playerId,current_time):
@@ -420,14 +401,47 @@ class MainLogicPart(PartBase):
 			if not cmd[9:].strip():
 				args["cancel"] = True
 				compMsg.NotifyOneMessage(entityId, '命令 /kill @e 已在本地图被禁止。', "§c")
+				return
 		
 		if any(cmd.startswith(prefix) for prefix in ("/msg", "/me", "/tell","/w")):
+			allow_msg = compExtra.GetExtraData("allow_msg")
+			if not allow_msg and CFServer.CreatePlayer(entityId).GetPlayerOperation() != 2:
+				args["cancel"] = True
+				compMsg.NotifyOneMessage(entityId, "§r§e§l[MSGWatcher] §r§c当前房间禁止私聊消息。", "§c")
+				return
 			ifmute = CFServer.CreateExtraData(entityId).GetExtraData("mute")
 			if ifmute:
 				args["cancel"] = True
 				compMsg.NotifyOneMessage(entityId, 
 										"您无法在被禁言状态下发送消息，请联系房间管理解除禁言。", 
 										"§e")
+				return
+			def check_time_limit(playerId,current_time):
+				# 管理员无限制
+				if CFServer.CreatePlayer(playerId).GetPlayerOperation() == 2:
+					return True
+				
+				limitFrequency = compExtra.GetExtraData("limitFrequency") if compExtra.GetExtraData("limitFrequency") else 0 # 如未定义，默认为0，即无限制
+				if (limitFrequency - 0) < 0.01: # 处理浮点数误差 
+					return True
+				elif playerId in self.last_message_time:
+					last_time = self.last_message_time[playerId]
+					time_elapsed = current_time - last_time
+					if time_elapsed < limitFrequency:
+						compMsg = CFServer.CreateMsg(playerId)
+						compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§e您发送消息过于频繁，请等待 %.1f 秒后再试" % (limitFrequency - time_elapsed))
+						return False # 未超过限定时间
+					else:
+						return True # 超过限定时间，允许发言
+				else:
+					return True # 从未发言的玩家，允许发言
+			current_time = time.time()
+			if check_time_limit(entityId,current_time):
+				self.last_message_time[entityId] = current_time # 更新最后发言时间
+			else:
+				args["cancel"] = True
+				return
+
 
 	def OnAddPlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":

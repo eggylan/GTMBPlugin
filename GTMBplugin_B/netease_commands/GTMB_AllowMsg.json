@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "allowmsg",
+	"description": "设置是否允许玩家间私聊",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "是否允许（True为允许，False为禁止）", "type": "bool"}
+    ]
+}
