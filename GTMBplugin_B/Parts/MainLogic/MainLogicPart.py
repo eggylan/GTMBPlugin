@@ -6,6 +6,7 @@ import mod.server.extraServerApi as serverApi
 import mod.client.extraClientApi as clientApi
 import json
 import time
+import math
 
 CFServer = serverApi.GetEngineCompFactory()
 CFClient = clientApi.GetEngineCompFactory()
@@ -53,7 +54,7 @@ def conver_to_nbt(input):
 			return {key: conver_to_nbt(value) for key, value in input.items()}
 
 def intg(num):
-	return int(num)-1 if num < 0 else int(num)
+	return int(math.floor(num))
 
 @registerGenericClass("MainLogicPart")
 class MainLogicPart(PartBase):
