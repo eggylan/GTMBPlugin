@@ -10,6 +10,7 @@
         "ui/nbteditor.json",
         "ui/structureimport.json",
         "ui/anvil_screen.json",
+        "ui/anvil_screen_pocket.json",
         "ui/command_block_screen.json",
         "ui/netease_editor_template_namespace.json"
     ]
