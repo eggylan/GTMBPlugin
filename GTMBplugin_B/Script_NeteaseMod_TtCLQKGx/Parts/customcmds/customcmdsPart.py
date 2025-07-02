@@ -17,7 +17,7 @@ compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8a(2025/6):13\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8a(2025/6):14\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -31,10 +31,6 @@ def unicode_convert(input):
 		return [unicode_convert(element) for element in input]
 	elif isinstance(input, unicode): # type: ignore
 		output = str(input)
-		if output == 'True':
-			return True
-		elif output == 'False':
-			return False
 		return output
 	return input
 
@@ -363,7 +359,7 @@ class customcmdsPart(PartBase):
 		'''
 		@description 服务端的零件对象初始化入口
 		'''
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommand)
+		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
 		#serversystem.ListenForEvent('Minecraft', 'preset', 'customCmdReturn', self, self.OnReturn)
 		PartBase.InitServer(self)
 
@@ -373,7 +369,7 @@ class customcmdsPart(PartBase):
 	# 	#compMsg = CFServer.CreateMsg(args['target'])
 	# 	#compName = CFServer.CreateName(args['__id__'])
 
-	def OnCustomCommand(self, args):
+	def OnCustomCommandServer(self, args):
 		cmdargs = []
 		variant = args['variant']
 		args_list = args['args']
@@ -382,9 +378,13 @@ class customcmdsPart(PartBase):
 			playerId = args['origin']['entityId']
 		except:
 			playerId = None
+		#print(args)
 		handler = self.servercustomcmd.get(args['command'])
-		if handler:
+		try:
 			args['return_failed'], args['return_msg_key'] = handler(cmdargs, playerId, variant, args)
+		except Exception as e:
+			args['return_failed'] = True
+			args['return_msg_key'] = '出现未知错误, 原因 %s' % str(e)
 		#print(args)
 
 	# 服务端函数部分由此开始
@@ -1353,10 +1353,16 @@ class customcmdsPart(PartBase):
 						# 根据变量类型格式化
 						if var_info['type'] == 'str':
 							word = '"%s"' % var_info['value']  # 字符串添加引号
-						elif var_info['type'] == 'int' or var_info['type'] == 'float':
+						else:
 							word = str(var_info['value'])
-						else:  # 未知类型保持原格式
-							word = str(var_info['value'])
+					else:
+						pass
+				elif word.startswith('paramstr:'):
+					var_name = word.split(':', 1)[1]
+					# 查找变量
+					if var_name in params:
+						var_info = params[var_name]
+						word = '"%s"' % var_info['value']  # 添加引号
 					else:
 						pass
 				

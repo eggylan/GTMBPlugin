@@ -28,7 +28,7 @@ class importstrulogic(ScreenNode):
 		err_control = self.GetBaseUIControl('/panel/err')
 		path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
 		if not path.endswith('.covstructure'):
-			err_control.asLabel().SetText('§c⚠无效的文件')
+			err_control.asLabel().SetText('§4⚠无效的文件')
 			err_control.SetVisible(True)
 			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 			comp.AddTimer(1, hide_err)
@@ -37,7 +37,7 @@ class importstrulogic(ScreenNode):
 			with open(path) as f:
 				structure = json.load(f)
 		except:
-			err_control.asLabel().SetText('§c⚠无效的路径')
+			err_control.asLabel().SetText('§4⚠无效的路径')
 			err_control.SetVisible(True)
 			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 			comp.AddTimer(1, hide_err)
