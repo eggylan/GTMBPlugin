@@ -1,6 +1,7 @@
 {
-    "content": "NBT承载着物品属性，方块属性，实体属性等等",
+    "content": "我们需要再深入些……",
     "editor_identifier": "guild",
-    "icon": "textures/items/book_portfolio",
-    "title": "NBT入门"
+    "icon": "textures/books/guild_stairs",
+    "sortnum": 4,
+    "title": "高级知识"
 }

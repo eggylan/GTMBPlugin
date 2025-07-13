@@ -18,7 +18,7 @@ compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8a(2025/6):14\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8a(2025/6):15\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -328,7 +328,8 @@ class customcmdsPart(PartBase):
 	def client_sethudchatstackvisible(self, args):
 		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
 	def client_chatclear(self, args):
-		CFClient.CreateTextNotifyClient(levelId).SetLeftCornerNotify("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+		for i in range(30):	
+			CFClient.CreateTextNotifyClient(levelId).SetLeftCornerNotify("\n\n\n\n")
 	def client_openui(self, args):
 		if args['cmdargs'][0] == "enchant":
 			uiWillbeOpen = "enchant"
@@ -2351,6 +2352,7 @@ class customcmdsPart(PartBase):
 		if playerId is None:
 			return True, '该命令无法在命令方块或控制台执行'	
 		serversystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'chatclear'})
+		return False, ''
 		return False, ''#'\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
 	
 	def openui(self, cmdargs, playerId, variant, data):

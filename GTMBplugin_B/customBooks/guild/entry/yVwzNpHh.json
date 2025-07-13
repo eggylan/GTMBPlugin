@@ -10,10 +10,10 @@
             "type": "imagePage"
         },
         {
-            "content": "在聊天框发出\n“§lpython.getitem§r”\n即可使用，打开一个获取物品面板，跟随指引即可使用\n该面板可以获得一些被官方隐藏的物品，比如§b下界反应核§r",
+            "content": "键入指令\n“/openui getitem”\n即可使用，打开一个获取物品面板，跟随指引即可。\n该面板可以获得一些被官方隐藏的物品，比如§b下界反应核§r",
             "type": "textPage"
         }
     ],
     "parent": "YfFEmtdB",
-    "title": "getitem"
+    "title": "隐藏物品获取"
 }
