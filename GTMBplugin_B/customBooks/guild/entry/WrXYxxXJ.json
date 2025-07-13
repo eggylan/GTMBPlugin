@@ -1,0 +1,16 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "§l在使用自定义指令之前，我们先学习一些基础知识。§r\n\n§lint§r：整数，如114这样的整数。\n§lfloat§r：浮点数（带小数的数），如5.14这样的数。\n§lbool§r：布尔值（真（true）或假（false）），如true这样的逻辑值。\n§ltarget§r：目标，含目标选择器（如@a）和玩家名（如\"小明\"）\n",
+            "type": "textPage"
+        },
+        {
+            "content": "§lpos§r：坐标，三个连续的浮点数，如12 36 88\n§ldimension§r：维度，overworld为主世界，nether为下界，the_end为末地，“dm+数字”为自定义维度\n§lstr§r：字符串，必须用英文双引号（\"）包裹，如\"我是史蒂夫\" \"It's a cat.\"",
+            "type": "textPage"
+        }
+    ],
+    "parent": "NJUcqwdh",
+    "sortnum": 0,
+    "title": "前置知识"
+}

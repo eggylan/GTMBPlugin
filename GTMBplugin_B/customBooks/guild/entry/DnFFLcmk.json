@@ -1,0 +1,210 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "72./setdisablecontainers - 禁止所有容器界面的打开\n用法：/setdisablecontainers <目标:target> <是否禁止:bool>\n\n73./setdisabledropitem - 设置禁止丢弃物品\n用法：/setdisabledropitem <目标:target> <是否禁止:bool>",
+            "type": "textPage"
+        },
+        {
+            "content": "74./setdisablehunger - 设置是否禁用饥饿度\n用法：/setdisablehunger <目标:target> <是否禁止:bool>\n\n75./setenchantmentseed - 设置玩家的附魔种子\n用法：/setenchantmentseed <目标:target> <种子:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "76./setentityitem - 设置生物物品\n用法：/setentityitem <目标:target> <位置:int> <itemJson:str> <槽位:int>\n\n77./setentityonfire - 设置实体着火\n用法：/setentityonfire <目标:target> <着火时间（单位：秒），小于0时灭火:int> [每秒扣血:int]",
+            "type": "textPage"
+        },
+        {
+            "content": "78./setentityowner - 设置实体属主（含可驯服生物主人、掉落物丢弃者，弹射物发射者）\n用法：/setentityowner <目标:target> [属主(无参数为无主):target]\n\n79./setentityride - 驯服可骑乘生物\n用法：/setentityride <玩家:target> <生物:target>",
+            "type": "textPage"
+        },
+        {
+            "content": "80./setframeitemdropchange - 设置点击物品展示框时生成掉落的几率\n用法：/setframeitemdropchange <方块位置:pos> <维度:dimension> <掉落几率（取值范围：[0,1]）:float>",
+            "type": "textPage"
+        },
+        {
+            "content": "81./setframerotation - 设置物品展示框里物品的顺时针旋转角度\n用法：/setframerotation <方块位置:pos> <维度:dimension> <旋转角度:float>\n\n82./setgaussian - 设置玩家屏幕的高斯模糊",
+            "type": "textPage"
+        },
+        {
+            "content": "用法：\n/setgaussian <模式:enable> <目标:target> <是否开启:bool>\n/setgaussian <模式:rad> <目标:target> <半径:float>\n",
+            "type": "textPage"
+        },
+        {
+            "content": "83./setgravity - 设置实体的重力因子，设置为0时则应用世界的重力因子\n用法：/setgravity <目标:target> <重力因子（负数，表示每帧向下速度）:float>",
+            "type": "textPage"
+        },
+        {
+            "content": "84./sethopperspeed - 设置漏斗运输一个物品所需的时间，该设置存档\n用法：/sethopperspeed <方块位置:pos> <维度:dimension> <时间（单位：红石刻），默认4:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "85./sethudchatstackposition - 设置HUD界面左上小聊天窗口位置\n用法：/sethudchatstackposition <目标:target> <横轴:float> <纵轴:float>",
+            "type": "textPage"
+        },
+        {
+            "content": "86./sethudchatstackvisible - 设置HUD界面左上小聊天窗口可见性\n用法：/sethudchatstackvisible <目标:target> <是否可见:bool>",
+            "type": "textPage"
+        },
+        {
+            "content": "87./sethurtcd - 设置全局受击间隔\n用法：/sethurtcd <单位帧数:int>\n\n88./setinvitemexchange - 交换玩家背包中物品位置\n用法：/setinvitemexchange <玩家:target> <物品位置1:int> <物品位置2:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "89./setinvitemnum - 设置玩家背包指定位置物品数目\n用法：/setinvitemnum <玩家:target> <槽位:int> <物品数目（为0清除物品）:int>\n\n90./setitemdurability - 设置手持物品的耐久值\n用法：/setitemdurability <玩家:target> <耐久:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "91./setitemmaxdurability - 设置手持物品的最大耐久值\n用法：/setitemmaxdurability <玩家:target> <最大耐久度:int>\n\n92./setitemtierlevel - 设置手持工具的挖掘等级\n用法：/setitemtierlevel <目标:target> <挖掘等级:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "93./setitemtierspeed - 设置手持工具的挖掘速度\n用法：/setitemtierspeed <目标:target> <速度:float>\n\n94./setjumppower - 设置生物跳跃力度，0.42表示正常水平，对兔子无效\n用法：/setjumppower <目标:target> <跳跃力度:float>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "95./setleashholder - 为实体添加牵引者，与拴绳作用相同\n用法：/setleashholder <牵引者:target> <被牵引者:target>\n\n96./setlevelgravity - 设置世界重力因子，正常值为0.08\n用法：/setlevelgravity <数值:float>",
+            "type": "textPage"
+        },
+        {
+            "content": "97./setlootdropped - 设置生物是否生成掉落物\n用法：/setlootdropped <目标:target> <是否掉落:bool>\n\n98./setmaxairsupply - 设置生物最大氧气储备值\n用法：/setmaxairsupply <目标:target> <值:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "99./setitemmaxstacksize - 设置主手物品的最大堆叠数量\n用法：/setitemmaxstacksize <目标:target> <数量(64以内):int>\n\n100./setmineability - 设置玩家在生存模式下能否摧毁方块\n用法：/setmineability <目标:target> <是否可破坏:bool>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "101./setmotion - 设置生物的瞬时移动方向向量\n用法：/setmotion <目标:target> <世界坐标系下的向量(xz的值一定要带小数点):pos>\n\n102./setname - 设置生物的名称，与命名牌作用相同, 不支持玩家\n用法：/setname <目标:target> <名称:str>",
+            "type": "textPage"
+        },
+        {
+            "content": "103./setopencontainersability - 设置玩家能否打开容器\n用法：/setopencontainersability <目标:target> <能否打开:bool>\n\n104./setoperatedoorability - 设置玩家能否与门和拉杆交互\n用法：/setoperatedoorability <目标:target> <能否交互:bool>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "105./setorbexperience - 设置经验球经验\n用法：/setorbexperience <目标:target> <经验:int>\n\n106./setpersistent - 设置实体是否会因为离玩家太远而被清除\n用法：/setpersistent <目标:target> <是否不会自动清除:bool>",
+            "type": "textPage"
+        },
+        {
+            "content": "107./setpickuparea - 设置玩家的拾取物品范围，在原版拾取范围的基础上进行改变\n用法：/setpickuparea <目标:target> <范围:pos>",
+            "type": "textPage"
+        },
+        {
+            "content": "108./setpistonmaxinteractioncount - 设置活塞最多推动的方块数量，默认为12。该设置会在重载时重置。\n用法：/setpistonmaxinteractioncount <最大值(取值范围：[1,1024]):int>",
+            "type": "textPage"
+        },
+        {
+            "content": "109./setplayerattackspeedamplifier - 设置玩家攻击速度倍数\n用法：/setplayerattackspeedamplifier <目标:target> <倍数，范围[0.5,2.0]:float>",
+            "type": "textPage"
+        },
+        {
+            "content": "110./playerexhaustionratio - 管理玩家某行为饥饿度消耗倍率\n用法：/playerexhaustionratio <玩家:target> <行为:heal|jump|sprint_jump|mine|attack|global> <倍率:float>",
+            "type": "textPage"
+        },
+        {
+            "content": "111./setplayerhealthlevel - 设置玩家健康临界值，当饥饿值大于等于此值时会自动回血，原版18\n用法：/setplayerhealthlevel <玩家:target> <值:int>\n\n112./setplayerhealthtick - 设置玩家自然恢复速度\n用法：/setplayerhealthtick <玩家:target> <游戏刻:int>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "113./setplayerhunger - 设置玩家饥饿度\n用法：/setplayerhunger <玩家:target> <值:float>\n\n114./setplayerinteracterange - 设置玩家触及距离\n用法：/setplayerinteracterange <目标:target> <距离:float>",
+            "type": "textPage"
+        },
+        {
+            "content": "115./setplayerjumpable - 设置玩家是否可跳跃\n用法：/setplayerjumpable <目标:target> <是否可跳跃:bool>\n\n116./setplayermaxexhaustionvalue - 设置玩家饥饿最大消耗度\n用法：/setplayermaxexhaustionvalue <目标:target> <值:float>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "117./setplayermovable - 设置玩家是否可移动\n用法：/setplayermovable <目标:target> <是否可移动:bool>\n\n118./setplayernaturalstarve - 设置是否开启玩家饥饿掉血\n用法：/setplayernaturalstarve <目标:target> <是否开启:bool>",
+            "type": "textPage"
+        },
+        {
+            "content": "119./setplayerprefixandsuffixname - 设置玩家前缀和后缀名字\n用法：/setplayerprefixandsuffixname <目标:target> <前缀名:str> <后缀名:str>\n\n120./setspawnpoint - 设置玩家重生的位置与维度\n用法：/setspawnpoint [目标:target] [位置:pos] [维度:dimension]",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "121./setplayerstarvelevel - 设置玩家饥饿临界值，当饥饿值小于此值时会自动扣血\n用法：/setplayerstarvelevel <玩家:target> <值:int>\n\n122./setplayerstarvetick - 设置玩家饥饿掉血速度\n用法：/setplayerstarvetick <玩家:target> <游戏刻:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "123./setplayeruiitem - 设置合成容器的物品\n用法：/setplayeruiitem <玩家:target> <容器槽位 (50无法使用):int> <itemJson:str> [将被替换物品放回玩家背包:bool]",
+            "type": "textPage"
+        },
+        {
+            "content": "124./setshearsdestoryblockspeed - 设置剪刀对某一方块的破坏速度\n用法：/setshearsdestoryblockspeed <目标:target> <方块:block> <速度:float>\n\n125./setshowrideui - 设置是否显示马匹的UI界面\n用法：/setshowrideui <可骑乘生物:target> <是否显示:bool>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "126./setsigntext - 设置告示牌文本内容\n用法：/setsigntext <方块位置:pos> <文本内容:str> <维度:dimension> [是否反面:bool]",
+            "type": "textPage"
+        },
+        {
+            "content": "127./setsigntextstyle - 设置告示牌的文本样式\n用法：/setsigntextstyle <方块位置:pos> <维度:dimension> <R:float> <G:float> <B:float> <A:float> <是否发光:bool> [是否反面:bool]",
+            "type": "textPage"
+        },
+        {
+            "content": "128./setsize - 设置实体的碰撞箱\n用法：/setsize <目标:target> <宽度和长度:float> <高度:float>\n\n129./setstepheight - 设置玩家能迈过的最大高度(类似于楼梯)\n用法：/setstepheight <目标:target> <最大高度:float>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "130./setteleportability - 设置玩家能否使用TP指令\n用法：/setteleportability <目标:target> <是否允许:bool>\n\n131./settradelevel - 设置村民的交易等级\n用法：/settradelevel <目标:target> <等级:int>",
+            "type": "textPage"
+        },
+        {
+            "content": "132./setvignette - 设置玩家的屏幕暗角\n用法：\n/setvignette <模式:center> <目标:target> <x:float> <y:float>\n/setvignette <模式:rad> <目标:target> <半径:float>\n/setvignette <模式:color> <目标:target> <RGB值:pos>",
+            "type": "textPage"
+        },
+        {
+            "content": "/setvignette <模式:smooth> <目标:target> <值，范围为[0,1]:float>\n/setvignette <模式:enable> <目标:target> <是否开启:bool>\n\n133./setworldspawnd - 设置世界出生点维度与坐标\n用法：/setworldspawnd <维度:dimension> <坐标:pos>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "134./spawnitemtocontainer - 生成物品到容器方块的物品栏\n用法：/spawnitemtocontainer <itemJson:str> <箱子槽位:int> <方块位置:pos> <维度:dimension>\n\n135./spawnitemtoenderchest - 生成物品到末影箱\n用法：/spawnitemtoenderchest <itemJson:str> <箱子槽位:int> <目标玩家:target>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "136./startmotion - 启动实体身上的运动器\n用法：/startmotion <目标:target>\n\n137./stopmotion - 停止实体身上的运动器\n用法：/stopmotion <目标:target>",
+            "type": "textPage"
+        },
+        {
+            "content": "138./summonitem - 生成掉落物\n用法：/summonitem <坐标:pos> <物品信息Json:str>\n\n139./summonnbt - 根据NBT数据创建实体\n用法：/summonnbt <实体id:entity> <坐标:pos> <nbtJson:str> <维度:dimension> [是否为NPC:bool]",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "140./summonprojectile - 生成抛射物（直接发射）\n用法：/summonprojectile <创建者:target> <抛射物的id:str> <初始位置:pos> <初始朝向:pos> <力量值:float> [重力因子:float] [伤害:float] [追踪目标:target] [伤害创建者:bool] [特殊值:int]",
+            "type": "textPage"
+        },
+        {
+            "content": "141./writearmortoscoreboard - 将玩家的盔甲值写入记分板\n用法：/writearmortoscoreboard <目标:target> <记分板名称:str>\n\n142./writehealthtoscoreboard - 将玩家的生命值写入记分板\n用法：/writehealthtoscoreboard <目标:target> <记分板名称:str>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "content": "143./writehungertoscoreboard - 将玩家的饥饿值写入记分板\n用法：/writehungertoscoreboard <目标:target> <记分板名称:str>\n\n144./writespeedtoscoreboard - 将玩家的服务端速度写入记分板\n用法：/writespeedtoscoreboard <目标:target> <记分板名称:str>",
+            "contentTextSize": 9,
+            "type": "textPage"
+        },
+        {
+            "type": "textPage"
+        },
+        {
+            "type": "textPage"
+        },
+        {
+            "type": "textPage"
+        }
+    ],
+    "parent": "NJUcqwdh",
+    "sortnum": 2,
+    "title": "新增指令大全（下）"
+}

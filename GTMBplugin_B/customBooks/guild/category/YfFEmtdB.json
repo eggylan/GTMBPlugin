@@ -1,6 +1,7 @@
 {
-    "content": "这里的命令只需要在聊天框发出即可使用\n在命令方块中无法运行",
+    "content": "面对复杂的指令一头雾水？不必担心，我们已经包装好了一些功能，只需一些简单的点击即可实现。",
     "editor_identifier": "guild",
     "icon": "textures/items/book_portfolio",
-    "title": "短命令"
+    "sortnum": 1,
+    "title": "管理员面板"
 }

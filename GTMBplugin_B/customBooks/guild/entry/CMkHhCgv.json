@@ -16,7 +16,7 @@
             "type": "textPage"
         },
         {
-            "content": "你一般可以使用\n“§upython.nbteditor§r”\n短命令来查看物品的NBT属性(详见“短命令”目录)",
+            "content": "你一般可以使用\n“§u/openui nbteditor§r”\n命令来查看物品的NBT属性",
             "type": "textPage"
         },
         {
@@ -35,5 +35,5 @@
         }
     ],
     "parent": "rcTYWJwm",
-    "title": "物品NBT"
+    "title": "物品NBT编写入门"
 }

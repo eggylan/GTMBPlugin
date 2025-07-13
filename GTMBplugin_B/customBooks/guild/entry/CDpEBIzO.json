@@ -10,10 +10,38 @@
             "type": "imagePage"
         },
         {
-            "content": "在聊天框发出\n“§lpython.nbteditor§r”\n即可使用，打开一个nbt修改器面板，内置一些提示\nnbt修改器是一个强大的工具，可以改变物品的§c各种数据§r，比如§b附魔§r\\§n耐久§r等等\n在面板打开时会自动填充\n§l主手物品§r的nbt数据\n\n§o当数据格式出现错误时，下方会给出提示",
+            "content": "§lNBT编辑器§r\n\n§l§e功能简介§r\n该NBT编辑器允许玩家查看和修改其手持物品的NBT数据。以下为详细的操作说明和界面功能介绍。\n\n§l§e使用方法§r\n\n§l§a打开NBT编辑器§r\n1. 确保你拥有管理员权限。",
+            "type": "textPage"
+        },
+        {
+            "content": "2. 在游戏聊天栏中输入以下指令：\n/openui nbteditor§r\n3. 按下回车键后，NBT编辑器界面将打开。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a界面说明§r\n1. §l界面标题§r\n   界面顶部正中显示为“NBT修改”，表示当前处于NBT编辑模式。\n2. §l文本框§r\n   - 位于界面中央的大型文本框内显示当前手持物品的完整NBT数据。\n   - 支持直接点击并修改该文本框中的内容以编辑NBT数据。",
+            "type": "textPage"
+        },
+        {
+            "content": "4. §l按钮§r\n   - §l修改按钮§r：位于界面底部中央，点击后保存文本框中修改后的NBT数据到所选物品中。未修改或NBT数据不合法时点击无效。\n   - §l关闭按钮§r：位于界面右上角，点击后会关闭NBT编辑器。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a操作限制§r\n- §l管理员权限要求§r\n   只有拥有管理员权限的玩家才能打开该UI。\n  \n- §l权限变动逻辑§r\n   如果在NBT编辑器打开期间，玩家的管理员权限被撤销：\n   - 除右上角的关闭按钮外，界面中的所有功能按钮将失效。\n",
+            "type": "textPage"
+        },
+        {
+            "content": "   - 此时只能通过关闭按钮或按键退出界面。\n\n- §l退出方式§r\n   - 点击右上角的关闭按钮。\n   - 或按下键盘上的ESC键（PC端）。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§e注意事项§r\n1. §l中文乱码问题§r\n   - 当NBT数据中包含中文时，可能（但概率较小）会因解码错误显示为Unicode编码（例如u4e2d形式）。\n2. §l实时应用§r\n   修改完成并保存后，所持物品的属性会立即更新到游戏中。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§e常见问题§r\n\n§l§a1. 为什么无法打开NBT编辑器？§r\n- 请确保你拥有管理员权限。\n- 检查指令是否正确输入为/openui nbteditor§r。\n§l§a2. 修改后没有生效？§r\n- 请确认文本框中的NBT数据格式正确。\n- 检查是否点击了“修改”按钮来保存更改。",
             "type": "textPage"
         }
     ],
     "parent": "YfFEmtdB",
-    "title": "nbteditor"
+    "title": "NBT编辑器"
 }
