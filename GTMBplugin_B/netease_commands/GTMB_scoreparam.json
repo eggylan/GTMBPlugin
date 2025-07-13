@@ -4,7 +4,15 @@
 	"description": "将变量的值赋值给记分板",
 	"permission_level": "game_directors",
 	"args": [
-        {"name":"变量名","type" : "str"},
-        {"name":"记分板对象","type" : "str"}
+		{"name": "模式","type": "enum","options": ["toscore"]},
+		{"name": "变量名","type": "str"},
+		{"name": "记分板对象","type": "str"},
+		{"name": "计分板内名称","type": "str","default":null}
+	],
+	"args1": [
+	{"name": "模式","type": "enum","options": ["toparam"]},
+	{"name": "变量名","type": "str"},
+	{"name": "记分板对象","type": "str"},
+	{"name": "计分板内名称","type": "str"}
 	]
 }

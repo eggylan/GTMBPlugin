@@ -7,6 +7,8 @@ import mod.client.extraClientApi as clientApi
 import json
 import random
 import math
+#for 异常处理
+import traceback
 CFServer = serverApi.GetEngineCompFactory()
 CFClient = clientApi.GetEngineCompFactory()
 levelId = serverApi.GetLevelId()
@@ -15,7 +17,6 @@ compGame = CFServer.CreateGame(levelId)
 compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
-
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
 copyrightInfo = "§b---------\n版本： v0.8a(2025/6):14\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
@@ -30,8 +31,7 @@ def unicode_convert(input):
 	elif isinstance(input, list):
 		return [unicode_convert(element) for element in input]
 	elif isinstance(input, unicode): # type: ignore
-		output = str(input)
-		return output
+		return input.encode('utf-8')
 	return input
 
 def intg(num):
@@ -98,6 +98,7 @@ class customcmdsPart(PartBase):
 			'sethudchatstackvisible':self.client_sethudchatstackvisible,
 			'chatclear': self.client_chatclear,
 			"openui": self.client_openui,
+			"hidenametag": self.client_hidenametag
 
 		}
 
@@ -246,6 +247,7 @@ class customcmdsPart(PartBase):
 			"copyright": self.copyright,
 			"chatlimit":self.chatlimit,
 			"allowmsg":self.allowmsg,
+			"hidenametag": self.hidenametag
 			#'setblocknbt': self.setblocknbt
 		}
 		
@@ -349,10 +351,15 @@ class customcmdsPart(PartBase):
 		elif args['cmdargs'][0] == "structureimport":
 			uiWillbeOpen = "struimport"
 			uiWillbeOpenName = "结构导入"
+		elif args['cmdargs'][0] == "nbteditornew":
+			uiWillbeOpen = "nbteditornew"
+			uiWillbeOpenName = "NBT编辑器(新)"
 		uiNodePreset = self.GetParent().GetChildPresetsByName(uiWillbeOpen)[0]
 		uiNodePreset.SetUiActive(True)
 		uiNodePreset.SetUiVisible(True)
 		CFClient.CreateTextNotifyClient(levelId).SetLeftCornerNotify("已打开 %s 界面" % uiWillbeOpenName)
+	def client_hidenametag(self, args):
+		clientApi.HideNameTag(args['cmdargs'][1])
 	# 客户端函数部分到此结束
 	
 	def InitServer(self):
@@ -384,7 +391,12 @@ class customcmdsPart(PartBase):
 			args['return_failed'], args['return_msg_key'] = handler(cmdargs, playerId, variant, args)
 		except Exception as e:
 			args['return_failed'] = True
-			args['return_msg_key'] = '出现未知错误, 原因 %s' % str(e)
+			args['return_msg_key'] = '出现未知错误, 原因见上'
+			tracebacks = traceback.format_exc().splitlines()
+			if playerId:
+				for i in tracebacks:
+					compMsg = CFServer.CreateMsg(playerId)
+					compMsg.NotifyOneMessage(playerId, i, '§c')
 		#print(args)
 
 	# 服务端函数部分由此开始
@@ -622,7 +634,7 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '§r', cmdargs[2], '§r')
+			print(CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '', cmdargs[2], ''))
 		return False, '将 %s 玩家的前缀设置为 %s, 后缀设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setplayermaxexhaustionvalue(self, cmdargs, playerId, variant, data):
@@ -1323,15 +1335,29 @@ class customcmdsPart(PartBase):
 		return False, '已将 %s 踢出游戏: %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 			
 	def explode(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
+		if cmdargs[0] is None or cmdargs[4] is None:
 			return True, '没有与选择器匹配的目标'
+		if isinstance(cmdargs[4], tuple):
+			if len(cmdargs[4]) != 1:
+				return True, '只允许一个实体, 但提供的选择器允许多个实体'
+			cmdargs[4] = cmdargs[4][0]
+		ExpPlayerId = serverApi.GetPlayerList()
+		ExpPlayerId = ExpPlayerId[random.randint(0, len(ExpPlayerId)-1)]
 		for i in cmdargs[0]:
 			position = CFServer.CreatePos(i).GetFootPos()
-			CFServer.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], '', '')
+			CFServer.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId)
 		return False, '已引爆 %s 个实体' % len(cmdargs[0])
 
 	def explodebypos(self, cmdargs, playerId, variant, data):
-		if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], '', ''):
+		if cmdargs[4] is None:
+			return True, '没有与选择器匹配的目标'
+		if isinstance(cmdargs[4], tuple):
+			if len(cmdargs[4]) != 1:
+				return True, '只允许一个实体, 但提供的选择器允许多个实体'
+			cmdargs[4] = cmdargs[4][0]
+		ExpPlayerId = serverApi.GetPlayerList()
+		ExpPlayerId = ExpPlayerId[random.randint(0, len(ExpPlayerId)-1)]
+		if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId):
 			return False, '爆炸已创建于 Pos%s' % (cmdargs[0],)
 		else:
 			return True, '爆炸创建失败'
@@ -1772,8 +1798,28 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
+		if cmdargs[2] is None:
+			posType = 2
+			pos = 0
+		else:
+			posType = 0
+			pos = cmdargs[2]
 		for i in cmdargs[0]:
-			CFServer.CreateItem(i).RemoveEnchantToInvItem(cmdargs[2], cmdargs[1]['type'])
+			compItem = CFServer.CreateItem(i)
+			itemDict = compItem.GetPlayerItem(posType, pos, True)
+			if itemDict:
+				if itemDict.get('userData') is not None:
+					if itemDict['userData'].get('ench') is not None:
+						for ii in itemDict['userData']['ench']:
+							if ii['id']['__value__'] == cmdargs[1]['type']:
+								itemDict['userData']['ench'].remove(ii)
+						if itemDict['userData']['ench'] == []:
+							del itemDict['userData']['ench']
+				del itemDict['enchantData']
+				if posType == 0:
+					compItem.SpawnItemToPlayerInv(itemDict, i, pos)
+				else:
+					compItem.SpawnItemToPlayerCarried(itemDict, i)
 		return False, '将 %s 背包物品中的 %s 附魔移除' % (create_players_str(cmdargs[0]), cmdargs[1]['identifier'])
 
 	def resetmotion(self, cmdargs, playerId, variant, data):
@@ -2215,39 +2261,53 @@ class customcmdsPart(PartBase):
 			return False, '已将 %s 的高斯模糊半径设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		
 	def scoreparam(self, cmdargs, playerId, variant, data):
-		scoreboard_name = cmdargs[1]
-		
-		objects = compGame.GetAllScoreboardObjects()
-		found = False
-		for obj in objects:
-			if obj['name'] == scoreboard_name:
-				found = True
-				break
-		
-		if not found:
-			return True, '未找到该计分板对象'
-		
-		target_name = cmdargs[0]
-		params = compExtra.GetExtraData('parameters')
-		
-		if not (params and type(params) is dict and params.get(target_name)):
-			return True, '未找到变量: %s' % target_name
-		
-		var_info = params[target_name]
-		var_value = var_info.get('value', None)
-		
-		try:
-			score = int(var_value)
-		except (TypeError, ValueError):
-			return True, '无法将变量值转换为整数: %s' % target_name
-		
-		command = '/scoreboard players set %s %s %s' % (target_name, scoreboard_name, score)
-		
-		if not compcmd.SetCommand(command):
-			return True, '设置计分板失败'
-		
-		return False, '已将变量 %s 的值(%s)设置到计分板 %s 中' % (target_name, score, scoreboard_name)
+		if cmdargs[0] == 'toscore':
+			objects = compGame.GetAllScoreboardObjects()
+			for obj in objects:
+				if obj['name'] == cmdargs[2]:
+					break
+			else:
+				return True, '没有找到名称为“%s”的计分项' % (cmdargs[2])
+			param_name = cmdargs[1]
+			params = compExtra.GetExtraData('parameters')
+			if not (isinstance(params, dict) and params.get(param_name)):
+				return True, '未知的变量 %s' % param_name
+			var_value = params[param_name].get('value')
+			try:
+				score = int(var_value)
+			except (TypeError, ValueError):
+				return True, '无法将变量值转换为整数: %s' % param_name
+			command = '/scoreboard players set %s %s %s' % (cmdargs[3] if cmdargs[3] else param_name, cmdargs[2], score)
+			print(command)
+			if not compcmd.SetCommand(command):
+				return True, '设置计分板失败'
+			return False, '将变量 %s 的值(%s)设置到计分板 %s %s中' % (param_name, score, cmdargs[2], ('的 %s ' % cmdargs[3]) if cmdargs[3] else '')
 	
+		if cmdargs[0] == 'toparam':
+			objects = compGame.GetAllScoreboardObjects()
+			for obj in objects:
+				if obj['name'] == cmdargs[2]:
+					break
+			else:
+				return True, '没有找到名称为“%s”的计分项' % cmdargs[2]
+			if not compcmd.SetCommand('/scoreboard players test %s test * *' % cmdargs[3]):
+				return True, '玩家%s没有分数记录' % cmdargs[3]
+			low = -2**31
+			high = 2**31 - 1
+			while low < high:
+				mid = (low + high) // 2
+				if compcmd.SetCommand('/scoreboard players test %s %s %s %s' % (cmdargs[3], cmdargs[2], low, mid)):
+					high = mid
+				else:
+					low = mid + 1
+			params = compExtra.GetExtraData('parameters')
+			if isinstance(params, dict):
+				params.update({cmdargs[1]:{'type':'int','value':int(low)}})
+			else:
+				params = {cmdargs[1]:{'type':'int','value':int(low)}}
+			compExtra.SetExtraData('parameters', params)
+			return False, '将 %s 中 %s 的值(%s)写入变量 %s' % (cmdargs[3], cmdargs[2], low, cmdargs[1])
+
 	def setblocknbt(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
@@ -2291,19 +2351,26 @@ class customcmdsPart(PartBase):
 		if playerId is None:
 			return True, '该命令无法在命令方块或控制台执行'	
 		serversystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'chatclear'})
-		return False, '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+		return False, ''#'\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
 	
 	def openui(self, cmdargs, playerId, variant, data):
-		serversystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'openui', 'cmdargs': cmdargs})
-		return False, ''
+		if playerId:
+			serversystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'openui', 'cmdargs': cmdargs})
+			return False, ''
+		else:
+			return True, '执行者必须为玩家'
 	
 	def gettps(self, cmdargs, playerId, variant, data):
 		tick_time = serverApi.GetServerTickTime()
 		TPS = "20.0*" if tick_time <= 50 else "%.1f" % (1000 / tick_time)
-		return False,"§r§eTPS:%s mspt:%.2fms" % (TPS,tick_time)
+		if playerId:
+			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, '§r§eTPS:%s mspt:%.2fms' % (TPS, tick_time))
+		return False,''
 	
 	def copyright(self, cmdargs, playerId, variant, data):
-		return False, copyrightInfo
+		if playerId:
+			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, copyrightInfo)
+		return False, '已查询到组件信息'
 	
 	def chatlimit(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] < 0:
@@ -2321,7 +2388,6 @@ class customcmdsPart(PartBase):
 			compExtra.SetExtraData('allow_msg', False)
 			return False, '已禁止玩家间私聊'
 
-
 	def summonnbt(self, cmdargs, playerId, variant, data):
 		pass
 		#result = checkjson(cmdargs[2])
@@ -2337,6 +2403,12 @@ class customcmdsPart(PartBase):
 		#serversystem.CreateEngineEntityByNBT(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
 		#return False, '已生成实体'
 
+	def hidenametag(self, cmdargs, playerId, variant, data):
+		for i in cmdargs[0]:
+			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				return True, '选择器必须为玩家类型'
+		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidenametag', 'cmdargs': cmdargs})
+		return False, '已%s %s 的可见悬浮字' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
 
 	# 服务端函数部分到此结束
 

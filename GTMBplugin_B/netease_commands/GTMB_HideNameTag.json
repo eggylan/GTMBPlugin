@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "hidenametag",
+	"description": "隐藏玩家屏幕内所有的悬浮字",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "目标", "type": "target"},
+        {"name": "是否隐藏", "type": "bool"}
+	]
+}

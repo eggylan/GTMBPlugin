@@ -17,7 +17,7 @@
                                 "layer": 2,
                                 "font_type": "default",
                                 "shadow": true,
-                                "text": "如果有中文变成/uxxxx，请不要惊慌，那就是原内容",
+                                "text": "",
                                 "text_alignment": "center"
                             }
                         },

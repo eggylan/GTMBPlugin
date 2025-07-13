@@ -116,7 +116,7 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiActive(True)
 		uiNodePreset.SetUiVisible(True)
 		
-	def close(self, args): #之所以不用popTopUi()，是防止原生页面被额外关闭
+	def close(self, args): #不用popTopUi()，防止原生页面被额外关闭
 		for i in ["enchant","getitem","nbteditor","itemTips","cmdbatch","cmdblockimportui","struimport"]:
 			uiNodePreset = self.GetParent().GetChildPresetsByName(i)[0]
 			uiNodePreset.SetUiActive(False)

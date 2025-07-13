@@ -8,6 +8,7 @@
         "ui/GTMB_EULA.json",
         "ui/minimap.json",
         "ui/nbteditor.json",
+        "ui/nbteditornew.json",
         "ui/structureimport.json",
         "ui/anvil_screen.json",
         "ui/anvil_screen_pocket.json",

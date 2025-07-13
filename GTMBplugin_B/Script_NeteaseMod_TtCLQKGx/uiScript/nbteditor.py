@@ -10,7 +10,7 @@ class nbteditor(ScreenNode):
 		ScreenNode.__init__(self, namespace, name, param)
 
 	def resetText(self):
-		self.GetBaseUIControl("/panel/tip").asLabel().SetText("如果有中文变成/uxxxx，请不要惊慌，那就是原内容")
+		self.GetBaseUIControl("/panel/tip").asLabel().SetText("")
 
 	def Create(self):
 		"""
@@ -27,7 +27,7 @@ class nbteditor(ScreenNode):
 		userData = carriedData.pop('userData')
 		if userData:
 			carriedData['userData'] = userData
-		carriedData = json.dumps(carriedData)
+		carriedData = json.dumps(carriedData, ensure_ascii=False)
 		self.GetBaseUIControl("/panel/nbt").asTextEditBox().SetEditText(carriedData)#.replace('\\xa7', '§').replace('\\\\','\\'))
 
 	def change(self, args):

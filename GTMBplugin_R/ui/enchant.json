@@ -20,9 +20,13 @@
         ]
     },
     "main": {
+        "type": "screen",
         "controls": [
             {
                 "panel": {
+                    "type": "panel",
+                    "layer": 1,
+                    "propagate_alpha": true,
                     "clip_offset": [
                         0,
                         0
@@ -30,6 +34,8 @@
                     "controls": [
                         {
                             "image": {
+                                "type": "image",
+                                "layer": 1,
                                 "alpha": 0.5,
                                 "clip_direction": "left",
                                 "clip_ratio": 0.02,
@@ -38,15 +44,14 @@
                                     1,
                                     1
                                 ],
-                                "controls": [],
                                 "keep_ratio": false,
-                                "layer": 1,
                                 "texture": "textures/ui/gray",
-                                "type": "image"
+                                "controls": []
                             }
                         },
                         {
                             "button@common.button": {
+                                "type": "button",
                                 "$control_alpha": 1,
                                 "$default_texture": "textures/netease/common/button/default",
                                 "$hover_texture": "textures/netease/common/button/hover",
@@ -77,14 +82,28 @@
                                 "$pressed_button_name": "%netease_editor_template_namespace.click",
                                 "$pressed_texture": "textures/netease/common/button/pressed",
                                 "$texture_layer": 2,
+                                "offset": [
+                                    -13,
+                                    36
+                                ],
+                                "size": [
+                                    58,
+                                    28
+                                ],
+                                "layer": 2,
+                                "propagate_alpha": true,
+                                "button_mappings": [],
+                                "default_control": "default",
+                                "hover_control": "hover",
+                                "is_handle_button_move_event": true,
+                                "pressed_control": "pressed",
                                 "bindings": [
                                     {
+                                        "binding_type": "collection_details",
                                         "binding_collection_name": "",
-                                        "binding_condition": "always_when_visible",
-                                        "binding_type": "collection_details"
+                                        "binding_condition": "always_when_visible"
                                     }
                                 ],
-                                "button_mappings": [],
                                 "controls": [
                                     {
                                         "default@netease_editor_template_namespace.default": {}
@@ -98,26 +117,12 @@
                                     {
                                         "button_label@netease_editor_template_namespace.button_label": {}
                                     }
-                                ],
-                                "default_control": "default",
-                                "hover_control": "hover",
-                                "is_handle_button_move_event": true,
-                                "layer": 2,
-                                "offset": [
-                                    -13,
-                                    36
-                                ],
-                                "pressed_control": "pressed",
-                                "propagate_alpha": true,
-                                "size": [
-                                    58,
-                                    28
-                                ],
-                                "type": "button"
+                                ]
                             }
                         },
                         {
                             "lvl@common.text_edit_box": {
+                                "type": "edit_box",
                                 "$edit_box_default_texture": "textures/ui/edit_box_indent",
                                 "$edit_box_hover_texture": "textures/ui/edit_box_indent_hover",
                                 "$font_scale_factor": 1,
@@ -157,8 +162,6 @@
                                     "default",
                                     "default"
                                 ],
-                                "layer": 12,
-                                "max_length": 512,
                                 "offset": [
                                     -10,
                                     -9.5
@@ -167,11 +170,13 @@
                                     82,
                                     18
                                 ],
-                                "type": "edit_box"
+                                "layer": 12,
+                                "max_length": 512
                             }
                         },
                         {
                             "ID@common.text_edit_box": {
+                                "type": "edit_box",
                                 "$edit_box_default_texture": "textures/ui/edit_box_indent",
                                 "$edit_box_hover_texture": "textures/ui/edit_box_indent_hover",
                                 "$font_scale_factor": 1,
@@ -211,8 +216,6 @@
                                     "default",
                                     "default"
                                 ],
-                                "layer": 15,
-                                "max_length": 512,
                                 "offset": [
                                     -10,
                                     -39.5
@@ -221,7 +224,8 @@
                                     82,
                                     18
                                 ],
-                                "type": "edit_box"
+                                "layer": 15,
+                                "max_length": 512
                             }
                         },
                         {
@@ -307,6 +311,7 @@
                         },
                         {
                             "delench@common.button": {
+                                "type": "button",
                                 "$control_alpha": 1,
                                 "$default_texture": "textures/netease/common/button/default",
                                 "$hover_texture": "textures/netease/common/button/hover",
@@ -337,14 +342,27 @@
                                 "$pressed_button_name": "%netease_editor_template_namespace.click",
                                 "$pressed_texture": "textures/netease/common/button/pressed",
                                 "$texture_layer": 2,
+                                "offset": [
+                                    102,
+                                    36
+                                ],
+                                "size": [
+                                    101,
+                                    25
+                                ],
+                                "layer": 32,
+                                "button_mappings": [],
+                                "default_control": "default",
+                                "hover_control": "hover",
+                                "is_handle_button_move_event": true,
+                                "pressed_control": "pressed",
                                 "bindings": [
                                     {
+                                        "binding_type": "collection_details",
                                         "binding_collection_name": "",
-                                        "binding_condition": "always_when_visible",
-                                        "binding_type": "collection_details"
+                                        "binding_condition": "always_when_visible"
                                     }
                                 ],
-                                "button_mappings": [],
                                 "controls": [
                                     {
                                         "default@netease_editor_template_namespace.default": {
@@ -364,33 +382,12 @@
                                     {
                                         "button_label@netease_editor_template_namespace.button_label": {}
                                     }
-                                ],
-                                "default_control": "default",
-                                "hover_control": "hover",
-                                "is_handle_button_move_event": true,
-                                "layer": 32,
-                                "offset": [
-                                    102,
-                                    36
-                                ],
-                                "pressed_control": "pressed",
-                                "size": [
-                                    101,
-                                    25
-                                ],
-                                "type": "button"
+                                ]
                             }
                         },
                         {
                             "label": {
-                                "color": [
-                                    0,
-                                    0,
-                                    1
-                                ],
-                                "font_scale_factor": 2.1,
-                                "font_type": "default",
-                                "layer": 42,
+                                "type": "label",
                                 "offset": [
                                     13,
                                     -75
@@ -399,13 +396,21 @@
                                     140,
                                     34
                                 ],
+                                "layer": 42,
+                                "color": [
+                                    0,
+                                    0,
+                                    1
+                                ],
+                                "font_scale_factor": 2.1,
+                                "font_type": "default",
                                 "text": "自定义附魔",
-                                "text_alignment": "center",
-                                "type": "label"
+                                "text_alignment": "center"
                             }
                         },
                         {
                             "closebutton@common.button": {
+                                "type": "button",
                                 "$control_alpha": 1,
                                 "$default_texture": "textures/netease/common/button/default",
                                 "$hover_texture": "textures/netease/common/button/hover",
@@ -438,14 +443,27 @@
                                 "$texture_layer": 2,
                                 "anchor_from": "top_right",
                                 "anchor_to": "top_right",
+                                "offset": [
+                                    -16,
+                                    14
+                                ],
+                                "size": [
+                                    43,
+                                    20
+                                ],
+                                "layer": 2,
+                                "button_mappings": [],
+                                "default_control": "default",
+                                "hover_control": "hover",
+                                "is_handle_button_move_event": true,
+                                "pressed_control": "pressed",
                                 "bindings": [
                                     {
+                                        "binding_type": "collection_details",
                                         "binding_collection_name": "",
-                                        "binding_condition": "always_when_visible",
-                                        "binding_type": "collection_details"
+                                        "binding_condition": "always_when_visible"
                                     }
                                 ],
-                                "button_mappings": [],
                                 "controls": [
                                     {
                                         "default@netease_editor_template_namespace.default": {}
@@ -459,34 +477,22 @@
                                     {
                                         "button_label@netease_editor_template_namespace.button_label": {}
                                     }
-                                ],
-                                "default_control": "default",
-                                "hover_control": "hover",
-                                "is_handle_button_move_event": true,
-                                "layer": 2,
-                                "offset": [
-                                    -16,
-                                    14
-                                ],
-                                "pressed_control": "pressed",
-                                "size": [
-                                    43,
-                                    20
-                                ],
-                                "type": "button"
+                                ]
                             }
                         }
-                    ],
-                    "layer": 1,
-                    "propagate_alpha": true,
-                    "type": "panel"
+                    ]
                 }
             }
-        ],
-        "type": "screen"
+        ]
     },
     "namespace": "enchant",
     "text": {
+        "type": "label",
+        "size": [
+            90,
+            352
+        ],
+        "layer": 1,
         "color": [
             0.3333,
             1,
@@ -494,13 +500,7 @@
         ],
         "font_scale_factor": 0.9,
         "font_type": "default",
-        "layer": 1,
         "shadow": true,
-        "size": [
-            90,
-            352
-        ],
-        "text": "   附魔id列表\n  0 = 保护\n  1 = 火焰保护\n  2 = 摔落保护\n  3 = 爆炸保护\n  4 = 弹射物保护\n  5 = 荆棘\n  6 = 水下呼吸\n  7 = 深海探索者\n  8 = 水下速掘\n  9 = 锋利\n 10 = 亡灵杀手\n 11 = 节肢杀手\n 12 = 击退\n 13 = 火焰附加\n 14 = 抢夺\n 15 = 效率\n 16 = 精准采集\n 17 = 耐久\n 18 = 时运\n 19 = 力量\n 20 = 冲击\n 21 = 火矢\n 22 = 无限\n 23 = 海之眷顾\n 24 = 饵钓\n 25 = 冰霜行者\n 26 = 经验修补\n 27 = 绑定诅咒\n 28 = 消失诅咒\n 29 = 穿刺\n 30 = 激流\n 31 = 忠诚\n 32 = 引雷\n 33 = 多重射击\n 34 = 穿透\n 35 = 快速装填\n 36 = 灵魂疾行\n 其他数值 = 只有附魔光效",
-        "type": "label"
+        "text": "   附魔id列表\n  0 = 保护\n  1 = 火焰保护\n  2 = 摔落保护\n  3 = 爆炸保护\n  4 = 弹射物保护\n  5 = 荆棘\n  6 = 水下呼吸\n  7 = 深海探索者\n  8 = 水下速掘\n  9 = 锋利\n 10 = 亡灵杀手\n 11 = 节肢杀手\n 12 = 击退\n 13 = 火焰附加\n 14 = 抢夺\n 15 = 效率\n 16 = 精准采集\n 17 = 耐久\n 18 = 时运\n 19 = 力量\n 20 = 冲击\n 21 = 火矢\n 22 = 无限\n 23 = 海之眷顾\n 24 = 饵钓\n 25 = 冰霜行者\n 26 = 经验修补\n 27 = 绑定诅咒\n 28 = 消失诅咒\n 29 = 穿刺\n 30 = 激流\n 31 = 忠诚\n 32 = 引雷\n 33 = 多重射击\n 34 = 穿透\n 35 = 快速装填\n 36 = 灵魂疾行\n 其他数值 = 只有附魔光效"
     }
 }

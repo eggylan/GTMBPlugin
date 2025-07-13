@@ -22,6 +22,11 @@
 			"name": "是否产生火焰",
 			"type": "bool",
 			"default": false
+		},
+		{
+			"name": "爆炸伤害源",
+			"type": "target",
+			"default": 0
 		}
 	]
 }
