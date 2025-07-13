@@ -14,7 +14,7 @@
 ### **打开方式**
 1. 在**聊天栏**输入以下命令：
    ```
-   python.cmdbatch
+   /openui cmdbatch
    ```
 2. 按下回车键后UI会自动打开。
 
