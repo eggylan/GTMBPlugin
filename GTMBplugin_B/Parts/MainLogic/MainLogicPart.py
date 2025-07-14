@@ -383,7 +383,7 @@ class MainLogicPart(PartBase):
 			compdata = CFServer.CreateExtraData(playerId)
 			chatprefix = compdata.GetExtraData("chatprefix") if compdata.GetExtraData("chatprefix") else ""
 			sanitized_msg = message if compGame.CheckWordsValid(message) else "***"
-			compGame.SetNotifyMsg("%s%s >>> %s" % (chatprefix, username, sanitized_msg), playerId)
+			compGame.SetNotifyMsg("%s%s >>> %s" % (chatprefix, username, sanitized_msg))
 			self.last_message_time[playerId] = current_time
 
 		# 注意：使用setnotifymsg会被视为系统消息而非玩家消息，无法使用“静音玩家聊天”屏蔽
