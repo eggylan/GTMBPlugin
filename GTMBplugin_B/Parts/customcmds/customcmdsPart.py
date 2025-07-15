@@ -18,7 +18,7 @@ compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8a(2025/6):17\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8b(2025/7):1\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -69,16 +69,6 @@ class customcmdsPart(PartBase):
 		# 客户端
 		self.clientcustomcmd = {
 			'setplayerinteracterange':self.client_setplayerinteracterange,
-			'hideairsupplygui':self.client_hideairsupplygui,
-			'hidearmorgui':self.client_hidearmorgui,
-			'hidecrosshairgui':self.client_hidecrosshairgui,
-			'hideexpgui':self.client_hideexpgui,
-			'hidefoldgui':self.client_hidefoldgui,
-			'hidehealthgui':self.client_hidehealthgui,
-			'hidehorsehealthgui':self.client_hidehorsehealthgui,
-			'hidehudgui':self.client_hidehudgui,
-			'hidehungergui':self.client_hidehungergui,
-			'hideslotbargui':self.client_hideslotbargui,
 			'openfoldgui':self.client_openfoldgui,
 			'setcanpausescreen':self.client_setcanpausescreen,
 			'setcolorbrightness':self.client_setcolorbrightness,
@@ -148,16 +138,6 @@ class customcmdsPart(PartBase):
 			'openworkbench':self.openworkbench,
 			'openfoldgui':self.openfoldgui,
 			'setimmunedamage':self.setimmunedamage,
-			'hideslotbargui':self.hideslotbargui,
-			'hidehungergui':self.hidehungergui,
-			'hidehudgui':self.hidehudgui,
-			'hidehorsehealthgui':self.hidehorsehealthgui,
-			'hidehealthgui':self.hidehealthgui,
-			'hidefoldgui':self.hidefoldgui,
-			'hideexpgui':self.hideexpgui,
-			'hidecrosshairgui':self.hidecrosshairgui,
-			'hidearmorgui':self.hidearmorgui,
-			'hideairsupplygui':self.hideairsupplygui,
 			'setinvitemexchange':self.setinvitemexchange,
 			'setinvitemnum':self.setinvitemnum,
 			'setitemdurability':self.setitemdurability,
@@ -273,26 +253,6 @@ class customcmdsPart(PartBase):
 	# 客户端函数部分由此开始
 	def client_setplayerinteracterange(self, args):
 		clientApi.GetEngineCompFactory().CreatePlayer(localPlayerId).SetPickRange(args['cmdargs'][1])
-	def client_hideairsupplygui(self, args):
-		clientApi.HideAirSupplyGUI(args['cmdargs'][1])
-	def client_hidearmorgui(self, args):	
-		clientApi.HideArmorGui(args['cmdargs'][1])
-	def client_hidecrosshairgui(self, args):
-		clientApi.HideCrossHairGUI(args['cmdargs'][1])
-	def client_hideexpgui(self, args):
-		clientApi.HideExpGui(args['cmdargs'][1])
-	def client_hidefoldgui(self, args):
-		clientApi.HideFoldGUI(args['cmdargs'][1])
-	def client_hidehealthgui(self, args):
-		clientApi.HideHealthGui(args['cmdargs'][1])
-	def client_hidehorsehealthgui(self, args):
-		clientApi.HideHorseHealthGui(args['cmdargs'][1])
-	def client_hidehudgui(self, args):
-		clientApi.HideHudGUI(args['cmdargs'][1])
-	def client_hidehungergui(self, args):
-		clientApi.HideHungerGui(args['cmdargs'][1])
-	def client_hideslotbargui(self, args):
-		clientApi.HideSlotBarGui(args['cmdargs'][1])
 	def client_openfoldgui(self, args):
 		clientApi.OpenFoldGui()
 	def client_setcanpausescreen(self, args):
@@ -329,7 +289,7 @@ class customcmdsPart(PartBase):
 		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
 	def client_chatclear(self, args):
 		ClientNotify = CFClient.CreateTextNotifyClient(levelId)
-		for i in xrange(30):	
+		for _ in xrange(30):	 # type: ignore
 			ClientNotify.SetLeftCornerNotify("\n\n\n\n")
 	def client_openui(self, args):
 		if args['cmdargs'][0] == "enchant":
@@ -636,7 +596,7 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			print(CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '', cmdargs[2], ''))
+			print(CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '§f', cmdargs[2], '§f'))
 		return False, '将 %s 玩家的前缀设置为 %s, 后缀设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setplayermaxexhaustionvalue(self, cmdargs, playerId, variant, data):
@@ -839,96 +799,6 @@ class customcmdsPart(PartBase):
 		for i in cmdargs[0]:
 			CFServer.CreateHurt(i).ImmuneDamage(cmdargs[1])
 		return False, '将 %s 个实体的伤害免疫设置为 %s' % (len(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
-	
-	def hideslotbargui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hideslotbargui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的工具栏' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hidehungergui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidehungergui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的饱食度栏' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hidehudgui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidehudgui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的全部界面' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hidehorsehealthgui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidehorsehealthgui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的坐骑血条' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hidehealthgui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidehealthgui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的血条' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hidefoldgui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidefoldgui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的下拉界面' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hideexpgui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hideexpgui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的经验条' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hidecrosshairgui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidecrosshairgui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的十字准星' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hidearmorgui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidearmorgui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的盔甲栏' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
-	
-	def hideairsupplygui(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hideairsupplygui', 'cmdargs': cmdargs})
-		return False, '已%s %s 的氧气条' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
 	
 	def setinvitemexchange(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1528,7 +1398,7 @@ class customcmdsPart(PartBase):
 		else:
 			return True, '实体没有绑定运动器'
 	
-	def removemotion(self, cmdargs, playerId, variant, data):
+	def  removemotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		tot = 0
@@ -1603,9 +1473,9 @@ class customcmdsPart(PartBase):
 							None,
 							False,
 							cmdargs[3],
-							cmdargs[5],
-							cmdargs[4],
-							cmdargs[6])
+							None,
+							None,
+							cmdargs[4])
 			if Mid == -1:
 				return True, '创建失败'
 			Motions = compExtra.GetExtraData('Motions')

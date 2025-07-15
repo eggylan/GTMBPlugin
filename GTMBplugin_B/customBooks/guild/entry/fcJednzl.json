@@ -2,203 +2,320 @@
     "editor_identifier": "guild",
     "pages": [
         {
-            "content": "1./setactorcanburnbylightning - 设置是否允许闪电点燃实体\n用法：/setactorcanburnbylightning <是否允许:bool>\n\n2./addaroundentitymotion - 给实体添加对实体环绕运动器\n",
+            "content": "这些是GTMB插件新增命令的上半部分，共71条。你可以在这儿看见各个命令的用法以及注意事项",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setactorcanburnbylightning",
+            "content": "设置是否允许闪电点燃实体\n用法: /setactorcanburnbylightning <是否允许:bool>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "addaroundentitymotion",
+            "content": "给实体添加对实体环绕运动器\n用法: /addaroundentitymotion <目标:target> <环绕实体:target> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float] [环绕半径:float]\n轴的值必须带有小数部分, 即使是0\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效",
+            "contentTextSize": 8,
+            "type": "textPage"
+        },
+        {
+            "subtitle": "addaroundpointmotion",
+            "content": "给实体添加对点环绕运动器\n用法: /addaroundpointmotion <目标:target> <圆心坐标:pos> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float]\n轴的值必须带有小数部分, 即使是0\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效",
             "contentTextSize": 9,
             "type": "textPage"
         },
         {
-            "content": "用法：/addaroundentitymotion <目标:target> <环绕实体:target> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float] [环绕半径:float]\n\n3./addaroundpointmotion - 给实体添加对点环绕运动器\n",
-            "contentTextSize": 10,
+            "subtitle": "addenchant",
+            "content": "给物品栏的物品添加附魔信息\n用法: /addenchant <目标:target> <附魔:enchant> <附魔等级:int> [槽位（留空为主手）:int]",
             "type": "textPage"
         },
         {
-            "content": "用法：/addaroundpointmotion <目标:target> <圆心坐标:pos> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float]\n\n4./addenchant - 给物品栏的物品添加附魔信息\n用法：/addenchant <目标:target> <附魔:enchant> <附魔等级:int> [槽位（留空为主手）:int]",
-            "contentTextSize": 9,
+            "subtitle": "addtrackmotion",
+            "content": "给实体添加轨迹运动器\n用法: /addtrackmotion <目标:target> <终点:pos> <时间:float> [是否循环:bool] [使用实时运动方向为朝向:bool]\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效",
             "type": "textPage"
         },
         {
-            "content": "5./addtrackmotion - 给实体添加轨迹运动器\n用法：/addtrackmotion <目标:target> <终点:pos> <时间:float> [是否循环:bool] [起点朝向:pos] [终点朝向:pos] [使用运动速度为朝向(屏蔽前两个参数):bool]",
-            "contentTextSize": 10,
+            "subtitle": "addvelocitymotion",
+            "content": "给实体添加速度运动器\n用法: /addvelocitymotion <目标:target> <速度:pos> [加速度:pos] [使用实时运动方向为朝向:bool]\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效",
             "type": "textPage"
         },
         {
-            "content": "6./addvelocitymotion - 给实体添加速度运动器\n用法：/addvelocitymotion <目标:target> <速度:pos> [加速度:pos] [使用当前速度方向作为此刻实体朝向:bool]\n\n7./allowmsg - 设置是否允许玩家间私聊\n用法：/allowmsg <是否允许:bool>",
-            "contentTextSize": 10,
+            "subtitle": "allowmsg",
+            "content": "设置是否允许玩家间私聊\n用法: /allowmsg <是否允许:bool>\n\n将会影响\"/msg\",\"/me\",\"/tell\",\"/w\"指令的使用",
             "type": "textPage"
         },
         {
-            "content": "8./setblockcanburnbylightning - 设置是否允许闪电点燃方块\n用法：/setblockcanburnbylightning <是否允许:bool>\n\n9./cancelshearsdestoryblockspeed - 取消某玩家剪刀对某一方块的自定义的破坏速度设置\n用法：/cancelshearsdestoryblockspeed <目标:target> <方块:block>",
-            "contentTextSize": 9,
+            "subtitle": "setblockcanburnbylightning",
+            "content": "设置是否允许闪电点燃方块\n用法: /setblockcanburnbylightning <是否允许:bool>",
             "type": "textPage"
         },
         {
-            "content": "10./cancelshearsdestoryblockspeedall - 取消某玩家剪刀所有自定义的破坏速度设置\n用法：/cancelshearsdestoryblockspeedall <目标:target>\n\n11./changeselectslot - 设置玩家当前选中快捷栏物品的index\n用法：/changeselectslot <目标:target> <槽位:int>",
-            "contentTextSize": 9,
+            "subtitle": "cancelshearsdestoryblockspeed",
+            "content": "取消某玩家剪刀对某一方块的自定义的破坏速度设置\n用法: /cancelshearsdestoryblockspeed <目标:target> <方块:block>",
             "type": "textPage"
         },
         {
-            "content": "12./chatclear - 清空自己的聊天栏\n用法：/chatclear \n\n13./chatlimit - 设置发言限频（管理员无限制）\n用法：/chatlimit <两次发言间隔（单位：秒），0为不限制:float>",
-            "contentTextSize": 10,
+            "subtitle": "cancelshearsdestoryblockspeedall",
+            "content": "取消某玩家剪刀所有自定义的破坏速度设置\n用法: /cancelshearsdestoryblockspeedall <目标:target>",
             "type": "textPage"
         },
         {
-            "content": "14./console - 以控制台身份执行指令,使用'param:'来嵌入变量(左右必须有空格)\n用法：/console <指令字符串:str>\n\n15./copyright - 获取组件版权信息\n用法：/copyright \n\n16./executecb - 执行一次命令方块\n用法：/executecb <坐标:pos> <维度:dimension>",
-            "contentTextSize": 9,
+            "subtitle": "changeselectslot",
+            "content": "设置玩家当前选中的快捷栏槽位\n用法: /changeselectslot <目标:target> <槽位:int>\n槽位从0开始",
             "type": "textPage"
         },
         {
-            "content": "17./explode - 创建一个或多个爆炸\n用法：/explode <爆炸实体:target> [爆炸威力:int] [是否破坏方块:bool] [是否产生火焰:bool]\n18./explodebypos - 创建一个爆炸\n用法：/explodebypos <爆炸坐标:pos> [爆炸威力:int] [是否破坏方块:bool] [是否产生火焰:bool]",
-            "contentTextSize": 9,
+            "subtitle": "chatclear",
+            "content": "清空自己的聊天栏\n用法: /chatclear",
             "type": "textPage"
         },
         {
-            "content": "19./forbidliquidflow - 设置是否禁止地图中的流体流动\n用法：/forbidliquidflow <是否禁止:bool>\n\n20./getuid - 获取某在线玩家的账号UID（本地不可用）\n用法：/getuid <目标:target>\n\n21./gettps - 获取服务器TPS\n用法：/gettps ",
-            "contentTextSize": 9,
+            "subtitle": "chatlimit",
+            "content": "设置发言限频（管理员无限制）\n用法: /chatlimit <两次发言间隔（单位: 秒），0为不限制:float>",
             "type": "textPage"
         },
         {
-            "content": "22./givewithnbt - 生成物品到玩家背包\n用法：/givewithnbt <目标:target> <物品信息Json(只允许单引号):str>\n\n23./hideairsupplygui - 隐藏玩家氧气值界面\n用法：/hideairsupplygui <目标:target> <是否隐藏:bool>",
+            "subtitle": "console",
+            "content": "以控制台身份执行指令,使用'param:'来嵌入变量(左右必须有空格)\n用法: /console <指令字符串:str>\n\n指令字符串左右两边必须有§l§b\"§r, 并且双引号内部的双引号应该被替换为§l§b'§r",
             "type": "textPage"
         },
         {
-            "content": "24./hidearmorgui - 隐藏hud界面的护甲值显示\n用法：/hidearmorgui <目标:target> <是否隐藏:bool>\n\n25./hidecrosshairgui - 隐藏hud界面的十字准心显示\n用法：/hidecrosshairgui <目标:target> <是否隐藏:bool>",
+            "subtitle": "copyright",
+            "content": "获取组件信息\n用法: /copyright",
             "type": "textPage"
         },
         {
-            "content": "26./hideexpgui - 非创造模式下隐藏经验条显示\n用法：/hideexpgui <目标:target> <是否隐藏:bool>\n\n27./hidefoldgui - 隐藏下拉按钮原生UI\n用法：/hidefoldgui <目标:target> <是否隐藏:bool>",
+            "subtitle": "executecb",
+            "content": "执行指定的命令方块\n用法: /executecb <坐标:pos> <维度:dimension>",
             "type": "textPage"
         },
         {
-            "content": "28./hidehealthgui - 隐藏hud界面的血量显示\n用法：/hidehealthgui <目标:target> <是否隐藏:bool>\n\n29./hidehorsehealthgui - 隐藏hud界面的坐骑的血量显示\n用法：/hidehorsehealthgui <目标:target> <是否隐藏:bool>",
+            "subtitle": "explode",
+            "content": "创建一个或多个爆炸\n用法: /explode <爆炸实体:target> [爆炸威力:int] [是否破坏方块:bool] [是否产生火焰:bool]",
             "type": "textPage"
         },
         {
-            "content": "30./hidehudgui - 隐藏HUD游戏界面的游戏原生UI，与按下F1按钮效果一致。\n用法：/hidehudgui <目标:target> <是否隐藏:bool>\n\n31./hidehungergui - 隐藏hud界面的饥饿值显示\n用法：/hidehungergui <目标:target> <是否隐藏:bool>",
+            "subtitle": "explodebypos",
+            "content": "创建一个爆炸\n用法: /explodebypos <爆炸坐标:pos> [爆炸威力:int] [是否破坏方块:bool] [是否产生火焰:bool]",
             "type": "textPage"
         },
         {
-            "content": "32./hideslotbargui - 隐藏物品栏界面\n用法：/hideslotbargui <目标:target> <是否隐藏:bool>",
+            "subtitle": "forbidliquidflow",
+            "content": "设置是否禁止地图中的流体流动\n用法: /forbidliquidflow <是否禁止:bool>\n\n即使使用该命令恢复流动, 流体仍需要方块更新来恢复流动",
             "type": "textPage"
         },
         {
-            "content": "33./if - 对命令的运行结果进行运算\n用法：\n/if <type:cmd> <命令1:str> <运算操作:and|not|or|xor> <命令2(留''''视为False):str>\n/if <type:param> <变量:str> <判断符:equals|not_equals|greater_than|less_than|not_less|not_greater> <值:float>",
+            "subtitle": "getuid",
+            "content": "获取某在线玩家的账号UID\n用法: /getuid <目标:target>",
             "type": "textPage"
         },
         {
-            "content": "34./setimmunedamage - 设置实体是否免疫伤害\n用法：/setimmunedamage <目标:target> <是否免疫伤害:bool>\n\n35./kickt - 从房间中踢出玩家，支持目标选择器\n用法：/kickt <目标:target> [原因（会显示在被踢界面）:str]",
+            "subtitle": "gettps",
+            "content": "获取服务器TPS\n用法: /gettps",
             "type": "textPage"
         },
         {
-            "content": "36./knockback - 击飞实体\n用法：/knockback <目标:target> <X轴方向比例:float> <Z轴方向比例:float> <水平方向初速度:float> <垂直方向初速度:float> <垂直方向速度阈值:float>\n\n37./mute - 设置玩家禁言\n用法：/mute <目标:target> [是否禁言:bool]",
+            "subtitle": "givewithnbt",
+            "content": "生成物品到玩家背包\n用法: /givewithnbt <目标:target> <物品信息Json:str>\n\n命令中的JSON不允许出现§l§b\"§r, 应使用§l§b'§r来代替",
             "type": "textPage"
         },
         {
-            "content": "38./openfoldgui - 打开原版下拉菜单\n用法：/openfoldgui <目标:target>\n\n39./openui - 打开管理面板\n用法：/openui <type:enchant|getitem|changetips|nbteditor|cmdbatch|cmdblockimport|structureimport>",
+            "subtitle": "if",
+            "content": "判断条件是否成立\n用法: \n/if cmd <命令1:str> <运算操作:and|not|or|xor> <命令2(留''''视为False):str>\n/if param <变量:str> <判断符:equals|not_equals|greater_than|less_than|not_less|not_greater> <值:float>\n\n指令字符串左右两边必须有§l§b\"§r, 并且双引号内部的双引号应该被替换为§l§b'§r",
+            "type": "textPage",
+            "contentTextSize":9
+        },
+        {
+            "subtitle": "setimmunedamage",
+            "content": "设置实体是否免疫伤害\n用法: /setimmunedamage <目标:target> <是否免疫伤害:bool>",
             "type": "textPage"
         },
         {
-            "content": "40./openworkbench - 在玩家当前位置打开工作台，不依赖于工作台方块\n用法：/openworkbench <目标:target>",
+            "subtitle": "kickt",
+            "content": "从房间中踢出玩家，支持目标选择器\n用法: /kickt <目标:target> [原因（会显示在被踢界面）:str]",
             "type": "textPage"
         },
         {
-            "content": "41./param - 访问存储于世界中的变量，支持创建 int/float/str 类型\n用法：\n/param <模式:show> [变量:str]\n/param <模式:set> <变量:str> <类型:int|float|str> [值(可选):str]\n/param <模式:del> <变量:str>\n",
-            "contentTextSize": 9,
+            "subtitle": "knockback",
+            "content": "击飞实体\n用法: /knockback <目标:target> <X轴方向比例:float> <Z轴方向比例:float> <水平方向初速度:float> <垂直方向初速度:float> <垂直方向速度阈值:float>",
             "type": "textPage"
         },
         {
-            "content": "/param <模式:operation> <变量:str> <操作:加|减|乘|除|乘方|取余|整除> <参数(字符串只支持加与乘):str>\n/param <模式:random> <变量:str> <最小值:int> <最大值:int>\n",
-            "contentTextSize": 9,
+            "subtitle": "mute",
+            "content": "设置玩家禁言\n用法: /mute <目标:target> [是否禁言:bool]",
             "type": "textPage"
         },
         {
-            "content": "42./playerchatprefix - 设置玩家的聊天前缀\n用法：/playerchatprefix <玩家:target> <字符串:str>\n\n43./playerdestoryblock - 模拟玩家使用手上工具破坏方块\n用法：/playerdestoryblock <玩家:target> <方块位置:pos> [启用粒子:bool] [是否同步服务端背包信息:bool]",
-            "contentTextSize": 9,
+            "subtitle": "openfoldgui",
+            "content": "打开原版下拉菜单\n用法: /openfoldgui <目标:target>",
             "type": "textPage"
         },
         {
-            "content": "44./playeruseitemtoentity - 模拟玩家使用手上物品对某个生物使用（无视距离）\n用法：/playeruseitemtoentity <玩家:target> <生物:target>\n\n45./playeruseitemtopos - 模拟玩家对某个坐标使用主手物品\n用法：/playeruseitemtopos <玩家:target> <坐标:pos> <朝向(0~5):int>",
-            "contentTextSize": 9,
+            "subtitle": "openui",
+            "content": "打开管理面板\n用法: /openui <type:enchant|getitem|changetips|nbteditor|cmdbatch|cmdblockimport|structureimport>",
             "type": "textPage"
         },
         {
-            "content": "46./removeenchant - 给物品栏的物品移除附魔信息\n用法：/removeenchant <目标:target> <附魔:enchant> [槽位:int]\n\n47./removemotion - 移除实体身上的运动器\n用法：/removemotion <目标:target>",
+            "subtitle": "openworkbench",
+            "content": "在玩家当前位置打开工作台，不依赖于工作台方块\n用法: /openworkbench <目标:target>",
             "type": "textPage"
         },
         {
-            "content": "48./replaceitemtocarried - 生成物品到玩家右手\n用法：/replaceitemtocarried <目标:target> <itemJson:str>\n\n49./resetattacktarget - 清除仇恨目标\n用法：/resetattacktarget <目标:target>",
+            "subtitle": "param",
+            "content": "用法: \n展示世界中的变量\n/param show [变量:str]\n\n修改或创建世界中的变量\n/param set <变量:str> <类型:int|float|str> [值(可选):str]\n\n删除某一变量\n/param del <变量:str>",
             "type": "textPage"
         },
         {
-            "content": "50./resetmotion - 重置生物的瞬时移动方向向量\n用法：/resetmotion <目标:target>\n\n51./scoreparam - 将变量的值赋值给记分板\n用法：/scoreparam <变量名:str> <记分板对象:str>",
+            "content": "对变量进行计算\n/param operation <变量:str> <操作:加|减|乘|除|乘方|取余|整除> <参数2:str>\n这里参数2即使是数值也应该填写成\"2\"的形式,\n变量可以这样计算:\n任意类型互加; 字符数字互乘; 其余的都只能数字间操作\n\n给变量随机取值\n/param <模式:random> <变量:str> <最小值:int> <最大值:int>",
+            "type": "textPage",
+            "contentTextSize": 8
+        },
+        {
+            "subtitle": "playerchatprefix",
+            "content": "设置玩家的聊天前缀\n用法: /playerchatprefix <玩家:target> <字符串:str>",
             "type": "textPage"
         },
         {
-            "content": "52./setactorcollidable - 设置实体是否可碰撞，开启后实体会像方块一样可站立在上面\n用法：/setactorcollidable <目标:target> <是否可碰撞:bool>\n\n53./setactorcanpush - 设置实体是否可推动\n用法：/setactorcanpush <目标:target> <是否可推动:bool>",
-            "contentTextSize": 9,
+            "subtitle": "playerdestoryblock",
+            "content": "模拟玩家使用手上工具破坏方块\n用法: /playerdestoryblock <玩家:target> <方块位置:pos> [启用粒子:bool] [是否影响玩家手中的物品属性:bool]",
             "type": "textPage"
         },
         {
-            "content": "54./setattackdamage - 设置主手物品的攻击伤害值\n用法：/setattackdamage <目标:target> <攻击伤害值:int>\n\n55./setattackmobsability - 设置玩家能否攻击生物\n用法：/setattackmobsability <目标:target> <是否能:bool>",
-            "contentTextSize": 10,
+            "subtitle": "playeruseitemtoentity",
+            "content": "模拟玩家使用手上物品对某个生物使用（无视距离）\n用法: /playeruseitemtoentity <玩家:target> <生物:target>",
             "type": "textPage"
         },
         {
-            "content": "56./setattackplayersability - 设置玩家能否攻击其他玩家\n用法：/setattackplayersability <目标:target> <是否能:bool>\n\n57./setattacktarget - 设置实体仇恨目标\n用法：/setattacktarget <目标:target> <仇恨目标:target>",
+            "subtitle": "playeruseitemtopos",
+            "content": "模拟玩家对某个坐标使用主手物品\n用法: /playeruseitemtopos <玩家:target> <坐标:pos> <朝向(0~5):int>",
             "type": "textPage"
         },
         {
-            "content": "58./setbanplayerfishing - 设置是否禁止玩家钓鱼，禁止后玩家可以抛甩鱼竿但无法钓起任何物品\n用法：/setbanplayerfishing <目标:target> <是否禁止:bool>\n\n59./aicontrol - 设置生物原生AI\n用法：/aicontrol <目标:target> <是否启用:bool> [禁用AI时是否冻结动作:bool]",
-            "contentTextSize": 9,
+            "subtitle": "removeenchant",
+            "content": "给物品栏的物品移除附魔信息\n用法: /removeenchant <目标:target> <附魔:enchant> [槽位:int]",
             "type": "textPage"
         },
         {
-            "content": "60./setblocknbt - 以NBT形式放置方块\n用法：/setblocknbt <坐标:pos> <维度:dimension> [nbtJson(留空为获取):str]\n\n61./setbrewingstandslotitem - 设置酿造台指定槽位物品\n用法：/setbrewingstandslotitem <itemJson:str> <槽位 (0~2):int> <位置:pos> <维度:dimension>",
-            "contentTextSize": 9,
+            "subtitle": "removemotion",
+            "content": "移除实体身上的运动器\n用法: /removemotion <目标:target>",
             "type": "textPage"
         },
         {
-            "content": "62./setbuildability - 设置玩家生存模式下能否放置方块\n用法：/setbuildability <目标:target> <是否可放置:bool>\n\n63./setcanotherplayerride - 设置驯服生物非主人是否有权限骑乘\n用法：/setcanotherplayerride <目标:target> <是否可骑乘:bool>",
-            "contentTextSize": 9,
+            "subtitle": "replaceitemtocarried",
+            "content": "生成物品到玩家右手\n用法: /replaceitemtocarried <目标:target> <itemJson:str>\n\n命令中的JSON不允许出现§l§b\"§r, 应使用§l§b'§r来代替",
             "type": "textPage"
         },
         {
-            "content": "64./setcanpausescreen - 设置是否允许玩家打开暂停界面\n用法：/setcanpausescreen <目标:target> <是否可打开:bool>\n\n65./setchestitemexchange - 交换箱子里物品的位置\n用法：/setchestitemexchange <箱子坐标:pos> <箱子槽位1:int> <箱子槽位2:int>",
-            "contentTextSize": 9,
+            "subtitle": "resetattacktarget",
+            "content": "清除仇恨目标\n用法: /resetattacktarget <目标:target>",
             "type": "textPage"
         },
         {
-            "content": "66./setchestitemnum - 设置箱子槽位物品数目\n用法：/setchestitemnum <箱子坐标:pos> <箱子槽位:int> <物品数目:int> <维度:dimension>\n\n67./setcolor - 调整玩家屏幕色彩",
+            "subtitle": "resetmotion",
+            "content": "重置生物的瞬时移动方向向量\n用法: /resetmotion <目标:target>",
             "type": "textPage"
         },
         {
-            "content": "用法：\n/setcolor <模式:brightness> <目标:target> <亮度:float>\n/setcolor <模式:contrast> <目标:target> <对比度:float>\n/setcolor <模式:saturation> <目标:target> <饱和度:float>\n/setcolor <模式:tint> <目标:target> <色调强度:float> <R:float> <G:float> <B:float>",
+            "subtitle": "scoreparam",
+            "content": "将变量与计分板互相操作\n用法: \n把变量写入计分板\n/scoreparam toscore <变量名:str> <记分板对象:str> [计分板内名称:str]\n把计分板写入变量\n/scoreparam toparam <变量名:str> <记分板对象:str> <计分板内名称:str>",
             "type": "textPage"
         },
         {
-            "content": "68./setcompassentity - 设置指南针朝向的实体\n用法：/setcompassentity <目标:target> <朝向实体:target>\n\n69./setcompasstarget - 设置指南针的朝向位置\n用法：/setcompasstarget <目标:target> <朝向位置:pos>",
+            "subtitle": "setactorcollidable",
+            "content": "设置实体是否可碰撞，开启后实体会像方块一样可站立在上面\n用法: /setactorcollidable <目标:target> <是否可碰撞:bool>",
             "type": "textPage"
         },
         {
-            "content": "70./setcontrol - 设置生物无需装备鞍就可以控制行走跳跃\n用法：/setcontrol <可骑乘生物:target> <能否控制:bool>\n\n71./setcurrentairsupply - 设置生物氧气储备值\n用法：/setcurrentairsupply <目标:target> <值(单位: tick):int>",
-            "contentTextSize": 9,
+            "subtitle": "setactorcanpush",
+            "content": "设置实体是否可推动\n用法: /setactorcanpush <目标:target> <是否可推动:bool>",
             "type": "textPage"
         },
         {
+            "subtitle": "setattackdamage",
+            "content": "设置主手物品的攻击伤害值\n用法: /setattackdamage <目标:target> <攻击伤害值:int>",
             "type": "textPage"
         },
         {
+            "subtitle": "setattackmobsability",
+            "content": "设置玩家能否攻击生物\n用法: /setattackmobsability <目标:target> <是否能:bool>",
             "type": "textPage"
         },
         {
+            "subtitle": "setattackplayersability",
+            "content": "设置玩家能否攻击其他玩家\n用法: /setattackplayersability <目标:target> <是否能:bool>",
             "type": "textPage"
         },
         {
+            "subtitle": "setattacktarget",
+            "content": "设置实体仇恨目标\n用法: /setattacktarget <目标:target> <仇恨目标:target>",
             "type": "textPage"
         },
         {
+            "subtitle": "setbanplayerfishing",
+            "content": "设置是否禁止玩家钓鱼，禁止后玩家可以抛甩鱼竿但无法钓起任何物品\n用法: /setbanplayerfishing <目标:target> <是否禁止:bool>",
             "type": "textPage"
         },
         {
+            "subtitle": "aicontrol",
+            "content": "设置生物原生AI\n用法: /aicontrol <目标:target> <是否启用:bool> [禁用AI时是否冻结动作:bool]",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setblocknbt",
+            "content": "以NBT形式放置方块\n用法: /setblocknbt <坐标:pos> <维度:dimension> [nbtJson(留空为获取):str]",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setbrewingstandslotitem",
+            "content": "设置酿造台指定槽位物品\n用法: /setbrewingstandslotitem <itemJson:str> <槽位 (0~2):int> <位置:pos> <维度:dimension>\n\n命令中的JSON不允许出现§l§b\"§r, 应使用§l§b'§r来代替",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setbuildability",
+            "content": "设置玩家生存模式下能否放置方块\n用法: /setbuildability <目标:target> <是否可放置:bool>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setcanotherplayerride",
+            "content": "设置驯服生物非主人是否有权限骑乘\n用法: /setcanotherplayerride <目标:target> <是否可骑乘:bool>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setcanpausescreen",
+            "content": "设置是否允许玩家打开暂停界面\n用法: /setcanpausescreen <目标:target> <是否可打开:bool>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setchestitemexchange",
+            "content": "交换箱子里物品的位置\n用法: /setchestitemexchange <箱子坐标:pos> <箱子槽位1:int> <箱子槽位2:int>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setchestitemnum",
+            "content": "设置箱子槽位物品数目\n用法: /setchestitemnum <箱子坐标:pos> <箱子槽位:int> <物品数目:int> <维度:dimension>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setcolor",
+            "content": "调整玩家屏幕色彩\n用法: \n/setcolor <模式:brightness> <目标:target> <亮度:float>\n/setcolor <模式:contrast> <目标:target> <对比度:float>\n/setcolor <模式:saturation> <目标:target> <饱和度:float>\n/setcolor <模式:tint> <目标:target> <色调强度:float> <R:float> <G:float> <B:float>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setcompassentity",
+            "content": "设置指南针朝向的实体\n用法: /setcompassentity <目标:target> <朝向实体:target>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setcompasstarget",
+            "content": "设置指南针的朝向位置\n用法: /setcompasstarget <目标:target> <朝向位置:pos>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setcontrol",
+            "content": "设置生物无需装备鞍就可以控制行走跳跃\n用法: /setcontrol <可骑乘生物:target> <能否控制:bool>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "setcurrentairsupply",
+            "content": "设置生物氧气储备值\n用法: /setcurrentairsupply <目标:target> <值(单位: tick):int>",
             "type": "textPage"
         }
     ],

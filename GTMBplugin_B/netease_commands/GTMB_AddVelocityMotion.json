@@ -7,6 +7,6 @@
 		{"name": "目标", "type": "target"},
         {"name": "速度", "type": "pos"},
         {"name":"加速度","type":"pos","default":null},
-        {"name":"使用当前速度方向作为此刻实体朝向","type":"bool","default":true}
+        {"name":"使用实时运动方向作为实体朝向","type":"bool","default":true}
     ]
 }

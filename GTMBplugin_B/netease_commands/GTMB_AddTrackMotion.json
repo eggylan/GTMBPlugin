@@ -8,8 +8,6 @@
         {"name": "终点", "type": "pos"},
         {"name":"时间","type":"float"},
         {"name":"是否循环","type":"bool","default":false},
-        {"name":"起点朝向","type":"pos","default":null},
-        {"name":"终点朝向","type":"pos","default":null},
-        {"name":"使用运动速度为朝向(屏蔽前两个参数)","type":"bool","default":false}
+        {"name":"使用实时运动方向为朝向","type":"bool","default":false}
 	]
 }
