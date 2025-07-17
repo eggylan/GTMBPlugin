@@ -18,7 +18,7 @@ compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8b(2025/7):1\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8b(2025/7):2\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -1278,8 +1278,8 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		if len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
+		tot = 0
 		for i in cmdargs[0]:
-			compExtra = CFServer.CreateExtraData(i)
 			CompMotion = CFServer.CreateActorMotion(i)
 			CompType = CFServer.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
@@ -1293,20 +1293,18 @@ class customcmdsPart(PartBase):
 							cmdargs[4],
 							cmdargs[5],
 							cmdargs[6])
-			if Mid == -1:
-				return True, '设置失败'
-			Motions = compExtra.GetExtraData('Motions')
-			if not Motions:
-				Motions = []
-			Motions.append(Mid)
-			compExtra.SetExtraData('Motions', Motions)
-		return False, '已设置运动器'
+			if Mid != -1:
+				tot += 1
+		if tot:
+			return False, '已设置 %s 个实体的运动器' % tot
+		else:
+			return True, '设置失败'
 	
 	def addaroundpointmotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
+		tot = 0
 		for i in cmdargs[0]:
-			compExtra = CFServer.CreateExtraData(i)
 			CompMotion = CFServer.CreateActorMotion(i)
 			CompType = CFServer.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
@@ -1319,20 +1317,18 @@ class customcmdsPart(PartBase):
 							cmdargs[3],
 							cmdargs[4],
 							cmdargs[5])
-			if Mid == -1:
-				return True, '设置失败'
-			Motions = compExtra.GetExtraData('Motions')
-			if not Motions:
-				Motions = []
-			Motions.append(Mid)
-			compExtra.SetExtraData('Motions', Motions)
-		return False, '已设置运动器'
+			if Mid != -1:
+				tot += 1
+		if tot:
+			return False, '已设置 %s 个实体的运动器' % tot
+		else:
+			return True, '设置失败'
 
 	def addvelocitymotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
+		tot = 0
 		for i in cmdargs[0]:
-			compExtra = CFServer.CreateExtraData(i)
 			CompMotion = CFServer.CreateActorMotion(i)
 			CompType = CFServer.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
@@ -1343,32 +1339,34 @@ class customcmdsPart(PartBase):
 			Mid = addMotion(cmdargs[1],
 							cmdargs[2],
 							cmdargs[3])
-			if Mid == -1:
-				return True, '创建失败'
-			Motions = compExtra.GetExtraData('Motions')
-			if not Motions:
-				Motions = []
-			Motions.append(Mid)
-			compExtra.SetExtraData('Motions', Motions)
-		return False, '已设置运动器'
+			if Mid != -1:
+				tot += 1
+		if tot:
+			return False, '已设置 %s 个实体的运动器' % tot
+		else:
+			return True, '设置失败'
 	
 	def startmotion(self, cmdargs, playerId, variant, data):
+
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
+			#旧数据处理
 			compExtra = CFServer.CreateExtraData(i)
+			compExtra.CleanExtraData('Motions')
 			CompMotion = CFServer.CreateActorMotion(i)
 			CompType = CFServer.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
-			Motions = compExtra.GetExtraData('Motions')
+			if EntityType == 'minecraft:player':
+				startMotion = CompMotion.StartPlayerMotion
+				Motions = CompMotion.GetPlayerMotions()
+			else:
+				startMotion = CompMotion.StartEntityMotion
+				Motions = CompMotion.GetEntityMotions()
+			for k,_ in Motions.items():
+				startMotion(k)
 			if Motions:
-				if EntityType == 'minecraft:player':
-					startMotion = CompMotion.StartPlayerMotion
-				else:
-					startMotion = CompMotion.StartEntityMotion
-				for ii in Motions:
-					startMotion(ii)
 				tot += 1
 		if tot:
 			return False, '已启用 %s 个实体的运动器' % tot
@@ -1380,43 +1378,41 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
-			compExtra = CFServer.CreateExtraData(i)
 			CompMotion = CFServer.CreateActorMotion(i)
 			CompType = CFServer.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
-			Motions = compExtra.GetExtraData('Motions')
+			if EntityType == 'minecraft:player':
+				stopMotion = CompMotion.StopPlayerMotion
+				Motions = CompMotion.GetPlayerMotions()
+			else:
+				stopMotion = CompMotion.StopEntityMotion
+				Motions = CompMotion.GetEntityMotions()
+			for k,_ in Motions.items():
+				stopMotion(k)
 			if Motions:
-				if EntityType == 'minecraft:player':
-					stopMotion = CompMotion.StopPlayerMotion
-				else:
-					stopMotion = CompMotion.StopEntityMotion
-				for ii in Motions:
-					stopMotion(ii)
 				tot += 1
 		if tot:
 			return False, '已暂停 %s 个实体的运动器' % tot
 		else:
 			return True, '实体没有绑定运动器'
 	
-	def  removemotion(self, cmdargs, playerId, variant, data):
+	def removemotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
-			compExtra = CFServer.CreateExtraData(i)
 			CompMotion = CFServer.CreateActorMotion(i)
-			Motions = compExtra.GetExtraData('Motions')
 			CompType = CFServer.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
+			if EntityType == 'minecraft:player':
+				Motions = CompMotion.GetPlayerMotions()
+				removeMotion = CompMotion.RemovePlayerMotion
+			else:
+				Motions = CompMotion.GetEntityMotions()
+				removeMotion = CompMotion.RemoveEntityMotion
+			for k,_ in Motions.items():
+				removeMotion(k)
 			if Motions:
-				if EntityType == 'minecraft:player':
-					removeMotion = CompMotion.RemovePlayerMotion
-				else:
-					removeMotion = CompMotion.RemoveEntityMotion
-				for ii in Motions[:]:
-					removeMotion(ii)
-					Motions.remove(ii)
-				compExtra.SetExtraData('Motions', Motions)
 				tot += 1
 		if tot:
 			return False, '已移除 %s 个实体的运动器' % tot
@@ -1459,12 +1455,12 @@ class customcmdsPart(PartBase):
 	def addtrackmotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
+		tot = 0
 		for i in cmdargs[0]:
-			compExtra = CFServer.CreateExtraData(i)
 			CompMotion = CFServer.CreateActorMotion(i)
 			CompType = CFServer.CreateEngineType(i)
-			EntityType = CompType.GetEngineType()
-			if EntityType == 63:
+			EntityType = CompType.GetEngineTypeStr()
+			if EntityType == 'minecraft:player':
 				addMotion = CompMotion.AddPlayerTrackMotion
 			else:
 				addMotion = CompMotion.AddEntityTrackMotion
@@ -1476,14 +1472,17 @@ class customcmdsPart(PartBase):
 							None,
 							None,
 							cmdargs[4])
-			if Mid == -1:
-				return True, '创建失败'
-			Motions = compExtra.GetExtraData('Motions')
-			if not Motions:
-				Motions = []
-			Motions.append(Mid)
-			compExtra.SetExtraData('Motions', Motions)
-		return False, '已设置运动器'
+			if Mid != -1:
+				tot += 1
+			#Motions = compExtra.GetExtraData('Motions')
+			#if not Motions:
+			#	Motions = []
+			#Motions.append(Mid)
+			#compExtra.SetExtraData('Motions', Motions)
+		if tot:
+			return False, '已设置 %s 个实体的运动器' % tot
+		else:
+			return True, '设置失败'
 
 	def setactorcanburnbylightning(self, cmdargs, playerId, variant, data):
 		compGame.SetCanActorSetOnFireByLightning(cmdargs[0])
