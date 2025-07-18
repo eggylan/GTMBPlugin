@@ -79,15 +79,17 @@
 
 部分功能提供用户界面，在聊天框输入以下指令并发送，可打开相应GUI，按提示操作即可。
 
-自定义附魔：`python.enchant`
+自定义附魔：`/openui enchant`
 
-获取隐藏物品：`python.getitem`
+获取隐藏物品：`/openui getitem`
 
-修改物品NBT：`python.nbteditor`
+修改物品NBT：`/openui nbteditor`
 
-指令批处理：`python.cmdbatch`
+指令批处理：`/openui cmdbatch`
 
-修改物品注释：`python.changetips`
+修改物品注释：`/openui changetips`
+
+从本地导入自定义结构：`/openui structureimport`
 
 **详细内容参见 [📖帮助文档](/docs/index.md)**
 
