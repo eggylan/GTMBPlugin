@@ -12,14 +12,14 @@
         },
         {
             "subtitle": "addaroundentitymotion",
-            "content": "给实体添加对实体环绕运动器\n用法: /addaroundentitymotion <目标:target> <环绕实体:target> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float] [环绕半径:float]\n轴的值必须带有小数部分, 即使是0\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效",
+            "content": "给实体添加对实体环绕运动器\n用法: /addaroundentitymotion <目标:target> <环绕实体:target> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float] [环绕半径:float]\n轴的值必须带有小数部分, 即使是0\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效\n轴的格式如下, 你要沿着哪个轴转, 你就写1.0或-1.0, 反之写0.0",
             "contentTextSize": 8,
             "type": "textPage"
         },
         {
             "subtitle": "addaroundpointmotion",
-            "content": "给实体添加对点环绕运动器\n用法: /addaroundpointmotion <目标:target> <圆心坐标:pos> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float]\n轴的值必须带有小数部分, 即使是0\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效",
-            "contentTextSize": 9,
+            "content": "给实体添加对点环绕运动器\n用法: /addaroundpointmotion <目标:target> <圆心坐标:pos> <角速度（弧度/秒）:float> [轴:pos] [锁定实体朝向:bool] [停止弧度:float]\n轴的值必须带有小数部分, 即使是0\n\n与运动器相关的命令，在添加后需要使用/removemotion /startmotion等命令才能生效\n轴的格式如下, 你要沿着哪个轴转, 你就写1.0或-1.0, 反之写0.0",
+            "contentTextSize": 8,
             "type": "textPage"
         },
         {

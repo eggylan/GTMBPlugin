@@ -18,7 +18,7 @@ compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8b(2025/7):2\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8b(2025/7):3\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -596,8 +596,8 @@ class customcmdsPart(PartBase):
 			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			print(CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '§f', cmdargs[2], '§f'))
-		return False, '将 %s 玩家的前缀设置为 %s, 后缀设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
+			CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '§f', cmdargs[2], '§f')
+		return False, '将 %s 的前缀设置为 %s, 后缀设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setplayermaxexhaustionvalue(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1811,8 +1811,43 @@ class customcmdsPart(PartBase):
 				return True, '物品数据中缺少 newItemName 键'
 			if itemDict.get('count') is None:
 				return True, '物品数据中缺少 count 键'
+			enum = {
+					"cursorselected" : 0,
+					"anvilinput" : 1,
+					"anvilmaterial" : 2,
+					"stonecutterinput" : 3,
+					"trade2ingredient1" : 4,
+					"trade2ingredient2" : 5,
+					"loominput" : 9,
+					"loomdye" : 10,
+					"loommaterial" : 11,
+					"cartographyinput" : 12,
+					"cartographyadditional" : 13,
+					"enchantinginput" : 14,
+					"enchantingmaterial" : 15,
+					"grindstoneinput" : 16,
+					"grindstoneadditional" : 17,
+					"beaconpayment" : 27,
+					"crafting2x2input1" : 28,
+					"crafting2x2input2" : 29,
+					"crafting2x2input3" : 30,
+					"crafting2x2input4" : 31,
+					"crafting3x3input1" : 32,
+					"crafting3x3input2" : 33,
+					"crafting3x3input3" : 34,
+					"crafting3x3input4" : 35,
+					"crafting3x3input5" : 36,
+					"crafting3x3input6" : 37,
+					"crafting3x3input7" : 38,
+					"crafting3x3input8" : 39,
+					"crafting3x3input9" : 40,
+					"createditemoutput" : 50,
+					"smithingtableinput" : 51,
+					"smithingtablematerial" : 52,
+					"smithingtabletemplate" : 53 
+			}
 			for i in cmdargs[0]:
-				CFServer.CreateItem(i).SetPlayerUIItem(i, cmdargs[1], itemDict, cmdargs[3])
+				CFServer.CreateItem(i).SetPlayerUIItem(i, enum.get(cmdargs[1]), itemDict, cmdargs[3])
 			return False, '将 %s 的UI物品设置为 %s * %s' % (create_players_str(cmdargs[0]), itemDict.get('newItemName'), itemDict.get('count'))
 		else:
 			return True, '无效的nbt'
@@ -2149,7 +2184,6 @@ class customcmdsPart(PartBase):
 			except (TypeError, ValueError):
 				return True, '无法将变量值转换为整数: %s' % param_name
 			command = '/scoreboard players set %s %s %s' % (cmdargs[3] if cmdargs[3] else param_name, cmdargs[2], score)
-			print(command)
 			if not compcmd.SetCommand(command):
 				return True, '设置计分板失败'
 			return False, '将变量 %s 的值(%s)设置到计分板 %s %s中' % (param_name, score, cmdargs[2], ('的 %s ' % cmdargs[3]) if cmdargs[3] else '')
@@ -2260,7 +2294,6 @@ class customcmdsPart(PartBase):
 			return False, '已禁止玩家间私聊'
 
 	def summonnbt(self, cmdargs, playerId, variant, data):
-		pass
 		#result = checkjson(cmdargs[2])
 		#if result[1] == True:
 		#	return True, result[0]
@@ -2273,6 +2306,7 @@ class customcmdsPart(PartBase):
 		#print(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
 		#serversystem.CreateEngineEntityByNBT(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
 		#return False, '已生成实体'
+		pass
 
 	def hidenametag(self, cmdargs, playerId, variant, data):
 		for i in cmdargs[0]:
