@@ -34,25 +34,6 @@ def unicode_convert(input):
 	else:
 		return input
 
-def conver_to_nbt(input):
-	#if isinstance(input, str):
-	#	return {'__type__':8, '__value__':input}
-	if isinstance(input, list):
-		return [conver_to_nbt(element) for element in input]
-	#elif input in [0, 1]:
-	#	return {'__type__':1, '__value__':input}
-	#elif isinstance(input, int):
-	#	return {'__type__':3, '__value__':input}
-	#elif isinstance(input, float):
-	#	return {'__type__':5, '__value__':input}
-	elif isinstance(input, dict):
-		if input.get('__type__', None) is not None:
-			if input['__type__'] == 4: 
-				return {'__type__':4, '__value__': (input['__value__'])}
-			return input
-		else:
-			return {key: conver_to_nbt(value) for key, value in input.items()}
-
 def intg(num):
 	#type: (float) -> int
 	return int(math.floor(num))
@@ -152,29 +133,30 @@ class MainLogicPart(PartBase):
 			player_Y = int(player_Y)
 			player_Z = intg(player_Z)
 			structure = data["structuredata"]
-			block_palette = structure['structure']['palette']['default']['block_palette']
-			block_entity_data = conver_to_nbt(structure['structure']['palette']['default']['block_position_data'])
+			#print(data)
+			palette = structure['structure']['palette']['default']
+			block_entity_data = palette['block_position_data']
 			serversystem = serverApi.GetSystem("Minecraft", "preset")
 			blockEntitycomp = CFServer.CreateBlockInfo(levelId)
 			blockcomp = CFServer.CreateBlockInfo(levelId)
 			blockStateComp = CFServer.CreateBlockState(levelId)
 			i = 0
+			compMsg = CFServer.CreateMsg(playerid)
 			for x in range(structure["size"][0]):
 				for y in range(structure['size'][1]):
 					for z in range(structure['size'][2]):
 						if structure['structure']['block_indices'][0][i] != -1:
 							blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
-							 					{'name':block_palette[structure['structure']['block_indices'][0][i]]['name'], 
-			  									'aux':0}, 
+							 					{'name':palette['block_palette'][structure['structure']['block_indices'][0][i]]['name'], 
+			  									'aux':palette['block_palette'][structure['structure']['block_indices'][0][i]]['val']}, 
 												0, 
 												data['dimension'], 
 												True, 
 												False)
-							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),block_palette[structure['structure']['block_indices'][0][i]]['states'], data['dimension'])
+							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),palette['block_palette'][structure['structure']['block_indices'][0][i]]['states'], data['dimension'])
 							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
 								#print(block_entity_data[str(i)]['block_entity_data'])
-								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), (block_entity_data[str(i)]['block_entity_data']))
-							pass
+								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(i)]['block_entity_data'])
 						i += 1
 			for i in structure['structure']['entities']:
 				x, y, z = i['Pos']

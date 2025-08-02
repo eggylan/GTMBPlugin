@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import mod.client.extraClientApi as clientApi
 import json
+import wphnbt
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
@@ -27,17 +28,23 @@ class importstrulogic(ScreenNode):
 			err_control.SetVisible(False)
 		err_control = self.GetBaseUIControl('/panel/err')
 		path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
-		if not path.endswith('.covstructure'):
+		if not path.endswith('.mcstructure'):
 			err_control.asLabel().SetText('§4⚠无效的文件')
 			err_control.SetVisible(True)
 			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 			comp.AddTimer(1, hide_err)
 			return
 		try:
-			with open(path) as f:
-				structure = json.load(f)
+			with open(path, 'rb') as f:
+				with open("C:\Users\wangl\Downloads\est.txt", 'w') as f1:
+					structure = wphnbt.load(f)
+					structureentitydata = structure['structure']['palette']['default']['block_position_data']
+					structure['structure']['palette']['default']['block_position_data'] = wphnbt.unpack(structureentitydata, True)
+					structureentitys = structure['structure']['entities']
+					structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
+					structure = wphnbt.unpack(structure)
 		except:
-			err_control.asLabel().SetText('§4⚠无效的路径')
+			err_control.asLabel().SetText('§4⚠加载失败')
 			err_control.SetVisible(True)
 			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 			comp.AddTimer(1, hide_err)

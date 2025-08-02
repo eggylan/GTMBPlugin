@@ -7,6 +7,7 @@ import mod.client.extraClientApi as clientApi
 import json
 import random
 import math
+import Script_NeteaseMod_TtCLQKGx.wphnbt
 #for 异常处理
 import traceback
 CFServer = serverApi.GetEngineCompFactory()
@@ -18,7 +19,7 @@ compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8b(2025/7):3\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8b(2025/7):4\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -1203,7 +1204,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for kickplayer in cmdargs[0]:
-			compcmd.SetCommand('/kick %s %s' % (CFServer.CreateName(kickplayer).GetName(), cmdargs[1]))
+			compcmd.SetCommand('/kick "%s" "%s"' % (CFServer.CreateName(kickplayer).GetName(), cmdargs[1]))
 		return False, '已将 %s 踢出游戏: %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 			
 	def explode(self, cmdargs, playerId, variant, data):
@@ -1234,7 +1235,7 @@ class customcmdsPart(PartBase):
 		else:
 			return True, '爆炸创建失败'
 
-	def console(self, cmdargs, playerId, variant, data):
+	def console(self, cmdargs, playerId, variant, data): #there are lots of ****
 		cmd = cmdargs[0]
 		if cmd.startswith('/'):
 			cmd = cmd[1:]
@@ -2005,34 +2006,16 @@ class customcmdsPart(PartBase):
 			return True, '无效的nbt'
 
 	def setdisablecontainers(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		for i in cmdargs[0]:
-			CFServer.CreateGame(i).SetDisableContainers(cmdargs[1])
-		return False, '将 %s 的容器权限设置为 %s' % (create_players_str(cmdargs[0]), '禁止' if cmdargs[1] else '允许')
+		compGame.SetDisableContainers(cmdargs[1])
+		return False, '将世界的容器权限设置为 %s' % '禁止' if cmdargs[1] else '允许'
 		
 	def setdisabledropitem(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		for i in cmdargs[0]:
-			CFServer.CreateGame(i).SetDisableDropItem(cmdargs[1])
-		return False, '将 %s 的丢弃物品权限设置为 %s' % (create_players_str(cmdargs[0]), '禁止' if cmdargs[1] else '允许')
+		compGame.SetDisableDropItem(cmdargs[1])
+		return False, '将世界的丢弃物品权限设置为 %s' % '禁止' if cmdargs[1] else '允许'
 		
 	def setdisablehunger(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
-			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
-		for i in cmdargs[0]:
-			CFServer.CreateGame(i).SetDisableHunger(cmdargs[1])
-		return False, '将 %s 的饱食度设置为 %s' % (create_players_str(cmdargs[0]), '屏蔽' if cmdargs[1] else '生效')
+		compGame.SetDisableHunger(cmdargs[1])
+		return False, '将世界的饱食度设置为 %s' % '屏蔽' if cmdargs[1] else '生效'
 
 	def setenchantmentseed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -2183,7 +2166,7 @@ class customcmdsPart(PartBase):
 				score = int(var_value)
 			except (TypeError, ValueError):
 				return True, '无法将变量值转换为整数: %s' % param_name
-			command = '/scoreboard players set %s %s %s' % (cmdargs[3] if cmdargs[3] else param_name, cmdargs[2], score)
+			command = '/scoreboard players set "%s" "%s" %s' % (cmdargs[3] if cmdargs[3] else param_name, cmdargs[2], score)
 			if not compcmd.SetCommand(command):
 				return True, '设置计分板失败'
 			return False, '将变量 %s 的值(%s)设置到计分板 %s %s中' % (param_name, score, cmdargs[2], ('的 %s ' % cmdargs[3]) if cmdargs[3] else '')
@@ -2195,13 +2178,13 @@ class customcmdsPart(PartBase):
 					break
 			else:
 				return True, '没有找到名称为“%s”的计分项' % cmdargs[2]
-			if not compcmd.SetCommand('/scoreboard players test %s test * *' % cmdargs[3]):
+			if not compcmd.SetCommand('/scoreboard players test "%s" "%s" * *' % (cmdargs[3], cmdargs[2])):
 				return True, '玩家%s没有分数记录' % cmdargs[3]
 			low = -2**31
 			high = 2**31 - 1
 			while low < high:
 				mid = (low + high) // 2
-				if compcmd.SetCommand('/scoreboard players test %s %s %s %s' % (cmdargs[3], cmdargs[2], low, mid)):
+				if compcmd.SetCommand('/scoreboard players test "%s" "%s" %s %s' % (cmdargs[3], cmdargs[2], low, mid)):
 					high = mid
 				else:
 					low = mid + 1
@@ -2211,7 +2194,7 @@ class customcmdsPart(PartBase):
 			else:
 				params = {cmdargs[1]:{'type':'int','value':int(low)}}
 			compExtra.SetExtraData('parameters', params)
-			return False, '将 %s 中 %s 的值(%s)写入变量 %s' % (cmdargs[3], cmdargs[2], low, cmdargs[1])
+			return False, '将 %s 中 %s 的值(%s)写入变量 %s' % (cmdargs[2], cmdargs[3], low, cmdargs[1])
 
 	def setblocknbt(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
