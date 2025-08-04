@@ -16,24 +16,6 @@ compGame = CFServer.CreateGame(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compHttp = CFServer.CreateHttp(levelId)
 
-
-def unicode_convert(input):
-	#type: (dict|str) -> dict|list|str|bool
-	if isinstance(input, dict):
-		return {unicode_convert(key): unicode_convert(value) for key, value in input.iteritems()}
-	elif isinstance(input, list):
-		return [unicode_convert(element) for element in input]
-	elif isinstance(input, unicode): # type: ignore
-		output = input.encode('utf-8')
-		if output == 'True':
-			return True
-		elif output == 'False':
-			return False
-		else:
-			return output
-	else:
-		return input
-
 def intg(num):
 	#type: (float) -> int
 	return int(math.floor(num))
