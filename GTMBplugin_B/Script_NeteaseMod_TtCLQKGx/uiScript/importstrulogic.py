@@ -36,13 +36,12 @@ class importstrulogic(ScreenNode):
 			return
 		try:
 			with open(path, 'rb') as f:
-				with open("C:\Users\wangl\Downloads\est.txt", 'w') as f1:
-					structure = wphnbt.load(f)
-					structureentitydata = structure['structure']['palette']['default']['block_position_data']
-					structure['structure']['palette']['default']['block_position_data'] = wphnbt.unpack(structureentitydata, True)
-					structureentitys = structure['structure']['entities']
-					structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
-					structure = wphnbt.unpack(structure)
+				structure = wphnbt.load(f)
+				structureentitydata = structure['structure']['palette']['default']['block_position_data']
+				structure['structure']['palette']['default']['block_position_data'] = wphnbt.unpack(structureentitydata, True)
+				structureentitys = structure['structure']['entities']
+				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
+				structure = wphnbt.unpack(structure)
 		except:
 			err_control.asLabel().SetText('§4⚠加载失败')
 			err_control.SetVisible(True)

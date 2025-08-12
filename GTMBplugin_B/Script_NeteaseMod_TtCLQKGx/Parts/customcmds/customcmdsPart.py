@@ -7,7 +7,7 @@ import mod.client.extraClientApi as clientApi
 import json
 import random
 import math
-import Script_NeteaseMod_TtCLQKGx.wphnbt
+import Script_NeteaseMod_TtCLQKGx.wphnbt as wphnbt
 #for 异常处理
 import traceback
 CFServer = serverApi.GetEngineCompFactory()

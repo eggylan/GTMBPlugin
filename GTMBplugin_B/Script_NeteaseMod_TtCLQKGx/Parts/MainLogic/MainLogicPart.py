@@ -151,8 +151,7 @@ class MainLogicPart(PartBase):
 				x += player_X
 				y += player_Y
 				z += player_Z
-				print((x, y, z))
-				print(serversystem.CreateEngineEntityByNBT(i, (x, y, z), None, data['dimension']))
+				serversystem.CreateEngineEntityByNBT(i, (x, y, z), None, data['dimension'])
 
 
 	def InitServer(self):
