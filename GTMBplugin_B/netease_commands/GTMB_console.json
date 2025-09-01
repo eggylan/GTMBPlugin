@@ -1,12 +1,22 @@
 {
 	"format_version": "0.0.1",
 	"name": "console",
-	"description": "以控制台身份执行指令,使用'param:'来嵌入变量(左右必须有空格)",
+	"description": "以控制台身份执行指令,使用'{}'来嵌入变量(左右必须有空格)",
 	"permission_level": "game_directors",
 	"args": [
 		{
 			"name": "指令字符串",
 			"type": "str"
-        }
+        },
+		{
+			"name": "执行实体",
+			"type": "target",
+			"default": "null"
+		},
+		{
+			"name": "是否显示返回值",
+			"type": "bool",
+			"default": false
+		}
 	]
 }

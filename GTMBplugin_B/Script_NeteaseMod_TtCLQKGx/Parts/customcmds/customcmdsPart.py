@@ -8,6 +8,7 @@ import json
 import random
 import math
 import Script_NeteaseMod_TtCLQKGx.wphnbt as wphnbt
+import re
 #for 异常处理
 import traceback
 CFServer = serverApi.GetEngineCompFactory()
@@ -19,7 +20,7 @@ compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8b(2025/7):6\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyrightInfo = "§b---------\n版本： v0.8b(2025/7):7\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 def create_players_str(players):
 	#type: (list) -> str
@@ -1239,42 +1240,31 @@ class customcmdsPart(PartBase):
 			return True, '爆炸创建失败'
 
 	def console(self, cmdargs, playerId, variant, data): #there are lots of ****
+		if cmdargs[1] is None:
+			return True, '没有与选择器匹配的目标'
+		if len(cmdargs[1]) != 1:
+			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		cmd = cmdargs[0]
 		if cmd.startswith('/'):
 			cmd = cmd[1:]
 		params = compExtra.GetExtraData('parameters')
-		
 		cmd2 = ''
 		if params and isinstance(params, dict):
-			for word in cmd.split(' '):
-				if word.startswith('param:'):
-					var_name = word.split(':', 1)[1]
-					# 查找变量
-					if var_name in params:
-						var_info = params[var_name]
-						# 根据变量类型格式化
-						if var_info['type'] == 'str':
-							word = '"%s"' % var_info['value']  # 字符串添加引号
+				if '{' in cmd and '}' in cmd:
+					words = re.findall(r'\{(.*?)\}', cmd)
+					for word in words:
+						if params.get(word) is None:
+							value = '{%s}' % word
 						else:
-							word = str(var_info['value'])
-					else:
-						pass
-				elif word.startswith('paramstr:'):
-					var_name = word.split(':', 1)[1]
-					# 查找变量
-					if var_name in params:
-						var_info = params[var_name]
-						word = '"%s"' % var_info['value']  # 添加引号
-					else:
-						pass
-				
-				cmd2 = ('%s %s' % (cmd2, word)).strip()
+							param = params[word]
+							value = param.get('value', '')
+						cmd2 = cmd.replace('{%s}' % word, str(value))
 		
 		if not cmd2:
 			cmd2 = cmd
 		
-		final_cmd = '/' + cmd2.replace("'", '"')
-		compcmd.SetCommand(final_cmd)
+		final_cmd = cmd2.replace("'", '"')
+		compcmd.SetCommand(final_cmd, cmdargs[1][0], cmdargs[2])
 		return False, '已将指令处理后执行: %s' % final_cmd
 	
 	def addaroundentitymotion(self, cmdargs, playerId, variant, data):

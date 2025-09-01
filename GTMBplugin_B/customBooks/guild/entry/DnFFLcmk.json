@@ -6,17 +6,17 @@
             "type":"textPage"
         },
         {
-            "content":"禁止玩家所有容器界面的打开, 包括物品栏\n用法: /setdisablecontainers <目标:target> <是否禁止:bool>",
+            "content":"禁止所有玩家所有容器界面的打开, 包括物品栏\n用法: /setdisablecontainers <是否禁止:bool>",
             "type": "textPage",
             "subtitle":"setdisablecontainers"
         },
         {
-            "content": "禁止玩家丢弃物品\n用法: /setdisabledropitem <目标:target> <是否禁止:bool>",
+            "content": "禁止所有玩家丢弃物品\n用法: /setdisabledropitem <是否禁止:bool>",
             "type": "textPage",
             "subtitle": "serdisableddropitem"
         },
         {
-            "content": "禁用玩家饥饿度\n用法: /setdisablehunger <目标:target> <是否禁止:bool>",
+            "content": "禁用所有玩家的饥饿度\n用法: /setdisablehunger <是否禁止:bool>",
             "type": "textPage",
             "subtitle": "setdisablehunger"
         },
