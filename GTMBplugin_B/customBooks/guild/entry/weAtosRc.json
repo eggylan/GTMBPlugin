@@ -1,0 +1,21 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "[-] 删除了/atttraeckmotion中的起终朝向参数\n[=] 修改了/addvelocitymotion中最后一个参数的文字表述\n[+] 使用教程书命令部分格式化\n[=] 优化运动器逻辑\n[-] 删除了hidegui相关的命令\n[+] 修复了无法设置前后缀名的bug",
+            "subtitle": "v0.8b更新内容",
+            "type": "textPage"
+        },
+        {
+            "content": "[+] 修复了结构加载的一些bug\n[+] 修复了无法踢出部分玩家的bug\n[+] 修复了部分全局命令被写为玩家命令的bug\n[+] 修复了/scoreparam无法使用toparam的bug\n[+] 现在不需要转换就可以导入结构了",
+            "type": "textPage"
+        },
+        {
+            "content": "[=] 将/console嵌入变量所需的param:xxx改为{xxx}以解决问题\n[+] 新增了这个页面",
+            "type": "textPage"
+        }
+    ],
+    "parent": "cSbJZUwV",
+    "sortnum": 0,
+    "title": "v0.8b"
+}

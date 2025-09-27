@@ -268,7 +268,7 @@
                                 "layer": 57,
                                 "font_type": "default",
                                 "shadow": true,
-                                "text": "在下方输入处理过的结构json\n导入大型结构可能卡顿",
+                                "text": "在下方直接输入结构文件路径\n导入大型结构可能卡顿",
                                 "text_alignment": "center"
                             }
                         },

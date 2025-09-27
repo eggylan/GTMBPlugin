@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import mod.client.extraClientApi as clientApi
-import json
+import traceback
 import wphnbt
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
@@ -42,15 +42,21 @@ class importstrulogic(ScreenNode):
 				structureentitys = structure['structure']['entities']
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
-		except:
-			err_control.asLabel().SetText('§4⚠加载失败')
+				err_control.asLabel().SetText('§4文件处理完成, 正在发送给服务器...可能会造成一些卡顿')
+				err_control.SetVisible(True)
+				comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
+				comp.AddTimer(2, hide_err)
+		except Exception as err:
+			err_control.asLabel().SetText('§4⚠加载失败,原因已输出至聊天框')
 			err_control.SetVisible(True)
 			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 			comp.AddTimer(1, hide_err)
+			for i in traceback.format_exc().splitlines():
+				clientApi.GetEngineCompFactory().CreateTextNotifyClient(clientApi.GetLocalPlayerId()).SetLeftCornerNotify("§c%s" % i)
 			return
 		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 		structuredata = {"structuredata": structure, "dimension": Dimension}
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
+		#clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
 
 	def Destroy(self):
 		"""
