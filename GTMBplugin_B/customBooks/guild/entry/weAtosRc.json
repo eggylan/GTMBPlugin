@@ -11,7 +11,7 @@
             "type": "textPage"
         },
         {
-            "content": "[=] 将/console嵌入变量所需的param:xxx改为{xxx}以解决问题\n[+] 新增了这个页面",
+            "content": "[=] 将/console嵌入变量所需的param:xxx改为{xxx}以解决问题\n[+] 新增了这个页面\n[=] 优化了权限变更时的逻辑，更灵敏也更流畅了",
             "type": "textPage"
         }
     ],

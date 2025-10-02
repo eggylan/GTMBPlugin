@@ -1,6 +1,9 @@
 {
     "resource_pack_name": "vanilla",
     "texture_data": {
+        "gtmb_plugin:custom_brah": {
+            "textures": "textures/blocks/custom_brah"
+        },
         "ycgnw:command_block_back": {
             "textures": "textures/blocks/adv_command_block_back"
         },

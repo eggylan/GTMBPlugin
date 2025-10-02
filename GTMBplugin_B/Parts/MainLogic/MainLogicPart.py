@@ -28,7 +28,6 @@ class MainLogicPart(PartBase):
 		# 零件名称
 		self.name = "主逻辑零件"
 		self.etsFiles = []
-		self.last_operation_cache = {}  # 缓存操作员状态
 		self.last_message_time = {} # 初始化发言限频字典
 
 	def InitClient(self):
@@ -153,15 +152,17 @@ class MainLogicPart(PartBase):
 				z += player_Z
 				serversystem.CreateEngineEntityByNBT(i, (x, y, z), None, data['dimension'])
 
-
 	def InitServer(self):
 		global serversystem
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "ServerChatEvent", self, self.OnServerChat)
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "CommandEvent", self, self.OnCommandEvent)
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerJoinMessageEvent", self, self.OnAddPlayerEvent)
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "PlayerLeftMessageServerEvent", self, self.OnRemovePlayerEvent)
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), "ClientLoadAddonsFinishServerEvent", self, self.OnClientLoadAddonsFinishServerEvent)
+		listenServerSysEvent = lambda eventId, callback: serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), eventId, self, callback)
+		listenServerSysEvent("ServerChatEvent", self.OnServerChat)
+		listenServerSysEvent("CommandEvent", self.OnCommandEvent)
+		listenServerSysEvent("PlayerJoinMessageEvent", self.OnAddPlayerEvent)
+		listenServerSysEvent("PlayerLeftMessageServerEvent", self.OnRemovePlayerEvent)
+		listenServerSysEvent("ClientLoadAddonsFinishServerEvent", self.OnClientLoadAddonsFinishServerEvent)
+		listenServerSysEvent("PlayerPermissionChangeServerEvent", self.OnPermissionChange)
+		listenServerSysEvent("ServerBlockUseEvent", self.OnUseCustomBlock)
 		serversystem.ListenForEvent('Minecraft', 'preset', "enchant", self, self.enchant)
 		serversystem.ListenForEvent('Minecraft', 'preset', "getitem", self, self.getitem)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changeTip", self, self.changeTips)
@@ -172,7 +173,6 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent('Minecraft', 'preset', 'TryOpenEULA', self, self.TryOpenEULA)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'EULA', self, self.eula)
 		compCmd.SetCommandPermissionLevel(4)
-		self.timer = CFServer.CreateGame(serverApi.GetLevelId).AddRepeatedTimer(1.0, self.OnSecond)
 		CFServer.CreatePet(levelId).Disable() 
 
 		"""
@@ -205,8 +205,6 @@ class MainLogicPart(PartBase):
 			compHttp.LobbySetStorageAndUserItem(callback, playerUid, None, entities_getter)
 		else:
 			compCmd.SetCommand('/kick %s %s' % (CFServer.CreateName(playerId).GetName(), "发生了未知错误，请联系开发者"), False)
-			
-
 
 	def changenbt(self, args):
 		if CFServer.CreatePlayer(args["__id__"]).GetPlayerOperation() == 2:
@@ -405,7 +403,6 @@ class MainLogicPart(PartBase):
 				args["cancel"] = True
 				return
 
-
 	def OnAddPlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 加入了游戏"
@@ -441,6 +438,26 @@ class MainLogicPart(PartBase):
 		elif args["name"] == "EGGYLAN":
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
 
+	def OnPermissionChange(self, args):
+		compMsg = CFServer.CreateMsg(args['playerId'])
+		compTag = CFServer.CreateTag(args['playerId'])
+		if not args['oldPermission']['op'] and args['newPermission']['op']:
+			compMsg.NotifyOneMessage(args['playerId'], '§6§l管理小助手>>> §r§a您已获得管理员权限')
+			compTag.AddEntityTag("op")
+		elif args['oldPermission']['op'] and not args['newPermission']['op']:
+			compMsg.NotifyOneMessage(args['playerId'], '§6§l管理小助手>>> §r§c您的管理员权限已被撤销')
+			compTag.RemoveEntityTag("op")
+
+	def OnUseCustomBlock(self, args):
+		playerId = args['playerId']
+		if args['blockName'] == 'gtmb_plugin:function_block':
+			compPlayer = CFServer.CreatePlayer(playerId)
+			if compPlayer.GetPlayerAbilities()['op']:
+				print('Trying open fn block')
+				serversystem.NotifyToClient(playerId, 'openUI', {"ui": "functionBlockScreen"})
+			else:
+				args['cancel'] = True
+
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
@@ -452,31 +469,6 @@ class MainLogicPart(PartBase):
 		@description 服务端的零件对象逻辑驱动入口
 		"""
 		PartBase.TickServer(self)
-
-	def OnSecond(self):
-		# 轮询性能消耗较大，但我们不得不使用，因为网易并未给出权限事件触发的接口
-		# 目前的做法是每秒轮询一次，获取所有玩家的权限，并设置权限
-		playerIds = serverApi.GetPlayerList()
-		for player in playerIds:
-
-			current_op = CFServer.CreatePlayer(player).GetPlayerOperation()
-			
-			# 旧 master 指令现已弃用，玩家需改用命令方块内/console "/op"命令设置权限
-			# if CFServer.CreateExtraData(player).GetExtraData("isMaster"):
-			# 	CFServer.CreatePlayer(player).SetPermissionLevel(2)		
-			
-			if (self.last_operation_cache.get(player) != current_op):
-				
-				playername = CFServer.CreateName(player).GetName()
-
-				if current_op == 2:
-					compCmd.SetCommand('/tellraw @a[name=%s,tag=!op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§a您已获得管理员权限。"}]}' % (playername))
-					CFServer.CreateTag(player).AddEntityTag("op")
-				else:
-					compCmd.SetCommand('/tellraw @a[name=%s,tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§c您的管理员权限已被撤销。"}]}' % (playername))
-					CFServer.CreateTag(player).RemoveEntityTag("op")
-				
-				self.last_operation_cache[player] = current_op # 更新缓存
 
 	def DestroyClient(self):
 		"""

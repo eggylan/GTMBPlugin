@@ -2,10 +2,10 @@
     "format_version": "1.10",
     "minecraft:item": {
         "components": {
-            "minecraft:icon": "ycgnw:guild"
+            "minecraft:icon": "gtmb_plugin:guild"
         },
         "description": {
-            "identifier": "ycgnw:guild"
+            "identifier": "gtmb_plugin:guild"
         }
     }
 }

@@ -1,2 +1,2 @@
-tile.ycgnw:adv_command_block.name=高级命令方块
-item.ycgnw:guild.name=插件使用教程
+item.gtmb_plugin:guild.name=插件使用教程
+tile.gtmb_plugin:function_block.name=函数方块

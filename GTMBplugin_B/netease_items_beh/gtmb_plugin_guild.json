@@ -6,7 +6,7 @@
         },
         "description": {
             "category": "equipment",
-            "identifier": "ycgnw:guild"
+            "identifier": "gtmb_plugin:guild"
         }
     }
 }

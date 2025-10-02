@@ -3,5 +3,9 @@
         1,
         1,
         0
-    ]
+    ],
+    "gtmb_plugin:function_block": {
+        "sound": "metal",
+        "textures": "gtmb_plugin:custom_brah"
+    }
 }

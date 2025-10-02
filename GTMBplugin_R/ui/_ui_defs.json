@@ -4,6 +4,7 @@
         "ui/cmdblockimport.json",
         "ui/customtips.json",
         "ui/enchant.json",
+        "ui/function_block_screen.json",
         "ui/getitem.json",
         "ui/GTMB_EULA.json",
         "ui/minimap.json",

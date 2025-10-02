@@ -345,6 +345,43 @@
                 ]
             },
             "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {},
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "functionBlockScreen",
+            "objId": "f3261c615789444db11c2fc3418bb44b",
+            "presetId": "a63cd7e5-04aa-4201-a214-784af4823470",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "58f52a1fcc594866ace8be917ef6253b",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
         }
     ],
     "classType": "PresetBase",
@@ -352,7 +389,7 @@
     "forceLoad": true,
     "name": "main",
     "notifyRemove": true,
-    "objId": "a2f52e0d0b42449ca4400e3451e30fde",
+    "objId": "f6c4c130496b4079b9bcb9e75e1ab120",
     "preLoad": true,
     "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
     "presetType": "空预设",
