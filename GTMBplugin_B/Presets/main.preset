@@ -198,45 +198,6 @@
         },
         {
             "bornType": 0,
-            "changes": {
-                "autoCreate": false
-            },
-            "classType": "PresetInstance",
-            "dimension": 0,
-            "entityId": null,
-            "id": null,
-            "ids": [],
-            "isPreLoad": false,
-            "loadPresetCfg": false,
-            "maxChunkPos": null,
-            "minChunkPos": null,
-            "name": "cmdblockimportui",
-            "objId": "6d755b7bd89542a99a8c02ca9605acd3",
-            "presetId": "8bf8996d-fd22-474d-a695-81666c9c502e",
-            "presetType": null,
-            "transform": {
-                "classType": "Transform",
-                "objId": "9d20f13f037a4ddba428a344e48f6dde",
-                "pos": [
-                    0,
-                    0,
-                    0
-                ],
-                "rotation": [
-                    0,
-                    0,
-                    0
-                ],
-                "scale": [
-                    1,
-                    1,
-                    1
-                ]
-            },
-            "virtual": true
-        },
-        {
-            "bornType": 0,
             "changes": {},
             "classType": "PresetInstance",
             "dimension": 0,
