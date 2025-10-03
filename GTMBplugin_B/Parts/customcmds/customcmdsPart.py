@@ -11,10 +11,11 @@ import Script_NeteaseMod_TtCLQKGx.wphnbt as wphnbt
 import re
 #for 异常处理
 import traceback
+
+from Script_NeteaseMod_TtCLQKGx.metaData import copyRightInfo
+
 CFServer = serverApi.GetEngineCompFactory()
-CFClient = clientApi.GetEngineCompFactory()
 levelId = serverApi.GetLevelId()
-clientLevelId = clientApi.GetLevelId()
 
 compcmd = CFServer.CreateCommand(levelId)
 compGame = CFServer.CreateGame(levelId)
@@ -22,10 +23,8 @@ compItemWorld = CFServer.CreateItem(levelId)
 compExtra = CFServer.CreateExtraData(levelId)
 compBlockEntity = CFServer.CreateBlockEntity(levelId)
 
-compClientTextNotify = CFClient.CreateTextNotifyClient(clientLevelId)
 
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
-copyrightInfo = "§b---------\n版本： v0.8b(2025/7):9\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
 
 PLATFORM_WINDOWS = 0
 PLATFORM_IOS = 1
@@ -246,6 +245,8 @@ class customcmdsPart(PartBase):
 		'''
 		@description 客户端的零件对象初始化入口
 		'''
+		global CFClient
+		CFClient = clientApi.GetEngineCompFactory()
 		CFClient.CreatePostProcess(levelId).SetEnableColorAdjustment(True)
 		global clientsystem
 		clientsystem = clientApi.GetSystem('Minecraft', 'preset')
@@ -299,9 +300,11 @@ class customcmdsPart(PartBase):
 	def client_sethudchatstackvisible(self, args):
 		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
 	def client_chatclear(self, args):
+		compClientTextNotify = CFClient.CreateTextNotifyClient(localPlayerId)
 		for _ in xrange(35):	 # type: ignore
 			compClientTextNotify.SetLeftCornerNotify("\n\n\n\n\n")
 	def client_openui(self, args):
+		compClientTextNotify = CFClient.CreateTextNotifyClient(localPlayerId)
 		if args['cmdargs'][0] == "enchant":
 			uiWillbeOpen = "enchant"
 			uiWillbeOpenName = "自定义附魔"
@@ -352,13 +355,12 @@ class customcmdsPart(PartBase):
 	def OnCustomCommandServer(self, args):
 		cmdargs = []
 		variant = args['variant']
-		args_list = args['args']
-		cmdargs = [i['value'] for i in args_list]
+		args_list = args.get('args', [])
+		cmdargs = [i['value'] for i in args_list] if args_list else [] # 空值检查
 		try:
 			playerId = args['origin']['entityId']
 		except:
 			playerId = None
-		#print(args)
 		handler = self.servercustomcmd.get(args['command'])
 		try:
 			if handler is not None:
@@ -2259,7 +2261,7 @@ class customcmdsPart(PartBase):
 	
 	def copyright(self, cmdargs, playerId, variant, data):
 		if playerId:
-			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, copyrightInfo)
+			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, copyRightInfo)
 		return False, ''
 	
 	def chatlimit(self, cmdargs, playerId, variant, data):
