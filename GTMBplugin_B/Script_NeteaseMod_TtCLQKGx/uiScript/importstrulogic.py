@@ -22,7 +22,7 @@ class importstrulogic(ScreenNode):
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.import_path_mode)
 
-
+ 
 		self.progressBarUIControl = self.GetBaseUIControl("/panel/progress_bar").asProgressBar()
 		self.progressBarUITextControl = self.GetBaseUIControl("/panel/progress_bar/progress_bar_text").asLabel()
 		self.progressBarUIControl.SetVisible(False)
@@ -30,10 +30,7 @@ class importstrulogic(ScreenNode):
 
 	def close(self, args):
 		clientApi.PopTopUI()
-
-	def hide_err(self):
-		self.notify_control.SetVisible(False)
-
+		
 	def import_path_mode(self, args):
 		self._timers = {}
 		self._send_queue = []
@@ -47,7 +44,7 @@ class importstrulogic(ScreenNode):
 		if not path.endswith('.mcstructure'):
 			self.notify_control.asLabel().SetText('§4⚠无效的文件，扩展名必须为mcstructure')
 			self.notify_control.SetVisible(True)
-			self.compGame.AddTimer(1, self.hide_err)
+			self.compGame.AddTimer(1, self.notify_control.SetVisible, False)
 			return
 		
 		try:
@@ -94,7 +91,7 @@ class importstrulogic(ScreenNode):
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(True)
 		self.notify_control.SetVisible(True)
-		self._timers['error'] = self.compGame.AddTimer(3, self.hide_err)
+		self._timers['error'] = self.compGame.AddTimer(3, self.notify_control.SetVisible, False)
 		return
 
 	def handshake_success(self, args):
@@ -107,7 +104,7 @@ class importstrulogic(ScreenNode):
 			elif args.get("reason","") == "NO_PERMISSION":
 				self.notify_control.asLabel().SetText('§4⚠你没有权限执行此操作')
 			self.notify_control.SetVisible(True)
-			self.compGame.AddTimer(3, self.hide_err)
+			self.compGame.AddTimer(3, self.notify_control.SetVisible, False)
 			self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
 			self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(True)
 			return
@@ -143,7 +140,7 @@ class importstrulogic(ScreenNode):
 		if not self._send_queue:
 			clientsystem.NotifyToServer("AllDataSend_"+ self.localPlayerId, {})
 			self.notify_control.asLabel().SetText('§a✔ 数据传输完成, 正在等待服务端处理...\n§e现在可以关闭此界面')
-			self.compGame.AddTimer(5, self.hide_err)
+			self.compGame.AddTimer(5, self.notify_control.SetVisible, False)
 			self.compGame.CancelTimer(self._timers['send'])
 			self._send_queue = []
 			self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
