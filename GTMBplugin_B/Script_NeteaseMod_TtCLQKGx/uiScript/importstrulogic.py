@@ -2,9 +2,11 @@
 import mod.client.extraClientApi as clientApi
 import traceback
 import wphnbt
+import json
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
+clientsystem = clientApi.GetSystem("Minecraft", "preset")
 
 
 class importstrulogic(ScreenNode):
@@ -20,24 +22,37 @@ class importstrulogic(ScreenNode):
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.import_path_mode)
 
+
+		self.progressBarUIControl = self.GetBaseUIControl("/panel/progress_bar").asProgressBar()
+		self.progressBarUITextControl = self.GetBaseUIControl("/panel/progress_bar/progress_bar_text").asLabel()
+		self.progressBarUIControl.SetVisible(False)
+		self.progressBarUIControl.SetValue(0)
+
 	def close(self, args):
 		clientApi.PopTopUI()
-		
+
+	def hide_err(self):
+		self.err_control.SetVisible(False)
+
 	def import_path_mode(self, args):
-		notify_control = self.GetBaseUIControl('/panel/err')
-		comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
+		self._timers = {}
+		self._send_queue = []
+		
+		self.err_control = self.GetBaseUIControl('/panel/err')
 		path = self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText()
 		path = path.decode('utf-8') if isinstance(path, str) else path
+
+		self.compGame = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 		
 		if not path.endswith('.mcstructure'):
-			notify_control.asLabel().SetText('§4⚠无效的文件，扩展名必须为mcstructure')
-			notify_control.SetVisible(True)
-			comp.AddTimer(1, notify_control.SetVisible, False)
+			self.err_control.asLabel().SetText('§4⚠无效的文件，扩展名必须为mcstructure')
+			self.err_control.SetVisible(True)
+			self.compGame.AddTimer(1, self.hide_err)
 			return
+		
 		try:
-			notify_control.asLabel().SetText('§e正在处理文件，请稍候...')
-			notify_control.SetVisible(True)
-			self.UpdateScreen()
+			self.err_control.asLabel().SetText('§e正在处理文件，请稍候...')
+			self.err_control.SetVisible(True)
 			with open(path, 'rb') as f:
 				structure = wphnbt.load(f)
 				structureentitydata = structure['structure']['palette']['default']['block_position_data']
@@ -46,17 +61,98 @@ class importstrulogic(ScreenNode):
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
 		except Exception as err:
-			notify_control.asLabel().SetText('§4⚠ 加载失败,原因已输出至聊天框')
-			notify_control.SetVisible(True)
-			comp.AddTimer(1, notify_control.SetVisible, False)
+			self.err_control.asLabel().SetText('§4⚠加载失败,原因已输出至聊天框')
+			self.err_control.SetVisible(True)
+			self.compGame.AddTimer(1, self.hide_err)
 			for i in traceback.format_exc().splitlines():
 				clientApi.GetEngineCompFactory().CreateTextNotifyClient(clientApi.GetLocalPlayerId()).SetLeftCornerNotify("§c%s" % i)
 			return
+		
 		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
-		structuredata = {"structuredata": structure, "dimension": Dimension}
-		notify_control.asLabel().SetText('§a✔ 文件处理完成, 正在发送给服务器...')
-		comp.AddTimer(1, notify_control.SetVisible, False)
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
+		self.structuredata = json.dumps({"structuredata": structure, "dimension": Dimension}, ensure_ascii=False)
+		self.err_control.asLabel().SetText('§a✔ 文件处理完成, 正在与服务端握手...')
+		
+		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(False)
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(False)
+		
+		self.localPlayerId = clientApi.GetLocalPlayerId()
+		
+		clientsystem.NotifyToServer("loadstructure_handshake", {})
+		clientsystem.ListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
+		
+		# 等待服务端握手（超时：5秒）
+		self._timers['handshake'] = self.compGame.AddTimer(5, self.handshake_timeout)
+
+	def handshake_timeout(self):
+		self.err_control.asLabel().SetText('§4⚠与服务端握手超时')
+		clientsystem.UnListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
+		if 'handshake' in self._timers:
+			self.compGame.CancelTimer(self._timers['handshake'])
+			del self._timers['handshake']
+		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(True)
+		self.err_control.SetVisible(True)
+		self._timers['error'] = self.compGame.AddTimer(3, self.hide_err)
+		return
+
+	def handshake_success(self, args):
+		clientsystem.UnListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
+		self.compGame.CancelTimer(self._timers['handshake'])
+		del self._timers['handshake']
+		if args.get("REJECT", False):
+			if args.get("reason","") == "SERVER_BUSY":	
+				self.err_control.asLabel().SetText('§4⚠服务端正在处理上一个请求, 请稍后再试')
+			elif args.get("reason","") == "NO_PERMISSION":
+				self.err_control.asLabel().SetText('§4⚠你没有权限执行此操作')
+			self.err_control.SetVisible(True)
+			self.compGame.AddTimer(3, self.hide_err)
+			self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
+			self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(True)
+			return
+		self.err_control.asLabel().SetText('§a✔ 与服务端握手成功, 正在传输数据...\n§e请勿关闭此界面')
+		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(False)
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(False)
+		self.err_control.SetVisible(True)
+		self.progressBarUIControl.SetVisible(True)
+		
+		# 分割数据
+		def split_string_by_length(s, n):
+			return [s[i:i+n] for i in range(0, len(s), n)]
+		
+		chunk_size = 100000  # 每个数据包的大小
+		chunks = split_string_by_length(self.structuredata, chunk_size)
+		self._total_chunks = len(chunks)
+		
+		# 构建数据包
+		for index, chunk in enumerate(chunks):
+			is_last = index == len(chunks) - 1
+			packet = {
+				"sequence": index,  # 数据包的序号，从0开始
+				"total_chunks": self._total_chunks,  # 总数据包数量
+				"data": chunk,
+				"is_last": is_last  # 是否为最后一个数据包
+			}
+			# 将数据包加入发送队列
+			self._send_queue.append(packet)
+
+		self._timers['send'] = self.compGame.AddRepeatedTimer(0.2, self.sendPacket)
+
+	def sendPacket(self):
+		if not self._send_queue:
+			clientsystem.NotifyToServer("AllDataSend_"+ self.localPlayerId, {})
+			self.err_control.asLabel().SetText('§a✔ 数据传输完成, 正在等待服务端处理...\n§e现在可以关闭此界面')
+			self.compGame.AddTimer(5, self.hide_err)
+			self.compGame.CancelTimer(self._timers['send'])
+			self._send_queue = []
+			self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
+			self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(True)
+			self.progressBarUIControl.SetVisible(False)
+			return
+		packet = self._send_queue.pop(0)
+		clientsystem.NotifyToServer("ReceiveStructureData_"+ self.localPlayerId, packet)
+
+		self.progressBarUIControl.SetValue(1.0 - (float(len(self._send_queue)) / float(self._total_chunks)))
+		self.progressBarUITextControl.SetText("传输进度: %.1f%%%%" % (100 - (float(len(self._send_queue)) / float(self._total_chunks) * 100)))
 
 	def Destroy(self):
 		"""
