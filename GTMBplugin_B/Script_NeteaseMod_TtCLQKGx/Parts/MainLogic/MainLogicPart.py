@@ -7,6 +7,7 @@ import mod.client.extraClientApi as clientApi
 import json
 import time
 import math
+import traceback
 
 CFServer = serverApi.GetEngineCompFactory()
 CFClient = clientApi.GetEngineCompFactory()
@@ -19,6 +20,16 @@ compHttp = CFServer.CreateHttp(levelId)
 def intg(num):
 	#type: (float) -> int
 	return int(math.floor(num))
+
+def unicode_convert(input):
+	#type: (dict|str) -> dict|list|str|bool
+	if isinstance(input, dict):
+		return {unicode_convert(key): unicode_convert(value) for key, value in input.items()}
+	elif isinstance(input, list):
+		return [unicode_convert(element) for element in input]
+	elif isinstance(input, unicode): # type: ignore
+		return input.encode('utf-8')
+	return input
 
 @registerGenericClass("MainLogicPart")
 class MainLogicPart(PartBase):
@@ -161,12 +172,19 @@ class MainLogicPart(PartBase):
 			serversystem = serverApi.GetSystem("Minecraft", "preset")
 			serversystem.UnListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(playerid), self, self._process_packet)
 			compGame.CancelTimer(self._structure_receive_timeout_timer_object)
-			self._assemble_text(playerid)
+			try:
+				self._assemble_text(playerid)
+			except:
+				compMsg = CFServer.CreateMsg(playerid)
+				compMsg.NotifyOneMessage(playerid, '结构加载错误，原因如下', '§c')
+				for i in traceback.format_exc().splitlines():
+					compMsg.NotifyOneMessage(playerid, i, '§c')
+				self._is_Structure_Loading = False
 
 	def _assemble_text(self, playerid):
 		# 按序号排序并组装数据
 		assembled_data = ''.join(self._buffer[i] for i in sorted(self._buffer.keys()))
-		structuredata = json.loads(assembled_data)
+		structuredata = unicode_convert(json.loads(assembled_data)) #仍然会被storagekey崩掉，暂时留存
 		self._buffer.clear()  # 清空缓冲区
 		self.Load_Structure(structuredata, playerid)
 
@@ -182,7 +200,6 @@ class MainLogicPart(PartBase):
 			palette = structure['structure']['palette']['default']
 			block_entity_data = palette['block_position_data']
 			serversystem = serverApi.GetSystem("Minecraft", "preset")
-			blockEntitycomp = CFServer.CreateBlockInfo(levelId)
 			blockcomp = CFServer.CreateBlockInfo(levelId)
 			blockStateComp = CFServer.CreateBlockState(levelId)
 			i = 0
@@ -196,12 +213,12 @@ class MainLogicPart(PartBase):
 			  									'aux': palette['block_palette'][structure['structure']['block_indices'][0][i]].get('val', 0)}, 
 												0, 
 												data['dimension'], 
-												True, 
+												False, 
 												False)
 							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),palette['block_palette'][structure['structure']['block_indices'][0][i]].get('states', {}), data['dimension'])
 							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
-								#print(block_entity_data[str(i)]['block_entity_data'])
-								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(i)]['block_entity_data'])
+								if i % 10 == 0: print(block_entity_data[str(i)]['block_entity_data'])
+								blockcomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(i)]['block_entity_data'])
 						i += 1
 			for i in structure['structure']['entities']:
 				x, y, z = i['Pos']

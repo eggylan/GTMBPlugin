@@ -134,7 +134,7 @@ class importstrulogic(ScreenNode):
 			# 将数据包加入发送队列
 			self._send_queue.append(packet)
 
-		self._timers['send'] = self.compGame.AddRepeatedTimer(0.2, self.sendPacket)
+		self._timers['send'] = self.compGame.AddRepeatedTimer(0.05, self.sendPacket)
 
 	def sendPacket(self):
 		if not self._send_queue:
