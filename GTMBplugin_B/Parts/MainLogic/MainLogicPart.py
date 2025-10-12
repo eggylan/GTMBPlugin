@@ -129,12 +129,12 @@ class MainLogicPart(PartBase):
 						if structure['structure']['block_indices'][0][i] != -1:
 							blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
 							 					{'name':palette['block_palette'][structure['structure']['block_indices'][0][i]]['name'], 
-			  									'aux':palette['block_palette'][structure['structure']['block_indices'][0][i]]['val']}, 
+			  									'aux': palette['block_palette'][structure['structure']['block_indices'][0][i]].get('val', 0)}, 
 												0, 
 												data['dimension'], 
 												True, 
 												False)
-							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),palette['block_palette'][structure['structure']['block_indices'][0][i]]['states'], data['dimension'])
+							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),palette['block_palette'][structure['structure']['block_indices'][0][i]].get('states', {}), data['dimension'])
 							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
 								#print(block_entity_data[str(i)]['block_entity_data'])
 								blockEntitycomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(i)]['block_entity_data'])

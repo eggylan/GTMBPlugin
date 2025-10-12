@@ -35,7 +35,8 @@ class cmdbatch(ScreenNode):
 
 	def cmd_path_mode(self, args):
 		if self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText():
-			path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
+			path = self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText()
+			path = path.decode('utf-8') if isinstance(path, str) else path
 			with open(path, 'r') as file:
 				cmds = file.read()
 			cmds = {"cmds": cmds}

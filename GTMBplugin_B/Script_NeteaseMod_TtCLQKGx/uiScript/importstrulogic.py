@@ -27,14 +27,18 @@ class importstrulogic(ScreenNode):
 		def hide_err():
 			err_control.SetVisible(False)
 		err_control = self.GetBaseUIControl('/panel/err')
-		path = str(self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText())
+		
+		path = self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText()
+		path = path.decode('utf-8') if isinstance(path, str) else path
+		
 		if not path.endswith('.mcstructure'):
-			err_control.asLabel().SetText('§4⚠无效的文件')
+			err_control.asLabel().SetText('§4⚠无效的文件，扩展名必须为mcstructure')
 			err_control.SetVisible(True)
 			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 			comp.AddTimer(1, hide_err)
 			return
 		try:
+			err_control.asLabel().SetText('§e正在处理文件，请稍候...')
 			with open(path, 'rb') as f:
 				structure = wphnbt.load(f)
 				structureentitydata = structure['structure']['palette']['default']['block_position_data']
@@ -42,7 +46,6 @@ class importstrulogic(ScreenNode):
 				structureentitys = structure['structure']['entities']
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
-				err_control.asLabel().SetText('§4文件处理完成, 正在发送给服务器...可能会造成一些卡顿')
 				err_control.SetVisible(True)
 				comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 				comp.AddTimer(2, hide_err)
@@ -56,7 +59,8 @@ class importstrulogic(ScreenNode):
 			return
 		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 		structuredata = {"structuredata": structure, "dimension": Dimension}
-		#clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
+		err_control.asLabel().SetText('§a✔ 文件处理完成, 正在发送给服务器...')
+		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
 
 	def Destroy(self):
 		"""
