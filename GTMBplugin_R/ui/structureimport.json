@@ -200,14 +200,14 @@
                                     1,
                                     1
                                 ],
-                                "$label_font_scale_factor": 0.52,
+                                "$label_font_scale_factor": 0.72,
                                 "$label_font_size": "large",
                                 "$label_layer": 3,
                                 "$label_offset": [
                                     0,
                                     0
                                 ],
-                                "$label_text": "生成(路径模式)",
+                                "$label_text": "§l生成",
                                 "$nine_slice_buttom": 0,
                                 "$nine_slice_left": 0,
                                 "$nine_slice_right": 0,
@@ -222,8 +222,8 @@
                                 "$pressed_texture": "textures/netease/common/button/pressed",
                                 "$texture_layer": 2,
                                 "offset": [
-                                    67.5,
-                                    85
+                                    121.5,
+                                    73.0
                                 ],
                                 "size": [
                                     73,
@@ -276,8 +276,8 @@
                             "err": {
                                 "type": "label",
                                 "offset": [
-                                    -152.0,
-                                    66.0
+                                    -84.0,
+                                    67.0
                                 ],
                                 "layer": 58,
                                 "visible": false,
@@ -289,6 +289,59 @@
                                 "font_type": "default",
                                 "text": "⚠无效的路径",
                                 "text_alignment": "center"
+                            }
+                        },
+                        {
+                            "progress_bar": {
+                                "type": "panel",
+                                "$clip_direction": "left",
+                                "$clip_ratio": 1.0,
+                                "$is_new_nine_slice": false,
+                                "$nine_slice_buttom": 0,
+                                "$nine_slice_left": 0,
+                                "$nine_slice_right": 0,
+                                "$nine_slice_top": 0,
+                                "$nineslice_size": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "$progress_bar_empty_texture": "textures/ui/empty_progress_bar",
+                                "$progress_bar_filled_texture": "textures/ui/filled_progress_bar",
+                                "offset": [
+                                    0.0,
+                                    26.0
+                                ],
+                                "size": [
+                                    249,
+                                    10
+                                ],
+                                "layer": 8,
+                                "controls": [
+                                    {
+                                        "empty_progress_bar@netease_editor_template_namespace.empty_progress_bar": {}
+                                    },
+                                    {
+                                        "filled_progress_bar@netease_editor_template_namespace.filled_progress_bar": {}
+                                    },
+                                    {
+                                        "progress_bar_text": {
+                                            "type": "label",
+                                            "offset": [
+                                                0.0,
+                                                14.0
+                                            ],
+                                            "size": [
+                                                100,
+                                                14
+                                            ],
+                                            "font_type": "default",
+                                            "text": "传输进度：0%%",
+                                            "text_alignment": "center"
+                                        }
+                                    }
+                                ]
                             }
                         }
                     ]

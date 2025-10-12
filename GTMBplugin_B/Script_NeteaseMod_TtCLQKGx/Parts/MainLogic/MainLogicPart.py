@@ -29,6 +29,9 @@ class MainLogicPart(PartBase):
 		self.name = "主逻辑零件"
 		self.etsFiles = []
 		self.last_message_time = {} # 初始化发言限频字典
+		self._is_Structure_Loading = False # 标记当前是否有玩家正在加载结构
+		self._buffer = {} # 用于存储分块数据的缓冲区
+		self._structure_receive_timeout_counter = 0 # 结构加载超时计数器
 
 	def InitClient(self):
 		"""
@@ -105,8 +108,69 @@ class MainLogicPart(PartBase):
 		if CFServer.CreatePlayer(itemdata["__id__"]).GetPlayerOperation() == 2:
 			CFServer.CreateItem(itemdata["__id__"]).SpawnItemToPlayerInv(itemdata, itemdata["__id__"])
 
-	def loadstructure(self, data):
-		playerid = data["__id__"]
+	def loadstructure_handshake(self, data):
+		self.structure_loading_playerid = data.get("__id__", None)
+		serversystem = serverApi.GetSystem("Minecraft", "preset")
+		if self._is_Structure_Loading:
+			serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": True,"reason":"SERVER_BUSY"})
+			return
+		elif CFServer.CreatePlayer(self.structure_loading_playerid).GetPlayerOperation() != 2:
+			serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": True,"reason":"NO_PERMISSION"})
+			return
+		else:
+			serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": False})
+		self._is_Structure_Loading = True
+		serversystem.ListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(self.structure_loading_playerid), self, self._process_packet)
+		
+		self._structure_receive_timeout_counter = 0
+		self._structure_receive_timeout_timer_object = compGame.AddRepeatedTimer(1, self._structure_receive_timeout_timer) # 计时器，发包间隔超过20秒则视为超时
+
+	def _structure_receive_timeout_timer(self):
+		self._structure_receive_timeout_counter = self._structure_receive_timeout_counter + 1
+		if self._structure_receive_timeout_counter >= 20:
+			print("取消结构加载，原因：接收数据超时")
+			self._structure_receive_timeout_counter = 0
+			self._is_Structure_Loading = False
+			self._buffer.clear()
+			serversystem = serverApi.GetSystem("Minecraft", "preset")
+			serversystem.UnListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(self.structure_loading_playerid), self, self._process_packet)
+			compGame.CancelTimer(self._structure_receive_timeout_timer_object)
+			del self._structure_receive_timeout_timer_object
+
+	def _process_packet(self, packet):
+		'''
+		服务端收到的数据包：
+		packet = {
+				"sequence": index,  # 数据包的序号，从0开始
+				"total_chunks": len(chunks),
+				"data": chunk,
+				"is_last": is_last  # 是否为最后一个数据包
+			}
+		'''
+		sequence = packet.get("sequence", None)
+		is_last = packet.get("is_last", False)
+		playerid = packet.get("__id__", None)
+		print("接收到来自玩家 %s 的数据包，序号：%s" % (playerid, sequence))
+		self._structure_receive_timeout_counter = 0 # 重置超时计数器
+
+		# 将数据包存入队列
+		self._buffer[sequence] = packet.get("data", None)
+		
+		if is_last:
+			print("玩家 %s 的所有数据包已接收完毕，开始组装数据..." % playerid)
+			serversystem = serverApi.GetSystem("Minecraft", "preset")
+			serversystem.UnListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(playerid), self, self._process_packet)
+			compGame.CancelTimer(self._structure_receive_timeout_timer_object)
+			self._assemble_text(playerid)
+
+	def _assemble_text(self, playerid):
+		# 按序号排序并组装数据
+		assembled_data = ''.join(self._buffer[i] for i in sorted(self._buffer.keys()))
+		structuredata = json.loads(assembled_data)
+		self._buffer.clear()  # 清空缓冲区
+		self.Load_Structure(structuredata, playerid)
+
+	def Load_Structure(self,data,playerid=None):
 		if CFServer.CreatePlayer(playerid).GetPlayerOperation() == 2:
 			playerpos = CFServer.CreatePos(playerid).GetFootPos()
 			player_X, player_Y, player_Z = playerpos
@@ -151,6 +215,8 @@ class MainLogicPart(PartBase):
 				y += player_Y
 				z += player_Z
 				serversystem.CreateEngineEntityByNBT(i, (x, y, z), None, data['dimension'])
+		self._is_Structure_Loading = False
+
 
 	def InitServer(self):
 		global serversystem
@@ -168,7 +234,7 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent('Minecraft', 'preset', "changeTip", self, self.changeTips)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changenbt", self, self.changenbt)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'cmdbatch', self, self.cmdbatch)
-		serversystem.ListenForEvent('Minecraft', 'preset', 'loadstructure', self, self.loadstructure)
+		serversystem.ListenForEvent('Minecraft', 'preset', 'loadstructure_handshake', self, self.loadstructure_handshake)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'TryOpenEULA', self, self.TryOpenEULA)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'EULA', self, self.eula)
 		compCmd.SetCommandPermissionLevel(4)
@@ -179,6 +245,8 @@ class MainLogicPart(PartBase):
 		"""
 
 		PartBase.InitServer(self)
+
+	
 
 	def eula(self, args):
 		playerId = args['__id__']
@@ -382,6 +450,7 @@ class MainLogicPart(PartBase):
 				serversystem.NotifyToClient(playerId, 'openUI', {"ui": "functionBlockScreen"})
 			else:
 				args['cancel'] = True
+
 
 	def TickClient(self):
 		"""
