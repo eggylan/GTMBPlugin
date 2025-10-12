@@ -1,0 +1,20 @@
+{
+	"format_version": "0.0.1",
+	"name": "§r§r§rgtmbdebug",
+	"description": "调试GTMB组件",
+	"permission_level": "game_directors",
+	"args": [
+        {
+            "name": "arg1", "type": "str", "default": ""
+        },
+        {
+            "name": "arg2", "type": "str", "default": ""
+        },
+        {
+            "name": "arg3", "type": "str", "default": ""
+        },
+        {
+            "name": "arg4", "type": "str", "default": ""
+        }
+    ]
+}
