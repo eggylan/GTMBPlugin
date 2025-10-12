@@ -125,11 +125,10 @@ class MainLogicPart(PartBase):
 		if self._is_Structure_Loading:
 			serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": True,"reason":"SERVER_BUSY"})
 			return
-		elif CFServer.CreatePlayer(self.structure_loading_playerid).GetPlayerOperation() != 2:
+		if CFServer.CreatePlayer(self.structure_loading_playerid).GetPlayerOperation() != 2:
 			serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": True,"reason":"NO_PERMISSION"})
 			return
-		else:
-			serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": False})
+		serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": False})
 		self._is_Structure_Loading = True
 		serversystem.ListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(self.structure_loading_playerid), self, self._process_packet)
 		
