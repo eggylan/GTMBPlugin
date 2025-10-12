@@ -27,7 +27,6 @@ class function_block_screen(ScreenNode):
 
 	def close(self, args):
 		clientApi.PopTopUI()
-
 	def spawn(self, args):
 		if args['ButtonPath'].startswith("/nodes/scroll_view"):
 			self.node_count += 1
