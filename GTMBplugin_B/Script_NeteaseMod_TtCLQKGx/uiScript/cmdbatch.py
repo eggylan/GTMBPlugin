@@ -4,6 +4,7 @@ ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 
+PLATFORM_WINDOWS = 0
 
 class cmdbatch(ScreenNode):
 	def __init__(self, namespace, name, param):
@@ -17,8 +18,14 @@ class cmdbatch(ScreenNode):
 		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.cmdbatch)
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
-		self.GetBaseUIControl("/panel/launch_path_mode").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.cmd_path_mode)
+
+		if clientApi.GetPlatform() != PLATFORM_WINDOWS:
+			self.GetBaseUIControl("/panel/launch_path_mode").SetVisible(False)
+			self.GetBaseUIControl("/panel/inputpath").SetVisible(False)
+		else:
+			self.GetBaseUIControl("/panel/launch_path_mode").asButton().AddTouchEventParams({"isSwallow": True})
+			self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.cmd_path_mode)
+			
 
 	def cmdbatch(self, args):
 		if self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText():
