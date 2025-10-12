@@ -24,21 +24,20 @@ class importstrulogic(ScreenNode):
 		clientApi.PopTopUI()
 		
 	def import_path_mode(self, args):
-		def hide_err():
-			err_control.SetVisible(False)
-		err_control = self.GetBaseUIControl('/panel/err')
-		
+		notify_control = self.GetBaseUIControl('/panel/err')
+		comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
 		path = self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText()
 		path = path.decode('utf-8') if isinstance(path, str) else path
 		
 		if not path.endswith('.mcstructure'):
-			err_control.asLabel().SetText('§4⚠无效的文件，扩展名必须为mcstructure')
-			err_control.SetVisible(True)
-			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
-			comp.AddTimer(1, hide_err)
+			notify_control.asLabel().SetText('§4⚠无效的文件，扩展名必须为mcstructure')
+			notify_control.SetVisible(True)
+			comp.AddTimer(1, notify_control.SetVisible, False)
 			return
 		try:
-			err_control.asLabel().SetText('§e正在处理文件，请稍候...')
+			notify_control.asLabel().SetText('§e正在处理文件，请稍候...')
+			notify_control.SetVisible(True)
+			self.UpdateScreen()
 			with open(path, 'rb') as f:
 				structure = wphnbt.load(f)
 				structureentitydata = structure['structure']['palette']['default']['block_position_data']
@@ -46,20 +45,17 @@ class importstrulogic(ScreenNode):
 				structureentitys = structure['structure']['entities']
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
-				err_control.SetVisible(True)
-				comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
-				comp.AddTimer(2, hide_err)
 		except Exception as err:
-			err_control.asLabel().SetText('§4⚠加载失败,原因已输出至聊天框')
-			err_control.SetVisible(True)
-			comp = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
-			comp.AddTimer(1, hide_err)
+			notify_control.asLabel().SetText('§4⚠ 加载失败,原因已输出至聊天框')
+			notify_control.SetVisible(True)
+			comp.AddTimer(1, notify_control.SetVisible, False)
 			for i in traceback.format_exc().splitlines():
 				clientApi.GetEngineCompFactory().CreateTextNotifyClient(clientApi.GetLocalPlayerId()).SetLeftCornerNotify("§c%s" % i)
 			return
 		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 		structuredata = {"structuredata": structure, "dimension": Dimension}
-		err_control.asLabel().SetText('§a✔ 文件处理完成, 正在发送给服务器...')
+		notify_control.asLabel().SetText('§a✔ 文件处理完成, 正在发送给服务器...')
+		comp.AddTimer(1, notify_control.SetVisible, False)
 		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("loadstructure", structuredata)
 
 	def Destroy(self):
