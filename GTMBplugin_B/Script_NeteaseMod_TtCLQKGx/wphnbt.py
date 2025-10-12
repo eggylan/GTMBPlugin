@@ -354,12 +354,3 @@ def dump(data):
     if isinstance(data, str):
         return String(data)
     
-if __name__ == '__main__':
-    with open("C:\Users\wangl\Downloads\work\\1.mcstructure", 'rb') as f:
-        structure = load(f)
-        structureentitydata = structure['structure']['palette']['default']['block_position_data']
-        structure['structure']['palette']['default']['block_position_data'] = unpack(structureentitydata, True)
-        structureentitys = structure['structure']['entities']
-        structure['structure']['entities'] = unpack(structureentitys, True)
-        structure = unpack(structure)
-    print(structure)

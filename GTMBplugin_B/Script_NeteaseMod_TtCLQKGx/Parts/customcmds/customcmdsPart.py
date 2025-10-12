@@ -368,7 +368,7 @@ class customcmdsPart(PartBase):
 				return_value = handler(cmdargs, playerId, variant, args)
 				if return_value is not None:
 					args['return_failed'], args['return_msg_key'] = return_value
-		except Exception as e:
+		except:
 			args['return_failed'] = True
 			args['return_msg_key'] = '出现未知错误, 原因见上'
 			tracebacks = traceback.format_exc().splitlines()

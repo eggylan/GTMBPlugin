@@ -22,13 +22,14 @@ class nbteditor(ScreenNode):
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 		comp = clientApi.GetEngineCompFactory().CreateItem(clientApi.GetLocalPlayerId())
 		carriedData = comp.GetCarriedItem(True)
-		for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
-			carriedData.pop(i) #删去多余键值对(这些已被弃用)
-		userData = carriedData.pop('userData')
-		if userData:
-			carriedData['userData'] = userData
-		carriedData = json.dumps(carriedData, ensure_ascii=False)
-		self.GetBaseUIControl("/panel/nbt").asTextEditBox().SetEditText(carriedData)#.replace('\\xa7', '§').replace('\\\\','\\'))
+		if carriedData:
+			for i in ['isDiggerItem','enchantData','itemId','modEnchantData','modId','modItemId','itemName','auxValue']:
+				carriedData.pop(i) #删去多余键值对(这些已被弃用)
+			userData = carriedData.pop('userData')
+			if userData:
+				carriedData['userData'] = userData
+			carriedData = json.dumps(carriedData, ensure_ascii=False)
+			self.GetBaseUIControl("/panel/nbt").asTextEditBox().SetEditText(carriedData)#.replace('\\xa7', '§').replace('\\\\','\\'))
 
 	def change(self, args):
 		strnbt = self.GetBaseUIControl("/panel/nbt").asTextEditBox().GetEditText()

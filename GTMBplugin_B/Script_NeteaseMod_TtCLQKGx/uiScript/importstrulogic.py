@@ -38,6 +38,7 @@ class importstrulogic(ScreenNode):
 			notify_control.asLabel().SetText('§e正在处理文件，请稍候...')
 			notify_control.SetVisible(True)
 			self.UpdateScreen()
+			self.Update()
 			with open(path, 'rb') as f:
 				structure = wphnbt.load(f)
 				structureentitydata = structure['structure']['palette']['default']['block_position_data']
@@ -45,7 +46,7 @@ class importstrulogic(ScreenNode):
 				structureentitys = structure['structure']['entities']
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
-		except Exception as err:
+		except:
 			notify_control.asLabel().SetText('§4⚠ 加载失败,原因已输出至聊天框')
 			notify_control.SetVisible(True)
 			comp.AddTimer(1, notify_control.SetVisible, False)
