@@ -216,7 +216,7 @@ class MainLogicPart(PartBase):
 												False)
 							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),palette['block_palette'][structure['structure']['block_indices'][0][i]].get('states', {}), data['dimension'])
 							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
-								if i % 10 == 0: print(block_entity_data[str(i)]['block_entity_data'])
+								#if i % 10 == 0: print(block_entity_data[str(i)]['block_entity_data'])
 								blockcomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(i)]['block_entity_data'])
 						i += 1
 			for i in structure['structure']['entities']:
@@ -244,7 +244,6 @@ class MainLogicPart(PartBase):
 		listenServerSysEvent("PlayerLeftMessageServerEvent", self.OnRemovePlayerEvent)
 		listenServerSysEvent("ClientLoadAddonsFinishServerEvent", self.OnClientLoadAddonsFinishServerEvent)
 		listenServerSysEvent("PlayerPermissionChangeServerEvent", self.OnPermissionChange)
-		listenServerSysEvent("ServerBlockUseEvent", self.OnUseCustomBlock)
 		serversystem.ListenForEvent('Minecraft', 'preset', "enchant", self, self.enchant)
 		serversystem.ListenForEvent('Minecraft', 'preset', "getitem", self, self.getitem)
 		serversystem.ListenForEvent('Minecraft', 'preset', "changeTip", self, self.changeTips)
@@ -262,7 +261,7 @@ class MainLogicPart(PartBase):
 
 		PartBase.InitServer(self)
 
-	
+
 
 	def eula(self, args):
 		playerId = args['__id__']
@@ -425,6 +424,8 @@ class MainLogicPart(PartBase):
 		elif args["name"] == "渡鸦哥与陌生人":
 			CFServer.CreatePlayer(args["id"]).SetPermissionLevel(2)
 		# 临时后门，仅用于调试
+		
+		CFServer.CreateExtraData(args["id"]).CleanExtraData('editingFunctionBlock')
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
 		playername = CFServer.CreateName(args["playerId"]).GetName()
@@ -456,17 +457,6 @@ class MainLogicPart(PartBase):
 		elif args['oldPermission']['op'] and not args['newPermission']['op']:
 			compMsg.NotifyOneMessage(args['playerId'], '§6§l管理小助手>>> §r§c您的管理员权限已被撤销')
 			compTag.RemoveEntityTag("op")
-
-	def OnUseCustomBlock(self, args):
-		playerId = args['playerId']
-		if args['blockName'] == 'gtmb_plugin:function_block':
-			compPlayer = CFServer.CreatePlayer(playerId)
-			if compPlayer.GetPlayerAbilities()['op']:
-				print('Trying open fn block')
-				serversystem.NotifyToClient(playerId, 'openUI', {"ui": "functionBlockScreen"})
-			else:
-				args['cancel'] = True
-
 
 	def TickClient(self):
 		"""

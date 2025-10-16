@@ -7,5 +7,9 @@
     "gtmb_plugin:function_block": {
         "sound": "metal",
         "textures": "gtmb_plugin:custom_brah"
+    },
+    "gtmb_plugin:function_block_listen": {
+        "sound": "metal",
+        "textures": "gtmb_plugin:custom_dirt"
     }
 }

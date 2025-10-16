@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import mod.client.extraClientApi as clientApi
-from Script_NeteaseMod_TtCLQKGx.function_nodes import nodes
+from Script_NeteaseMod_TtCLQKGx.function_nodes import listeners
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 CFClient = clientApi.GetEngineCompFactory()
 clientSystem = clientApi.GetSystem('Minecraft', 'preset')
 
-class function_block_screen(ScreenNode):
+class listenBlockScreen(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
 
@@ -17,7 +17,7 @@ class function_block_screen(ScreenNode):
 		"""
 		clientSystem.NotifyToServer('getNodeBlock', {})
 		clientSystem.ListenForEvent('Minecraft', 'preset', 'nodeBlockCallBack', self, self.gotNodeBlock)
-			
+
 		get_button = lambda path: self.GetBaseUIControl(path).asButton()
 		exist_buttons = ['/background/close', 'background/close_dont_save']
 		for i in exist_buttons:
@@ -25,8 +25,8 @@ class function_block_screen(ScreenNode):
 		get_button('/background/close').SetButtonTouchUpCallback(self.save)
 		get_button('background/close_dont_save').SetButtonTouchUpCallback(self.close)
 		comboBox = self.GetBaseUIControl('/leftside_panel/node_selector').asNeteaseComboBox()
-		for i in nodes.keys():
-			comboBox.AddOption(i, None, {'tip': nodes.get(i, '无对应内容')})
+		for i in listeners.keys():
+			comboBox.AddOption(i, None, {'tip': listeners.get(i, '无对应内容')})
 		comboBox.RegisterSelectItemCallback(self.load_current_node)
 
 	def save(self, args):
@@ -36,7 +36,7 @@ class function_block_screen(ScreenNode):
 
 	def gotNodeBlock(self, args):
 		if args['type']:
-			self.load_current_node(None, args['type'], {'tip': nodes.get(args['type'], 'None')})
+			self.load_current_node(None, args['type'], {'tip': listeners.get(args['type'], 'None')})
 		else:
 			self.load_current_node(None, '选择一个模式', {'tip': '选择一个模式并查看其说明...'})
 		clientSystem.UnListenForEvent('Minecraft', 'preset', 'nodeBlockCallBack', self, self.gotNodeBlock)

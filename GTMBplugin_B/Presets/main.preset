@@ -33,6 +33,19 @@
             "metaType": "MainLogicPartMeta",
             "objId": "020a9e6566444f88b3fea29b1f0936bd",
             "partType": "MainLogicPart"
+        },
+        {
+            "bpType": "FunctionBlockPart",
+            "changes": {
+                "name": "FunctionBlockPart"
+            },
+            "classType": "PartInstance",
+            "clientPartType": null,
+            "customVariables": [],
+            "directoryPath": "FunctionBlock",
+            "metaType": "FunctionBlockPartMeta",
+            "objId": "c5df3999701446f7b44c14eda746796b",
+            "partType": "FunctionBlockPart"
         }
     ],
     "childPresets": [
@@ -343,6 +356,43 @@
                 ]
             },
             "virtual": true
+        },
+        {
+            "bornType": 0,
+            "changes": {},
+            "classType": "PresetInstance",
+            "dimension": 0,
+            "entityId": null,
+            "id": null,
+            "ids": [],
+            "isPreLoad": false,
+            "loadPresetCfg": false,
+            "maxChunkPos": null,
+            "minChunkPos": null,
+            "name": "listenBlockScreen",
+            "objId": "4711a331a4c744f6be0c8159ae4df153",
+            "presetId": "1341d964-f146-4800-8e39-45fae12af8af",
+            "presetType": null,
+            "transform": {
+                "classType": "Transform",
+                "objId": "9e2921dc798b4be5b6ba31a13baa6f6a",
+                "pos": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "virtual": true
         }
     ],
     "classType": "PresetBase",
@@ -350,7 +400,7 @@
     "forceLoad": true,
     "name": "main",
     "notifyRemove": true,
-    "objId": "f6c4c130496b4079b9bcb9e75e1ab120",
+    "objId": "ddb3396c456b47d988543257f81b6278",
     "preLoad": true,
     "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
     "presetType": "空预设",

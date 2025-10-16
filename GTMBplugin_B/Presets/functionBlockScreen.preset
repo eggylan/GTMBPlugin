@@ -18,7 +18,7 @@
     "mNode": null,
     "name": "functionBlockScreen",
     "notifyRemove": true,
-    "objId": "5f2f2150362c4078bfc90aaf0fb19e86",
+    "objId": "8a090fa696cf429295ea6a50dd06a7ee",
     "preLoad": false,
     "presetId": "a63cd7e5-04aa-4201-a214-784af4823470",
     "presetType": "界面预设",
@@ -29,6 +29,6 @@
     "uiNamespace": "gtmb_plugin",
     "uiNodeModule": "function_block_screen",
     "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\function_block_screen",
-    "uiNodeScreen": "function_block_screen.main",
+    "uiNodeScreen": "function_block_screen.node_screen",
     "unique": false
 }

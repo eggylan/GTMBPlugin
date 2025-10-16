@@ -1,7 +1,6 @@
 {
     "ui_defs": [
         "ui/cmdbatch.json",
-        "ui/cmdblockimport.json",
         "ui/customtips.json",
         "ui/enchant.json",
         "ui/function_block_screen.json",
