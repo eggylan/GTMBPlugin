@@ -336,7 +336,6 @@ class MainLogicPart(PartBase):
 		message = args["message"]
 		username = args["username"]
 		args["cancel"] = True
-		CFServer.CreateEntityComponent(playerId).GetEntitiesBySelector
 
 		if CFServer.CreateExtraData(playerId).GetExtraData("mute"):
 			compMsg = CFServer.CreateMsg(playerId)
@@ -482,7 +481,6 @@ class MainLogicPart(PartBase):
 		"""
 		@description 服务端的零件对象销毁逻辑入口
 		"""
-		CFServer.CreateGame(serverApi.GetLevelId).CancelTimer(self.timer)
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		serversystem.UnListenAllEvents()
 		PartBase.DestroyServer(self)
