@@ -1,0 +1,13 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "[+] 修复了部分命令失效的问题\n[+] 补齐了/openui enchant中缺失的附魔\n[=] 修复了无法导入中文名结构、特殊结构与大结构的问题",
+            "subtitle": "v0.9更新内容",
+            "type": "textPage"
+        }
+    ],
+    "parent": "cSbJZUwV",
+    "sortnum": 0,
+    "title": "v0.9"
+}
