@@ -427,17 +427,29 @@ class MainLogicPart(PartBase):
 		CFServer.CreateExtraData(args["id"]).CleanExtraData('editingFunctionBlock')
 
 	def OnClientLoadAddonsFinishServerEvent(self, args):
-		playername = CFServer.CreateName(args["playerId"]).GetName()
+		playerId = args["playerId"]
+		playername = CFServer.CreateName(playerId).GetName()
 		
-		# 禁用魔法指令功能
-		CFServer.CreateAiCommand(args["playerId"]).Disable()
+		# 禁用原版魔法指令模组
+		CFServer.CreateAiCommand(playerId).Disable()
 		
-		if not compGame.CheckWordsValid(playername):
-			CFServer.CreatePlayer(args["playerId"]).SetPermissionLevel(0)
-			CFServer.CreateMsg(args["playerId"]).NotifyOneMessage(args["playerId"], "§6§l管理小助手>>> §r§c检测到您的名字中含有违禁词，已将您设为游客权限。")
-			compCmd.SetCommand('/tellraw @a {"rawtext":[{"text":"§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为游客权限!"}]}',False)
-			compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家!"}]}',False)
-			CFServer.CreateTag(args["playerId"]).AddEntityTag("banname")
+		compPlayer = CFServer.CreatePlayer(playerId)
+		compMsg = CFServer.CreateMsg(playerId)
+		compTag = CFServer.CreateTag(playerId)
+		
+		IS_OP = (compPlayer.GetPlayerOperation() == 2)
+
+		if IS_OP:
+			compTag.AddEntityTag("op")
+			compMsg.NotifyOneMessage(playerId, "§6§l管理小助手>>> §r§a您已获得管理员权限")
+		else:
+			compTag.RemoveEntityTag("op")  # 防止房主转移后标签未移除
+			if not compGame.CheckWordsValid(playername):
+				compPlayer.SetPermissionLevel(0)
+				compMsg.NotifyOneMessage(playerId, "§6§l注意>>> §r§c检测到您的名字中含有违禁词，已将您设为访客权限。")
+				compGame.SetNotifyMsg("§6§l房间公告>>> §r§e检测到名字含有违禁词的玩家加入了游戏，已将其设为访客权限。")
+				compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§b可使用§a@a[tag=banname]§b选中违禁词玩家。"}]}',False)
+				compTag.AddEntityTag("banname")
 	
 	def OnRemovePlayerEvent(self, args):
 		if args["name"] == "王培衡很丁丁":
