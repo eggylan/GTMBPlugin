@@ -9,6 +9,8 @@ serverSystem = serverApi.GetSystem('Minecraft', 'preset')
 clientSystem = clientApi.GetSystem('Minecraft', 'preset')
 levelId = serverApi.GetLevelId()
 
+compGame = CFServer.CreateGame(levelId)
+
 @registerGenericClass("FunctionBlockPart")
 class FunctionBlockPart(PartBase):
 	def __init__(self):
@@ -32,6 +34,20 @@ class FunctionBlockPart(PartBase):
 		serverSystem.ListenForEvent('Minecraft', 'preset', 'getNodeBlock', self, self.requestNodeBlock)
 		serverSystem.ListenForEvent('Minecraft', 'preset', 'NodeBlockExit', self, self.onFunctionBlockExit)
 		listenServerSysEvent("ServerBlockUseEvent", self.OnUseCustomBlock)
+		listenServerSysEvent('ServerPlaceBlockEntityEvent', self.OnPlacingBlock)
+		listenServerSysEvent('BlockRemoveServerEvent', self.OnRemovingBlock)
+		#以下为函数方块的监听内容
+		listenServerSysEvent('OnScriptTickServer', self.FCB_tick)
+		#注册函数方块
+		compExtra = CFServer.CreateExtraData(levelId)
+		if compExtra.GetExtraData('functionBlockByPos'):
+			self.functionBlockByPos = compExtra.GetExtraData('functionBlockByPos')
+			self.functionBlockByMode = compExtra.GetExtraData('functionBlockByMode')
+		else:
+			self.functionBlockByPos = {}
+			self.functionBlockByMode = {}
+			for i in ['tick']:
+				self.functionBlockByMode[i] = []
 
 	def onNodeBlockSave(self, nodeData):
 		compExtra = CFServer.CreateExtraData(nodeData['__id__'])
@@ -71,6 +87,38 @@ class FunctionBlockPart(PartBase):
 			else:
 				args['cancel'] = True
 
+	def OnRemovingBlock(self, args):
+		if args['fullName'] == 'gtmb_plugin:function_block_listen':
+			self.RemoveBlockFromSave((args['x'], args['y'], args['z']), args['dimension'])
+			print(self.functionBlockByPos, self.functionBlockByMode)
+
+	def OnPlacingBlock(self, args):
+		if args['blockName'] == 'gtmb_plugin:function_block_listen':
+			compGame.AddTimer(0, self.GetNewBlock, {'pos': (args['posX'], args['posY'], args['posZ']), 'dimension': args['dimension']})
+
+	def GetNewBlock(self, args):
+		#wy诡异石山使我必须延迟1tick
+		compBlockEntity = CFServer.CreateBlockEntityData(levelId)
+		blockEntityData = compBlockEntity.GetBlockEntityData(args['dimension'], args['pos'])
+		if blockEntityData['mode']:
+			self.SaveBlockToSave(args['pos'], args['dimension'], blockEntityData['mode'])
+		print(self.functionBlockByPos, self.functionBlockByMode)
+
+	def SaveBlockToSave(self, pos, dim, mode):
+		self.functionBlockByPos[(dim, pos)] = mode
+		if (dim, pos) not in self.functionBlockByMode.items():
+			self.functionBlockByMode[mode].append((dim, pos))
+
+	def RemoveBlockFromSave(self, pos, dim):
+		mode = self.functionBlockByPos.get((dim, pos))
+		try:
+			del self.functionBlockByPos[(dim, pos)]
+		except KeyError:
+			pass
+		if mode:
+			if (dim, pos) in self.functionBlockByMode[mode]:
+				self.functionBlockByMode[mode].remove((dim, pos))
+
 	def TickClient(self):
 		"""
 		@description 客户端的零件对象逻辑驱动入口
@@ -94,3 +142,11 @@ class FunctionBlockPart(PartBase):
 		@description 服务端的零件对象销毁逻辑入口
 		"""
 		PartBase.DestroyServer(self)
+		#转储函数方块数据
+		compExtra = CFServer.CreateExtraData(levelId)
+		compExtra.SetExtraData('functionBlockByPos', self.functionBlockByPos)
+		compExtra.SetExtraData('functionBlockByMode', self.functionBlockByMode)
+
+#以下为函数方块的监听函数
+	def FCB_tick(self):
+		pass

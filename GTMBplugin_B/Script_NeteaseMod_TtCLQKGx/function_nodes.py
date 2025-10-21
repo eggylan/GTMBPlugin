@@ -7,6 +7,3 @@ nodes = {
 listeners = {
     'tick' : '@Listen tick()\n服务端脚本逻辑每帧执行, 每秒30帧。\n\n没有输出'
 }
-listenFuncName = {
-    'tick': 'OnScriptTickServer'
-}

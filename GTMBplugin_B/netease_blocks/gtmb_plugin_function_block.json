@@ -12,6 +12,9 @@
                 "client_tick": false,
                 "movable": false,
                 "tick": false
+            },
+            "netease:listen_block_remove": {
+                "value": true
             }
         },
         "description": {
