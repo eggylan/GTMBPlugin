@@ -57,6 +57,8 @@ class FunctionBlockPart(PartBase):
 		if nodeData['nodeType'] != '选择一个模式':
 			blockData['mode'] = nodeData['nodeType']
 			CFServer.CreateMsg(nodeData['__id__']).NotifyOneMessage(nodeData['__id__'], '已设置模式: ' + nodeData['nodeType'])
+			if blockData['type'] == 'listen':
+				self.SaveBlockToSave(block['pos'], block['dimension'], nodeData['nodeType'])
 
 	def requestNodeBlock(self, args):
 		compExtra = CFServer.CreateExtraData(args['__id__'])
@@ -76,13 +78,13 @@ class FunctionBlockPart(PartBase):
 		compExtra = CFServer.CreateExtraData(playerId)
 		if args['blockName'] == 'gtmb_plugin:function_block':
 			if compPlayer.GetPlayerAbilities()['op'] and not compExtra.GetExtraData('editingFunctionBlock'):
-				compExtra.SetExtraData('editingFunctionBlock', {'pos': (args['x'], args['y'], args['z']), 'dimension': args['dimensionId']})
+				compExtra.SetExtraData('editingFunctionBlock', {'pos': (args['x'], args['y'], args['z']), 'dimension': args['dimensionId'], 'type': 'node'})
 				serverSystem.NotifyToClient(playerId, 'openUI', {"ui": "functionBlockScreen"})
 			else:
 				args['cancel'] = True
 		elif args['blockName'] == 'gtmb_plugin:function_block_listen':
 			if compPlayer.GetPlayerAbilities()['op'] and not compExtra.GetExtraData('editingFunctionBlock'):
-				compExtra.SetExtraData('editingFunctionBlock', {'pos': (args['x'], args['y'], args['z']), 'dimension': args['dimensionId']})
+				compExtra.SetExtraData('editingFunctionBlock', {'pos': (args['x'], args['y'], args['z']), 'dimension': args['dimensionId'], 'type': 'listen'})
 				serverSystem.NotifyToClient(playerId, 'openUI', {'ui': 'listenBlockScreen'})
 			else:
 				args['cancel'] = True
@@ -90,7 +92,6 @@ class FunctionBlockPart(PartBase):
 	def OnRemovingBlock(self, args):
 		if args['fullName'] == 'gtmb_plugin:function_block_listen':
 			self.RemoveBlockFromSave((args['x'], args['y'], args['z']), args['dimension'])
-			print(self.functionBlockByPos, self.functionBlockByMode)
 
 	def OnPlacingBlock(self, args):
 		if args['blockName'] == 'gtmb_plugin:function_block_listen':
@@ -102,9 +103,8 @@ class FunctionBlockPart(PartBase):
 		blockEntityData = compBlockEntity.GetBlockEntityData(args['dimension'], args['pos'])
 		if blockEntityData['mode']:
 			self.SaveBlockToSave(args['pos'], args['dimension'], blockEntityData['mode'])
-		print(self.functionBlockByPos, self.functionBlockByMode)
 
-	def SaveBlockToSave(self, pos, dim, mode):
+	def SaveBlockToSave(self, pos, dim, mode): 
 		self.functionBlockByPos[(dim, pos)] = mode
 		if (dim, pos) not in self.functionBlockByMode.items():
 			self.functionBlockByMode[mode].append((dim, pos))
@@ -148,5 +148,12 @@ class FunctionBlockPart(PartBase):
 		compExtra.SetExtraData('functionBlockByMode', self.functionBlockByMode)
 
 #以下为函数方块的监听函数
-	def FCB_tick(self):
-		pass
+	def FCB_tick(self, args={}):
+		for i in self.functionBlockByMode['tick']:
+			compBlock = CFServer.CreateBlockInfo(levelId)
+			blockInfo = compBlock.GetBlockNew(i[1], i[0])
+			if blockInfo['name'] != 'gtmb_plugin:function_block_listen':
+				self.RemoveBlockFromSave(i[1], i[0])
+				print('%s 的函数方块数据已被移除' % str(i))
+				continue
+			print('%s 函数方块 执行 tick 事件' % str(i))
