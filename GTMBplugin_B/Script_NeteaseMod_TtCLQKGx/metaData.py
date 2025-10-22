@@ -1,1 +1,1 @@
-copyRightInfo = "§b---------\n版本： v0.9(2025/10):11\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"
+copyRightInfo = "§b---------\n版本： v0.9(2025/10):12\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证。\n---------"

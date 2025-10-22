@@ -41,13 +41,13 @@ class FunctionBlockPart(PartBase):
 		listenServerSysEvent('OnScriptTickServer', self.FCB_tick)
 		#注册函数方块
 		compExtra = CFServer.CreateExtraData(levelId)
-		if compExtra.GetExtraData('functionBlockByPos'):
+		if 0:#compExtra.GetExtraData('functionBlockByPos'):
 			self.functionBlockByPos = compExtra.GetExtraData('functionBlockByPos')
 			self.functionBlockByMode = compExtra.GetExtraData('functionBlockByMode')
 		else:
 			self.functionBlockByPos = {}
 			self.functionBlockByMode = {}
-			for i in ['tick']:
+			for i in ['tick', 'addPlayer']:
 				self.functionBlockByMode[i] = []
 
 	def onNodeBlockSave(self, nodeData):
@@ -58,7 +58,7 @@ class FunctionBlockPart(PartBase):
 		if nodeData['nodeType'] != '选择一个模式':
 			blockData['mode'] = nodeData['nodeType']
 			CFServer.CreateMsg(nodeData['__id__']).NotifyOneMessage(nodeData['__id__'], '已设置模式: ' + nodeData['nodeType'])
-			if blockData['type'] == 'listen':
+			if block['type'] == 'listen':
 				self.SaveBlockToSave(block['pos'], block['dimension'], nodeData['nodeType'])
 
 	def requestNodeBlock(self, args):
@@ -107,18 +107,16 @@ class FunctionBlockPart(PartBase):
 
 	def SaveBlockToSave(self, pos, dim, mode): 
 		self.functionBlockByPos[(dim, pos)] = mode
-		if (dim, pos) not in self.functionBlockByMode.items():
+		if (dim, pos) not in self.functionBlockByMode[mode]:
 			self.functionBlockByMode[mode].append((dim, pos))
+		print('[INFO] %s 函数方块 已保存' % str((dim, pos)))
 
 	def RemoveBlockFromSave(self, pos, dim):
-		mode = self.functionBlockByPos.get((dim, pos))
-		try:
-			del self.functionBlockByPos[(dim, pos)]
-		except KeyError:
-			pass
+		mode = self.functionBlockByPos.pop((dim, pos), None)
 		if mode:
 			if (dim, pos) in self.functionBlockByMode[mode]:
 				self.functionBlockByMode[mode].remove((dim, pos))
+		print('[INFO] %s 函数方块 已移除' % str((dim, pos)))
 
 	def TickClient(self):
 		"""
@@ -154,7 +152,6 @@ class FunctionBlockPart(PartBase):
 			blockInfo = compBlock.GetBlockNew(i[1], i[0])
 			if blockInfo['name'] != 'gtmb_plugin:function_block_listen':
 				self.RemoveBlockFromSave(i[1], i[0])
-				print('[INFO] %s 的遗留函数方块数据已被移除' % str(i))
 				continue
 			print('[INFO] %s 函数方块 执行 %s 事件' % (str(i), name))
 
