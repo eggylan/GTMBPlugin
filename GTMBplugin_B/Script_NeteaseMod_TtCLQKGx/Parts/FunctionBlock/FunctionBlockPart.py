@@ -41,7 +41,7 @@ class FunctionBlockPart(PartBase):
 		listenServerSysEvent('OnScriptTickServer', self.FCB_tick)
 		#注册函数方块
 		compExtra = CFServer.CreateExtraData(levelId)
-		if 0:#compExtra.GetExtraData('functionBlockByPos'):
+		if compExtra.GetExtraData('functionBlockByPos'):
 			self.functionBlockByPos = compExtra.GetExtraData('functionBlockByPos')
 			self.functionBlockByMode = compExtra.GetExtraData('functionBlockByMode')
 		else:
