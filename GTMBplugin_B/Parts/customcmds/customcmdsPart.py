@@ -238,8 +238,10 @@ class customcmdsPart(PartBase):
 			"chatlimit":self.chatlimit,
 			"allowmsg":self.allowmsg,
 			"hidenametag": self.hidenametag,
+			"cancel_structure_load": self.Cancel_Structure_Loading,
 			#'setblocknbt': self.setblocknbt
 			"§r§r§rgtmbdebug": self.debug
+			
 		}
 		
 	def InitClient(self):
@@ -2303,6 +2305,13 @@ class customcmdsPart(PartBase):
 		serversystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidenametag', 'cmdargs': cmdargs})
 		return False, '已%s %s 的可见悬浮字' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
 
+	def Cancel_Structure_Loading(self, cmdargs, playerId, variant, data):
+		packet = {
+			"playerId": playerId
+		}
+		self.BroadcastPresetSystemEvent('cancel_structure_loading', packet)
+		return False, ''
+	
 	def debug(self, cmdargs, playerId, variant, data):
 		if CFServer.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CFServer.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
 			return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'

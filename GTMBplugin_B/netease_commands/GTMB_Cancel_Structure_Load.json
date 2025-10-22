@@ -1,0 +1,6 @@
+{
+	"format_version": "0.0.1",
+	"name": "cancel_structure_load",
+	"description": "取消结构加载任务",
+	"permission_level": "admin"
+}

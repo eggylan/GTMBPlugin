@@ -43,6 +43,7 @@ class MainLogicPart(PartBase):
 		self._is_Structure_Loading = False # 标记当前是否有玩家正在加载结构
 		self._buffer = {} # 用于存储分块数据的缓冲区
 		self._structure_receive_timeout_counter = 0 # 结构加载超时计数器
+		self._structure_load_coroutine = {} # 结构加载协程字典
 
 	def InitClient(self):
 		"""
@@ -93,7 +94,7 @@ class MainLogicPart(PartBase):
 		uiNodePreset.SetUiVisible(True)
 		
 	def close(self, args): #不用popTopUi()，防止原生页面被额外关闭
-		for i in ["enchant","getitem","nbteditor","itemTips","cmdbatch","struimport"]:
+		for i in ["enchant","getitem","nbteditor","itemTips","cmdbatch"]:
 			uiNodePreset = self.GetParent().GetChildPresetsByName(i)[0]
 			uiNodePreset.SetUiActive(False)
 			uiNodePreset.SetUiVisible(False)
@@ -130,14 +131,16 @@ class MainLogicPart(PartBase):
 			return
 		serversystem.NotifyToClient(self.structure_loading_playerid, 'HandShake_Success', {"REJECT": False})
 		self._is_Structure_Loading = True
+		self._is_structure_load_enable_coroutine = data.get("USE_COROUTINE", False)
+		self._structure_load_coroutine_per_yield = data.get("COROUTINE_PER_YIELD",100)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(self.structure_loading_playerid), self, self._process_packet)
 		
 		self._structure_receive_timeout_counter = 0
-		self._structure_receive_timeout_timer_object = compGame.AddRepeatedTimer(1, self._structure_receive_timeout_timer) # 计时器，发包间隔超过20秒则视为超时
+		self._structure_receive_timeout_timer_object = compGame.AddRepeatedTimer(1, self._structure_receive_timeout_timer) # 计时器，发包间隔超过10秒则视为超时
 
 	def _structure_receive_timeout_timer(self):
 		self._structure_receive_timeout_counter = self._structure_receive_timeout_counter + 1
-		if self._structure_receive_timeout_counter >= 20:
+		if self._structure_receive_timeout_counter >= 10:
 			print("取消结构加载，原因：接收数据超时")
 			self._structure_receive_timeout_counter = 0
 			self._is_Structure_Loading = False
@@ -185,8 +188,119 @@ class MainLogicPart(PartBase):
 		assembled_data = ''.join(self._buffer[i] for i in sorted(self._buffer.keys()))
 		structuredata = unicode_convert(json.loads(assembled_data)) #仍然会被storagekey崩掉，暂时留存
 		self._buffer.clear()  # 清空缓冲区
-		self.Load_Structure(structuredata, playerid)
+		if self._is_structure_load_enable_coroutine:
+			self.Load_Structure_Coroutine(structuredata, playerid)
+		else:	
+			self.Load_Structure(structuredata, playerid)
 
+	def Load_Structure_Coroutine(self, data, playerid=None):
+		if CFServer.CreatePlayer(playerid).GetPlayerOperation() != 2:
+			return
+		
+		playerpos = CFServer.CreatePos(playerid).GetFootPos()
+		player_X, player_Y, player_Z = intg(playerpos[0]), int(playerpos[1]), intg(playerpos[2])
+		
+		structure = data["structuredata"]
+		palette = structure['structure']['palette']['default']
+		block_entity_data = palette['block_position_data']
+		serversystem = serverApi.GetSystem("Minecraft", "preset")
+		blockcomp = CFServer.CreateBlockInfo(levelId)
+		blockStateComp = CFServer.CreateBlockState(levelId)
+		compMsg = CFServer.CreateMsg(playerid)
+		
+		def spawn_entities_coroutine():
+			# 生成实体协程
+			entities_to_spawn = structure['structure']['entities']
+			total_entities = len(entities_to_spawn)
+			
+			for i, entity_data in enumerate(entities_to_spawn):
+
+				pos = entity_data['Pos']
+				x, y, z = pos[0]['__value__'], pos[1]['__value__'], pos[2]['__value__']
+				x -= structure['structure_world_origin'][0]
+				y -= structure['structure_world_origin'][1]
+				z -= structure['structure_world_origin'][2]
+				x += player_X
+				y += player_Y
+				z += player_Z
+				
+				serversystem.CreateEngineEntityByNBT(entity_data, (x, y, z), None, data['dimension'])
+				
+				# 每生成一定数量的实体后，暂停一帧
+				if (i + 1) % self._structure_load_coroutine_per_yield == 0:
+					yield
+
+		
+		def place_blocks_coroutine():
+			# 放置方块协程
+			block_indices = structure['structure']['block_indices'][0]
+			block_palette = palette['block_palette']
+			size = structure["size"]
+			
+			block_index = 0
+			blocks_placed = 0
+			total_blocks = sum(1 for index in block_indices if index != -1)
+
+			for x in range(size[0]):
+				for y in range(size[1]):
+					for z in range(size[2]):
+						
+						if block_indices[block_index] != -1:
+							palette_entry = block_palette[block_indices[block_index]]
+							if palette_entry['name'] != 'minecraft:air':
+								block_pos = (player_X + x, player_Y + y, player_Z + z)
+								
+								blockcomp.SetBlockNew(block_pos, 
+													{'name': palette_entry['name'], 'aux': palette_entry.get('val', 0)}, 
+													0, data['dimension'], False, False)
+								blockStateComp.SetBlockStates(block_pos, palette_entry.get('states', {}), data['dimension'])
+								
+								if str(block_index) in block_entity_data and 'block_entity_data' in block_entity_data[str(block_index)]:
+									blockcomp.SetBlockEntityData(data['dimension'], block_pos, block_entity_data[str(block_index)]['block_entity_data'])
+								
+								blocks_placed += 1
+
+						block_index += 1
+						
+						# 每放置一定数量的方块后，暂停一帧
+						if blocks_placed > 0 and blocks_placed % self._structure_load_coroutine_per_yield == 0:
+							yield
+		
+		def on_all_tasks_finished():
+			self._is_Structure_Loading = False
+			compMsg.NotifyOneMessage(playerid, "§a结构加载完成！")
+			print("Structure loading finished for player:", playerid)
+			# 清理协程字典
+			self._structure_load_coroutine.clear()
+
+		# 方块放置完成后的回调：启动实体生成协程
+		def on_blocks_placed():
+			compMsg.NotifyOneMessage(playerid, "§a方块放置完成，开始生成实体...")
+			# 启动第二个协程：生成实体
+			self._structure_load_coroutine['spawn_entities'] = serverApi.StartCoroutine(spawn_entities_coroutine, on_all_tasks_finished)
+
+		# 启动第一个协程：放置方块
+		self._structure_load_coroutine['place_blocks'] = serverApi.StartCoroutine(place_blocks_coroutine, on_blocks_placed)
+		compMsg.NotifyOneMessage(playerid, "§a协程任务已启动。使用指令 /cancel_structure_load 中止。\n开始放置方块...")
+
+	def Cancel_Structure_Loading(self,args):
+		playerId = args.get("playerId", None)
+		compMsg = CFServer.CreateMsg(playerId)
+		# 停止所有结构加载协程
+		if not self._is_Structure_Loading and not self._structure_load_coroutine:
+			if playerId:
+				compMsg.NotifyOneMessage(playerId, "§c未停止。当前没有正在进行的结构加载任务。")
+			return
+		for coroutine in self._structure_load_coroutine.values():
+			serverApi.StopCoroutine(coroutine)
+		self._structure_load_coroutine.clear()
+		self._is_Structure_Loading = False
+		self._buffer.clear()
+		if playerId:
+			compMsg.NotifyOneMessage(playerId, "§f结构加载已被中止。")
+		
+		
+	
 	def Load_Structure(self,data,playerid=None):
 		if CFServer.CreatePlayer(playerid).GetPlayerOperation() == 2:
 			playerpos = CFServer.CreatePos(playerid).GetFootPos()
@@ -201,26 +315,28 @@ class MainLogicPart(PartBase):
 			serversystem = serverApi.GetSystem("Minecraft", "preset")
 			blockcomp = CFServer.CreateBlockInfo(levelId)
 			blockStateComp = CFServer.CreateBlockState(levelId)
-			i = 0
+			block_index = 0
 			compMsg = CFServer.CreateMsg(playerid)
 			for x in range(structure["size"][0]):
 				for y in range(structure['size'][1]):
 					for z in range(structure['size'][2]):
-						if structure['structure']['block_indices'][0][i] != -1:
-							blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
-							 					{'name':palette['block_palette'][structure['structure']['block_indices'][0][i]]['name'], 
-			  									'aux': palette['block_palette'][structure['structure']['block_indices'][0][i]].get('val', 0)}, 
-												0, 
-												data['dimension'], 
-												False, 
-												False)
-							blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),palette['block_palette'][structure['structure']['block_indices'][0][i]].get('states', {}), data['dimension'])
-							if block_entity_data.has_key(str(i)) and block_entity_data[str(i)].has_key('block_entity_data'):
-								#if i % 10 == 0: print(block_entity_data[str(i)]['block_entity_data'])
-								blockcomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(i)]['block_entity_data'])
-						i += 1
-			for i in structure['structure']['entities']:
-				x, y, z = i['Pos']
+						if structure['structure']['block_indices'][0][block_index] != -1:
+							block_info = palette['block_palette'][structure['structure']['block_indices'][0][block_index]]
+							if block_info['name'] != 'minecraft:air':
+								blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
+													{'name':block_info['name'], 
+													'aux': block_info.get('val', 0)}, 
+													0, 
+													data['dimension'], 
+													False, 
+													False)
+								blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),block_info.get('states', {}), data['dimension'])
+								if block_entity_data.has_key(str(block_index)) and block_entity_data[str(block_index)].has_key('block_entity_data'):
+									#if i % 10 == 0: print(block_entity_data[str(i)]['block_entity_data'])
+									blockcomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(block_index)]['block_entity_data'])
+						block_index += 1
+			for entity in structure['structure']['entities']:
+				x, y, z = entity['Pos']
 				x = x['__value__']
 				y = y['__value__']
 				z = z['__value__']
@@ -230,7 +346,7 @@ class MainLogicPart(PartBase):
 				x += player_X
 				y += player_Y
 				z += player_Z
-				serversystem.CreateEngineEntityByNBT(i, (x, y, z), None, data['dimension'])
+				serversystem.CreateEngineEntityByNBT(entity, (x, y, z), None, data['dimension'])
 		self._is_Structure_Loading = False
 
 
@@ -252,6 +368,7 @@ class MainLogicPart(PartBase):
 		serversystem.ListenForEvent('Minecraft', 'preset', 'loadstructure_handshake', self, self.loadstructure_handshake)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'TryOpenEULA', self, self.TryOpenEULA)
 		serversystem.ListenForEvent('Minecraft', 'preset', 'EULA', self, self.eula)
+		serversystem.ListenForEvent('Minecraft', 'preset', 'cancel_structure_loading', self, self.Cancel_Structure_Loading)
 		compCmd.SetCommandPermissionLevel(4)
 		CFServer.CreatePet(levelId).Disable() 
 
@@ -493,6 +610,13 @@ class MainLogicPart(PartBase):
 		"""
 		@description 服务端的零件对象销毁逻辑入口
 		"""
+		print("服务端主逻辑零件销毁")
 		serversystem = serverApi.GetSystem("Minecraft", "preset")
 		serversystem.UnListenAllEvents()
+		try:
+			for coroutine in self._structure_load_coroutine.values():
+				serverApi.StopCoroutine(coroutine)
+		except:
+			pass
 		PartBase.DestroyServer(self)
+		
