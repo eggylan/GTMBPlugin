@@ -37,6 +37,7 @@ class FunctionBlockPart(PartBase):
 		listenServerSysEvent('ServerPlaceBlockEntityEvent', self.OnPlacingBlock)
 		listenServerSysEvent('BlockRemoveServerEvent', self.OnRemovingBlock)
 		#以下为函数方块的监听内容
+		listenServerSysEvent('PlayerJoinMessageEvent', self.FCB_join)
 		listenServerSysEvent('OnScriptTickServer', self.FCB_tick)
 		#注册函数方块
 		compExtra = CFServer.CreateExtraData(levelId)
@@ -147,13 +148,19 @@ class FunctionBlockPart(PartBase):
 		compExtra.SetExtraData('functionBlockByPos', self.functionBlockByPos)
 		compExtra.SetExtraData('functionBlockByMode', self.functionBlockByMode)
 
-#以下为函数方块的监听函数
-	def FCB_tick(self, args={}):
-		for i in self.functionBlockByMode['tick']:
+	def CallListen(self, name, eventData):
+		for i in self.functionBlockByMode[name]:
 			compBlock = CFServer.CreateBlockInfo(levelId)
 			blockInfo = compBlock.GetBlockNew(i[1], i[0])
 			if blockInfo['name'] != 'gtmb_plugin:function_block_listen':
 				self.RemoveBlockFromSave(i[1], i[0])
-				print('%s 的函数方块数据已被移除' % str(i))
+				print('[INFO] %s 的遗留函数方块数据已被移除' % str(i))
 				continue
-			print('%s 函数方块 执行 tick 事件' % str(i))
+			print('[INFO] %s 函数方块 执行 %s 事件' % (str(i), name))
+
+#以下为函数方块的监听函数
+	def FCB_tick(self, args={}):
+		self.CallListen('tick', args)
+
+	def FCB_join(self, args={}):
+		self.CallListen('player_join', args)
