@@ -3,6 +3,8 @@ import mod.client.extraClientApi as clientApi
 import traceback
 import wphnbt
 import json
+import threading
+
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
@@ -12,46 +14,94 @@ clientsystem = clientApi.GetSystem("Minecraft", "preset")
 class importstrulogic(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
+		self._worker_thread = None
 
 	def Create(self):
 		"""
 		@description UI创建成功时调用
 		"""
+		self.compGame = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
+		
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetButtonTouchUpCallback(self.import_path_mode)
+		self.GetBaseUIControl("/panel/launch_path_mode/coroutine_help").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/launch_path_mode/coroutine_help").asButton().SetButtonTouchUpCallback(self.show_coroutine_help)
 
- 
 		self.progressBarUIControl = self.GetBaseUIControl("/panel/progress_bar").asProgressBar()
 		self.progressBarUITextControl = self.GetBaseUIControl("/panel/progress_bar/progress_bar_text").asLabel()
 		self.progressBarUIControl.SetVisible(False)
 		self.progressBarUIControl.SetValue(0)
 
+		self.notify_control = self.GetBaseUIControl('/panel/err')
+		self.notify_control_asLabel = self.notify_control.asLabel()
+
 	def close(self, args):
 		clientApi.PopTopUI()
+
+	def check_input_number_valid(self, input_str):
+		max_value = 1000000
+		if not isinstance(input_str, str) or not input_str:
+			return False
+
+		if not input_str.isdigit():
+			return False
+
+		num = int(input_str)
 		
+		return 0 < num <= max_value
+	
 	def import_path_mode(self, args):
+		#如果已有线程在运行，则不重复启动
+		if self._worker_thread and self._worker_thread.is_alive():
+			self.notify_control_asLabel.SetText('§c4⚠ 文件正在处理中，请稍候...')
+			self.notify_control.SetVisible(True)
+			return
+		
+		self.is_enable_coroutine = self.GetBaseUIControl("/panel/launch_path_mode/enable_coroutine_switch_toggle").asSwitchToggle().GetToggleState()
+		if self.is_enable_coroutine:
+			self.coroutine_per_yield = self.GetBaseUIControl("/panel/launch_path_mode/coroutine_per_yield_input").asTextEditBox().GetEditText()
+			if not self.coroutine_per_yield:
+				self.coroutine_per_yield = "100" # 默认值
+			if not self.check_input_number_valid(self.coroutine_per_yield):
+				self.notify_control_asLabel.SetText('§c⚠ 每帧处理数不合法！请输入正整数。')
+				self.notify_control.SetVisible(True)
+				self.compGame.AddTimer(1, self.notify_control.SetVisible, False)
+				return
+			self.coroutine_per_yield = int(self.coroutine_per_yield)
+
+
 		self._timers = {}
 		self._send_queue = []
-		
-		self.notify_control = self.GetBaseUIControl('/panel/err')
 		path = self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText()
 		path = path.decode('utf-8') if isinstance(path, str) else path
 
-		self.compGame = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId())
-		
 		if not path.endswith('.mcstructure'):
-			self.notify_control.asLabel().SetText('§4⚠无效的文件，扩展名必须为mcstructure')
+			self.notify_control_asLabel.SetText('§c⚠无效的文件，扩展名必须为mcstructure')
 			self.notify_control.SetVisible(True)
 			self.compGame.AddTimer(1, self.notify_control.SetVisible, False)
 			return
+
+		self.notify_control_asLabel.SetText('§e正在对结构文件进行预处理，请稍候...\n§f大型结构可能耗费更长时间。\n请勿关闭此界面。')
+		self.notify_control.SetVisible(True)
+		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(False)
+		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(False)
 		
+
+		# 启动一个后台线程来处理文件
+		self._worker_thread = threading.Thread(
+			target=self._process_file_in_thread,
+			args=(path, self._on_file_processed)
+		)
+
+		self._worker_thread.daemon = True
+		self._worker_thread.start()
+
+	def _process_file_in_thread(self, path, callback):
+		structure = None
+		error = None
 		try:
-			self.notify_control.asLabel().SetText('§e正在处理文件，请稍候...')
-			self.notify_control.SetVisible(True)
-			self.UpdateScreen()
-			self.Update()
 			with open(path, 'rb') as f:
 				structure = wphnbt.load(f)
 				structureentitydata = structure['structure']['palette']['default']['block_position_data']
@@ -59,31 +109,49 @@ class importstrulogic(ScreenNode):
 				structureentitys = structure['structure']['entities']
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
-		except:
-			self.notify_control.asLabel().SetText('§4⚠ 加载失败,原因已输出至聊天框')
+		except Exception as e:
+			error = traceback.format_exc()
+
+		# 跳回主线程
+		# 注意！绝对不要在非主线程中调用clientApi！！！
+		self.compGame.AddTimer(0.01, callback, True, structure, error)
+
+	# 文件处理完成
+	def _on_file_processed(self, success, structure=None, error=None):
+		if not success:
+			self.notify_control_asLabel.SetText('§c⚠ 加载失败,原因已输出至聊天框')
 			self.notify_control.SetVisible(True)
 			self.compGame.AddTimer(1, self.notify_control.SetVisible, False)
-			for i in traceback.format_exc().splitlines():
+			for i in error.splitlines():
 				clientApi.GetEngineCompFactory().CreateTextNotifyClient(clientApi.GetLocalPlayerId()).SetLeftCornerNotify("§c%s" % i)
 			return
-		
+
 		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 		self.structuredata = json.dumps({"structuredata": structure, "dimension": Dimension}, ensure_ascii=False)
-		self.notify_control.asLabel().SetText('§a✔ 文件处理完成, 正在与服务端握手...')
-		
+		self.notify_control_asLabel.SetText('§a✔ 文件处理完成, 正在与服务端握手...')
+
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(False)
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(False)
-		
+
 		self.localPlayerId = clientApi.GetLocalPlayerId()
-		
-		clientsystem.NotifyToServer("loadstructure_handshake", {})
+
+		if self.is_enable_coroutine:
+			handshake_packet = {
+				"USE_COROUTINE": True,
+				"COROUTINE_PER_YIELD": self.coroutine_per_yield
+			}
+		else:
+			handshake_packet = {
+				"USE_COROUTINE": False
+			}
+		clientsystem.NotifyToServer("loadstructure_handshake", handshake_packet)
 		clientsystem.ListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
-		
+
 		# 等待服务端握手（超时：5秒）
 		self._timers['handshake'] = self.compGame.AddTimer(5, self.handshake_timeout)
 
 	def handshake_timeout(self):
-		self.notify_control.asLabel().SetText('§4⚠与服务端握手超时')
+		self.notify_control_asLabel.SetText('§c⚠与服务端握手超时')
 		clientsystem.UnListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
 		if 'handshake' in self._timers:
 			self.compGame.CancelTimer(self._timers['handshake'])
@@ -99,29 +167,29 @@ class importstrulogic(ScreenNode):
 		self.compGame.CancelTimer(self._timers['handshake'])
 		del self._timers['handshake']
 		if args.get("REJECT", False):
-			if args.get("reason","") == "SERVER_BUSY":	
-				self.notify_control.asLabel().SetText('§4⚠服务端正在处理上一个请求, 请稍后再试')
+			if args.get("reason","") == "SERVER_BUSY":
+				self.notify_control_asLabel.SetText('§c⚠服务端正在处理上一个请求, 请稍后再试')
 			elif args.get("reason","") == "NO_PERMISSION":
-				self.notify_control.asLabel().SetText('§4⚠你没有权限执行此操作')
+				self.notify_control_asLabel.SetText('§c⚠你没有权限执行此操作')
 			self.notify_control.SetVisible(True)
 			self.compGame.AddTimer(3, self.notify_control.SetVisible, False)
 			self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
 			self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(True)
 			return
-		self.notify_control.asLabel().SetText('§a✔ 与服务端握手成功, 正在传输数据...\n§e请勿关闭此界面')
+		self.notify_control_asLabel.SetText('§a✔ 与服务端握手成功, 正在传输数据...\n§e请勿关闭此界面')
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(False)
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(False)
 		self.notify_control.SetVisible(True)
 		self.progressBarUIControl.SetVisible(True)
-		
+
 		# 分割数据
 		def split_string_by_length(s, n):
 			return [s[i:i+n] for i in range(0, len(s), n)]
-		
+
 		chunk_size = 100000  # 每个数据包的大小
 		chunks = split_string_by_length(self.structuredata, chunk_size)
 		self._total_chunks = len(chunks)
-		
+
 		# 构建数据包
 		for index, chunk in enumerate(chunks):
 			is_last = index == len(chunks) - 1
@@ -139,7 +207,7 @@ class importstrulogic(ScreenNode):
 	def sendPacket(self):
 		if not self._send_queue:
 			clientsystem.NotifyToServer("AllDataSend_"+ self.localPlayerId, {})
-			self.notify_control.asLabel().SetText('§a✔ 数据传输完成, 正在等待服务端处理...\n§e现在可以关闭此界面')
+			self.notify_control_asLabel.SetText('§a✔ 数据传输完成, 正在等待服务端处理...\n§e现在可以关闭此界面')
 			self.compGame.AddTimer(5, self.notify_control.SetVisible, False)
 			self.compGame.CancelTimer(self._timers['send'])
 			self._send_queue = []
@@ -152,11 +220,22 @@ class importstrulogic(ScreenNode):
 
 		self.progressBarUIControl.SetValue(1.0 - (float(len(self._send_queue)) / float(self._total_chunks)))
 		self.progressBarUITextControl.SetText("传输进度: %.1f%%%%" % (100 - (float(len(self._send_queue)) / float(self._total_chunks) * 100)))
+	
+	def show_coroutine_help(self, args):
+		help_text = (
+			"§f启用协程可大幅提升大型结构处理的流畅度，\n"
+			"§f但可能会增加所需的总时间。\n"
+			"§f请根据实际需求选择是否启用此选项。\n\n"
+		)
+		self.notify_control_asLabel.SetText(help_text)
+		self.notify_control.SetVisible(True)
+		self.compGame.AddTimer(5, self.notify_control.SetVisible, False)
 
 	def Destroy(self):
 		"""
 		@description UI销毁时调用
 		"""
+		self._worker_thread = None
 		pass
 
 	def OnActive(self):
