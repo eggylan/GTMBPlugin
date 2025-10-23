@@ -3,25 +3,23 @@ from __future__ import print_function
 from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
-import mod.client.extraClientApi as clientApi
 import json
 import random
 import math
-import Script_NeteaseMod_TtCLQKGx.wphnbt as wphnbt
 import re
 #for 异常处理
 import traceback
 
-from Script_NeteaseMod_TtCLQKGx.metaData import copyRightInfo
+metaData = serverApi.ImportModule("Script_NeteaseMod_TtCLQKGx.metaData")
 
 CFServer = serverApi.GetEngineCompFactory()
-levelId = serverApi.GetLevelId()
+server_levelId = serverApi.GetLevelId()
 
-compcmd = CFServer.CreateCommand(levelId)
-compGame = CFServer.CreateGame(levelId)
-compItemWorld = CFServer.CreateItem(levelId)
-compExtra = CFServer.CreateExtraData(levelId)
-compBlockEntity = CFServer.CreateBlockEntity(levelId)
+compcmd = CFServer.CreateCommand(server_levelId)
+compGame = CFServer.CreateGame(server_levelId)
+compItemWorld = CFServer.CreateItem(server_levelId)
+compExtra = CFServer.CreateExtraData(server_levelId)
+compBlockEntity = CFServer.CreateBlockEntity(server_levelId)
 
 
 serversystem = serverApi.GetSystem('Minecraft', 'preset')
@@ -74,6 +72,19 @@ class customcmdsPart(PartBase):
 		PartBase.__init__(self)
 		# 零件名称
 		self.name = '自定义指令零件'
+		
+	def InitClient(self):
+		'''
+		@description 客户端的零件对象初始化入口
+		'''
+		import mod.client.extraClientApi as clientApi
+		self.clientApi = clientApi
+		self.CFClient = self.clientApi.GetEngineCompFactory()
+		self.localPlayerId = self.clientApi.GetLocalPlayerId()
+		self.clientLevelId = self.clientApi.GetLevelId()
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetEnableColorAdjustment(True)
+		self.clientsystem = self.clientApi.GetSystem('Minecraft', 'preset')
+		self.clientsystem.ListenForEvent('Minecraft', 'preset', 'CustomCommandClient', self, self.OnCustomCommandClient)
 
 		# 注册处理函数
 		# 客户端
@@ -101,6 +112,98 @@ class customcmdsPart(PartBase):
 			"hidenametag": self.client_hidenametag
 
 		}
+
+		PartBase.InitClient(self)
+
+	def OnCustomCommandClient(self, args):
+		# 从dict中选取处理函数
+		handler = self.clientcustomcmd.get(args['cmd'])
+		if handler:
+			handler(args)
+		# clientsystem.NotifyToServer('customCmdReturn', data)
+
+	# 客户端函数部分由此开始
+	def client_setplayerinteracterange(self, args):
+		self.clientApi.GetEngineCompFactory().CreatePlayer(self.localPlayerId).SetPickRange(args['cmdargs'][1])
+	def client_openfoldgui(self, args):
+		self.clientApi.OpenFoldGui()
+	def client_setcanpausescreen(self, args):
+		self.CFClient.CreateOperation(self.clientLevelId).SetCanPauseScreen(args['cmdargs'][1])
+	def client_setcolorbrightness(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetColorAdjustmentBrightness(args['cmdargs'][2])
+	def client_setcolorcontrast(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetColorAdjustmentContrast(args['cmdargs'][2])
+	def client_setcolorsaturation(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetColorAdjustmentSaturation(args['cmdargs'][2])
+	def client_setcolortint(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetColorAdjustmentTint(args['cmdargs'][2], (args['cmdargs'][3], args['cmdargs'][4], args['cmdargs'][5]))
+	def client_setcompassentity(self, args):
+		self.CFClient.CreateItem(self.localPlayerId).SetCompassEntity(args['cmdargs'][1][0])
+	def client_setcompasstarget(self, args):
+		self.CFClient.CreateItem(self.localPlayerId).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
+	def client_setvignettecenter(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
+	def client_setvignetteradius(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetVignetteRadius(args['cmdargs'][2])
+	def client_setvignettecolor(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetVignetteRGB(args['cmdargs'][2])
+	def client_setvignettesmooth(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetVignetteSmoothness(args['cmdargs'][2])
+	def client_setvignette(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetEnableVignette(args['cmdargs'][2])
+	def client_setgaussian(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetEnableGaussianBlur(args['cmdargs'][2])
+	def client_setgaussianradius(self, args):
+		self.CFClient.CreatePostProcess(self.clientLevelId).SetGaussianBlurRadius(args['cmdargs'][2])
+	def client_sethudchatstackposition(self, args):
+		self.clientApi.SetHudChatStackPosition((args['cmdargs'][1], args['cmdargs'][2]))
+	def client_sethudchatstackvisible(self, args):
+		self.clientApi.SetHudChatStackVisible(args['cmdargs'][1])
+	def client_chatclear(self, args):
+		compClientTextNotify = self.CFClient.CreateTextNotifyClient(self.localPlayerId)
+		for _ in range(35):	 # type: ignore
+			compClientTextNotify.SetLeftCornerNotify("\n\n\n\n\n")
+	def client_openui(self, args):
+		compClientTextNotify = self.CFClient.CreateTextNotifyClient(self.localPlayerId)
+		if args['cmdargs'][0] == "enchant":
+			uiWillbeOpen = "enchant"
+			uiWillbeOpenName = "自定义附魔"
+		elif args['cmdargs'][0] == "getitem":
+			uiWillbeOpen = "getitem"
+			uiWillbeOpenName = "获取隐藏物品"
+		elif args['cmdargs'][0] == "nbteditor":
+			uiWillbeOpen = "nbteditor"
+			uiWillbeOpenName = "NBT编辑器"
+		elif args['cmdargs'][0] == "changetips":
+			uiWillbeOpen = "itemTips"
+			uiWillbeOpenName = "修改物品注释"
+		elif args['cmdargs'][0] == "cmdbatch":
+			uiWillbeOpen = "cmdbatch"
+			uiWillbeOpenName = "指令批处理"
+		elif args['cmdargs'][0] == "structureimport":
+			if self.clientApi.GetPlatform() == PLATFORM_WINDOWS:
+				uiWillbeOpen = "struimport"
+				uiWillbeOpenName = "结构导入"
+			else:
+				compClientTextNotify.SetLeftCornerNotify("§e您的设备暂不支持此功能，请前往电脑端使用")
+				return
+		elif args['cmdargs'][0] == "nbteditornew":
+			uiWillbeOpen = "nbteditornew"
+			uiWillbeOpenName = "NBT编辑器(新)"
+		uiNodePreset = self.GetParent().GetChildPresetsByName(uiWillbeOpen)[0]
+		uiNodePreset.SetUiActive(True)
+		uiNodePreset.SetUiVisible(True)
+		compClientTextNotify.SetLeftCornerNotify("已打开 %s 界面" % uiWillbeOpenName)
+	def client_hidenametag(self, args):
+		self.clientApi.HideNameTag(args['cmdargs'][1])
+	# 客户端函数部分到此结束
+	
+	def InitServer(self):
+		'''
+		@description 服务端的零件对象初始化入口
+		'''
+		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
+		#serversystem.ListenForEvent('Minecraft', 'preset', 'customCmdReturn', self, self.OnReturn)
 
 		# 服务端
 		self.servercustomcmd = {
@@ -244,109 +347,6 @@ class customcmdsPart(PartBase):
 			
 		}
 		
-	def InitClient(self):
-		'''
-		@description 客户端的零件对象初始化入口
-		'''
-		global CFClient
-		CFClient = clientApi.GetEngineCompFactory()
-		CFClient.CreatePostProcess(levelId).SetEnableColorAdjustment(True)
-		global clientsystem
-		clientsystem = clientApi.GetSystem('Minecraft', 'preset')
-		clientsystem.ListenForEvent('Minecraft', 'preset', 'CustomCommandClient', self, self.OnCustomCommandClient)
-		global localPlayerId
-		localPlayerId = clientApi.GetLocalPlayerId()
-		PartBase.InitClient(self)
-
-	def OnCustomCommandClient(self, args):
-		# 从dict中选取处理函数
-		handler = self.clientcustomcmd.get(args['cmd'])
-		if handler:
-			handler(args)
-		# clientsystem.NotifyToServer('customCmdReturn', data)
-
-	# 客户端函数部分由此开始
-	def client_setplayerinteracterange(self, args):
-		clientApi.GetEngineCompFactory().CreatePlayer(localPlayerId).SetPickRange(args['cmdargs'][1])
-	def client_openfoldgui(self, args):
-		clientApi.OpenFoldGui()
-	def client_setcanpausescreen(self, args):
-		CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
-	def client_setcolorbrightness(self, args):
-		CFClient.CreatePostProcess(levelId).SetColorAdjustmentBrightness(args['cmdargs'][2])
-	def client_setcolorcontrast(self, args):
-		CFClient.CreatePostProcess(levelId).SetColorAdjustmentContrast(args['cmdargs'][2])
-	def client_setcolorsaturation(self, args):
-		CFClient.CreatePostProcess(levelId).SetColorAdjustmentSaturation(args['cmdargs'][2])
-	def client_setcolortint(self, args):
-		CFClient.CreatePostProcess(levelId).SetColorAdjustmentTint(args['cmdargs'][2], (args['cmdargs'][3], args['cmdargs'][4], args['cmdargs'][5]))
-	def client_setcompassentity(self, args):
-		CFClient.CreateItem(localPlayerId).SetCompassEntity(args['cmdargs'][1][0])
-	def client_setcompasstarget(self, args):
-		CFClient.CreateItem(localPlayerId).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
-	def client_setvignettecenter(self, args):
-		CFClient.CreatePostProcess(levelId).SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
-	def client_setvignetteradius(self, args):
-		CFClient.CreatePostProcess(levelId).SetVignetteRadius(args['cmdargs'][2])
-	def client_setvignettecolor(self, args):
-		CFClient.CreatePostProcess(levelId).SetVignetteRGB(args['cmdargs'][2])
-	def client_setvignettesmooth(self, args):
-		CFClient.CreatePostProcess(levelId).SetVignetteSmoothness(args['cmdargs'][2])
-	def client_setvignette(self, args):
-		CFClient.CreatePostProcess(levelId).SetEnableVignette(args['cmdargs'][2])
-	def client_setgaussian(self, args):
-		CFClient.CreatePostProcess(levelId).SetEnableGaussianBlur(args['cmdargs'][2])
-	def client_setgaussianradius(self, args):
-		CFClient.CreatePostProcess(levelId).SetGaussianBlurRadius(args['cmdargs'][2])
-	def client_sethudchatstackposition(self, args):
-		clientApi.SetHudChatStackPosition((args['cmdargs'][1], args['cmdargs'][2]))
-	def client_sethudchatstackvisible(self, args):
-		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
-	def client_chatclear(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(localPlayerId)
-		for _ in xrange(35):	 # type: ignore
-			compClientTextNotify.SetLeftCornerNotify("\n\n\n\n\n")
-	def client_openui(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(localPlayerId)
-		if args['cmdargs'][0] == "enchant":
-			uiWillbeOpen = "enchant"
-			uiWillbeOpenName = "自定义附魔"
-		elif args['cmdargs'][0] == "getitem":
-			uiWillbeOpen = "getitem"
-			uiWillbeOpenName = "获取隐藏物品"
-		elif args['cmdargs'][0] == "nbteditor":
-			uiWillbeOpen = "nbteditor"
-			uiWillbeOpenName = "NBT编辑器"
-		elif args['cmdargs'][0] == "changetips":
-			uiWillbeOpen = "itemTips"
-			uiWillbeOpenName = "修改物品注释"
-		elif args['cmdargs'][0] == "cmdbatch":
-			uiWillbeOpen = "cmdbatch"
-			uiWillbeOpenName = "指令批处理"
-		elif args['cmdargs'][0] == "structureimport":
-			if clientApi.GetPlatform() == PLATFORM_WINDOWS:
-				uiWillbeOpen = "struimport"
-				uiWillbeOpenName = "结构导入"
-			else:
-				compClientTextNotify.SetLeftCornerNotify("§e您的设备暂不支持此功能，请前往电脑端使用")
-				return
-		elif args['cmdargs'][0] == "nbteditornew":
-			uiWillbeOpen = "nbteditornew"
-			uiWillbeOpenName = "NBT编辑器(新)"
-		uiNodePreset = self.GetParent().GetChildPresetsByName(uiWillbeOpen)[0]
-		uiNodePreset.SetUiActive(True)
-		uiNodePreset.SetUiVisible(True)
-		compClientTextNotify.SetLeftCornerNotify("已打开 %s 界面" % uiWillbeOpenName)
-	def client_hidenametag(self, args):
-		clientApi.HideNameTag(args['cmdargs'][1])
-	# 客户端函数部分到此结束
-	
-	def InitServer(self):
-		'''
-		@description 服务端的零件对象初始化入口
-		'''
-		serversystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
-		#serversystem.ListenForEvent('Minecraft', 'preset', 'customCmdReturn', self, self.OnReturn)
 		PartBase.InitServer(self)
 
 	# def OnReturn(self, args):
@@ -439,7 +439,7 @@ class customcmdsPart(PartBase):
 	def setchestitemnum(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
-		if CFServer.CreateChestBlock(levelId).SetChestBoxItemNum(None, xyz, cmdargs[1], cmdargs[2], cmdargs[3]['id']):
+		if CFServer.CreateChestBlock(server_levelId).SetChestBoxItemNum(None, xyz, cmdargs[1], cmdargs[2], cmdargs[3]['id']):
 			return False, '已设置槽位 %s 的物品数量为 %s' % (cmdargs[1], cmdargs[2])
 		else:
 			return True, '位于 Pos%s 的方块不是箱子' % (xyz,)
@@ -934,7 +934,7 @@ class customcmdsPart(PartBase):
 	def setsigntext(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
-		if CFServer.CreateBlockInfo(levelId).SetSignBlockText(xyz, cmdargs[1], cmdargs[2]['id'], int(cmdargs[3])):
+		if CFServer.CreateBlockInfo(server_levelId).SetSignBlockText(xyz, cmdargs[1], cmdargs[2]['id'], int(cmdargs[3])):
 			return False, '将 Pos%s in %s 的告示牌 %s 文本设置为 %s' % (xyz, cmdargs[2]['name'], '反面' if cmdargs[3] else '正面', cmdargs[1])
 		else:
 			return True, '位于 Pos%s in %s 的方块不是告示牌' % (xyz, cmdargs[2]['name'])
@@ -972,7 +972,7 @@ class customcmdsPart(PartBase):
 				'auxValue': cmdargs[9]
 			}
 			
-			CFServer.CreateProjectile(levelId).CreateProjectileEntity(i, cmdargs[1], param)
+			CFServer.CreateProjectile(server_levelId).CreateProjectileEntity(i, cmdargs[1], param)
 		return False, '成功生成抛射物'
 	
 	def setstepheight(self, cmdargs, playerId, variant, data):
@@ -1236,7 +1236,7 @@ class customcmdsPart(PartBase):
 		ExpPlayerId = ExpPlayerId[random.randint(0, len(ExpPlayerId)-1)]
 		for i in cmdargs[0]:
 			position = CFServer.CreatePos(i).GetFootPos()
-			CFServer.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId)
+			CFServer.CreateExplosion(server_levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId)
 		return False, '已引爆 %s 个实体' % len(cmdargs[0])
 
 	def explodebypos(self, cmdargs, playerId, variant, data):
@@ -1248,7 +1248,7 @@ class customcmdsPart(PartBase):
 			cmdargs[4] = cmdargs[4][0]
 		ExpPlayerId = serverApi.GetPlayerList()
 		ExpPlayerId = ExpPlayerId[random.randint(0, len(ExpPlayerId)-1)]
-		if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId):
+		if CFServer.CreateExplosion(server_levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId):
 			return False, '爆炸已创建于 Pos%s' % (cmdargs[0],)
 		else:
 			return True, '爆炸创建失败'
@@ -1554,7 +1554,7 @@ class customcmdsPart(PartBase):
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			playername = CFServer.CreateName(i).GetName()
-			uid_dict[playername] = CFServer.CreateHttp(levelId).GetPlayerUid(i)
+			uid_dict[playername] = CFServer.CreateHttp(server_levelId).GetPlayerUid(i)
 		return False, '获取到的UID为%s' % (uid_dict)
 		# serversystem.NotifyToMultiClients(list(cmdargs[0]), 'CustomCommandClient', {'cmd':'getuid', 'origin': playerId})
 
@@ -2207,13 +2207,13 @@ class customcmdsPart(PartBase):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
 		if cmdargs[2] is None:
-			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CFServer.CreateBlockInfo(levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
+			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CFServer.CreateBlockInfo(server_levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
 		else:
 			result = checkjson(cmdargs[2])
 			if result[1] == True:
 				return True, result[0]
 			blockDict = result[0]
-			CFServer.CreateBlockInfo(levelId).SetBlockEntityData(cmdargs[1]['id'], xyz, blockDict)
+			CFServer.CreateBlockInfo(server_levelId).SetBlockEntityData(cmdargs[1]['id'], xyz, blockDict)
 			return False, '已设置 Pos%s 的方块nbt' % (xyz,)
 
 	def summonitem(self, cmdargs, playerId, variant, data):
@@ -2264,7 +2264,7 @@ class customcmdsPart(PartBase):
 	
 	def copyright(self, cmdargs, playerId, variant, data):
 		if playerId:
-			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, copyRightInfo)
+			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, metaData.copyRightInfo)
 		return False, ''
 	
 	def chatlimit(self, cmdargs, playerId, variant, data):

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import mod.client.extraClientApi as clientApi
 import traceback
-import wphnbt
 import json
 import threading
+
+
+wphnbt = clientApi.ImportModule("Script_NeteaseMod_TtCLQKGx.wphnbt")
 
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
