@@ -10,7 +10,8 @@ clientSystem = clientApi.GetSystem('Minecraft', 'preset')
 levelId = serverApi.GetLevelId()
 
 compGame = CFServer.CreateGame(levelId)
-
+compBlock = CFServer.CreateBlockInfo(levelId)
+compBlockEntity = CFServer.CreateBlockEntityData(levelId)
 @registerGenericClass("FunctionBlockPart")
 class FunctionBlockPart(PartBase):
 	def __init__(self):
@@ -53,7 +54,6 @@ class FunctionBlockPart(PartBase):
 	def onNodeBlockSave(self, nodeData):
 		compExtra = CFServer.CreateExtraData(nodeData['__id__'])
 		block = compExtra.GetExtraData('editingFunctionBlock')
-		compBlockEntity = CFServer.CreateBlockEntityData(levelId)
 		blockData = compBlockEntity.GetBlockEntityData(block['dimension'], block['pos'])
 		if nodeData['nodeType'] != '选择一个模式':
 			blockData['mode'] = nodeData['nodeType']
@@ -64,7 +64,6 @@ class FunctionBlockPart(PartBase):
 	def requestNodeBlock(self, args):
 		compExtra = CFServer.CreateExtraData(args['__id__'])
 		gettingBlock = compExtra.GetExtraData('editingFunctionBlock')
-		compBlockEntity = CFServer.CreateBlockEntityData(levelId)
 		blockData = compBlockEntity.GetBlockEntityData(gettingBlock['dimension'], gettingBlock['pos'])
 		serverSystem.NotifyToClient(args['__id__'], 'nodeBlockCallBack', {'type': blockData['mode']})
 	
@@ -100,7 +99,6 @@ class FunctionBlockPart(PartBase):
 
 	def GetNewBlock(self, args):
 		#wy诡异石山使我必须延迟1tick
-		compBlockEntity = CFServer.CreateBlockEntityData(levelId)
 		blockEntityData = compBlockEntity.GetBlockEntityData(args['dimension'], args['pos'])
 		if blockEntityData['mode']:
 			self.SaveBlockToSave(args['pos'], args['dimension'], blockEntityData['mode'])
@@ -148,11 +146,12 @@ class FunctionBlockPart(PartBase):
 
 	def CallListen(self, name, eventData):
 		for i in self.functionBlockByMode[name]:
-			compBlock = CFServer.CreateBlockInfo(levelId)
 			blockInfo = compBlock.GetBlockNew(i[1], i[0])
 			if blockInfo['name'] != 'gtmb_plugin:function_block_listen':
 				self.RemoveBlockFromSave(i[1], i[0])
 				continue
+			blockEntityData = compBlockEntity.GetBlockEntityData(i[0], i[1])
+			blockEntityData['lastOutput'] = eventData
 			print('[INFO] %s 函数方块 执行 %s 事件' % (str(i), name))
 
 #以下为函数方块的监听函数
