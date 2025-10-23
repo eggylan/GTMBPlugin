@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import mod.client.extraClientApi as clientApi
 import traceback
-import wphnbt
+import Script_NeteaseMod_TtCLQKGx.wphnbt as wphnbt
 import json
 import threading
 
