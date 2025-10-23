@@ -159,4 +159,4 @@ class FunctionBlockPart(PartBase):
 		self.CallListen('tick', args)
 
 	def FCB_join(self, args={}):
-		self.CallListen('player_join', args)
+		self.CallListen('addPlayer', args)
