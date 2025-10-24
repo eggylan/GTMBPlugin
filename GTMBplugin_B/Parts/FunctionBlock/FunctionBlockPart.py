@@ -1,17 +1,8 @@
 # -*- coding: utf-8 -*-
 from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
-import mod.client.extraClientApi as clientApi
 import mod.server.extraServerApi as serverApi
-CFServer = serverApi.GetEngineCompFactory()
-CFClient = clientApi.GetEngineCompFactory()
-serverSystem = serverApi.GetSystem('Minecraft', 'preset')
-clientSystem = clientApi.GetSystem('Minecraft', 'preset')
-levelId = serverApi.GetLevelId()
 
-compGame = CFServer.CreateGame(levelId)
-compBlock = CFServer.CreateBlockInfo(levelId)
-compBlockEntity = CFServer.CreateBlockEntityData(levelId)
 @registerGenericClass("FunctionBlockPart")
 class FunctionBlockPart(PartBase):
 	def __init__(self):
@@ -26,6 +17,14 @@ class FunctionBlockPart(PartBase):
 		PartBase.InitClient(self)
 
 	def InitServer(self):
+		global CFServer, serverSystem, levelId, compGame, compBlock, compBlockEntity
+		CFServer = serverApi.GetEngineCompFactory()
+		serverSystem = serverApi.GetSystem('Minecraft', 'preset')
+		levelId = serverApi.GetLevelId()
+
+		compGame = CFServer.CreateGame(levelId)
+		compBlock = CFServer.CreateBlockInfo(levelId)
+		compBlockEntity = CFServer.CreateBlockEntityData(levelId)
 		"""
 		@description 服务端的零件对象初始化入口
 		"""
