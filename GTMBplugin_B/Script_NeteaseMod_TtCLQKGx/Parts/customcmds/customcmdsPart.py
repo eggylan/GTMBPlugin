@@ -1458,7 +1458,7 @@ class customcmdsPart(PartBase):
 					CFServer.CreateItem(i).SpawnItemToPlayerInv(itemdict, i, slot)
 				else:
 					CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdict, i)
-		return False, '已为 %s 的%s物品添加附魔 %s' % (create_players_str(cmdargs[0]), '手持' if slotType else '背包', cmdargs[1]['identifier'])
+		return False, '已为 %s 的%s物品添加附魔 %s' % (create_players_str(cmdargs[0]), '手持' if slotType == 2 else '背包', cmdargs[1]['identifier'])
 
 	def addtrackmotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -2014,15 +2014,15 @@ class customcmdsPart(PartBase):
 
 	def setdisablecontainers(self, cmdargs, playerId, variant, data):
 		compGame.SetDisableContainers(cmdargs[1])
-		return False, '将世界的容器权限设置为 %s' % '禁止' if cmdargs[1] else '允许'
+		return False, '将世界的容器权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
 		
 	def setdisabledropitem(self, cmdargs, playerId, variant, data):
 		compGame.SetDisableDropItem(cmdargs[1])
-		return False, '将世界的丢弃物品权限设置为 %s' % '禁止' if cmdargs[1] else '允许'
+		return False, '将世界的丢弃物品权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
 		
 	def setdisablehunger(self, cmdargs, playerId, variant, data):
 		compGame.SetDisableHunger(cmdargs[1])
-		return False, '将世界的饱食度设置为 %s' % '屏蔽' if cmdargs[1] else '生效'
+		return False, '将世界的饱食度设置为 %s' % ('屏蔽' if cmdargs[1] else '生效')
 
 	def setenchantmentseed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -2071,7 +2071,7 @@ class customcmdsPart(PartBase):
 				failed_entities.append(CFServer.CreateEngineType(i).GetEngineTypeStr())
 		
 		if failed_entities:
-			return True, '部分实体执行过程中出现错误: %s' % failed_entities,
+			return True, '部分实体执行过程中出现错误: %s' % failed_entities
 		else:
 			return False, '已设置 %s 个实体的属主' % (len(cmdargs[0]))
 		
