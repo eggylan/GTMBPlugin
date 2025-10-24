@@ -11,7 +11,7 @@ import re
 #for 异常处理
 import traceback
 
-import Script_NeteaseMod_TtCLQKGx.metaData as metaData
+# import Script_NeteaseMod_TtCLQKGx.metaData as metaData
 
 PLATFORM_WINDOWS = 0
 PLATFORM_IOS = 1
@@ -62,13 +62,14 @@ class customcmdsPart(PartBase):
 		'''
 		@description 客户端的零件对象初始化入口
 		'''
-		global CFClient, compPostProcess, clientSystem
+		global CFClient, compPostProcess, clientSystem,client_levelId
 		CFClient = clientApi.GetEngineCompFactory()
-		compPostProcess = CFClient.CreatePostProcess(clientApi.GetLocalPlayerId())
+		self.LocalPlayerId = self.LocalPlayerId
+		compPostProcess = CFClient.CreatePostProcess(self.LocalPlayerId)
 		compPostProcess.SetEnableColorAdjustment(True)
 		clientSystem = clientApi.GetSystem('Minecraft', 'preset')
 		clientSystem.ListenForEvent('Minecraft', 'preset', 'CustomCommandClient', self, self.OnCustomCommandClient)
-
+		client_levelId = clientApi.GetLevelId()
 		# 注册处理函数
 		# 客户端
 		self.clientCustomCmd = {
@@ -107,11 +108,11 @@ class customcmdsPart(PartBase):
 
 	# 客户端函数部分由此开始
 	def client_setplayerinteracterange(self, args):
-		CFClient.CreatePlayer(clientApi.GetLocalPlayerId()).SetPickRange(args['cmdargs'][1])
+		CFClient.CreatePlayer(self.LocalPlayerId).SetPickRange(args['cmdargs'][1])
 	def client_openfoldgui(self, args):
 		clientApi.OpenFoldGui()
 	def client_setcanpausescreen(self, args):
-		CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
+		CFClient.CreateOperation(client_levelId).SetCanPauseScreen(args['cmdargs'][1])
 	def client_setcolorbrightness(self, args):
 		compPostProcess.SetColorAdjustmentBrightness(args['cmdargs'][2])
 	def client_setcolorcontrast(self, args):
@@ -121,9 +122,9 @@ class customcmdsPart(PartBase):
 	def client_setcolortint(self, args):
 		compPostProcess.SetColorAdjustmentTint(args['cmdargs'][2], (args['cmdargs'][3], args['cmdargs'][4], args['cmdargs'][5]))
 	def client_setcompassentity(self, args):
-		CFClient.CreateItem(clientApi.GetLocalPlayerId()).SetCompassEntity(args['cmdargs'][1][0])
+		CFClient.CreateItem(self.LocalPlayerId).SetCompassEntity(args['cmdargs'][1][0])
 	def client_setcompasstarget(self, args):
-		CFClient.CreateItem(clientApi.GetLocalPlayerId()).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
+		CFClient.CreateItem(self.LocalPlayerId).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
 	def client_setvignettecenter(self, args):
 		compPostProcess.SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
 	def client_setvignetteradius(self, args):
@@ -143,11 +144,11 @@ class customcmdsPart(PartBase):
 	def client_sethudchatstackvisible(self, args):
 		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
 	def client_chatclear(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(clientApi.GetLocalPlayerId())
+		compClientTextNotify = CFClient.CreateTextNotifyClient(self.LocalPlayerId)
 		for _ in range(35):	 # type: ignore
 			compClientTextNotify.SetLeftCornerNotify("\n\n\n\n\n")
 	def client_openui(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(clientApi.GetLocalPlayerId())
+		compClientTextNotify = CFClient.CreateTextNotifyClient(self.LocalPlayerId)
 		if args['cmdargs'][0] == "enchant":
 			uiWillbeOpen = "enchant"
 			uiWillbeOpenName = "自定义附魔"
@@ -164,7 +165,7 @@ class customcmdsPart(PartBase):
 			uiWillbeOpen = "cmdbatch"
 			uiWillbeOpenName = "指令批处理"
 		elif args['cmdargs'][0] == "structureimport":
-			if self.clientApi.GetPlatform() == PLATFORM_WINDOWS:
+			if clientApi.GetPlatform() == PLATFORM_WINDOWS:
 				uiWillbeOpen = "struimport"
 				uiWillbeOpenName = "结构导入"
 			else:
@@ -2321,9 +2322,9 @@ class customcmdsPart(PartBase):
 			except Exception as e:
 				return True, '读取文件 %s 时发生错误: %s' % (cmdargs[1], str(e))
 
-	'''
-	服务端函数部分到此结束
-	'''
+
+	# 服务端函数部分到此结束
+
 
 	def TickClient(self):
 		'''
