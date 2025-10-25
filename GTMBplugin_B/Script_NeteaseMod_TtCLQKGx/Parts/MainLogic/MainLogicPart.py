@@ -169,18 +169,22 @@ class MainLogicPart(PartBase):
 		# 将数据包存入队列
 		self._buffer[sequence] = packet.get("data", None)
 		
-		if is_last:
-			print("玩家 %s 的所有数据包已接收完毕，开始组装数据..." % playerid)
-			serversystem = serverApi.GetSystem("Minecraft", "preset")
-			serversystem.UnListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(playerid), self, self._process_packet)
-			compGame.CancelTimer(self._structure_receive_timeout_timer_object)
-			try:
-				self._assemble_text(playerid)
-			except:
-				compMsg = CFServer.CreateMsg(playerid)
-				compMsg.NotifyOneMessage(playerid, '结构加载错误，原因如下', '§c')
-				for i in traceback.format_exc().splitlines():
-					compMsg.NotifyOneMessage(playerid, i, '§c')
+		if is_last and len(self._buffer):
+			if packet.get("total_chunks", -1) == len(self._buffer):
+				print("玩家 %s 的所有数据包已接收完毕，开始组装数据..." % playerid)
+				serversystem = serverApi.GetSystem("Minecraft", "preset")
+				serversystem.UnListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(playerid), self, self._process_packet)
+				compGame.CancelTimer(self._structure_receive_timeout_timer_object)
+				try:
+					self._assemble_text(playerid)
+				except:
+					compMsg = CFServer.CreateMsg(playerid)
+					compMsg.NotifyOneMessage(playerid, '结构加载错误，原因如下', '§c')
+					for i in traceback.format_exc().splitlines():
+						compMsg.NotifyOneMessage(playerid, i, '§c')
+					self._is_Structure_Loading = False
+			else:
+				print("玩家 %s 的数据包数量不匹配，正在取消..." % playerid)
 				self._is_Structure_Loading = False
 
 	def _assemble_text(self, playerid):
