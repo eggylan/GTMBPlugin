@@ -62,14 +62,13 @@ class customcmdsPart(PartBase):
 		'''
 		@description 客户端的零件对象初始化入口
 		'''
-		global CFClient, compPostProcess, clientSystem,client_levelId
+		global CFClient, compPostProcess, clientSystem
 		CFClient = clientApi.GetEngineCompFactory()
-		self.LocalPlayerId = self.LocalPlayerId
-		compPostProcess = CFClient.CreatePostProcess(self.LocalPlayerId)
+		self.localPlayerId = clientApi.GetLocalPlayerId()
+		compPostProcess = CFClient.CreatePostProcess(self.localPlayerId)
 		compPostProcess.SetEnableColorAdjustment(True)
 		clientSystem = clientApi.GetSystem('Minecraft', 'preset')
 		clientSystem.ListenForEvent('Minecraft', 'preset', 'CustomCommandClient', self, self.OnCustomCommandClient)
-		client_levelId = clientApi.GetLevelId()
 		# 注册处理函数
 		# 客户端
 		self.clientCustomCmd = {
@@ -108,11 +107,11 @@ class customcmdsPart(PartBase):
 
 	# 客户端函数部分由此开始
 	def client_setplayerinteracterange(self, args):
-		CFClient.CreatePlayer(self.LocalPlayerId).SetPickRange(args['cmdargs'][1])
+		CFClient.CreatePlayer(self.localPlayerId).SetPickRange(args['cmdargs'][1])
 	def client_openfoldgui(self, args):
 		clientApi.OpenFoldGui()
 	def client_setcanpausescreen(self, args):
-		CFClient.CreateOperation(client_levelId).SetCanPauseScreen(args['cmdargs'][1])
+		CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
 	def client_setcolorbrightness(self, args):
 		compPostProcess.SetColorAdjustmentBrightness(args['cmdargs'][2])
 	def client_setcolorcontrast(self, args):
@@ -122,9 +121,9 @@ class customcmdsPart(PartBase):
 	def client_setcolortint(self, args):
 		compPostProcess.SetColorAdjustmentTint(args['cmdargs'][2], (args['cmdargs'][3], args['cmdargs'][4], args['cmdargs'][5]))
 	def client_setcompassentity(self, args):
-		CFClient.CreateItem(self.LocalPlayerId).SetCompassEntity(args['cmdargs'][1][0])
+		CFClient.CreateItem(self.localPlayerId).SetCompassEntity(args['cmdargs'][1][0])
 	def client_setcompasstarget(self, args):
-		CFClient.CreateItem(self.LocalPlayerId).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
+		CFClient.CreateItem(self.localPlayerId).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
 	def client_setvignettecenter(self, args):
 		compPostProcess.SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
 	def client_setvignetteradius(self, args):
@@ -144,11 +143,11 @@ class customcmdsPart(PartBase):
 	def client_sethudchatstackvisible(self, args):
 		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
 	def client_chatclear(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(self.LocalPlayerId)
+		compClientTextNotify = CFClient.CreateTextNotifyClient(self.localPlayerId)
 		for _ in range(35):	 # type: ignore
 			compClientTextNotify.SetLeftCornerNotify("\n\n\n\n\n")
 	def client_openui(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(self.LocalPlayerId)
+		compClientTextNotify = CFClient.CreateTextNotifyClient(self.localPlayerId)
 		if args['cmdargs'][0] == "enchant":
 			uiWillbeOpen = "enchant"
 			uiWillbeOpenName = "自定义附魔"
@@ -2259,7 +2258,9 @@ class customcmdsPart(PartBase):
 	
 	def copyright(self, cmdargs, playerId, variant, data):
 		if playerId:
-			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, metaData.copyRightInfo)
+			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId,
+												  '---------\n版本: %s\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证. \n---------' % str(compGame.GetChinese('gtmb_plugin.ver')), 
+												  '§b')
 		return False, ''
 	
 	def chatlimit(self, cmdargs, playerId, variant, data):
@@ -2321,6 +2322,16 @@ class customcmdsPart(PartBase):
 					return False, '文件 %s\n的第%s行如下\n%s' % (cmdargs[1], cmdargs[2], lines[int(cmdargs[2])-1])
 			except Exception as e:
 				return True, '读取文件 %s 时发生错误: %s' % (cmdargs[1], str(e))
+		elif cmdargs[0] == 'writefile':
+			try:
+				with open(cmdargs[1], 'r+') as f:
+					file = f.readlines()
+					file[int(cmdargs[2])-1] = cmdargs[3] + '\n'
+					f.seek(0)
+					f.writelines(file)
+				return False, '已修改文件 %s\n的第%s行内容为\n%s' % (cmdargs[1], cmdargs[2], cmdargs[3])
+			except Exception as e:
+				return True, '修改文件 %s 时发生错误: %s' % (cmdargs[1], str(e))
 
 
 	# 服务端函数部分到此结束
