@@ -2,6 +2,8 @@
 from Preset.Model.PartBase import PartBase
 from Preset.Model.GameObject import registerGenericClass
 import mod.server.extraServerApi as serverApi
+import mod.client.extraClientApi as clientApi
+from math import sqrt
 
 @registerGenericClass("FunctionBlockPart")
 class FunctionBlockPart(PartBase):
@@ -15,6 +17,14 @@ class FunctionBlockPart(PartBase):
 		@description 客户端的零件对象初始化入口
 		"""
 		PartBase.InitClient(self)
+		global clientSystem, CFClient, compDrawing
+		CFClient = clientApi.GetEngineCompFactory()
+		clientSystem = clientApi.GetSystem('Minecraft', 'preset')
+		compDrawing = CFClient.CreateDrawing(levelId)
+
+		clientSystem.ListenForEvent('Minecraft', 'preset', 'rendersFromServer', self, self.LoadRenders)
+
+		self.currentRenders = []
 
 	def InitServer(self):
 		global CFServer, serverSystem, levelId, compGame, compBlock, compBlockEntity
@@ -33,6 +43,7 @@ class FunctionBlockPart(PartBase):
 		serverSystem.ListenForEvent('Minecraft', 'preset', 'NodeBlockSave', self, self.onNodeBlockSave)
 		serverSystem.ListenForEvent('Minecraft', 'preset', 'getNodeBlock', self, self.requestNodeBlock)
 		serverSystem.ListenForEvent('Minecraft', 'preset', 'NodeBlockExit', self, self.onFunctionBlockExit)
+		serverSystem.ListenForEvent('Minecraft', 'preset', 'RequestRenders', self, self.SendRenders)
 		listenServerSysEvent("ServerBlockUseEvent", self.OnUseCustomBlock)
 		listenServerSysEvent('ServerPlaceBlockEntityEvent', self.OnPlacingBlock)
 		listenServerSysEvent('BlockRemoveServerEvent', self.OnRemovingBlock)
@@ -49,6 +60,27 @@ class FunctionBlockPart(PartBase):
 			self.functionBlockByMode = {}
 			for i in ['tick', 'addPlayer']:
 				self.functionBlockByMode[i] = []
+		#注册渲染物
+		'''
+		[{'type':'arrow'/'circle'/'line'/'text'/'box'/'sphere',
+		  'data':{}}]
+		'''
+		self.renders = [{'type': 'text',
+						 'data': {'pos': (0, 10, 0), 'text': '123455'}},]
+
+	def SendRenders(self, args):
+		playerId = args['__id__']
+		pos = CFServer.CreatePos(playerId).GetFootPos()
+		outputs = []
+		for i in self.renders:
+			renderPos = i['data']['pos']
+			distance = sqrt((pos[0]-renderPos[0])**2+
+				   			(pos[1]-renderPos[1])**2+
+				   			(pos[2]-renderPos[2])**2)
+			if distance <= 50:
+				outputs.append(i)
+		serverSystem.NotifyToClient(playerId, 'rendersFromServer', {'renders': outputs})
+			
 
 	def onNodeBlockSave(self, nodeData):
 		compExtra = CFServer.CreateExtraData(nodeData['__id__'])
@@ -79,13 +111,11 @@ class FunctionBlockPart(PartBase):
 			if compPlayer.GetPlayerAbilities()['op'] and not compExtra.GetExtraData('editingFunctionBlock'):
 				compExtra.SetExtraData('editingFunctionBlock', {'pos': (args['x'], args['y'], args['z']), 'dimension': args['dimensionId'], 'type': 'node'})
 				serverSystem.NotifyToClient(playerId, 'openUI', {"ui": "functionBlockScreen"})
-			else:
 				args['cancel'] = True
 		elif args['blockName'] == 'gtmb_plugin:function_block_listen':
 			if compPlayer.GetPlayerAbilities()['op'] and not compExtra.GetExtraData('editingFunctionBlock'):
 				compExtra.SetExtraData('editingFunctionBlock', {'pos': (args['x'], args['y'], args['z']), 'dimension': args['dimensionId'], 'type': 'listen'})
 				serverSystem.NotifyToClient(playerId, 'openUI', {'ui': 'listenBlockScreen'})
-			else:
 				args['cancel'] = True
 
 	def OnRemovingBlock(self, args):
@@ -120,6 +150,19 @@ class FunctionBlockPart(PartBase):
 		@description 客户端的零件对象逻辑驱动入口
 		"""
 		PartBase.TickClient(self)
+		#灵感枯竭了,隐退一会
+		#compDrawing.RemoveAll()
+		#clientSystem.NotifyToServer('RequestRenders', {})
+
+	def LoadRenders(self, args):
+		renderCreator = {'arrow': compDrawing.AddArrowShape,
+						 'circle': compDrawing.AddCircleShape,
+						 'line': compDrawing.AddLineShape,
+						 'text': compDrawing.AddTextShape,
+						 'box': compDrawing.AddBoxShape,
+						 'sphere': compDrawing.AddSphereShape}
+		for i in args['renders']:
+			renderCreator[i['type']](**i['data'])
 
 	def TickServer(self):
 		"""

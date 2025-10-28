@@ -186,6 +186,10 @@ class MainLogicPart(PartBase):
 			else:
 				print("玩家 %s 的数据包数量不匹配，正在取消..." % playerid)
 				self._is_Structure_Loading = False
+				self._buffer.clear()
+				serversystem = serverApi.GetSystem("Minecraft", "preset")
+				serversystem.UnListenForEvent('Minecraft', 'preset', 'ReceiveStructureData_'+str(playerid), self, self._process_packet)
+				compGame.CancelTimer(self._structure_receive_timeout_timer_object)
 
 	def _assemble_text(self, playerid):
 		# 按序号排序并组装数据
