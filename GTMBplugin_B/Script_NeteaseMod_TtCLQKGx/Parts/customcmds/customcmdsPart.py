@@ -1250,7 +1250,8 @@ class customcmdsPart(PartBase):
 	def console(self, cmdargs, playerId, variant, data): #there are lots of ****
 		if cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
-		if len(cmdargs[1]) != 1:
+		cmdargs[1] = None if cmdargs[1] == 'no' else cmdargs[1]
+		if cmdargs[1] and len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		cmd = cmdargs[0]
 		if cmd.startswith('/'):
