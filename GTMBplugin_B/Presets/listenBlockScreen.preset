@@ -28,7 +28,7 @@
     "uiName": "listenBlockScreen",
     "uiNamespace": "gtmb_plugin",
     "uiNodeModule": "listenBlockScreen",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\listenBlockScreen",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\listenBlockScreen",
     "uiNodeScreen": "function_block_screen.listen_screen",
     "unique": false
 }

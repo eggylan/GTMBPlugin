@@ -5,7 +5,7 @@ ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 
 
-class getitemUI(ScreenNode):
+class enchantUI(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
 
@@ -14,19 +14,22 @@ class getitemUI(ScreenNode):
 		@description UI创建成功时调用
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.get)
+		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.enchant)
+		self.GetBaseUIControl("/panel/delench").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/delench").asButton().SetButtonTouchUpCallback(self.delenchant)
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
-	def get(self, args):
-		itemData = {"newItemName": "minecraft:" + self.GetBaseUIControl("/panel/id").asTextEditBox().GetEditText(), "newAuxValue": 0, "count": 1}
-		if self.GetBaseUIControl("/panel/aux").asTextEditBox().GetEditText() == "":
-			itemData["newAuxValue"] = 0
-		else:
-			itemData["newAuxValue"] = int(self.GetBaseUIControl("/panel/aux").asTextEditBox().GetEditText())
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("getitem", itemData)
+	def enchant(self, args):
+		if self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText():
+			enchantdata = {"id": self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText(), "lvl": self.GetBaseUIControl("/panel/lvl").asTextEditBox().GetEditText()}
+			clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("enchant", enchantdata)
 
-	def close(self, args):	
+	def delenchant(self, args):
+		enchantdata = {"id": "del", "lvl": "1"}
+		clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("enchant", enchantdata)
+
+	def close(self, args):
 		clientApi.PopTopUI()
 	
 	def Destroy(self):

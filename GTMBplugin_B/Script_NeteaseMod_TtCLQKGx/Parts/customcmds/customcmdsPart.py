@@ -11,7 +11,7 @@ import re
 #for 异常处理
 import traceback
 
-# import Script_NeteaseMod_TtCLQKGx.metaData as metaData
+# import gtmbPlugin.metaData as metaData
 
 PLATFORM_WINDOWS = 0
 PLATFORM_IOS = 1

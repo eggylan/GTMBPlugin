@@ -28,7 +28,7 @@
     "uiName": "struimport",
     "uiNamespace": "ycgnw",
     "uiNodeModule": "importstrulogic",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\importstrulogic",
-    "uiNodeScreen": "structureimport.main",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\importstrulogic",
+    "uiNodeScreen": "structureimport.main_closable",
     "unique": false
 }

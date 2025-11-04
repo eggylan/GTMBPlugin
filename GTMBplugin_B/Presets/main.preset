@@ -22,30 +22,6 @@
             "metaType": "customcmdsPartMeta",
             "objId": "9bb81ec65a84402aa2b67a8bc7f91bc9",
             "partType": "customcmdsPart"
-        },
-        {
-            "bpType": "MainLogicPart",
-            "changes": {},
-            "classType": "PartInstance",
-            "clientPartType": null,
-            "customVariables": [],
-            "directoryPath": "MainLogic",
-            "metaType": "MainLogicPartMeta",
-            "objId": "020a9e6566444f88b3fea29b1f0936bd",
-            "partType": "MainLogicPart"
-        },
-        {
-            "bpType": "FunctionBlockPart",
-            "changes": {
-                "name": "FunctionBlockPart"
-            },
-            "classType": "PartInstance",
-            "clientPartType": null,
-            "customVariables": [],
-            "directoryPath": "FunctionBlock",
-            "metaType": "FunctionBlockPartMeta",
-            "objId": "c5df3999701446f7b44c14eda746796b",
-            "partType": "FunctionBlockPart"
         }
     ],
     "childPresets": [
@@ -400,7 +376,7 @@
     "forceLoad": true,
     "name": "main",
     "notifyRemove": true,
-    "objId": "4ce0ff9d38b24e13a279a5826e3abd76",
+    "objId": "62a8d1b58f47441097ed5277e41c2616",
     "preLoad": true,
     "presetId": "8964209c-175a-4da3-aa2d-970c85566d90",
     "presetType": "空预设",

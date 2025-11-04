@@ -18,7 +18,7 @@
     "mNode": null,
     "name": "EULA",
     "notifyRemove": true,
-    "objId": "546d9f99d0c04f44acab128f72b7b992",
+    "objId": "0926b0eb057c4c80b2ea4d5c94641161",
     "preLoad": true,
     "presetId": "828ecb76-5632-4d72-94ac-d4ed24d06328",
     "presetType": "界面预设",
@@ -28,7 +28,7 @@
     "uiName": "EULA",
     "uiNamespace": "ycgnw",
     "uiNodeModule": "EULA",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\EULA",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\EULA",
     "uiNodeScreen": "GTMB_EULA.main",
     "unique": false
 }

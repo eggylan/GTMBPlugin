@@ -19,7 +19,7 @@
             36
         ]
     },
-    "main": {
+    "main_closable": {
         "type": "screen",
         "controls": [
             {

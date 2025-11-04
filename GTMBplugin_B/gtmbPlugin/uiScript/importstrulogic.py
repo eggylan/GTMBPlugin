@@ -5,7 +5,7 @@ import json
 import threading
 
 
-wphnbt = clientApi.ImportModule("Script_NeteaseMod_TtCLQKGx.wphnbt")
+wphnbt = clientApi.ImportModule("gtmbPlugin.wphnbt")
 
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()

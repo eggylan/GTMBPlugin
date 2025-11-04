@@ -28,7 +28,7 @@
     "uiName": "itemTips",
     "uiNamespace": "ycgnw",
     "uiNodeModule": "itemTips",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\itemTips",
-    "uiNodeScreen": "customtips.main",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\itemTips",
+    "uiNodeScreen": "customtips.main_closable",
     "unique": false
 }

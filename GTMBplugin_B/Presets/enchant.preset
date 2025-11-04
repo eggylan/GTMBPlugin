@@ -28,7 +28,7 @@
     "uiName": "enchant",
     "uiNamespace": "sblki",
     "uiNodeModule": "enchantUI",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\enchantUI",
-    "uiNodeScreen": "enchant.main",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\enchantUI",
+    "uiNodeScreen": "enchant.main_closable",
     "unique": false
 }

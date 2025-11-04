@@ -28,7 +28,7 @@
     "uiName": "nbteditor",
     "uiNamespace": "ycgnw",
     "uiNodeModule": "nbteditor",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\nbteditor",
-    "uiNodeScreen": "nbteditor.main",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\nbteditor",
+    "uiNodeScreen": "nbteditor.main_closable",
     "unique": false
 }

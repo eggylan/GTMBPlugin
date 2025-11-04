@@ -28,7 +28,7 @@
     "uiName": "cmdbatch",
     "uiNamespace": "dtqyu",
     "uiNodeModule": "cmdbatch",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\cmdbatch",
-    "uiNodeScreen": "cmdbatch.main",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\cmdbatch",
+    "uiNodeScreen": "cmdbatch.main_closable",
     "unique": false
 }

@@ -20,7 +20,7 @@ class itemTips(ScreenNode):
 
 	def changeTip(self, args):
 		itemTips = {"Tips": self.GetBaseUIControl("/panel/edit_box").asTextEditBox().GetEditText()}
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changeTip", itemTips)
+		clientApi.GetSystem("gtmbPlugin", "mainLogic").NotifyToServer("changeTip", itemTips)
 
 	def close(self, args):
 		clientApi.PopTopUI()

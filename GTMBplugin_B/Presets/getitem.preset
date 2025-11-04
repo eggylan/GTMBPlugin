@@ -28,7 +28,7 @@
     "uiName": "getitem",
     "uiNamespace": "sblki",
     "uiNodeModule": "getitemUI",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\getitemUI",
-    "uiNodeScreen": "getitem.main",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\getitemUI",
+    "uiNodeScreen": "getitem.main_closable",
     "unique": false
 }

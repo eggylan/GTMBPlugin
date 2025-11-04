@@ -28,7 +28,7 @@
     "uiName": "functionBlockScreen",
     "uiNamespace": "gtmb_plugin",
     "uiNodeModule": "function_block_screen",
-    "uiNodeModulePath": "Script_NeteaseMod_TtCLQKGx\\uiScript\\function_block_screen",
+    "uiNodeModulePath": "gtmbPlugin\\uiScript\\function_block_screen",
     "uiNodeScreen": "function_block_screen.node_screen",
     "unique": false
 }
