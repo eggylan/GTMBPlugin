@@ -2,17 +2,6 @@
     "boxDataList": [],
     "childParts": [
         {
-            "bpType": "InputBindPart",
-            "changes": {},
-            "classType": "PartInstance",
-            "clientPartType": null,
-            "customVariables": [],
-            "directoryPath": "InputBind",
-            "metaType": "InputBindPartMeta",
-            "objId": "4c18d78bb41748c882b66df15c1c6fe0",
-            "partType": "InputBindPart"
-        },
-        {
             "bpType": "customcmdsPart",
             "changes": {},
             "classType": "PartInstance",

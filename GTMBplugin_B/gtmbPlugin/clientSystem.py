@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
 import client.extraClientApi as clientApi
 CF = clientApi.GetEngineCompFactory()
+uiNames = {'enchant': ['enchant', 'main_closable'],
+  		'getitem': ['getitem', 'main_closable'],
+		'itemTips': ['customtips', 'main_closable'],
+		'nbteditor': ['nbteditor', 'main_closable'],
+		'cmdbatch': ['cmdbatch', 'main_closable'],
+		'EULA': ['GTMB_EULA', 'main'],
+		'struimport': ['structureimport', 'main_closable'],
+		'functionBlockScreen': ['function_block_screen', 'node_screen'],
+		'listenBlockScreen': ['function_block_screen', 'listen_screen']}
 
 class mainClientSystem(clientApi.GetClientSystemCls()):
 	def __init__(self, modName, systemName):
@@ -8,15 +17,6 @@ class mainClientSystem(clientApi.GetClientSystemCls()):
 		listenClientSysEvent = lambda eventId, callback: self.ListenForEvent(clientApi.GetEngineNamespace(), clientApi.GetEngineSystemName(), eventId, self, callback)
 		listenClientSysEvent('OnLocalPlayerStopLoading', self.OnFinish)
 		listenClientSysEvent('OnKeyPressInGame', self.OnPressKey)
-		self.uiNames = {'enchant': ['enchant', 'main_closable'],
-				  		'getitem': ['getitem', 'main_closable'],
-						'itemTips': ['customtips', 'main_closable'],
-						'nbteditor': ['nbteditor', 'main_closable'],
-						'cmdbatch': ['cmdbatch', 'main_closable'],
-						'EULA': ['GTMB_EULA', 'main'],
-						'struimport': ['structureimport', 'main_closable'],
-						'functionBlockScreen': ['function_block_screen', 'node_screen'],
-						'listenBlockScreen': ['function_block_screen', 'listen_screen']}
 
 	def OnPressKey(self, args):
 		if args['key'] == '27':
