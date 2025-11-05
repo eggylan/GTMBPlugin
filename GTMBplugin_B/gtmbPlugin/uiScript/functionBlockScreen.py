@@ -7,7 +7,7 @@ ScreenNode = clientApi.GetScreenNodeCls()
 CFClient = clientApi.GetEngineCompFactory()
 clientSystem = clientApi.GetSystem('Minecraft', 'preset')
 
-class function_block_screen(ScreenNode):
+class functionBlockScreen(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
 

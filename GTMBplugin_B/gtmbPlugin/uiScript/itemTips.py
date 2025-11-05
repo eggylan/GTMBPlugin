@@ -18,9 +18,12 @@ class itemTips(ScreenNode):
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
+		itemDict = clientApi.GetEngineCompFactory().CreateItem(clientApi.GetLocalPlayerId()).GetCarriedItem(True)
+		self.GetBaseUIControl("/panel/edit_box").asTextEditBox().SetEditText(itemDict['customTips'])
+
 	def changeTip(self, args):
 		itemTips = {"Tips": self.GetBaseUIControl("/panel/edit_box").asTextEditBox().GetEditText()}
-		clientApi.GetSystem("gtmbPlugin", "mainLogic").NotifyToServer("changeTip", itemTips)
+		clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("changeTip", itemTips)
 
 	def close(self, args):
 		clientApi.PopTopUI()

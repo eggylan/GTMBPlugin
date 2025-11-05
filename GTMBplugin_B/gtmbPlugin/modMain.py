@@ -9,6 +9,7 @@ class gtmbPluginMod(object):
 	@Mod.InitServer()
 	def ServerInit(self):
 		serverApi.RegisterSystem(modName, 'mainServerSystem', '%s.serverSystem.mainServerSystem' % modName)
+		serverApi.RegisterSystem(modName, 'cmdServerSystem', '%s.serverSystem.cmdServerSystem' % modName)
 
 	@Mod.DestroyServer()
 	def ServerDestroy(self):
@@ -18,6 +19,7 @@ class gtmbPluginMod(object):
 	@Mod.InitClient()
 	def ClientInit(self):
 		clientApi.RegisterSystem(modName, 'mainClientSystem', '%s.clientSystem.mainClientSystem' % modName)
+		clientApi.RegisterSystem(modName, 'cmdClientSystem', '%s.clientSystem.cmdClientSystem' % modName)
 
 	@Mod.DestroyClient()
 	def ClientDestroy(self):
