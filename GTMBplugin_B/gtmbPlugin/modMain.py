@@ -12,6 +12,7 @@ class gtmbPluginMod(object):
 
 	@Mod.DestroyServer()
 	def ServerDestroy(self):
+		#__destory__是一个自定义方法
 		serverApi.GetSystem(modName, 'mainServerSystem').__destroy__()
 
 	@Mod.InitClient()
