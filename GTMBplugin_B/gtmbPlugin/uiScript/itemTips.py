@@ -5,7 +5,7 @@ ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 
 
-class getitemUI(ScreenNode):
+class itemTips(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
 
@@ -14,19 +14,18 @@ class getitemUI(ScreenNode):
 		@description UI创建成功时调用
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.get)
+		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.changeTip)
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
-	def get(self, args):
-		itemData = {"newItemName": "minecraft:" + self.GetBaseUIControl("/panel/id").asTextEditBox().GetEditText(), "newAuxValue": 0, "count": 1}
-		if self.GetBaseUIControl("/panel/aux").asTextEditBox().GetEditText() == "":
-			itemData["newAuxValue"] = 0
-		else:
-			itemData["newAuxValue"] = int(self.GetBaseUIControl("/panel/aux").asTextEditBox().GetEditText())
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("getitem", itemData)
+		itemDict = clientApi.GetEngineCompFactory().CreateItem(clientApi.GetLocalPlayerId()).GetCarriedItem(True)
+		self.GetBaseUIControl("/panel/edit_box").asTextEditBox().SetEditText(itemDict['customTips'])
 
-	def close(self, args):	
+	def changeTip(self, args):
+		itemTips = {"Tips": self.GetBaseUIControl("/panel/edit_box").asTextEditBox().GetEditText()}
+		clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("changeTip", itemTips)
+
+	def close(self, args):
 		clientApi.PopTopUI()
 	
 	def Destroy(self):

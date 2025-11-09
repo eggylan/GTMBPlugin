@@ -40,7 +40,7 @@ class nbteditor(ScreenNode):
 			clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).AddTimer(2, self.resetText)
 			return
 		nbtdata = {"nbt": nbt}
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changenbt", nbtdata)
+		clientApi.GetSystem("gtmbPlugin", "mainSystem").NotifyToServer("changenbt", nbtdata)
 
 	def close(self, args):
 		clientApi.PopTopUI()

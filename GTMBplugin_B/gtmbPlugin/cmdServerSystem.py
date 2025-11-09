@@ -1,35 +1,21 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from Preset.Model.PartBase import PartBase
-from Preset.Model.GameObject import registerGenericClass
-import mod.server.extraServerApi as serverApi
-import mod.client.extraClientApi as clientApi
-import json
-import random
-import math
-import re
-#for 异常处理
+import server.extraServerApi as serverApi
 import traceback
+import random
+import re
+import json
+from serverSystem import unicode_convert, intg
 
-# import Script_NeteaseMod_TtCLQKGx.metaData as metaData
+levelId = serverApi.GetLevelId()
+CF = serverApi.GetEngineCompFactory()
+compGame = CF.CreateGame(levelId)
+compBlockInfo = CF.CreateBlockInfo(levelId)
+compCmd = CF.CreateCommand(levelId)
+compBlockEntity = CF.CreateBlockEntity(levelId)
+compExtra = CF.CreateExtraData(levelId)
+compItemWorld = CF.CreateItem(levelId)
 
-PLATFORM_WINDOWS = 0
-PLATFORM_IOS = 1
-PLATFORM_ANDROID = 2
-
-def unicode_convert(input):
-	#type: (dict|str) -> dict|list|str|bool
-	if isinstance(input, dict):
-		return {unicode_convert(key): unicode_convert(value) for key, value in input.items()}
-	elif isinstance(input, list):
-		return [unicode_convert(element) for element in input]
-	elif isinstance(input, unicode): # type: ignore
-		return input.encode('utf-8')
-	return input
-
-def intg(num):
-	#type: (float) -> int
-	return int(math.floor(num))
+create_players_str = lambda players: ', '.join([CF.CreateName(player).GetName() for player in players])
 
 def checkjson(data):
 	#type: (str) -> list
@@ -50,156 +36,10 @@ def checkjson(data):
 	if isinstance(itemDict, dict):
 		return [unicode_convert(itemDict), False]
 	return['无效的nbt', True]
-@registerGenericClass('customcmdsPart')
-class customcmdsPart(PartBase):
-		
-	def __init__(self):
-		PartBase.__init__(self)
-		# 零件名称
-		self.name = '自定义指令零件'
-		
-	def InitClient(self):
-		'''
-		@description 客户端的零件对象初始化入口
-		'''
-		global CFClient, compPostProcess, clientSystem
-		CFClient = clientApi.GetEngineCompFactory()
-		self.localPlayerId = clientApi.GetLocalPlayerId()
-		compPostProcess = CFClient.CreatePostProcess(self.localPlayerId)
-		compPostProcess.SetEnableColorAdjustment(True)
-		clientSystem = clientApi.GetSystem('Minecraft', 'preset')
-		clientSystem.ListenForEvent('Minecraft', 'preset', 'CustomCommandClient', self, self.OnCustomCommandClient)
-		# 注册处理函数
-		# 客户端
-		self.clientCustomCmd = {
-			'setplayerinteracterange':self.client_setplayerinteracterange,
-			'openfoldgui':self.client_openfoldgui,
-			'setcanpausescreen':self.client_setcanpausescreen,
-			'setcolorbrightness':self.client_setcolorbrightness,
-			'setcolorcontrast':self.client_setcolorcontrast,
-			'setcolorsaturation':self.client_setcolorsaturation,
-			'setcolortint':self.client_setcolortint,
-			'setcompassentity':self.client_setcompassentity,
-			'setcompasstarget':self.client_setcompasstarget,
-			'setvignettecenter':self.client_setvignettecenter,
-			'setvignetteradius':self.client_setvignetteradius,
-			'setvignettecolor':self.client_setvignettecolor,
-			'setvignettesmooth':self.client_setvignettesmooth,
-			'setvignette':self.client_setvignette,
-			'setgaussian':self.client_setgaussian,
-			'setgaussianradius':self.client_setgaussianradius,
-			'sethudchatstackposition':self.client_sethudchatstackposition,
-			'sethudchatstackvisible':self.client_sethudchatstackvisible,
-			'chatclear': self.client_chatclear,
-			"openui": self.client_openui,
-			"hidenametag": self.client_hidenametag
 
-		}
-
-		PartBase.InitClient(self)
-
-	def OnCustomCommandClient(self, args):
-		# 从dict中选取处理函数
-		handler = self.clientCustomCmd.get(args['cmd'])
-		if handler:
-			handler(args)
-		# clientsystem.NotifyToServer('customCmdReturn', data)
-
-	# 客户端函数部分由此开始
-	def client_setplayerinteracterange(self, args):
-		CFClient.CreatePlayer(self.localPlayerId).SetPickRange(args['cmdargs'][1])
-	def client_openfoldgui(self, args):
-		clientApi.OpenFoldGui()
-	def client_setcanpausescreen(self, args):
-		CFClient.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
-	def client_setcolorbrightness(self, args):
-		compPostProcess.SetColorAdjustmentBrightness(args['cmdargs'][2])
-	def client_setcolorcontrast(self, args):
-		compPostProcess.SetColorAdjustmentContrast(args['cmdargs'][2])
-	def client_setcolorsaturation(self, args):
-		compPostProcess.SetColorAdjustmentSaturation(args['cmdargs'][2])
-	def client_setcolortint(self, args):
-		compPostProcess.SetColorAdjustmentTint(args['cmdargs'][2], (args['cmdargs'][3], args['cmdargs'][4], args['cmdargs'][5]))
-	def client_setcompassentity(self, args):
-		CFClient.CreateItem(self.localPlayerId).SetCompassEntity(args['cmdargs'][1][0])
-	def client_setcompasstarget(self, args):
-		CFClient.CreateItem(self.localPlayerId).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
-	def client_setvignettecenter(self, args):
-		compPostProcess.SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
-	def client_setvignetteradius(self, args):
-		compPostProcess.SetVignetteRadius(args['cmdargs'][2])
-	def client_setvignettecolor(self, args):
-		compPostProcess.SetVignetteRGB(args['cmdargs'][2])
-	def client_setvignettesmooth(self, args):
-		compPostProcess.SetVignetteSmoothness(args['cmdargs'][2])
-	def client_setvignette(self, args):
-		compPostProcess.SetEnableVignette(args['cmdargs'][2])
-	def client_setgaussian(self, args):
-		compPostProcess.SetEnableGaussianBlur(args['cmdargs'][2])
-	def client_setgaussianradius(self, args):
-		compPostProcess.SetGaussianBlurRadius(args['cmdargs'][2])
-	def client_sethudchatstackposition(self, args):
-		clientApi.SetHudChatStackPosition((args['cmdargs'][1], args['cmdargs'][2]))
-	def client_sethudchatstackvisible(self, args):
-		clientApi.SetHudChatStackVisible(args['cmdargs'][1])
-	def client_chatclear(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(self.localPlayerId)
-		for _ in range(35):	 # type: ignore
-			compClientTextNotify.SetLeftCornerNotify("\n\n\n\n\n")
-	def client_openui(self, args):
-		compClientTextNotify = CFClient.CreateTextNotifyClient(self.localPlayerId)
-		if args['cmdargs'][0] == "enchant":
-			uiWillbeOpen = "enchant"
-			uiWillbeOpenName = "自定义附魔"
-		elif args['cmdargs'][0] == "getitem":
-			uiWillbeOpen = "getitem"
-			uiWillbeOpenName = "获取隐藏物品"
-		elif args['cmdargs'][0] == "nbteditor":
-			uiWillbeOpen = "nbteditor"
-			uiWillbeOpenName = "NBT编辑器"
-		elif args['cmdargs'][0] == "changetips":
-			uiWillbeOpen = "itemTips"
-			uiWillbeOpenName = "修改物品注释"
-		elif args['cmdargs'][0] == "cmdbatch":
-			uiWillbeOpen = "cmdbatch"
-			uiWillbeOpenName = "指令批处理"
-		elif args['cmdargs'][0] == "structureimport":
-			if clientApi.GetPlatform() == PLATFORM_WINDOWS:
-				uiWillbeOpen = "struimport"
-				uiWillbeOpenName = "结构导入"
-			else:
-				compClientTextNotify.SetLeftCornerNotify("§e您的设备暂不支持此功能，请前往电脑端使用")
-				return
-		elif args['cmdargs'][0] == "nbteditornew":
-			uiWillbeOpen = "nbteditornew"
-			uiWillbeOpenName = "NBT编辑器(新)"
-		uiNodePreset = self.GetParent().GetChildPresetsByName(uiWillbeOpen)[0]
-		uiNodePreset.SetUiActive(True)
-		uiNodePreset.SetUiVisible(True)
-		compClientTextNotify.SetLeftCornerNotify("已打开 %s 界面" % uiWillbeOpenName)
-	def client_hidenametag(self, args):
-		clientApi.HideNameTag(args['cmdargs'][1])
-	# 客户端函数部分到此结束
-	
-	def InitServer(self):
-		'''
-		@description 服务端的零件对象初始化入口
-		'''
-		global CFServer, levelId, serverSystem, compCmd, compGame, compItemWorld, compBlockEntity, compExtra, create_players_str
-		CFServer = serverApi.GetEngineCompFactory()
-		levelId = serverApi.GetLevelId()
-		serverSystem = serverApi.GetSystem('Minecraft', 'preset')
-		compCmd = CFServer.CreateCommand(levelId)
-		compGame = CFServer.CreateGame(levelId)
-		compItemWorld = CFServer.CreateItem(levelId)
-		compExtra = CFServer.CreateExtraData(levelId)
-		compBlockEntity = CFServer.CreateBlockEntity(levelId)
-		create_players_str = lambda players: ', '.join([CFServer.CreateName(item).GetName() for item in players])
-
-		serverSystem.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
-		#serversystem.ListenForEvent('Minecraft', 'preset', 'customCmdReturn', self, self.OnReturn)
-
-		# 服务端
+class cmdServerSystem(serverApi.GetServerSystemCls()):
+	def __init__(self, namespace, systemName):
+		super(cmdServerSystem, self).__init__(namespace, systemName)
 		self.serverCustomCmds = {
 			'setentityonfire':self.setentityonfire,
 			'setcurrentairsupply':self.setcurrentairsupply,
@@ -338,16 +178,8 @@ class customcmdsPart(PartBase):
 			"cancel_structure_load": self.Cancel_Structure_Loading,
 			#'setblocknbt': self.setblocknbt
 			"§r§r§rgtmbdebug": self.debug
-			
 		}
-		
-		PartBase.InitServer(self)
-
-	# def OnReturn(self, args):
-	# 	pass
-	# 	# 客户端返回
-	# 	#compMsg = CFServer.CreateMsg(args['target'])
-	# 	#compName = CFServer.CreateName(args['__id__'])
+		self.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
 
 	def OnCustomCommandServer(self, args):
 		cmdargs = []
@@ -368,72 +200,71 @@ class customcmdsPart(PartBase):
 			args['return_failed'] = True
 			args['return_msg_key'] = '出现未知错误, 原因见上'
 			tracebacks = traceback.format_exc().splitlines()
-			compMsg = CFServer.CreateMsg(playerId)
+			compMsg = CF.CreateMsg(playerId)
 			if playerId:
 				for i in tracebacks:
 					compMsg.NotifyOneMessage(playerId, i, '§c')
-		#print(args)
 
 	# 服务端函数部分由此开始
 	def setentityonfire(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateAttr(i).SetEntityOnFire(cmdargs[1], cmdargs[2])
+			CF.CreateAttr(i).SetEntityOnFire(cmdargs[1], cmdargs[2])
 		return False, '已点燃 %s 个实体 %s 秒,伤害为 %s' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setcurrentairsupply(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateBreath(i).SetCurrentAirSupply(cmdargs[1])
+			CF.CreateBreath(i).SetCurrentAirSupply(cmdargs[1])
 		return False, '已设置 %s 个实体氧气储备值为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setcompasstarget(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		x, y, z = cmdargs[1]
 		compassdata = [intg(x), int(y), intg(z)]
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcompasstarget', 'cmdargs': compassdata})
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcompasstarget', 'cmdargs': compassdata})
 		return False, '将以下玩家的指南针指向 Pos%s:%s' % (str(tuple(compassdata)), create_players_str(cmdargs[0]))
 
 	def setcompassentity(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None or cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcompassentity', 'cmdargs': cmdargs})
-		return False, '将以下玩家的指南针指向 %s:%s' % (CFServer.CreateEngineType(cmdargs[1][0]).GetEngineTypeStr(), create_players_str(cmdargs[0]))
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcompassentity', 'cmdargs': cmdargs})
+		return False, '将以下玩家的指南针指向 %s:%s' % (CF.CreateEngineType(cmdargs[1][0]).GetEngineTypeStr(), create_players_str(cmdargs[0]))
 		
 	def setcolor(self, cmdargs, playerId, variant, data):
 		if cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[1]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if variant == 3:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolortint', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolortint', 'cmdargs': cmdargs})
 			return False, '已设置以下玩家的屏幕色调为 %s(%s,%s,%s):%s' % (cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5], create_players_str(cmdargs[1]))
 		elif variant == 2:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorsaturation', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorsaturation', 'cmdargs': cmdargs})
 			return False, '已设置以下玩家的屏幕色彩饱和度为 %s:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
 		elif variant == 1:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorcontrast', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorcontrast', 'cmdargs': cmdargs})
 			return False, '已设置以下玩家的屏幕色彩对比度为 %s:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
 		else:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorbrightness', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolorbrightness', 'cmdargs': cmdargs})
 			return False, '已设置以下玩家的屏幕色彩亮度为 %s:%s' % (cmdargs[2], create_players_str(cmdargs[1]))
 	
 	def setchestitemnum(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
-		if CFServer.CreateChestBlock(levelId).SetChestBoxItemNum(None, xyz, cmdargs[1], cmdargs[2], cmdargs[3]['id']):
+		if CF.CreateChestBlock(levelId).SetChestBoxItemNum(None, xyz, cmdargs[1], cmdargs[2], cmdargs[3]['id']):
 			return False, '已设置槽位 %s 的物品数量为 %s' % (cmdargs[1], cmdargs[2])
 		else:
 			return True, '位于 Pos%s 的方块不是箱子' % (xyz,)
@@ -445,7 +276,7 @@ class customcmdsPart(PartBase):
 			pid = serverApi.GetPlayerList()[random.randint(0, len(serverApi.GetPlayerList())-1)]
 		else:
 			pid = playerId #尽可能让命令在同维度执行
-		if CFServer.CreateChestBlock(pid).SetChestBoxItemExchange(pid, xyz, cmdargs[1], cmdargs[2]):
+		if CF.CreateChestBlock(pid).SetChestBoxItemExchange(pid, xyz, cmdargs[1], cmdargs[2]):
 			return False, '已交换槽位 %s 与槽位 %s 的物品' % (cmdargs[1], cmdargs[2])
 		else:
 			return True, '位于 Pos%s 的方块不是箱子' % (xyz,)
@@ -454,46 +285,46 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcanpausescreen', 'cmdargs': cmdargs})
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcanpausescreen', 'cmdargs': cmdargs})
 		return False, '已将 %s 的暂停权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 
 	def setcanotherplayerride(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateRide(i).SetCanOtherPlayerRide(i, cmdargs[1])
+			CF.CreateRide(i).SetCanOtherPlayerRide(i, cmdargs[1])
 		return False, '已%s %s 个实体被骑乘' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
 	
 	def setattackplayersability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetAttackPlayersAbility(cmdargs[1])
+			CF.CreatePlayer(i).SetAttackPlayersAbility(cmdargs[1])
 		return False, '已将 %s 的pvp权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setattackmobsability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetAttackMobsAbility(cmdargs[1])
+			CF.CreatePlayer(i).SetAttackMobsAbility(cmdargs[1])
 		return False, '已将 %s 的攻击生物权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 
 	def setattackdamage(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			compItem = CFServer.CreateItem(i)
+			compItem = CF.CreateItem(i)
 			itemDict = compItem.GetPlayerItem(2, 0, True)
 			if compItem.SetAttackDamage(itemDict, cmdargs[1]):
 				compItem.SpawnItemToPlayerCarried(itemDict, i)
@@ -510,10 +341,10 @@ class customcmdsPart(PartBase):
 		if cmdargs[2] is None:
 			cmdargs[2] = {'name': data['origin']['dimension'], 'id': data['origin']['dimension']}
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerRespawnPos((intg(x), int(y), intg(z)), cmdargs[2]['id'])
+			CF.CreatePlayer(i).SetPlayerRespawnPos((intg(x), int(y), intg(z)), cmdargs[2]['id'])
 		return False, '将 %s 的重生点设置为 %s in %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2]['name'])
 	
 	def setplayerhealthlevel(self, cmdargs, playerId, variant, data):
@@ -524,10 +355,10 @@ class customcmdsPart(PartBase):
 		elif cmdargs[1] > 20:
 			return True, '无效的回血临界值 (%s > 20)' % cmdargs[1]
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerHealthLevel(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerHealthLevel(cmdargs[1])
 		return False, '将 %s 的回血临界值设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerstarvelevel(self, cmdargs, playerId, variant, data):
@@ -538,10 +369,10 @@ class customcmdsPart(PartBase):
 		elif cmdargs[1] > 20:
 			return True, '无效的扣血临界值 (%s > 20)' % cmdargs[1]
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerStarveLevel(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerStarveLevel(cmdargs[1])
 		return False, '将 %s 的扣血临界值设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerhunger(self, cmdargs, playerId, variant, data):
@@ -552,10 +383,10 @@ class customcmdsPart(PartBase):
 		elif cmdargs[1] > 20:
 			return True, '无效的饥饿度 (%s > 20)' % cmdargs[1]
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerHunger(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerHunger(cmdargs[1])
 		return False, '将 %s 的饥饿度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerattackspeedamplifier(self, cmdargs, playerId, variant, data):
@@ -566,80 +397,80 @@ class customcmdsPart(PartBase):
 		elif cmdargs[1] > 2.0:
 			return True, '无效的倍率 (%s > 2.0)' % cmdargs[1]
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerAttackSpeedAmplifier(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerAttackSpeedAmplifier(cmdargs[1])
 		return False, '将 %s 的攻击速度倍率设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerjumpable(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerJumpable(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerJumpable(cmdargs[1])
 		return False, '将 %s 的跳跃权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setplayermovable(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerMovable(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerMovable(cmdargs[1])
 		return False, '将 %s 个玩家的移动权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setplayernaturalstarve(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerNaturalStarve(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerNaturalStarve(cmdargs[1])
 		return False, '将 %s 的饥饿掉血设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setplayerprefixandsuffixname(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '§f', cmdargs[2], '§f')
+			CF.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '§f', cmdargs[2], '§f')
 		return False, '将 %s 的前缀设置为 %s, 后缀设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setplayermaxexhaustionvalue(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerMaxExhaustionValue(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerMaxExhaustionValue(cmdargs[1])
 		return False, '将 %s 的饥饿最大消耗度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setplayerhealthtick(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerHealthTick(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerHealthTick(cmdargs[1])
 		return False, '将 %s 的自然回血速度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def setplayerstarvetick(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerStarveTick(cmdargs[1])
+			CF.CreatePlayer(i).SetPlayerStarveTick(cmdargs[1])
 		return False, '将 %s 的自然扣血速度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def sethurtcd(self, cmdargs, playerId, variant, data):
@@ -655,75 +486,75 @@ class customcmdsPart(PartBase):
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		attackTargetId = cmdargs[1][0]
 		for i in cmdargs[0]:
-			CFServer.CreateAction(i).SetAttackTarget(attackTargetId)
-		return False, '将 %s 个实体的仇恨目标设置为 %s' % (len(cmdargs[0]), CFServer.CreateEngineType(attackTargetId).GetEngineTypeStr())
+			CF.CreateAction(i).SetAttackTarget(attackTargetId)
+		return False, '将 %s 个实体的仇恨目标设置为 %s' % (len(cmdargs[0]), CF.CreateEngineType(attackTargetId).GetEngineTypeStr())
 	
 	def resetattacktarget(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateAction(i).ResetAttackTarget()
+			CF.CreateAction(i).ResetAttackTarget()
 		return False, '成功重置 %s 个实体的仇恨目标' % (len(cmdargs[0]))
 	
 	def setbanplayerfishing(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetBanPlayerFishing(cmdargs[1])
+			CF.CreatePlayer(i).SetBanPlayerFishing(cmdargs[1])
 		return False, '将 %s 的钓鱼权限设置为 %s' % (create_players_str(cmdargs[0]), '禁止' if cmdargs[1] else '允许')
 	
 	def setactorcanpush(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateActorPushable(i).SetActorPushable(cmdargs[1])
+			CF.CreateActorPushable(i).SetActorPushable(cmdargs[1])
 		return False, '已%s %s个 实体被推动' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
 	
 	def	setactorcollidable(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateActorCollidable(i).SetActorCollidable(cmdargs[1])
+			CF.CreateActorCollidable(i).SetActorCollidable(cmdargs[1])
 		return False, '已%s %s 实体拥有固体碰撞箱' % ('允许' if cmdargs[1] else '禁止', len(cmdargs[0]))
 	
 	def setmineability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetMineAbility(cmdargs[1])
+			CF.CreatePlayer(i).SetMineAbility(cmdargs[1])
 		return False, '将 %s 的挖掘权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setbuildability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetBuildAbility(cmdargs[1])
+			CF.CreatePlayer(i).SetBuildAbility(cmdargs[1])
 		return False, '将 %s 的放置权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setcontrol(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateRide(i).SetControl(i, cmdargs[1])
+			CF.CreateRide(i).SetControl(i, cmdargs[1])
 		return False, '已设置 %s 个实体的控制权' % (len(cmdargs[0]))
 	
 	def setpickuparea(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPickUpArea(cmdargs[1])
+			CF.CreatePlayer(i).SetPickUpArea(cmdargs[1])
 		return False, '已将 %s 的拾取范围设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setlevelgravity(self, cmdargs, playerId, variant, data):
@@ -734,12 +565,12 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateGravity(i).SetJumpPower(cmdargs[1])
+			CF.CreateGravity(i).SetJumpPower(cmdargs[1])
 		return False, '已设置 %s 个实体的跳跃力度为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setgravity(self, cmdargs, playerId, variant, data):
 		for i in cmdargs[0]:
-			CFServer.CreateGravity(i).SetGravity(cmdargs[1])
+			CF.CreateGravity(i).SetGravity(cmdargs[1])
 		return False, '已设置 %s 个实体的重力为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setworldspawnd(self, cmdargs, playerId, variant, data):
@@ -752,14 +583,14 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[2] not in [0, 1, 2, 3, 4, 5]:
 			return True, '无效的朝向'
 		x, y, z = cmdargs[1]
 		xyz = (intg(x), int(y), intg(z))
 		for i in cmdargs[0]:
-			CFServer.CreateBlockInfo(i).PlayerUseItemToPos(xyz, 2, 0, cmdargs[2])
+			CF.CreateBlockInfo(i).PlayerUseItemToPos(xyz, 2, 0, cmdargs[2])
 		return False, '已尝试让 %s 向 %s 的 %s 面使用物品' % (create_players_str(cmdargs[0]), xyz, ['上', '下', '北', '南', '西', '东'][cmdargs[2]])
 	
 	def playeruseitemtoentity(self, cmdargs, playerId, variant, data):
@@ -769,150 +600,150 @@ class customcmdsPart(PartBase):
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		entityId = cmdargs[1][0]
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateBlockInfo(i).PlayerUseItemToEntity(entityId)
-		return False, '已尝试让 %s 向 %s 使用物品' % (create_players_str(cmdargs[0]), CFServer.CreateEngineType(entityId).GetEngineTypeStr())
+			CF.CreateBlockInfo(i).PlayerUseItemToEntity(entityId)
+		return False, '已尝试让 %s 向 %s 使用物品' % (create_players_str(cmdargs[0]), CF.CreateEngineType(entityId).GetEngineTypeStr())
 	
 	def playerdestoryblock(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		x, y, z = cmdargs[1]
 		xyz = (intg(x), int(y), intg(z))
 		for i in cmdargs[0]:
-			CFServer.CreateBlockInfo(i).PlayerDestoryBlock(xyz, cmdargs[2], cmdargs[3])
+			CF.CreateBlockInfo(i).PlayerDestoryBlock(xyz, cmdargs[2], cmdargs[3])
 		return False, '已尝试让 %s 破坏 Pos%s 处的方块' % (create_players_str(cmdargs[0]), xyz)
 	
 	def openworkbench(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateBlockInfo(i).OpenWorkBench()
+			CF.CreateBlockInfo(i).OpenWorkBench()
 		return False, '已使 %s 打开工作台界面' % (create_players_str(cmdargs[0]))
 	
 	def openfoldgui(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'openfoldgui', 'cmdargs': cmdargs})
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'openfoldgui', 'cmdargs': cmdargs})
 		return False, '已使 %s 打开下拉界面' % (create_players_str(cmdargs[0]))
 	
 	def setimmunedamage(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateHurt(i).ImmuneDamage(cmdargs[1])
+			CF.CreateHurt(i).ImmuneDamage(cmdargs[1])
 		return False, '将 %s 个实体的伤害免疫设置为 %s' % (len(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setinvitemexchange(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateItem(i).SetInvItemExchange(cmdargs[1], cmdargs[2])
+			CF.CreateItem(i).SetInvItemExchange(cmdargs[1], cmdargs[2])
 		return False, '已交换 %s 物品栏槽位 %s 与槽位 %s 中的物品' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setinvitemnum(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[2] < 0 or cmdargs[2] > 64:
 			return True, '无效的物品数量'
 		for i in cmdargs[0]:
-			CFServer.CreateItem(i).SetInvItemNum(cmdargs[1], cmdargs[2])
+			CF.CreateItem(i).SetInvItemNum(cmdargs[1], cmdargs[2])
 		return False, '已将 %s 物品栏槽位 %s 中的物品数量设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setitemdurability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 0 or cmdargs[1] > 32766:
 			return True, '无效的耐久度'
 		for i in cmdargs[0]:
-			CFServer.CreateItem(i).SetItemDurability(2, 0, cmdargs[1])
+			CF.CreateItem(i).SetItemDurability(2, 0, cmdargs[1])
 		return False, '已设置 %s 的手持物品物品耐久度为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 			
 	def setitemmaxdurability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 0 or cmdargs[1] > 32766:
 			return True, '无效的耐久度'
 		for i in cmdargs[0]:
-			CFServer.CreateItem(i).SetItemMaxDurability(2, 0, cmdargs[1], True)
+			CF.CreateItem(i).SetItemMaxDurability(2, 0, cmdargs[1], True)
 		return False, '已设置 %s 的手持物品最大耐久度为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 		
 	def setitemtierlevel(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[1] not in [0, 1, 2, 3, 4]:
 			return True, '无效的挖掘等级'
 		for i in cmdargs[0]:
-			itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
-			CFServer.CreateItem(i).SetItemTierLevel(itemdata, cmdargs[1])
-			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
+			itemdata = CF.CreateItem(i).GetPlayerItem(2, 0, True)
+			CF.CreateItem(i).SetItemTierLevel(itemdata, cmdargs[1])
+			CF.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
 		return False, '已设置 %s 的手持物品挖掘等级为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setitemtierspeed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 0:
 			return True, '无效的挖掘速度'
 		for i in cmdargs[0]:
-			itemdata = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
-			CFServer.CreateItem(i).SetItemTierSpeed(itemdata, cmdargs[1])
-			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
+			itemdata = CF.CreateItem(i).GetPlayerItem(2, 0, True)
+			CF.CreateItem(i).SetItemTierSpeed(itemdata, cmdargs[1])
+			CF.CreateItem(i).SpawnItemToPlayerCarried(itemdata, i)
 		return False, '已设置 %s 的手持物品挖掘速度为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def setitemmaxstacksize(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 1:
 			return True, '无效的堆叠数量 (%s < 1)' % (cmdargs[1])
 		elif cmdargs[1] > 64:
 			return True, '无效的堆叠数量 (%s > 64)' % (cmdargs[1])
 		for i in cmdargs[0]:
-			itemDict = CFServer.CreateItem(i).GetPlayerItem(2, 0, True)
-			CFServer.CreateItem(i).SetMaxStackSize(itemDict, cmdargs[1])
-			CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
+			itemDict = CF.CreateItem(i).GetPlayerItem(2, 0, True)
+			CF.CreateItem(i).SetMaxStackSize(itemDict, cmdargs[1])
+			CF.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
 		return False, '已设置 %s 的手持物品最大堆叠数量为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def playerexhaustionratio(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'	
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		exhaustion = {'heal': 0, 'jump':1, 'sprint_jump':2, 'mine':3, 'attack':4, 'global':9}
 		exhaustiontype = exhaustion[cmdargs[1]]
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerExhaustionRatioByType(exhaustiontype, cmdargs[2])
+			CF.CreatePlayer(i).SetPlayerExhaustionRatioByType(exhaustiontype, cmdargs[2])
 		return False, '已设置 %s 的 %s 行为饥饿度消耗倍率为 %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def setsigntextstyle(self, cmdargs, playerId, variant, data):
@@ -920,7 +751,7 @@ class customcmdsPart(PartBase):
 		xyz = (intg(x), int(y), intg(z))
 		rgba = (cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
 		lighting = cmdargs[6]
-		if compBlockEntity.SetSignTextStyle(xyz, cmdargs[1]['id'], rgba, lighting, int(cmdargs[7])):
+		if compBlockInfo.SetSignTextStyle(xyz, cmdargs[1]['id'], rgba, lighting, int(cmdargs[7])):
 			return False, '将 Pos%s in %s 的告示牌 %s 文本样式设置为 %s' % (xyz, cmdargs[1]['name'], '反面' if cmdargs[7] else '正面', rgba)
 		else:
 			return True, '位于 Pos%s in %s 的方块不是告示牌' % (xyz, cmdargs[1]['name'])
@@ -928,7 +759,7 @@ class customcmdsPart(PartBase):
 	def setsigntext(self, cmdargs, playerId, variant, data):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
-		if CFServer.CreateBlockInfo(levelId).SetSignBlockText(xyz, cmdargs[1], cmdargs[2]['id'], int(cmdargs[3])):
+		if compBlockInfo.SetSignBlockText(xyz, cmdargs[1], cmdargs[2]['id'], int(cmdargs[3])):
 			return False, '将 Pos%s in %s 的告示牌 %s 文本设置为 %s' % (xyz, cmdargs[2]['name'], '反面' if cmdargs[3] else '正面', cmdargs[1])
 		else:
 			return True, '位于 Pos%s in %s 的方块不是告示牌' % (xyz, cmdargs[2]['name'])
@@ -937,11 +768,11 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型' 
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetPlayerInteracteRange(cmdargs[1])
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setplayerinteracterange', 'cmdargs': cmdargs})
+			CF.CreatePlayer(i).SetPlayerInteracteRange(cmdargs[1])
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setplayerinteracterange', 'cmdargs': cmdargs})
 		return False, '已设置 %s 的触及距离为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 	
 	def summonprojectile(self, cmdargs, playerId, variant, data):
@@ -966,34 +797,34 @@ class customcmdsPart(PartBase):
 				'auxValue': cmdargs[9]
 			}
 			
-			CFServer.CreateProjectile(levelId).CreateProjectileEntity(i, cmdargs[1], param)
+			CF.CreateProjectile(levelId).CreateProjectileEntity(i, cmdargs[1], param)
 		return False, '成功生成抛射物'
 	
 	def setstepheight(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateAttr(i).SetStepHeight(cmdargs[1])
+			CF.CreateAttr(i).SetStepHeight(cmdargs[1])
 		return False, '将 %s 能迈过的最大高度设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def setsize(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateCollisionBox(i).SetSize((cmdargs[1], cmdargs[2]))
+			CF.CreateCollisionBox(i).SetSize((cmdargs[1], cmdargs[2]))
 		return False, '已设置 %s 个实体的碰撞箱为 (%s, %s)' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
 		
 	def playerchatprefix(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateExtraData(i).SetExtraData('chatprefix', cmdargs[1])
+			CF.CreateExtraData(i).SetExtraData('chatprefix', cmdargs[1])
 		return False, '将 %s 的聊天前缀设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def writehealthtoscoreboard(self, cmdargs, playerId, variant, data):
@@ -1004,7 +835,7 @@ class customcmdsPart(PartBase):
 		if not any(obj['name'] == scoreboard_name for obj in objects):
 			return True, '未找到该计分板对象'
 		for entity in cmdargs[0]:
-			health = CFServer.CreateAttr(entity).GetAttrValue(0)
+			health = CF.CreateAttr(entity).GetAttrValue(0)
 			health = int(round(health))
 			compCmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, health), entity, False)
 		return False, '已将 %s 个实体的生命值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
@@ -1017,7 +848,7 @@ class customcmdsPart(PartBase):
 		if not any(obj['name'] == scoreboard_name for obj in objects):
 			return True, '未找到该计分板对象'
 		for entity in cmdargs[0]:
-			hunger = CFServer.CreateAttr(entity).GetAttrValue(4)
+			hunger = CF.CreateAttr(entity).GetAttrValue(4)
 			hunger = int(round(hunger))
 			compCmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, hunger), entity, False)
 		return False, '已将 %s 个实体的饥饿值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
@@ -1030,7 +861,7 @@ class customcmdsPart(PartBase):
 		if not any(obj['name'] == scoreboard_name for obj in objects):
 			return True, '未找到该计分板对象'
 		for entity in cmdargs[0]:
-			armor = CFServer.CreateAttr(entity).GetAttrValue(12)
+			armor = CF.CreateAttr(entity).GetAttrValue(12)
 			armor = int(round(armor))
 			compCmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, armor), entity, False)
 		return False, '已将 %s 个实体的盔甲值写入计分板 %s' % (len(cmdargs[0]), scoreboard_name)
@@ -1043,7 +874,7 @@ class customcmdsPart(PartBase):
 		if not any(obj['name'] == scoreboard_name for obj in objects):
 			return True, '未找到该计分板对象'
 		for entity in cmdargs[0]:
-			speed = CFServer.CreateActorMotion(entity).GetMotion()
+			speed = CF.CreateActorMotion(entity).GetMotion()
 			speed = (speed[0]**2 + speed[1]**2 + speed[2]**2)**0.5  # 计算速度
 			speed = int(round(speed*20))
 			compCmd.SetCommand('/scoreboard players set @s %s %s' % (scoreboard_name, speed), entity, False)
@@ -1061,14 +892,14 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateName(i).SetName(cmdargs[1])
+			CF.CreateName(i).SetName(cmdargs[1])
 		return False, '已设置 %s 个实体的名称为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def aicontrol(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateControlAi(i).SetBlockControlAi(cmdargs[1], cmdargs[2])
+			CF.CreateControlAi(i).SetBlockControlAi(cmdargs[1], cmdargs[2])
 		return False, '已%s %s 个实体的AI' % ('启用' if cmdargs[1] else '禁用', len(cmdargs[0]))
 
 	def param(self, cmdargs, playerId, variant, data):
@@ -1216,7 +1047,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for kickplayer in cmdargs[0]:
-			compCmd.SetCommand('/kick "%s" "%s"' % (CFServer.CreateName(kickplayer).GetName(), cmdargs[1]))
+			compCmd.SetCommand('/kick "%s" "%s"' % (CF.CreateName(kickplayer).GetName(), cmdargs[1]))
 		return False, '已将 %s 踢出游戏: %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 			
 	def explode(self, cmdargs, playerId, variant, data):
@@ -1229,8 +1060,8 @@ class customcmdsPart(PartBase):
 		ExpPlayerId = serverApi.GetPlayerList()
 		ExpPlayerId = ExpPlayerId[random.randint(0, len(ExpPlayerId)-1)]
 		for i in cmdargs[0]:
-			position = CFServer.CreatePos(i).GetFootPos()
-			CFServer.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId)
+			position = CF.CreatePos(i).GetFootPos()
+			CF.CreateExplosion(levelId).CreateExplosion(position, cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId)
 		return False, '已引爆 %s 个实体' % len(cmdargs[0])
 
 	def explodebypos(self, cmdargs, playerId, variant, data):
@@ -1242,7 +1073,7 @@ class customcmdsPart(PartBase):
 			cmdargs[4] = cmdargs[4][0]
 		ExpPlayerId = serverApi.GetPlayerList()
 		ExpPlayerId = ExpPlayerId[random.randint(0, len(ExpPlayerId)-1)]
-		if CFServer.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId):
+		if CF.CreateExplosion(levelId).CreateExplosion(cmdargs[0], cmdargs[1], cmdargs[3], cmdargs[2], cmdargs[4], ExpPlayerId):
 			return False, '爆炸已创建于 Pos%s' % (cmdargs[0],)
 		else:
 			return True, '爆炸创建失败'
@@ -1283,8 +1114,8 @@ class customcmdsPart(PartBase):
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		tot = 0
 		for i in cmdargs[0]:
-			CompMotion = CFServer.CreateActorMotion(i)
-			CompType = CFServer.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
 			if EntityType == 'minecraft:player':
 				addMotion = CompMotion.AddPlayerAroundEntityMotion
@@ -1308,8 +1139,8 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
-			CompMotion = CFServer.CreateActorMotion(i)
-			CompType = CFServer.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
 			if EntityType == 'minecraft:player':
 				addMotion = CompMotion.AddPlayerAroundPointMotion
@@ -1332,8 +1163,8 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
-			CompMotion = CFServer.CreateActorMotion(i)
-			CompType = CFServer.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
 			if EntityType == 'minecraft:player':
 				addMotion = CompMotion.AddPlayerVelocityMotion
@@ -1356,10 +1187,10 @@ class customcmdsPart(PartBase):
 		tot = 0
 		for i in cmdargs[0]:
 			#旧数据处理
-			compExtra = CFServer.CreateExtraData(i)
+			compExtra = CF.CreateExtraData(i)
 			compExtra.CleanExtraData('Motions')
-			CompMotion = CFServer.CreateActorMotion(i)
-			CompType = CFServer.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
 			if EntityType == 'minecraft:player':
 				startMotion = CompMotion.StartPlayerMotion
@@ -1381,8 +1212,8 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
-			CompMotion = CFServer.CreateActorMotion(i)
-			CompType = CFServer.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
 			if EntityType == 'minecraft:player':
 				stopMotion = CompMotion.StopPlayerMotion
@@ -1404,8 +1235,8 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
-			CompMotion = CFServer.CreateActorMotion(i)
-			CompType = CFServer.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
 			if EntityType == 'minecraft:player':
 				Motions = CompMotion.GetPlayerMotions()
@@ -1426,7 +1257,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if isinstance(cmdargs[3], int):
 			slotType = 0
@@ -1435,7 +1266,7 @@ class customcmdsPart(PartBase):
 			slotType = 2
 			slot = 0
 		for i in cmdargs[0]:
-			itemdict = CFServer.CreateItem(i).GetPlayerItem(slotType, slot, True)
+			itemdict = CF.CreateItem(i).GetPlayerItem(slotType, slot, True)
 			if itemdict:
 				if itemdict['userData'] is None:
 					itemdict['userData'] = {}
@@ -1450,9 +1281,9 @@ class customcmdsPart(PartBase):
 				itemdict['enchantData'] = []
 				
 				if slotType == 0:
-					CFServer.CreateItem(i).SpawnItemToPlayerInv(itemdict, i, slot)
+					CF.CreateItem(i).SpawnItemToPlayerInv(itemdict, i, slot)
 				else:
-					CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemdict, i)
+					CF.CreateItem(i).SpawnItemToPlayerCarried(itemdict, i)
 		return False, '已为 %s 的%s物品添加附魔 %s' % (create_players_str(cmdargs[0]), '手持' if slotType == 2 else '背包', cmdargs[1]['identifier'])
 
 	def addtrackmotion(self, cmdargs, playerId, variant, data):
@@ -1460,8 +1291,8 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		tot = 0
 		for i in cmdargs[0]:
-			CompMotion = CFServer.CreateActorMotion(i)
-			CompType = CFServer.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
 			EntityType = CompType.GetEngineTypeStr()
 			if EntityType == 'minecraft:player':
 				addMotion = CompMotion.AddPlayerTrackMotion
@@ -1499,7 +1330,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			compItem = CFServer.CreateItem(i)
+			compItem = CF.CreateItem(i)
 			compItem.CancelShearsDestoryBlockSpeedAll()
 		return False, '已取消 %s 个实体剪刀破坏方块速度的所有设置' % (len(cmdargs[0]))
 
@@ -1507,7 +1338,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			compItem = CFServer.CreateItem(i)
+			compItem = CF.CreateItem(i)
 			compItem.CancelShearsDestoryBlockSpeed(cmdargs[1])
 			#	return True, '无效的命名空间id'
 		return False, '已取消 %s 个实体剪刀破坏 %s 速度的设置' % (len(cmdargs[0]), cmdargs[1])
@@ -1518,7 +1349,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[2] < 1:
 			return True, '速度必须大于1'
 		for i in cmdargs[0]:
-			compItem = CFServer.CreateItem(i)
+			compItem = CF.CreateItem(i)
 			compItem.SetShearsDestoryBlockSpeed(cmdargs[1], cmdargs[2])
 			#	return True, '无效的命名空间id'
 		return False, '已设置 %s 个实体剪刀破坏 %s 速度为 %s' % (len(cmdargs[0]), cmdargs[1], cmdargs[2])
@@ -1527,11 +1358,11 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CompType = CFServer.CreateEngineType(i)
+			CompType = CF.CreateEngineType(i)
 			if CompType.GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CompPlayer = CFServer.CreatePlayer(i)
+			CompPlayer = CF.CreatePlayer(i)
 			CompPlayer.ChangeSelectSlot(cmdargs[1])
 		return False, '将 %s 的选择槽位设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
@@ -1544,20 +1375,20 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		uid_dict = {}
 		for i in cmdargs[0]:
-			CompType = CFServer.CreateEngineType(i)
+			CompType = CF.CreateEngineType(i)
 			if CompType.GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			playername = CFServer.CreateName(i).GetName()
-			uid_dict[playername] = CFServer.CreateHttp(levelId).GetPlayerUid(i)
+			playername = CF.CreateName(i).GetName()
+			uid_dict[playername] = CF.CreateHttp(levelId).GetPlayerUid(i)
 		return False, '获取到的UID为%s' % (uid_dict)
-		# serversystem.NotifyToMultiClients(list(cmdargs[0]), 'CustomCommandClient', {'cmd':'getuid', 'origin': playerId})
+		# self.NotifyToMultiClients(list(cmdargs[0]), 'CustomCommandClient', {'cmd':'getuid', 'origin': playerId})
 
 	def givewithnbt(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[1])
 		if result[1] == True:
@@ -1571,7 +1402,7 @@ class customcmdsPart(PartBase):
 			if itemDict.get('count') is None:
 				return True, '物品数据中缺少 count 键'
 			for i in cmdargs[0]:
-				if not CFServer.CreateItem(i).SpawnItemToPlayerInv(itemDict, i):
+				if not CF.CreateItem(i).SpawnItemToPlayerInv(itemDict, i):
 					return True, '此JSON生成物品失败'
 			return False, '成功给予 %s 物品 %s * %s' % (create_players_str(cmdargs[0]), itemDict.get('newItemName'), itemDict.get('count'))
 		else:
@@ -1615,7 +1446,7 @@ class customcmdsPart(PartBase):
 		# args['return_msg_key'] = '给予失败'
 		# args['return_failed'] = True
 		for player in cmdargs[2]:
-			if CFServer.CreateEngineType(player).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(player).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[0])
 		if result[1] == True:
@@ -1626,7 +1457,7 @@ class customcmdsPart(PartBase):
 				itemDict2.setdefault(k, v)
 			countAdd = itemDict2.pop('count', 1)
 			for player in cmdargs[2]:
-				compItem = CFServer.CreateItem(player)
+				compItem = CF.CreateItem(player)
 				itemDict = compItem.GetEnderChestItem(player, cmdargs[1], True)
 				if itemDict:
 					for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
@@ -1649,7 +1480,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[1])
 		if result[1] == True:
@@ -1661,7 +1492,7 @@ class customcmdsPart(PartBase):
 			if itemDict.get('count') is None:
 				return True, '物品数据中缺少 count 键'
 			for i in cmdargs[0]:
-				CFServer.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
+				CF.CreateItem(i).SpawnItemToPlayerCarried(itemDict, i)
 			return False, '将 %s 的主手物品替换为 %s * %s' % (create_players_str(cmdargs[0]), itemDict.get('newItemName'), itemDict.get('count'))
 		else:
 			return True, '无效的nbt'
@@ -1670,7 +1501,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if cmdargs[2] is None:
 			posType = 2
@@ -1679,7 +1510,7 @@ class customcmdsPart(PartBase):
 			posType = 0
 			pos = cmdargs[2]
 		for i in cmdargs[0]:
-			compItem = CFServer.CreateItem(i)
+			compItem = CF.CreateItem(i)
 			itemDict = compItem.GetPlayerItem(posType, pos, True)
 			if itemDict:
 				if itemDict.get('userData') is not None:
@@ -1700,8 +1531,8 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CompType = CFServer.CreateEngineType(i)
-			CompMotion = CFServer.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
 			if CompType.GetEngineTypeStr() == 'minecraft:player':
 				CompMotion.SetPlayerMotion((0, 0, 0))
 			else:
@@ -1713,7 +1544,7 @@ class customcmdsPart(PartBase):
 			return True, '没有与选择器匹配的目标'
 		if len(cmdargs[0]) == 1:
 			for i in cmdargs[1]:
-				compEntityD = CFServer.CreateEntityDefinitions(i)
+				compEntityD = CF.CreateEntityDefinitions(i)
 				compEntityD.SetLeashHolder(cmdargs[0])
 			return False, '已尝试拴住实体'
 		else:
@@ -1723,7 +1554,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			compEntityD = CFServer.CreateEntityDefinitions(i)
+			compEntityD = CF.CreateEntityDefinitions(i)
 			compEntityD.SetLootDropped(cmdargs[1])
 		return False, '将 %s 个实体的掉落概率设置为 %s' % (len(cmdargs[0]), cmdargs[1])
 
@@ -1731,7 +1562,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			compBrea = CFServer.CreateBreath(i)
+			compBrea = CF.CreateBreath(i)
 			compBrea.SetMaxAirSupply(cmdargs[1])
 		return False, '将 %s 个实体的最大氧气量设置为 %s' % (len(cmdargs[0]), cmdargs[1])
 
@@ -1739,15 +1570,15 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CFServer.CreateAction(i).SetMobKnockback(cmdargs[1], cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
+			CF.CreateAction(i).SetMobKnockback(cmdargs[1], cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
 		return False, '已击飞 %s 个实体' % (len(cmdargs[0]))
 
 	def setmotion(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			CompType = CFServer.CreateEngineType(i)
-			CompMotion = CFServer.CreateActorMotion(i)
+			CompType = CF.CreateEngineType(i)
+			CompMotion = CF.CreateActorMotion(i)
 			if CompType.GetEngineTypeStr() == 'minecraft:player':
 				CompMotion.SetPlayerMotion(cmdargs[1])
 			else:
@@ -1758,30 +1589,30 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetOpenContainersAbility(cmdargs[1])
+			CF.CreatePlayer(i).SetOpenContainersAbility(cmdargs[1])
 		return False, '将 %s 的开箱权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def setoperatedoorability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetOperateDoorsAndSwitchesAbility(cmdargs[1])
+			CF.CreatePlayer(i).SetOperateDoorsAndSwitchesAbility(cmdargs[1])
 		return False, '将 %s 的开门权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 
 	def setorbexperience(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:xp_orb':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:xp_orb':
 				return True, '选择器必须为经验球类型'
 		for i in cmdargs[0]:
-			compAttr = CFServer.CreateExp(i)
+			compAttr = CF.CreateExp(i)
 			compAttr.SetOrbExperience(cmdargs[1])
 		return False, '将 %s 个经验球的经验值设置为 %s' % (len(cmdargs[0]), cmdargs[1])
 
@@ -1789,7 +1620,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			compAttr = CFServer.CreateAttr(i)
+			compAttr = CF.CreateAttr(i)
 			compAttr.SetPersistent(cmdargs[1])
 		return False, '将 %s 个实体的自动清除设置为 %s' % (len(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 
@@ -1803,7 +1634,7 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[2])
 		if result[1] == True:
@@ -1850,7 +1681,7 @@ class customcmdsPart(PartBase):
 					"smithingtabletemplate" : 53 
 			}
 			for i in cmdargs[0]:
-				CFServer.CreateItem(i).SetPlayerUIItem(i, enum.get(cmdargs[1]), itemDict, cmdargs[3])
+				CF.CreateItem(i).SetPlayerUIItem(i, enum.get(cmdargs[1]), itemDict, cmdargs[3])
 			return False, '将 %s 的UI物品设置为 %s * %s' % (create_players_str(cmdargs[0]), itemDict.get('newItemName'), itemDict.get('count'))
 		else:
 			return True, '无效的nbt'
@@ -1948,42 +1779,42 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetTeleportAbility(cmdargs[1])
+			CF.CreatePlayer(i).SetTeleportAbility(cmdargs[1])
 		return False, '将 %s 的传送权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
 	
 	def settradelevel(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if not CFServer.CreateEngineType(i).GetEngineTypeStr() in ['minecraft:villager', 'minecraft:villager_v2']:
+			if not CF.CreateEngineType(i).GetEngineTypeStr() in ['minecraft:villager', 'minecraft:villager_v2']:
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
+			CF.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
 		return False, '已设置 %s 个村民的交易等级为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setvignette(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[1]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if variant == 0:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettecenter', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettecenter', 'cmdargs': cmdargs})
 			return False, '已将 %s 的屏幕暗角中心设置为 %s, %s' % (create_players_str(cmdargs[1]), cmdargs[2], cmdargs[3])
 		elif variant == 1:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignetteradius', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignetteradius', 'cmdargs': cmdargs})
 			return False, '已将 %s 的屏幕暗角半径设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		elif variant == 2:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettecolor', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettecolor', 'cmdargs': cmdargs})
 			return False, '已将 %s 的屏幕暗角颜色设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		elif variant == 3:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettesmooth', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettesmooth', 'cmdargs': cmdargs})
 			return False, '已将 %s 的屏幕暗角平滑度设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		elif variant == 4:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignette', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignette', 'cmdargs': cmdargs})
 			return False, '已%s %s 的屏幕暗角' % ('启用' if cmdargs[2] else '禁用', create_players_str(cmdargs[1]))
 		
 	def setbrewingstandslotitem(self, cmdargs, playerId, variant, data):
@@ -2023,10 +1854,10 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreatePlayer(i).SetEnchantmentSeed(cmdargs[1])
+			CF.CreatePlayer(i).SetEnchantmentSeed(cmdargs[1])
 		return False, '将 %s 的附魔种子设置为 %s' % (create_players_str(cmdargs[0]), cmdargs[1])
 
 	def setentityitem(self, cmdargs, playerId, variant, data):
@@ -2039,14 +1870,14 @@ class customcmdsPart(PartBase):
 		if not isinstance(itemDict, dict):
 			return True, '无效的nbt'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
 				return True, '选择器必须为非玩家类型'
 		if itemDict.get('newItemName') is None:
 			return True, '物品数据中缺少 newItemName 键'
 		if itemDict.get('count') is None:
 			return True, '物品数据中缺少 count 键'
 		for i in cmdargs[0]:
-			CFServer.CreateItem(i).SetEntityItem(cmdargs[1], itemDict, cmdargs[3])
+			CF.CreateItem(i).SetEntityItem(cmdargs[1], itemDict, cmdargs[3])
 		return False, '已设置 %s 个实体的物品' % (len(cmdargs[0]))
 		
 	def setentityowner(self, cmdargs, playerId, variant, data):
@@ -2062,8 +1893,8 @@ class customcmdsPart(PartBase):
 		failed_entities = []
 		
 		for i in cmdargs[0]:
-			if not CFServer.CreateActorOwner(i).SetEntityOwner(ownerid):
-				failed_entities.append(CFServer.CreateEngineType(i).GetEngineTypeStr())
+			if not CF.CreateActorOwner(i).SetEntityOwner(ownerid):
+				failed_entities.append(CF.CreateEngineType(i).GetEngineTypeStr())
 		
 		if failed_entities:
 			return True, '部分实体执行过程中出现错误: %s' % failed_entities
@@ -2078,8 +1909,8 @@ class customcmdsPart(PartBase):
 		failed_entities = []
 		
 		for i in cmdargs[1]:
-			if not CFServer.CreateRide(i).SetEntityRide(cmdargs[0][0], i):
-				failed_entities.append(CFServer.CreateEngineType(i).GetEngineTypeStr())
+			if not CF.CreateRide(i).SetEntityRide(cmdargs[0][0], i):
+				failed_entities.append(CF.CreateEngineType(i).GetEngineTypeStr())
 		
 		if failed_entities:
 			return True, '部分实体执行过程中出现错误: %s' % failed_entities,
@@ -2114,41 +1945,41 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'sethudchatstackposition', 'cmdargs': cmdargs})
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'sethudchatstackposition', 'cmdargs': cmdargs})
 		return False, '将 %s 的聊天UI位置设置为 %s, %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
 	
 	def sethudchatstackvisible(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'sethudchatstackvisible', 'cmdargs': cmdargs})
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'sethudchatstackvisible', 'cmdargs': cmdargs})
 		return False, '已%s %s 的聊天UI' % ('启用' if cmdargs[1] else '禁用', create_players_str(cmdargs[0]))
 	
 	def setshowrideui(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateRide(i).SetShowRideUI(i, cmdargs[1])
+			CF.CreateRide(i).SetShowRideUI(i, cmdargs[1])
 		return False, '已%s %s 的骑乘UI' % ('启用' if cmdargs[1] else '禁用', create_players_str(cmdargs[0]))
 	
 	def setgaussian(self, cmdargs, playerId, variant, data):
 		if cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[1]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		if variant == 0:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setgaussian', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setgaussian', 'cmdargs': cmdargs})
 			return False, '已 %s %s 的高斯模糊' % ('启用' if cmdargs[2] else '禁用', create_players_str(cmdargs[1]))
 		elif variant == 1:
-			serverSystem.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setgaussianradius', 'cmdargs': cmdargs})
+			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setgaussianradius', 'cmdargs': cmdargs})
 			return False, '已将 %s 的高斯模糊半径设置为 %s' % (create_players_str(cmdargs[1]), cmdargs[2])
 		
 	def scoreparam(self, cmdargs, playerId, variant, data):
@@ -2202,13 +2033,13 @@ class customcmdsPart(PartBase):
 		x, y, z = cmdargs[0]
 		xyz = (intg(x), int(y), intg(z))
 		if cmdargs[2] is None:
-			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CFServer.CreateBlockInfo(levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
+			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CF.CreateBlockInfo(levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
 		else:
 			result = checkjson(cmdargs[2])
 			if result[1] == True:
 				return True, result[0]
 			blockDict = result[0]
-			CFServer.CreateBlockInfo(levelId).SetBlockEntityData(cmdargs[1]['id'], xyz, blockDict)
+			CF.CreateBlockInfo(levelId).SetBlockEntityData(cmdargs[1]['id'], xyz, blockDict)
 			return False, '已设置 Pos%s 的方块nbt' % (xyz,)
 
 	def summonitem(self, cmdargs, playerId, variant, data):
@@ -2222,7 +2053,7 @@ class customcmdsPart(PartBase):
 			itemDict.setdefault('count', 1)
 			if itemDict.get('newItemName') is None:
 				return True, '物品数据中缺少 newItemName 键'
-			if not serverSystem.CreateEngineItemEntity(itemDict, data['origin']['dimension'], xyz):
+			if not self.CreateEngineItemEntity(itemDict, data['origin']['dimension'], xyz):
 				return True, '生成失败'
 			return False, '已在 Pos%s 处生成 %s * %s' % (xyz, itemDict.get('newItemName'), itemDict.get('count'))
 		return True, '无效的nbt'
@@ -2231,21 +2062,21 @@ class customcmdsPart(PartBase):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
-			CFServer.CreateExtraData(i).SetExtraData('mute', cmdargs[1])
+			CF.CreateExtraData(i).SetExtraData('mute', cmdargs[1])
 		return False, '将 %s 的禁言状态设置为 %s' % (create_players_str(cmdargs[0]), '启用' if cmdargs[1] else '停用')
 	
 	def chatclear(self, cmdargs, playerId, variant, data):
 		if playerId is None:
 			return True, '该命令无法在命令方块或控制台执行'	
-		serverSystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'chatclear'})
+		self.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'chatclear'})
 		return False, ''
 	
 	def openui(self, cmdargs, playerId, variant, data):
 		if playerId:
-			serverSystem.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'openui', 'cmdargs': cmdargs})
+			self.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'openui', 'cmdargs': cmdargs})
 			return False, ''
 		else:
 			return True, '执行者必须为玩家'
@@ -2254,12 +2085,12 @@ class customcmdsPart(PartBase):
 		tick_time = serverApi.GetServerTickTime()
 		TPS = "20.0*" if tick_time <= 50 else "%.1f" % (1000 / tick_time)
 		if playerId:
-			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId, '§r§eTPS:%s mspt:%.2fms' % (TPS, tick_time))
+			CF.CreateMsg(playerId).NotifyOneMessage(playerId, '§r§eTPS:%s mspt:%.2fms' % (TPS, tick_time))
 		return False,''
 	
 	def copyright(self, cmdargs, playerId, variant, data):
 		if playerId:
-			CFServer.CreateMsg(playerId).NotifyOneMessage(playerId,
+			CF.CreateMsg(playerId).NotifyOneMessage(playerId,
 												  '---------\n版本: %s\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证. \n---------' % str(compGame.GetChinese('gtmb_plugin.ver')), 
 												  '§b')
 		return False, ''
@@ -2291,26 +2122,26 @@ class customcmdsPart(PartBase):
 		#else:
 		#	rot = None
 		#print(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
-		#serversystem.CreateEngineEntityByNBT(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
+		#self.CreateEngineEntityByNBT(entityDict, cmdargs[1], rot, cmdargs[3]['id'], cmdargs[4])
 		#return False, '已生成实体'
 		pass
 
 	def hidenametag(self, cmdargs, playerId, variant, data):
 		for i in cmdargs[0]:
-			if CFServer.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
 				return True, '选择器必须为玩家类型'
-		serverSystem.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidenametag', 'cmdargs': cmdargs})
+		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidenametag', 'cmdargs': cmdargs})
 		return False, '已%s %s 的可见悬浮字' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
 
 	def Cancel_Structure_Loading(self, cmdargs, playerId, variant, data):
 		packet = {
 			"playerId": playerId
 		}
-		self.BroadcastPresetSystemEvent('cancel_structure_loading', packet)
+		self.BroadcastEvent('cancel_structure_loading', packet)
 		return False, ''
 	
 	def debug(self, cmdargs, playerId, variant, data):
-		if CFServer.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CFServer.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
+		if CF.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CF.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
 			return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'
 		if cmdargs[0] == 'throw':
 			raise Exception('This is a debug exception!')
@@ -2332,32 +2163,5 @@ class customcmdsPart(PartBase):
 					f.writelines(file)
 				return False, '已修改文件 %s\n的第%s行内容为\n%s' % (cmdargs[1], cmdargs[2], cmdargs[3])
 			except Exception as e:
-				return True, '修改文件 %s 时发生错误: %s' % (cmdargs[1], str(e))
-
-
-	# 服务端函数部分到此结束
-
-
-	def TickClient(self):
-		'''
-		@description 客户端的零件对象逻辑驱动入口
-		'''
-		PartBase.TickClient(self)
-
-	def TickServer(self):
-		'''
-		@description 服务端的零件对象逻辑驱动入口
-		'''
-		PartBase.TickServer(self)
-
-	def DestroyClient(self):
-		'''
-		@description 客户端的零件对象销毁逻辑入口
-		'''
-		PartBase.DestroyClient(self)
-
-	def DestroyServer(self):
-		'''
-		@description 服务端的零件对象销毁逻辑入口
-		'''
-		PartBase.DestroyServer(self)
+				return True, '修改文件 %s 时发生错误: %s' % (cmdargs[1], str(e))	
+	#服务端函数部分到此结束

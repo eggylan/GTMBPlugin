@@ -5,7 +5,7 @@ ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 
 
-class itemTips(ScreenNode):
+class enchantUI(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
 
@@ -14,13 +14,20 @@ class itemTips(ScreenNode):
 		@description UI创建成功时调用
 		"""
 		self.GetBaseUIControl("/panel/button").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.changeTip)
+		self.GetBaseUIControl("/panel/button").asButton().SetButtonTouchUpCallback(self.enchant)
+		self.GetBaseUIControl("/panel/delench").asButton().AddTouchEventParams({"isSwallow": True})
+		self.GetBaseUIControl("/panel/delench").asButton().SetButtonTouchUpCallback(self.delenchant)
 		self.GetBaseUIControl("/panel/closebutton").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetButtonTouchUpCallback(self.close)
 
-	def changeTip(self, args):
-		itemTips = {"Tips": self.GetBaseUIControl("/panel/edit_box").asTextEditBox().GetEditText()}
-		clientApi.GetSystem("Minecraft", "preset").NotifyToServer("changeTip", itemTips)
+	def enchant(self, args):
+		if self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText():
+			enchantdata = {"id": self.GetBaseUIControl("/panel/ID").asTextEditBox().GetEditText(), "lvl": self.GetBaseUIControl("/panel/lvl").asTextEditBox().GetEditText()}
+			clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("enchant", enchantdata)
+
+	def delenchant(self, args):
+		enchantdata = {"id": "del", "lvl": "1"}
+		clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("enchant", enchantdata)
 
 	def close(self, args):
 		clientApi.PopTopUI()
