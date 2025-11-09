@@ -4,6 +4,7 @@ CF = clientApi.GetEngineCompFactory()
 localPlayerId = clientApi.GetLocalPlayerId()
 levelId = clientApi.GetLevelId()
 compPostProcess = CF.CreatePostProcess(levelId)
+compDrawing = CF.CreateDrawing(levelId)
 uiNames = {'enchant': ('enchantUI', 'enchant.main_closable'),
   		'getitem': ('getitemUI', 'getitem.main_closable'),
 		'itemTips': ('itemTips', 'customtips.main_closable'),
@@ -11,7 +12,8 @@ uiNames = {'enchant': ('enchantUI', 'enchant.main_closable'),
 		'cmdbatch': ('cmdbatch', 'cmdbatch.main_closable'),
 		'struimport': ('struimportlogic', 'structureimport.main_closable'),
 		'functionBlockScreen': ('functionBlockScreen', 'function_block_screen.node_screen'),
-		'listenBlockScreen': ('listenBlockScreen', 'function_block_screen.listen_screen')}
+		'listenBlockScreen': ('listenBlockScreen', 'function_block_screen.listen_screen'),
+		'EULA': ('EULA', 'GTMB_EULA.main')}
 
 PLATFORM_WINDOWS = 0
 PLATFORM_IOS = 1
@@ -24,6 +26,11 @@ class mainClientSystem(clientApi.GetClientSystemCls()):
 		listenClientSysEvent('OnLocalPlayerStopLoading', self.OnFinish)
 		listenClientSysEvent('OnKeyPressInGame', self.OnPressKey)
 		listenClientSysEvent('UiInitFinished', self.RegisterUI)
+		self.ListenForEvent('gtmbPlugin', 'mainServerSystem', 'openUI', self, self.openUI)
+		self.ListenForEvent('gtmbPlugin', 'functionBlockServerSystem', 'openUI', self, self.openUI)
+
+	def openUI(self, args):
+		clientApi.PushScreen('gtmbPlugin', args['ui'], args.get('data'))
 
 	def RegisterUI(self, args):
 		for i in uiNames:
@@ -147,3 +154,20 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 	def client_hidenametag(self, args):
 		clientApi.HideNameTag(args['cmdargs'][1])
 	# 客户端函数部分到此结束
+
+class functionBlockClientSystem(clientApi.GetClientSystemCls()):
+	def __init__(self, modName, systemName):
+		super(functionBlockClientSystem, self).__init__(modName, systemName)
+		self.ListenForEvent('gtmbPlugin', 'functionBlockServerSystem', 'rendersFromServer', self, self.LoadRenders)
+
+		self.currentRenders = []
+
+	def LoadRenders(self, args):
+		renderCreator = {'arrow': compDrawing.AddArrowShape,
+						 'circle': compDrawing.AddCircleShape,
+						 'line': compDrawing.AddLineShape,
+						 'text': compDrawing.AddTextShape,
+						 'box': compDrawing.AddBoxShape,
+						 'sphere': compDrawing.AddSphereShape}
+		for i in args['renders']:
+			renderCreator[i['type']](**i['data'])
