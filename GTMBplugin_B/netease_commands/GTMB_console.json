@@ -11,7 +11,7 @@
 		{
 			"name": "执行实体",
 			"type": "target",
-			"default": "no"
+			"default": [null]
 		},
 		{
 			"name": "是否显示返回值",
