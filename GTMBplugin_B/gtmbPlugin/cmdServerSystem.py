@@ -6,6 +6,8 @@ import re
 import json
 from serverSystem import unicode_convert, intg
 
+from metaData import copyRightInfo
+
 levelId = serverApi.GetLevelId()
 CF = serverApi.GetEngineCompFactory()
 compGame = CF.CreateGame(levelId)
@@ -2089,9 +2091,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	
 	def copyright(self, cmdargs, playerId, variant, data):
 		if playerId:
-			CF.CreateMsg(playerId).NotifyOneMessage(playerId,
-												  '---------\n版本: %s\n© 2025 联机大厅服务器模板\n本项目采用 GNU General Public License v3.0 许可证. \n---------' % str(compGame.GetChinese('gtmb_plugin.ver')), 
-												  '§b')
+			CF.CreateMsg(playerId).NotifyOneMessage(playerId,copyRightInfo)
 		return False, ''
 	
 	def chatlimit(self, cmdargs, playerId, variant, data):
