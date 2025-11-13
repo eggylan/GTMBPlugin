@@ -178,8 +178,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			"allowmsg":self.allowmsg,
 			"hidenametag": self.hidenametag,
 			"cancel_structure_load": self.Cancel_Structure_Loading,
+			"setoplevel": self.setoplevel,
+			"opset": self.opset,
+			"setlobbymod": self.setlobbymod,
 			#'setblocknbt': self.setblocknbt
-			"§r§r§rgtmbdebug": self.debug
+			"§r§r§rgtmbdebug": self.debug,
 		}
 		self.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
 
@@ -2139,6 +2142,113 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		self.BroadcastEvent('cancel_structure_loading', packet)
 		return False, ''
 	
+	def setoplevel(self, cmdargs, playerId, variant, data):
+		oplevel = cmdargs[0]
+		if oplevel not in [1, 2, 3, 4]:
+			return True, '无效的等级'
+		if oplevel == 1:
+			return True, '出于安全原因，不允许将OP等级设置为 1 级'
+		elif oplevel == 2:
+			compCmd.SetCommandPermissionLevel(2)
+			compExtra.SetExtraData("gtmb-op-level", 2)
+			return False, '已将OP等级设置为 2 级（可以使用所有单人游戏作弊命令）。请重新获取OP权限以应用更改。'
+		elif oplevel == 3:
+			compCmd.SetCommandPermissionLevel(3)
+			compExtra.SetExtraData("gtmb-op-level", 3)
+			return False, '已将OP等级设置为 3 级（可以使用大多数多人游戏中独有的命令）。请重新获取OP权限以应用更改。'
+		elif oplevel == 4:
+			compCmd.SetCommandPermissionLevel(4)
+			compExtra.SetExtraData("gtmb-op-level", 4)
+			return False, '已将OP等级设置为 4 级（可以使用所有命令）。请重新获取OP权限以应用更改。'
+	
+	def opset(self, cmdargs, playerId, variant, data):
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+				return True, '选择器必须为玩家类型'
+		if cmdargs[1] == 'visitor': # 访客
+			for i in cmdargs[0]:
+				compPlayer = CF.CreatePlayer(i)
+				compPlayer.SetPermissionLevel(0)
+			return False, '已将 %s 的权限设置为 访客' % create_players_str(cmdargs[0])
+		elif cmdargs[1] == 'member': # 成员
+			for i in cmdargs[0]:
+				compPlayer = CF.CreatePlayer(i)
+				compPlayer.SetPermissionLevel(1)
+			return False, '已将 %s 的权限设置为 成员' % create_players_str(cmdargs[0])
+		elif cmdargs[1] == 'operator': # 管理员
+			for i in cmdargs[0]:
+				compPlayer = CF.CreatePlayer(i)
+				compPlayer.SetPermissionLevel(2)
+			return False, '已将 %s 的权限设置为 管理员' % create_players_str(cmdargs[0])
+		else:
+			return True, '未知错误'
+		
+	def setlobbymod(self, cmdargs, playerId, variant, data):
+		if variant == 0: # 我的伙伴-全局
+			is_enabled = cmdargs[1]
+			compExtra.SetExtraData('lobby-enable-pet', is_enabled)
+			if is_enabled:
+				CF.CreatePet(levelId).Enable()
+			else:
+				CF.CreatePet(levelId).Disable()
+			return False, '已全局 %s 我的伙伴，请重载存档。' % ('启用' if is_enabled else '禁用')
+		elif variant == 1: # 我的好友
+			if cmdargs[1] is None:
+				return True, '没有与选择器匹配的目标'
+			for i in cmdargs[1]:
+				if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					return True, '选择器必须为玩家类型'
+			is_enabled = cmdargs[2]
+			if is_enabled:
+				for i in cmdargs[1]:
+					CF.CreateExtraData(i).SetExtraData('lobby-chat-extension', True)
+					CF.CreateChatExtension(i).Enable()
+			else:
+				for i in cmdargs[1]:
+					CF.CreateExtraData(i).SetExtraData('lobby-chat-extension', False)
+					CF.CreateChatExtension(i).Disable()
+			return False, '已 %s %s 的我的好友聊天扩展' % ('启用' if is_enabled else '禁用', create_players_str(cmdargs[1]))
+		elif variant == 2: # 魔法指令
+			if cmdargs[1] is None:
+				return True, '没有与选择器匹配的目标'
+			for i in cmdargs[1]:
+				if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
+					return True, '选择器必须为玩家类型'
+			is_enabled = cmdargs[2]
+			if is_enabled:
+				for i in cmdargs[1]:
+					CF.CreateExtraData(i).SetExtraData('lobby-ai-command', True)
+					CF.CreateAiCommand(i).Enable()
+			else:
+				for i in cmdargs[1]:
+					CF.CreateExtraData(i).SetExtraData('lobby-ai-command', False)
+					CF.CreateAiCommand(i).Disable()
+			return False, '已 %s %s 的魔法指令' % ('启用' if is_enabled else '禁用', create_players_str(cmdargs[1]))
+		elif variant == 3: # 我的好友-全局
+			is_enabled = cmdargs[1]
+			compExtra.SetExtraData('lobby-enable-chat-extension', is_enabled)
+			for i in serverApi.GetPlayerList():
+				if is_enabled:
+					CF.CreateChatExtension(i).Enable()
+				else:
+					CF.CreateChatExtension(i).Disable()
+			return False, '已全局 %s 我的好友聊天扩展，请重载存档。' % ('启用' if is_enabled else '禁用')
+		elif variant == 4: # 魔法指令-全局
+			is_enabled = cmdargs[1]
+			compExtra.SetExtraData('lobby-enable-ai-command', is_enabled)
+			for i in serverApi.GetPlayerList():
+				if is_enabled:
+					CF.CreateAiCommand(i).Enable()
+				else:
+					CF.CreateAiCommand(i).Disable()
+			return False, '已全局 %s 魔法指令，请重载存档。' % ('启用' if is_enabled else '禁用')
+
+	#服务端函数部分到此结束
+
+
+	# 调试用，正式版请删除
 	def debug(self, cmdargs, playerId, variant, data):
 		if CF.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CF.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
 			return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'
@@ -2163,4 +2273,4 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				return False, '已修改文件 %s\n的第%s行内容为\n%s' % (cmdargs[1], cmdargs[2], cmdargs[3])
 			except Exception as e:
 				return True, '修改文件 %s 时发生错误: %s' % (cmdargs[1], str(e))	
-	#服务端函数部分到此结束
+	

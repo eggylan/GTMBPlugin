@@ -1,0 +1,28 @@
+{
+    "format_version": "0.0.1",
+    "name": "setlobbymod",
+    "description": "设置联机大厅模组配置",
+    "permission_level": "admin",
+    "args": [
+        {"name": "模组名", "type": "enum", "options": ["我的伙伴-全局"]},
+        {"name": "是否启用", "type": "bool"}
+    ],
+    "args1": [
+        {"name": "模组名", "type": "enum", "options": ["我的好友"]},
+        {"name": "玩家", "type": "target"},
+        {"name": "是否启用", "type": "bool"}
+    ],
+    "args2": [
+        {"name": "模组名", "type": "enum", "options": ["魔法指令"]},
+        {"name": "玩家", "type": "target"},
+        {"name": "是否启用", "type": "bool"}
+    ],
+    "args3": [
+        {"name": "模组名", "type": "enum", "options": ["我的好友-全局"]},
+        {"name": "是否启用", "type": "bool"}
+    ],
+    "args4": [
+        {"name": "模组名", "type": "enum", "options": ["魔法指令-全局"]},
+        {"name": "是否启用", "type": "bool"}
+    ]
+}
