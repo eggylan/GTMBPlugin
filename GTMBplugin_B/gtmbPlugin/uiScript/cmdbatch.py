@@ -31,7 +31,7 @@ class cmdbatch(ScreenNode):
 		if self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText():
 			cmds = self.GetBaseUIControl("/panel/cmds").asTextEditBox().GetEditText()
 			cmds = {"cmds": cmds}
-			clientApi.GetSystem("gtmbPlugin", "mainSystem").NotifyToServer("cmdbatch", cmds)
+			clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("cmdbatch", cmds)
 
 	def cmd_path_mode(self, args):
 		if self.GetBaseUIControl("/panel/inputpath").asTextEditBox().GetEditText():
@@ -40,7 +40,7 @@ class cmdbatch(ScreenNode):
 			with open(path, 'r') as file:
 				cmds = file.read()
 			cmds = {"cmds": cmds}
-			clientApi.GetSystem("gtmbPlugin", "mainSystem").NotifyToServer("cmdbatch", cmds)
+			clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("cmdbatch", cmds)
 
 	
 	def close(self, args):

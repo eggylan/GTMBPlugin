@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import client.extraClientApi as clientApi
+import mod.client.extraClientApi as clientApi
 CF = clientApi.GetEngineCompFactory()
 localPlayerId = clientApi.GetLocalPlayerId()
 levelId = clientApi.GetLevelId()
@@ -10,7 +10,7 @@ uiNames = {'enchant': ('enchantUI', 'enchant.main_closable'),
 		'itemTips': ('itemTips', 'customtips.main_closable'),
 		'nbteditor': ('nbteditor', 'nbteditor.main_closable'),
 		'cmdbatch': ('cmdbatch', 'cmdbatch.main_closable'),
-		'struimport': ('struimportlogic', 'structureimport.main_closable'),
+		'struimport': ('importstrulogic', 'structureimport.main'),
 		'functionBlockScreen': ('functionBlockScreen', 'function_block_screen.node_screen'),
 		'listenBlockScreen': ('listenBlockScreen', 'function_block_screen.listen_screen'),
 		'EULA': ('EULA', 'GTMB_EULA.main')}
@@ -23,19 +23,24 @@ class mainClientSystem(clientApi.GetClientSystemCls()):
 	def __init__(self, modName, systemName):
 		super(mainClientSystem, self).__init__(modName, systemName)
 		listenClientSysEvent = lambda eventId, callback: self.ListenForEvent(clientApi.GetEngineNamespace(), clientApi.GetEngineSystemName(), eventId, self, callback)
-		listenClientSysEvent('OnLocalPlayerStopLoading', self.OnFinish)
 		listenClientSysEvent('OnKeyPressInGame', self.OnPressKey)
-		listenClientSysEvent('UiInitFinished', self.RegisterUI)
+		listenClientSysEvent('UiInitFinished', self.OnUiInitFinished)
 		self.ListenForEvent('gtmbPlugin', 'mainServerSystem', 'openUI', self, self.openUI)
 		self.ListenForEvent('gtmbPlugin', 'functionBlockServerSystem', 'openUI', self, self.openUI)
+		
+		self.is_UI_First_Init = True
 
 	def openUI(self, args):
 		clientApi.PushScreen('gtmbPlugin', args['ui'], args.get('data'))
 
-	def RegisterUI(self, args):
-		for i in uiNames:
-			uiClsName = uiNames[i][0]
-			clientApi.RegisterUI('gtmbPlugin', i, 'gtmbPlugin.uiScript.%s.%s' % (uiClsName, uiClsName), uiNames[i][1])
+	def OnUiInitFinished(self, args):
+		if self.is_UI_First_Init:
+			self.is_UI_First_Init = False
+			for i in uiNames:
+				uiClsName = uiNames[i][0]
+				clientApi.RegisterUI('gtmbPlugin', i, 'gtmbPlugin.uiScript.%s.%s' % (uiClsName, uiClsName), uiNames[i][1])
+			self.NotifyToServer('TryOpenEULA', {})
+			# self.openUI({'ui':'EULA'})
 
 	def OnPressKey(self, args):
 		if args['key'] == '27':
@@ -43,8 +48,6 @@ class mainClientSystem(clientApi.GetClientSystemCls()):
 				if clientApi.GetTopUI().endswith('closable'): #这里只有插件可关闭的ui的画布叫做xxxx_closable
 					clientApi.PopTopUI()
 
-	def OnFinish(self, args):
-		self.NotifyToServer('TryOpenEULA', {})
 
 class cmdClientSystem(clientApi.GetClientSystemCls()):
 	def __init__(self, modName, systemName):
@@ -142,7 +145,7 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 		elif args['cmdargs'][0] == "structureimport":
 			if clientApi.GetPlatform() == PLATFORM_WINDOWS:
 				uiWillbeOpen = "struimport"
-				uiWillbeOpenName = "结构导入"
+				uiWillbeOpenName = "结构处理"
 			else:
 				compClientTextNotify.SetLeftCornerNotify("§e您的设备暂不支持此功能，请前往电脑端使用")
 				return

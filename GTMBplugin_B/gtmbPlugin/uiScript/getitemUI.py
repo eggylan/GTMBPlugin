@@ -24,7 +24,7 @@ class getitemUI(ScreenNode):
 			itemData["newAuxValue"] = 0
 		else:
 			itemData["newAuxValue"] = int(self.GetBaseUIControl("/panel/aux").asTextEditBox().GetEditText())
-		clientApi.GetSystem("gtmbPlugin", "mainSystem").NotifyToServer("getitem", itemData)
+		clientApi.GetSystem("gtmbPlugin", "mainClientSystem").NotifyToServer("getitem", itemData)
 
 	def close(self, args):	
 		clientApi.PopTopUI()

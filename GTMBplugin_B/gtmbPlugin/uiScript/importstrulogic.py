@@ -10,7 +10,7 @@ wphnbt = clientApi.ImportModule("gtmbPlugin.wphnbt")
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
-clientsystem = clientApi.GetSystem("Minecraft", "preset")
+clientsystem = clientApi.GetSystem("gtmbPlugin", "mainClientSystem")
 
 
 class importstrulogic(ScreenNode):
@@ -147,14 +147,14 @@ class importstrulogic(ScreenNode):
 				"USE_COROUTINE": False
 			}
 		clientsystem.NotifyToServer("loadstructure_handshake", handshake_packet)
-		clientsystem.ListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
+		clientsystem.ListenForEvent('gtmbPlugin', 'mainServerSystem', 'HandShake_Success', self, self.handshake_success)
 
 		# 等待服务端握手（超时：5秒）
 		self._timers['handshake'] = self.compGame.AddTimer(5, self.handshake_timeout)
 
 	def handshake_timeout(self):
 		self.notify_control_asLabel.SetText('§c⚠与服务端握手超时')
-		clientsystem.UnListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
+		clientsystem.UnListenForEvent('gtmbPlugin', 'mainServerSystem', 'HandShake_Success', self, self.handshake_success)
 		if 'handshake' in self._timers:
 			self.compGame.CancelTimer(self._timers['handshake'])
 			del self._timers['handshake']
@@ -165,7 +165,7 @@ class importstrulogic(ScreenNode):
 		return
 
 	def handshake_success(self, args):
-		clientsystem.UnListenForEvent('Minecraft', 'preset', 'HandShake_Success', self, self.handshake_success)
+		clientsystem.UnListenForEvent('gtmbPlugin', 'mainServerSystem', 'HandShake_Success', self, self.handshake_success)
 		self.compGame.CancelTimer(self._timers['handshake'])
 		del self._timers['handshake']
 		if args.get("REJECT", False):

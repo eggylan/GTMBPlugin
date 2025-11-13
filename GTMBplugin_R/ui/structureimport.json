@@ -1,5 +1,5 @@
 {
-    "main_closable": {
+    "main": {
         "type": "screen",
         "controls": [
             {
@@ -97,7 +97,7 @@
                                 "font_scale_factor": 2,
                                 "font_type": "default",
                                 "shadow": true,
-                                "text": "§l结构方块导入",
+                                "text": "§l结构处理工具",
                                 "text_alignment": "center",
                                 "controls": []
                             }
@@ -444,13 +444,13 @@
                             "tip2": {
                                 "type": "label",
                                 "offset": [
-                                    -3.5,
-                                    -75
+                                    0.0,
+                                    -75.0
                                 ],
                                 "layer": 57,
                                 "font_type": "default",
                                 "shadow": true,
-                                "text": "在下方直接输入结构文件路径\n导入大型结构可能卡顿",
+                                "text": "在下方输入结构文件（*.mcstructure）的绝对路径\n对于大型结构，可能产生卡顿",
                                 "text_alignment": "center"
                             }
                         },

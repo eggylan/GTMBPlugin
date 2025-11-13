@@ -8,6 +8,7 @@ ScreenNode = clientApi.GetScreenNodeCls()
 class EULA(ScreenNode):
 	def __init__(self, namespace, name, param):
 		ScreenNode.__init__(self, namespace, name, param)
+		self.mainClientSystem = clientApi.GetSystem("gtmbPlugin", "mainClientSystem")
 
 	def Create(self):
 		self.GetBaseUIControl("/panel/exit").asButton().AddTouchEventParams({"isSwallow": True})
@@ -19,15 +20,13 @@ class EULA(ScreenNode):
 		"""
 
 	def accept(self, args):
-		clientsystem = clientApi.GetSystem("Minecraft", "preset")
 		if self.GetBaseUIControl('/panel/switch_toggle').asSwitchToggle().GetToggleState():
-			clientsystem.NotifyToServer('EULA', {'reason': 'EULA_AGREED'})
+			self.mainClientSystem.NotifyToServer('EULA', {'reason': 'EULA_AGREED'})
 			clientApi.PopTopUI()
 
 	def exit(self, args):
-		clientsystem = clientApi.GetSystem("Minecraft", "preset")
 		clientApi.PopTopUI()
-		clientsystem.NotifyToServer('EULA', {'reason': 'EULA_FAILED_ERROR'})
+		self.mainClientSystem.NotifyToServer('EULA', {'reason': 'EULA_FAILED_ERROR'})
 
 	def Destroy(self):
 		"""

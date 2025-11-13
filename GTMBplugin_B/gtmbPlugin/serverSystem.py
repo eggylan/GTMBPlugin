@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import server.extraServerApi as serverApi
+import mod.server.extraServerApi as serverApi
 from math import sqrt, floor
 import time
 import traceback
