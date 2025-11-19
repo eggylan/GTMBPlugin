@@ -11,8 +11,8 @@
 		{"name":"力量值","type":"float"},
 		{"name":"重力因子","type":"float","default":null},
 		{"name":"伤害","type":"float","default":null},
-		{"name":"追踪目标","type":"target","default":null},
-		{"name":"伤害创建者","type":"bool","default":false},
+		{"name":"追踪目标","type":"target","default":[null]},
+		{"name":"是伤害创建者","type":"bool","default":false},
 		{"name":"特殊值","type":"int","default":0}
 	]
 }
