@@ -230,7 +230,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setcompasstarget(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		x, y, z = cmdargs[1]
 		compassdata = [intg(x), int(y), intg(z)]
@@ -240,7 +240,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setcompassentity(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None or cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
@@ -250,7 +250,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setcolor(self, cmdargs, playerId, variant, data):
 		if cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[1]):
+		if not check_entities_type('minecraft:player', cmdargs[1]):
 			return True, '选择器必须为玩家类型'
 		if variant == 3:
 			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setcolortint', 'cmdargs': cmdargs})
@@ -288,7 +288,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setcanpausescreen(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'setcanpausescreen', 'cmdargs': cmdargs})
 		return False, '已将 %s 的暂停权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')
@@ -303,7 +303,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setattackplayersability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetAttackPlayersAbility(cmdargs[1])
@@ -312,7 +312,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setattackmobsability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetAttackMobsAbility(cmdargs[1])
@@ -321,7 +321,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setattackdamage(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			compItem = CF.CreateItem(i)
@@ -340,7 +340,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		x, y, z = cmdargs[1]
 		if cmdargs[2] is None:
 			cmdargs[2] = {'name': data['origin']['dimension'], 'id': data['origin']['dimension']}
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerRespawnPos((intg(x), int(y), intg(z)), cmdargs[2]['id'])
@@ -353,7 +353,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '无效的回血临界值 (%s < 0)' % cmdargs[1]
 		elif cmdargs[1] > 20:
 			return True, '无效的回血临界值 (%s > 20)' % cmdargs[1]
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerHealthLevel(cmdargs[1])
@@ -366,7 +366,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '无效的扣血临界值 (%s < 0)' % cmdargs[1]
 		elif cmdargs[1] > 20:
 			return True, '无效的扣血临界值 (%s > 20)' % cmdargs[1]
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerStarveLevel(cmdargs[1])
@@ -379,7 +379,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '无效的饥饿度 (%s < 0)' % cmdargs[1]
 		elif cmdargs[1] > 20:
 			return True, '无效的饥饿度 (%s > 20)' % cmdargs[1]
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerHunger(cmdargs[1])
@@ -392,7 +392,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '无效的倍率 (%s < 0.5)' % cmdargs[1]
 		elif cmdargs[1] > 2.0:
 			return True, '无效的倍率 (%s > 2.0)' % cmdargs[1]
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerAttackSpeedAmplifier(cmdargs[1])
@@ -401,7 +401,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayerjumpable(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerJumpable(cmdargs[1])
@@ -410,7 +410,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayermovable(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerMovable(cmdargs[1])
@@ -419,7 +419,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayernaturalstarve(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerNaturalStarve(cmdargs[1])
@@ -428,7 +428,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayerprefixandsuffixname(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateName(i).SetPlayerPrefixAndSuffixName(cmdargs[1], '§f', cmdargs[2], '§f')
@@ -437,7 +437,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayermaxexhaustionvalue(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerMaxExhaustionValue(cmdargs[1])
@@ -446,7 +446,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayerhealthtick(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerHealthTick(cmdargs[1])
@@ -455,7 +455,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayerstarvetick(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerStarveTick(cmdargs[1])
@@ -487,7 +487,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setbanplayerfishing(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetBanPlayerFishing(cmdargs[1])
@@ -510,7 +510,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setmineability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetMineAbility(cmdargs[1])
@@ -519,7 +519,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setbuildability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetBuildAbility(cmdargs[1])
@@ -535,7 +535,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setpickuparea(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPickUpArea(cmdargs[1])
@@ -566,7 +566,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def playeruseitemtopos(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[2] not in [0, 1, 2, 3, 4, 5]:
 			return True, '无效的朝向'
@@ -582,7 +582,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		entityId = cmdargs[1][0]
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateBlockInfo(i).PlayerUseItemToEntity(entityId)
@@ -591,7 +591,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def playerdestoryblock(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		x, y, z = cmdargs[1]
 		xyz = (intg(x), int(y), intg(z))
@@ -602,7 +602,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def openworkbench(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateBlockInfo(i).OpenWorkBench()
@@ -611,7 +611,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def openfoldgui(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'openfoldgui', 'cmdargs': cmdargs})
 		return False, '已使 %s 打开下拉界面' % (create_players_str(cmdargs[0]))
@@ -626,7 +626,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setinvitemexchange(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateItem(i).SetInvItemExchange(cmdargs[1], cmdargs[2])
@@ -635,7 +635,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setinvitemnum(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[2] < 0 or cmdargs[2] > 64:
 			return True, '无效的物品数量'
@@ -646,7 +646,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setitemdurability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 0 or cmdargs[1] > 32766:
 			return True, '无效的耐久度'
@@ -657,7 +657,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setitemmaxdurability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 0 or cmdargs[1] > 32766:
 			return True, '无效的耐久度'
@@ -668,7 +668,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setitemtierlevel(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[1] not in [0, 1, 2, 3, 4]:
 			return True, '无效的挖掘等级'
@@ -681,7 +681,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setitemtierspeed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 0:
 			return True, '无效的挖掘速度'
@@ -694,7 +694,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setitemmaxstacksize(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[1] < 1:
 			return True, '无效的堆叠数量 (%s < 1)' % (cmdargs[1])
@@ -709,7 +709,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def playerexhaustionratio(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'	
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		exhaustion = {'heal': 0, 'jump':1, 'sprint_jump':2, 'mine':3, 'attack':4, 'global':9}
 		exhaustiontype = exhaustion[cmdargs[1]]
@@ -738,7 +738,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayerinteracterange(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetPlayerInteracteRange(cmdargs[1])
@@ -767,7 +767,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setstepheight(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateAttr(i).SetStepHeight(cmdargs[1])
@@ -783,7 +783,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def playerchatprefix(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateExtraData(i).SetExtraData('chatprefix', cmdargs[1])
@@ -1208,7 +1208,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def addenchant(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if isinstance(cmdargs[3], int):
 			slotType = 0
@@ -1308,7 +1308,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def changeselectslot(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CompPlayer = CF.CreatePlayer(i)
@@ -1323,7 +1323,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
 		uid_dict = {}
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			playername = CF.CreateName(i).GetName()
@@ -1334,7 +1334,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def givewithnbt(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[1])
 		if result[1] == True:
@@ -1391,7 +1391,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def spawnitemtoenderchest(self, cmdargs, playerId, variant, data):
 		# args['return_msg_key'] = '给予失败'
 		# args['return_failed'] = True
-		if check_entities_type('minecraft:player', cmdargs[2]):
+		if not check_entities_type('minecraft:player', cmdargs[2]):
 			return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[0])
 		if result[1] == True:
@@ -1424,7 +1424,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def replaceitemtocarried(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[1])
 		if result[1] == True:
@@ -1444,7 +1444,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def removeenchant(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		if cmdargs[2] is None:
 			posType = 2
@@ -1531,7 +1531,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setopencontainersability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetOpenContainersAbility(cmdargs[1])
@@ -1540,7 +1540,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setoperatedoorability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetOperateDoorsAndSwitchesAbility(cmdargs[1])
@@ -1549,7 +1549,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setorbexperience(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:xp_orb', cmdargs[0]):
+		if not check_entities_type('minecraft:xp_orb', cmdargs[0]):
 			return True, '选择器必须为经验球类型'
 		for i in cmdargs[0]:
 			compAttr = CF.CreateExp(i)
@@ -1573,7 +1573,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setplayeruiitem(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		result = checkjson(cmdargs[2])
 		if result[1] == True:
@@ -1717,7 +1717,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setteleportability(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetTeleportAbility(cmdargs[1])
@@ -1726,7 +1726,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def settradelevel(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
@@ -1735,7 +1735,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setvignette(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[1]):
+		if not check_entities_type('minecraft:player', cmdargs[1]):
 			return True, '选择器必须为玩家类型'
 		if variant == 0:
 			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setvignettecenter', 'cmdargs': cmdargs})
@@ -1789,7 +1789,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setenchantmentseed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreatePlayer(i).SetEnchantmentSeed(cmdargs[1])
@@ -1879,7 +1879,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def sethudchatstackposition(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'sethudchatstackposition', 'cmdargs': cmdargs})
 		return False, '将 %s 的聊天UI位置设置为 %s, %s' % (create_players_str(cmdargs[0]), cmdargs[1], cmdargs[2])
@@ -1887,7 +1887,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def sethudchatstackvisible(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'sethudchatstackvisible', 'cmdargs': cmdargs})
 		return False, '已%s %s 的聊天UI' % ('启用' if cmdargs[1] else '禁用', create_players_str(cmdargs[0]))
@@ -1895,7 +1895,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setshowrideui(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateRide(i).SetShowRideUI(i, cmdargs[1])
@@ -1904,7 +1904,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setgaussian(self, cmdargs, playerId, variant, data):
 		if cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[1]):
+		if not check_entities_type('minecraft:player', cmdargs[1]):
 			return True, '选择器必须为玩家类型'
 		if variant == 0:
 			self.NotifyToMultiClients(cmdargs[1], 'CustomCommandClient', {'cmd':'setgaussian', 'cmdargs': cmdargs})
@@ -1992,7 +1992,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def mute(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		for i in cmdargs[0]:
 			CF.CreateExtraData(i).SetExtraData('mute', cmdargs[1])
@@ -2055,7 +2055,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		pass
 
 	def hidenametag(self, cmdargs, playerId, variant, data):
-		if check_entities_type('minecraft:player', cmdargs[0]):
+		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidenametag', 'cmdargs': cmdargs})
 		return False, '已%s %s 的可见悬浮字' % ('隐藏' if cmdargs[1] else '显示', create_players_str(cmdargs[0]))
@@ -2069,29 +2069,18 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	
 	def setoplevel(self, cmdargs, playerId, variant, data):
 		oplevel = cmdargs[0]
-		if oplevel not in [1, 2, 3, 4]:
-			return True, '无效的等级'
-		if oplevel == 1:
-			return True, '出于安全原因，不允许将OP等级设置为 1 级'
-		elif oplevel == 2:
-			compCmd.SetCommandPermissionLevel(2)
-			compExtra.SetExtraData("gtmb-op-level", 2)
-			return False, '已将OP等级设置为 2 级（可以使用所有单人游戏作弊命令）。请重新获取OP权限以应用更改。'
-		elif oplevel == 3:
-			compCmd.SetCommandPermissionLevel(3)
-			compExtra.SetExtraData("gtmb-op-level", 3)
-			return False, '已将OP等级设置为 3 级（可以使用大多数多人游戏中独有的命令）。请重新获取OP权限以应用更改。'
-		elif oplevel == 4:
-			compCmd.SetCommandPermissionLevel(4)
-			compExtra.SetExtraData("gtmb-op-level", 4)
-			return False, '已将OP等级设置为 4 级（可以使用所有命令）。请重新获取OP权限以应用更改。'
+		if oplevel not in [2, 3, 4]:
+			return True, '无效的命令权限等级'
+		compCmd.SetCommandPermissionLevel(oplevel)
+		compExtra.SetExtraData("gtmb-op-level", oplevel)
+		oplevels = {2: '可以使用所有单人游戏作弊命令', 3: '可以使用大多数多人游戏中独有的命令', 4: '可以使用所有命令'}
+		return False, '已将命令权限等级设置为 %s 级（%s）。请重新获取命令权限以应用更改。' % (oplevel, oplevels[oplevel])
 	
 	def opset(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-				return True, '选择器必须为玩家类型'
+		if not check_entities_type('minecraft:player', cmdargs[0]):
+			return True, '选择器必须为玩家类型'
 		if cmdargs[1] == 'visitor': # 访客
 			for i in cmdargs[0]:
 				compPlayer = CF.CreatePlayer(i)
@@ -2122,9 +2111,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		elif variant == 1: # 我的好友
 			if cmdargs[1] is None:
 				return True, '没有与选择器匹配的目标'
-			for i in cmdargs[1]:
-				if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					return True, '选择器必须为玩家类型'
+			if not check_entities_type('minecraft:player', cmdargs[1]):
+				return True, '选择器必须为玩家类型'
 			is_enabled = cmdargs[2]
 			if is_enabled:
 				for i in cmdargs[1]:
@@ -2138,9 +2126,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		elif variant == 2: # 魔法指令
 			if cmdargs[1] is None:
 				return True, '没有与选择器匹配的目标'
-			for i in cmdargs[1]:
-				if CF.CreateEngineType(i).GetEngineTypeStr() != 'minecraft:player':
-					return True, '选择器必须为玩家类型'
+			if not check_entities_type('minecraft:player', cmdargs[1]):
+				return True, '选择器必须为玩家类型'
 			is_enabled = cmdargs[2]
 			if is_enabled:
 				for i in cmdargs[1]:
