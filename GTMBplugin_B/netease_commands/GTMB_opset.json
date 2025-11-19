@@ -1,0 +1,10 @@
+{
+	"format_version": "0.0.1",
+	"name": "opset",
+	"description": "强制设置玩家的OP权限身份",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+		{"name": "身份", "type": "enum_short", "options": [ "visitor", "member", "operator"]}
+	]
+}

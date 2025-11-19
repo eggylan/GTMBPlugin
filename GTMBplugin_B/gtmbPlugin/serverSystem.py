@@ -52,8 +52,24 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'TryOpenEULA', self, self.TryOpenEULA)
 		self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'EULA', self, self.eula)
 		self.ListenForEvent('gtmbPlugin', 'cmdServerSystem', 'cancel_structure_loading', self, self.Cancel_Structure_Loading)
-		compCmd.SetCommandPermissionLevel(4)
-		CF.CreatePet(levelId).Disable()
+		
+		op_level = compExtra.GetExtraData("gtmb-op-level")
+		if op_level is not None:
+			compCmd.SetCommandPermissionLevel(int(op_level))
+		else:
+			compCmd.SetCommandPermissionLevel(3) # 默认权限为3
+
+		# ==== 我的伙伴相关 ====
+		is_enable_pet = compExtra.GetExtraData("lobby-enable-pet")
+		if is_enable_pet is not None:
+			if is_enable_pet:
+				CF.CreatePet(levelId).Enable()
+			else:
+				CF.CreatePet(levelId).Disable()
+		else: 
+			CF.CreatePet(levelId).Enable() # 默认开启我的伙伴
+
+
 
 	def __destroy__(self):
 		try:
@@ -167,11 +183,49 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
 
 	def OnClientLoadAddonsFinishServer(self, args):
-		playerId = args["playerId"]
+		playerId = args.get("playerId", None)
 		playername = CF.CreateName(playerId).GetName()
 		
-		# 禁用原版魔法指令模组
-		CF.CreateAiCommand(playerId).Disable()
+		# ==== 魔法指令相关 ====
+		# 全局
+		is_global_enable_AiCommand = compExtra.GetExtraData("lobby-enable-ai-command")
+		ai_command = CF.CreateAiCommand(playerId)
+		if is_global_enable_AiCommand is not None:
+			if is_global_enable_AiCommand:
+				ai_command.Enable()
+			else:
+				ai_command.Disable()
+		else: 
+			# 个人
+			is_player_enable_AiCommand = CF.CreateExtraData(playerId).GetExtraData("lobby-ai-command")
+			if  is_player_enable_AiCommand is not None:
+				if is_player_enable_AiCommand:
+					ai_command.Enable()
+				else:
+					ai_command.Disable()
+			else:
+				ai_command.Enable() # 默认开启魔法指令
+
+		# ==== 我的好友聊天扩展相关 ====
+		# 全局
+		is_global_enable_chatextension = compExtra.GetExtraData("lobby-enable-chat-extension")
+		chat_extension = CF.CreateChatExtension(playerId)
+		if is_global_enable_chatextension is not None:
+			if is_global_enable_chatextension:
+				chat_extension.Enable()
+			else:
+				chat_extension.Disable()
+		else: 
+			# 个人
+			is_player_enable_chatextension = CF.CreateExtraData(playerId).GetExtraData("lobby-chat-extension")
+			if  is_player_enable_chatextension is not None:
+				if is_player_enable_chatextension:
+					chat_extension.Enable()
+				else:
+					chat_extension.Disable()
+			else:
+				chat_extension.Enable() # 默认开启聊天扩展
+
 		
 		compPlayer = CF.CreatePlayer(playerId)
 		compMsg = CF.CreateMsg(playerId)

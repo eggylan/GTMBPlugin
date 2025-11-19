@@ -1,0 +1,9 @@
+{
+	"format_version": "0.0.1",
+	"name": "setoplevel",
+	"description": "设置当玩家使用/op命令时OP的权限等级（对应server.properties中的op-permission-level配置）",
+	"permission_level": "admin",
+	"args": [
+		{"name": "等级", "type": "int"}
+	]
+}
