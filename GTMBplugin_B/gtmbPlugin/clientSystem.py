@@ -34,12 +34,12 @@ class mainClientSystem(clientApi.GetClientSystemCls()):
 		clientApi.PushScreen('gtmbPlugin', args['ui'], args.get('data'))
 
 	def OnUiInitFinished(self, args):
-		if self.is_UI_First_Init:
-			self.is_UI_First_Init = False
-			for i in uiNames:
-				uiClsName = uiNames[i][0]
-				clientApi.RegisterUI('gtmbPlugin', i, 'gtmbPlugin.uiScript.%s.%s' % (uiClsName, uiClsName), uiNames[i][1])
-			self.NotifyToServer('TryOpenEULA', {})
+		# if self.is_UI_First_Init:
+		self.is_UI_First_Init = False
+		for i in uiNames:
+			uiClsName = uiNames[i][0]
+			clientApi.RegisterUI('gtmbPlugin', i, 'gtmbPlugin.uiScript.%s.%s' % (uiClsName, uiClsName), uiNames[i][1])
+		self.NotifyToServer('TryOpenEULA', {})
 			# self.openUI({'ui':'EULA'})
 
 	def OnPressKey(self, args):
