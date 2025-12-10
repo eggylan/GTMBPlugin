@@ -5,6 +5,8 @@ import time
 import traceback
 import json
 CF = serverApi.GetEngineCompFactory()
+from include.servercls import ServerPlayer
+
 levelId = serverApi.GetLevelId()
 compCmd = CF.CreateCommand(levelId)
 compExtra = CF.CreateExtraData(levelId)
@@ -35,6 +37,8 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		self._buffer = {} # 用于存储分块数据的缓冲区
 		self._structure_receive_timeout_counter = 0 # 结构加载超时计数器
 		self._structure_load_coroutine = {} # 结构加载协程字典
+		
+		self._current_player_dict = {} # 存储当前在线玩家的字典，key为playerId，value为ServerPlayer实例
 
 		listenServerSysEvent = lambda eventId, callback: self.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), eventId, self, callback)
 		listenServerSysEvent("ServerChatEvent", self.OnServerChat)
@@ -174,6 +178,9 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		# 临时后门，仅用于调试
 		CF.CreateExtraData(args["id"]).CleanExtraData('editingFunctionBlock')
 
+		# 创建 ServerPlayer 实例并存储到字典
+		self._current_player_dict[args['id']] = ServerPlayer(args['id'])
+
 	def OnRemovePlayer(self, args):
 		if args["name"] == "王培衡很丁丁":
 			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 离开了游戏"
@@ -181,6 +188,10 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 离开了游戏"
 		elif args["name"] == "EGGYLAN":
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
+
+		# 移除 ServerPlayer 实例
+		if args['id'] in self._current_player_dict:
+			del self._current_player_dict[args['id']]
 
 	def OnClientLoadAddonsFinishServer(self, args):
 		playerId = args.get("playerId", None)
