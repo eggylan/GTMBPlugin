@@ -1,0 +1,109 @@
+{
+    "args": [
+        {
+            "name": "数据源",
+            "type": "target"
+        },
+        {
+            "name": "模式",
+            "options": ["show"],
+            "type": "enum"
+        },
+        {
+            "default": null,
+            "name": "变量",
+            "type": "str"
+        }
+    ],
+    "args1": [
+        {
+            "name": "数据源",
+            "type": "target"
+        },
+        {
+            "name": "模式",
+            "options": ["set"],
+            "type": "enum"
+        },
+        {
+            "name": "变量",
+            "type": "str"
+        },
+        {
+            "name": "类型",
+            "options": ["int", "float", "str"],
+            "type": "enum"
+        },
+        {
+            "name": "值(可选)",
+            "default": null,
+            "type": "str"
+        }
+    ],
+    "args2": [
+        {
+            "name": "数据源",
+            "type": "target"
+        },
+        {
+            "name": "模式",
+            "options": ["del"],
+            "type": "enum"
+        },
+        {
+            "name": "变量",
+            "type": "str"
+        }
+    ],
+    "args3": [
+        {
+            "name": "数据源",
+            "type": "target"
+        },
+        {
+            "name": "模式",
+            "options": ["operation"],
+            "type": "enum"
+        },
+        {
+            "name": "变量",
+            "type": "str"
+        },
+        {
+            "name": "操作",
+            "options": ["加", "减", "乘", "除", "乘方", "取余", "整除"],
+            "type": "enum_short"
+        },
+        {
+            "name": "参数(字符串只支持加与乘)",
+            "type": "str"
+        }
+    ],
+    "args4": [
+        {
+            "name": "数据源",
+            "type": "target"
+        },
+        {
+            "name": "模式",
+            "options": ["random"],
+            "type": "enum"
+        },
+        {
+            "name": "变量",
+            "type": "str"
+        },
+        {
+            "name": "最小值",
+            "type": "int"
+        },
+        {
+            "name": "最大值",
+            "type": "int"
+        }
+    ],
+    "description": "访问存储于实体中的变量，支持创建 int/float/str 类型",
+    "format_version": "0.0.1",
+    "name": "param_private",
+    "permission_level": "game_directors"
+}

@@ -112,6 +112,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			'setname':self.setname,
 			'aicontrol':self.aicontrol,
 			'param':self.param,
+			'param_private':self.param_private,
 			'kickt':self.kickt,
 			'explode':self.explode,
 			'explodebypos':self.explodebypos,
@@ -866,7 +867,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 
 	def param(self, cmdargs, playerId, variant, data):
 		params = compExtra.GetExtraData('parameters')
-		
 		# 兼容旧版本
 		if type(params) is dict:
 			need_upgrade = False
@@ -909,21 +909,18 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			var_info = params[cmdargs[1]]
 			var_type = var_info['type']
 			current_value = var_info['value']
-			
 			if cmdargs[3].replace('.', '', 1).isdigit():
 				if cmdargs[3].find('.') != -1:
 					operand_value = float(cmdargs[3])
 				else:
 					operand_value = int(cmdargs[3])
 			else:
-				operand_value = cmdargs[3]
-					
+				operand_value = cmdargs[3]	
 			if cmdargs[2] == '加':
 				if isinstance(operand_value, (int, float)) and isinstance(current_value, (int, float)):
 					result = current_value + operand_value
 				else:
 					result = str(current_value) + str(operand_value)
-				
 			elif cmdargs[2] == '乘':
 				if isinstance(operand_value, (int, float)) and isinstance(current_value, (int, float)):
 					result = current_value * operand_value
@@ -934,7 +931,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 						result = operand_value * current_value
 					else:
 						return True, '仅支持整数与字符串的乘法'
-			
 			elif var_type in ['int', 'float'] and isinstance(operand_value, (int, float)):
 				if cmdargs[2] == '减':
 					result = current_value - operand_value
@@ -952,10 +948,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					if operand_value == 0:
 						return True, '除数不能为零'
 					result = current_value // operand_value
-
 			else:
 				return True, '字符串不支持该操作'
-			
 			# 更新结果并转换类型
 			if isinstance(result, int):
 				var_newtype = 'int'
@@ -963,7 +957,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				var_newtype = 'float'
 			else:
 				var_newtype = 'str'
-		
 			params[cmdargs[1]]['type'] = var_newtype
 			params[cmdargs[1]]['value'] = result
 			compExtra.SetExtraData('parameters', params)
@@ -972,7 +965,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		elif variant == 4:  # random
 			if not type(params) == dict:
 				params = {}
-			
 			params[cmdargs[1]] = {
 				'type': 'int',
 				'value': random.randint(cmdargs[2], cmdargs[3])
@@ -983,7 +975,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		elif variant == 1:  # set 
 			if not type(params) == dict:
 				params = {}
-			
 			if cmdargs[3] is not None:
 				try:
 					if cmdargs[2] == 'int':
@@ -996,14 +987,132 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					return True, '%s 无法转换为 %s 类型' % (cmdargs[3], cmdargs[2])
 			else:
 				value = 0 if cmdargs[2] == 'int' else 0.0 if cmdargs[2] == 'float' else ''
-			
 			params[cmdargs[1]] = {
 				'type': cmdargs[2],
 				'value': value
 			}
-			
 			compExtra.SetExtraData('parameters', params)
-			return False, '已修改 %s 类型变量 %s = %s' % (cmdargs[2], cmdargs[1], value)	
+			return False, '已修改 %s 类型变量 %s = %s' % (cmdargs[2], cmdargs[1], value)
+
+	def param_private(self, cmdargs, playerId, variant, data):
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			compExtra = CF.CreateExtraData(i)
+			params = compExtra.GetExtraData('parameters')
+		
+			if variant == 0:  # show
+				if cmdargs[2] is None:
+					output = ['当前存储的变量:']
+					if params and type(params) is dict:
+						for key, value_info in params.items():
+							output.append(' - %s (%s): %s' % (key, value_info.get('type', 'unknown'), value_info.get('value', '')))
+					return False, '\n'.join(output)
+				else:
+					if type(params) == dict and params.get(cmdargs[2]) is not None:
+						var_info = params[cmdargs[2]]
+						return False, '变量 %s [%s] = %s' % (cmdargs[2], var_info.get('type', 'unknown'), var_info.get('value', ''))
+					else:
+						return True, '未知的变量 %s' % cmdargs[2]
+					
+			elif variant == 2:  # del
+				if type(params) == dict and params.get(cmdargs[2]):
+					del params[cmdargs[2]]
+					compExtra.SetExtraData('parameters', params)
+					return False, '已删除变量 %s' % cmdargs[2]
+				else:
+					return True, '未知的变量 %s ' % cmdargs[2]
+				
+			elif variant == 3:  # operation
+				if not (type(params) == dict and params.get(cmdargs[2])):
+					return True, '未知的变量 %s ' % cmdargs[2]	
+				var_info = params[cmdargs[2]]
+				var_type = var_info['type']
+				current_value = var_info['value']
+				if cmdargs[4].replace('.', '', 1).isdigit():
+					if cmdargs[4].find('.') != -1:
+						operand_value = float(cmdargs[4])
+					else:
+						operand_value = int(cmdargs[4])
+				else:
+					operand_value = cmdargs[4]
+				if cmdargs[3] == '加':
+					if isinstance(operand_value, (int, float)) and isinstance(current_value, (int, float)):
+						result = current_value + operand_value
+					else:
+						result = str(current_value) + str(operand_value)
+				elif cmdargs[3] == '乘':
+					if isinstance(operand_value, (int, float)) and isinstance(current_value, (int, float)):
+						result = current_value * operand_value
+					else:
+						if isinstance(operand_value, int) and isinstance(current_value, str):
+							result = current_value * operand_value
+						elif isinstance(operand_value, str) and isinstance(current_value, int):
+							result = operand_value * current_value
+						else:
+							return True, '仅支持整数与字符串的乘法'
+				elif var_type in ['int', 'float'] and isinstance(operand_value, (int, float)):
+					if cmdargs[3] == '减':
+						result = current_value - operand_value
+					elif cmdargs[3] == '除':
+						if operand_value == 0:
+							return True, '除数不能为零'
+						result = current_value / operand_value
+					elif cmdargs[3] == '乘方':
+						result = current_value ** operand_value
+					elif cmdargs[3] == '取余':
+						if operand_value == 0:
+							return True, '取余操作数不能为零'
+						result = current_value % operand_value
+					elif cmdargs[3] == '整除':
+						if operand_value == 0:
+							return True, '除数不能为零'
+						result = current_value // operand_value
+				else:
+					return True, '字符串不支持该操作'
+				# 更新结果并转换类型
+				if isinstance(result, int):
+					var_newtype = 'int'
+				elif isinstance(result, float):
+					var_newtype = 'float'
+				else:
+					var_newtype = 'str'
+				params[cmdargs[2]]['type'] = var_newtype
+				params[cmdargs[2]]['value'] = result
+				compExtra.SetExtraData('parameters', params)
+				return False, '操作完成: 结果 %s' % result
+
+			elif variant == 4:  # random
+				if not type(params) == dict:
+					params = {}
+				params[cmdargs[2]] = {
+					'type': 'int',
+					'value': random.randint(cmdargs[3], cmdargs[4])
+				}
+				compExtra.SetExtraData('parameters', params)
+				return False, '已将 %s 设置为随机值 %s' % (cmdargs[2], params[cmdargs[2]]['value'])
+
+			elif variant == 1:  # set 
+				if not type(params) == dict:
+					params = {}
+				if cmdargs[4] is not None:
+					try:
+						if cmdargs[3] == 'int':
+							value = int(cmdargs[4])
+						elif cmdargs[3] == 'float':
+							value = float(cmdargs[4])
+						else:  # str
+							value = str(cmdargs[4])
+					except ValueError:
+						return True, '%s 无法转换为 %s 类型' % (cmdargs[4], cmdargs[3])
+				else:
+					value = 0 if cmdargs[3] == 'int' else 0.0 if cmdargs[3] == 'float' else ''
+				params[cmdargs[2]] = {
+					'type': cmdargs[3],
+					'value': value
+				}
+				compExtra.SetExtraData('parameters', params)
+				return False, '已修改 %s 类型变量 %s = %s' % (cmdargs[3], cmdargs[2], value)
 
 	def kickt(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
@@ -1036,7 +1145,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		else:
 			return True, '爆炸创建失败'
 
-	def console(self, cmdargs, playerId, variant, data): #there are lots of ****
+	def console(self, cmdargs, playerId, variant, data):
 		if cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
 		if len(cmdargs[1]) != 1:
@@ -1046,7 +1155,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		params = compExtra.GetExtraData('parameters')
 		if isinstance(params, dict):
 			if '{' in cmd and '}' in cmd:
-				words = re.findall(r'\{(.*?)\}', cmd)
+				words = re.findall(r'\{([^{}]+)\}', cmd)
 				for word in words:
 					if params.get(word) is None:
 						value = '{%s}' % word
