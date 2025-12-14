@@ -972,7 +972,9 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			compExtra.SetExtraData('parameters', params)
 			return False, '已将 %s 设置为随机值 %s' % (cmdargs[1], params[cmdargs[1]]['value'])
 		
-		elif variant == 1:  # set 
+		elif variant == 1:  # set
+			if '{' in cmdargs[1] or '}' in cmdargs[1]:
+				return True, '变量名不能包含 "{" 或 "}"'
 			if not type(params) == dict:
 				params = {}
 			if cmdargs[3] is not None:
@@ -1155,7 +1157,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		params = compExtra.GetExtraData('parameters')
 		if isinstance(params, dict):
 			if '{' in cmd and '}' in cmd:
-				words = re.findall(r'\{([^{}]+)\}', cmd)
+				words = re.findall('''\{([^{}]+)\}''', cmd)
 				for word in words:
 					if params.get(word) is None:
 						value = '{%s}' % word
