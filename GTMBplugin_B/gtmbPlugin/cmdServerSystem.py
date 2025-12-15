@@ -999,35 +999,56 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def param_private(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		for i in cmdargs[0]:
-			compExtra = CF.CreateExtraData(i)
-			params = compExtra.GetExtraData('parameters')
-		
-			if variant == 0:  # show
+		outputs = []
+		faild = True
+		if variant == 0:  # show
+			for i in cmdargs[0]:
+				compExtra = CF.CreateExtraData(i)
+				params = compExtra.GetExtraData('parameters')
+				entityTypeStr = CF.CreateEngineType(i).GetEngineTypeStr()
 				if cmdargs[2] is None:
-					output = ['当前存储的变量:']
+					output = ['§r%s 当前存储的变量:' % entityTypeStr]
 					if params and type(params) is dict:
 						for key, value_info in params.items():
-							output.append(' - %s (%s): %s' % (key, value_info.get('type', 'unknown'), value_info.get('value', '')))
-					return False, '\n'.join(output)
+							output.append('§r - %s (%s): %s' % (key, value_info.get('type', 'unknown'), value_info.get('value', '')))
+					faild = False
+					outputs.append('\n'.join(output))
+					continue
 				else:
 					if type(params) == dict and params.get(cmdargs[2]) is not None:
 						var_info = params[cmdargs[2]]
-						return False, '变量 %s [%s] = %s' % (cmdargs[2], var_info.get('type', 'unknown'), var_info.get('value', ''))
+						outputs.append('§r%s 存储的变量 %s [%s] = %s' % (entityTypeStr, cmdargs[2], var_info.get('type', 'unknown'), var_info.get('value', '')))
+						faild = False
+						continue
 					else:
-						return True, '未知的变量 %s' % cmdargs[2]
-					
-			elif variant == 2:  # del
+						outputs.append(('§c' if playerId else '')+'%s 中未存储变量 %s' % (entityTypeStr, cmdargs[2]))
+						continue
+			return faild, '\n'.join(outputs)
+				
+		elif variant == 2:  # del
+			for i in cmdargs[0]:
+				compExtra = CF.CreateExtraData(i)
+				params = compExtra.GetExtraData('parameters')
+				entityTypeStr = CF.CreateEngineType(i).GetEngineTypeStr()
 				if type(params) == dict and params.get(cmdargs[2]):
 					del params[cmdargs[2]]
 					compExtra.SetExtraData('parameters', params)
-					return False, '已删除变量 %s' % cmdargs[2]
+					outputs.append('§r已删除 %s 中存储的变量 %s' % (entityTypeStr, cmdargs[2]))
+					faild = False
+					continue
 				else:
-					return True, '未知的变量 %s ' % cmdargs[2]
-				
-			elif variant == 3:  # operation
+					outputs.append(('§c' if playerId else '')+'%s 中未存储变量 %s' % (entityTypeStr, cmdargs[2]))
+					continue
+			return faild, '\n'.join(outputs)
+			
+		elif variant == 3:  # operation
+			for i in cmdargs[0]:
+				compExtra = CF.CreateExtraData(i)
+				params = compExtra.GetExtraData('parameters')
+				entityTypeStr = CF.CreateEngineType(i).GetEngineTypeStr()
 				if not (type(params) == dict and params.get(cmdargs[2])):
-					return True, '未知的变量 %s ' % cmdargs[2]	
+					outputs.append(('§c' if playerId else '')+'%s 中未存储变量 %s' % (entityTypeStr, cmdargs[2]))
+					continue
 				var_info = params[cmdargs[2]]
 				var_type = var_info['type']
 				current_value = var_info['value']
@@ -1052,26 +1073,31 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 						elif isinstance(operand_value, str) and isinstance(current_value, int):
 							result = operand_value * current_value
 						else:
-							return True, '仅支持整数与字符串的乘法'
+							outputs.append(('§c' if playerId else '')+'对于 %s 存储的变量不支持该乘法' % entityTypeStr)
+							continue
 				elif var_type in ['int', 'float'] and isinstance(operand_value, (int, float)):
 					if cmdargs[3] == '减':
 						result = current_value - operand_value
 					elif cmdargs[3] == '除':
 						if operand_value == 0:
-							return True, '除数不能为零'
+							outputs.append(('§c' if playerId else '')+'除数不能为零')
+							continue
 						result = current_value / operand_value
 					elif cmdargs[3] == '乘方':
 						result = current_value ** operand_value
 					elif cmdargs[3] == '取余':
 						if operand_value == 0:
-							return True, '取余操作数不能为零'
+							outputs.append(('§c' if playerId else '')+'取余操作数不能为零')
+							continue
 						result = current_value % operand_value
 					elif cmdargs[3] == '整除':
 						if operand_value == 0:
-							return True, '除数不能为零'
+							outputs.append(('§c' if playerId else '')+'除数不能为零')
+							continue
 						result = current_value // operand_value
 				else:
-					return True, '字符串不支持该操作'
+					outputs.append(('§c' if playerId else '')+'字符串不支持该操作')
+					continue
 				# 更新结果并转换类型
 				if isinstance(result, int):
 					var_newtype = 'int'
@@ -1082,9 +1108,16 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				params[cmdargs[2]]['type'] = var_newtype
 				params[cmdargs[2]]['value'] = result
 				compExtra.SetExtraData('parameters', params)
-				return False, '操作完成: 结果 %s' % result
-
-			elif variant == 4:  # random
+				outputs.append('§r对 %s 存储的变量操作完成: 结果 %s' % (entityTypeStr, result))
+				faild = False
+			print(outputs)
+			return faild, '\n'.join(outputs)
+		
+		elif variant == 4:  # random
+			for i in cmdargs[0]:
+				compExtra = CF.CreateExtraData(i)
+				params = compExtra.GetExtraData('parameters')
+				entityTypeStr = CF.CreateEngineType(i).GetEngineTypeStr()
 				if not type(params) == dict:
 					params = {}
 				params[cmdargs[2]] = {
@@ -1092,9 +1125,15 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					'value': random.randint(cmdargs[3], cmdargs[4])
 				}
 				compExtra.SetExtraData('parameters', params)
-				return False, '已将 %s 设置为随机值 %s' % (cmdargs[2], params[cmdargs[2]]['value'])
-
-			elif variant == 1:  # set 
+				outputs.append('已将 %s 存储的变量 %s 设置为随机值 %s' % (entityTypeStr, cmdargs[2], params[cmdargs[2]]['value']))
+				faild = False
+			return faild, '\n'.join(outputs)
+		
+		elif variant == 1:  # set 
+			for i in cmdargs[0]:
+				compExtra = CF.CreateExtraData(i)
+				params = compExtra.GetExtraData('parameters')
+				entityTypeStr = CF.CreateEngineType(i).GetEngineTypeStr()
 				if not type(params) == dict:
 					params = {}
 				if cmdargs[4] is not None:
@@ -1106,7 +1145,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 						else:  # str
 							value = str(cmdargs[4])
 					except ValueError:
-						return True, '%s 无法转换为 %s 类型' % (cmdargs[4], cmdargs[3])
+						outputs.append(('§c' if playerId else '')+'%s 无法转换为 %s 类型' % (cmdargs[4], cmdargs[3]))
+						continue
 				else:
 					value = 0 if cmdargs[3] == 'int' else 0.0 if cmdargs[3] == 'float' else ''
 				params[cmdargs[2]] = {
@@ -1114,7 +1154,9 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					'value': value
 				}
 				compExtra.SetExtraData('parameters', params)
-				return False, '已修改 %s 类型变量 %s = %s' % (cmdargs[3], cmdargs[2], value)
+				outputs.append('已修改 %s 存储的 %s 类型变量 %s = %s' % (entityTypeStr, cmdargs[3], cmdargs[2], value))
+				faild = False
+			return faild, '\n'.join(outputs)
 
 	def kickt(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
