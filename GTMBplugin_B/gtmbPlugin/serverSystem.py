@@ -19,6 +19,8 @@ compBlockInfo = CF.CreateBlockInfo(levelId)
 
 intg = lambda x: int(floor(x))
 
+_current_player_dict = {} # 存储当前在线玩家的字典，key为playerId，value为ServerPlayer实例
+
 def unicode_convert(input):
 	#type: (dict|str) -> dict|list|str|bool
 	if isinstance(input, dict):
@@ -38,7 +40,6 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		self._structure_receive_timeout_counter = 0 # 结构加载超时计数器
 		self._structure_load_coroutine = {} # 结构加载协程字典
 		
-		self._current_player_dict = {} # 存储当前在线玩家的字典，key为playerId，value为ServerPlayer实例
 
 		listenServerSysEvent = lambda eventId, callback: self.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), eventId, self, callback)
 		listenServerSysEvent("ServerChatEvent", self.OnServerChat)
@@ -84,7 +85,8 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 
 	def check_time_limit(self, playerId, current_time):
 		# 管理员无限制
-		if CF.CreatePlayer(playerId).GetPlayerOperation() == 2:
+		player = _current_player_dict.get(playerId, None)
+		if player.compPlayer.GetPlayerOperation() == 2:
 			return True
 		
 		limitFrequency = compExtra.GetExtraData("limitFrequency") if compExtra.GetExtraData("limitFrequency") else 0 # 如未定义，默认为0，即无限制
@@ -94,8 +96,7 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 			last_time = self.last_message_time[playerId]
 			time_elapsed = current_time - last_time
 			if time_elapsed < limitFrequency:
-				compMsg = CF.CreateMsg(playerId)
-				compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§e您发送消息过于频繁，请等待 %.1f 秒后再试" % (limitFrequency - time_elapsed))
+				player.compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§e您发送消息过于频繁，请等待 %.1f 秒后再试" % (limitFrequency - time_elapsed))
 				return False # 未超过限定时间
 			else:
 				return True # 超过限定时间，允许发言
@@ -108,24 +109,23 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		message = args["message"]
 		username = args["username"]
 		args["cancel"] = True
+		player = _current_player_dict.get(playerId, None)
 
-		if CF.CreateExtraData(playerId).GetExtraData("mute"):
-			compMsg = CF.CreateMsg(playerId)
-			compMsg.NotifyOneMessage(playerId, "您无法在被禁言状态下发送消息，请联系房间管理解除禁言。", "§e")
+		if player.compExtraData.GetExtraData("mute"):
+			player.compMsg.NotifyOneMessage(playerId, "您无法在被禁言状态下发送消息，请联系房间管理解除禁言。", "§e")
 			return
 		
 		for token in ("", "", ""):
 			if token in message:
-				compMsg = CF.CreateMsg(playerId)
-				compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言", "§c")
+				player.compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§c检测到您试图发送崩服文本，系统已将您禁言！请联系房间管理解除禁言", "§c")
 				compCmd.SetCommand('/tellraw @a[tag=op] {"rawtext":[{"text":"§6§l管理小助手>>> §r§e检测到玩家§c【%s】§r§e试图发送崩服文本，系统已将其禁言。若需解除禁言，请使用§a/mute§e命令"}]}' % username)
-				CF.CreateExtraData(playerId).SetExtraData("mute", True)
+				player.compExtraData.SetExtraData("mute", True)
 				return
 
 		# 普通消息
 		current_time = time.time()
 		if self.check_time_limit(playerId,current_time):
-			compdata = CF.CreateExtraData(playerId)
+			compdata = player.compExtraData
 			chatprefix = compdata.GetExtraData("chatprefix") if compdata.GetExtraData("chatprefix") else ""
 			sanitized_msg = message if compGame.CheckWordsValid(message) else "***"
 			compGame.SetNotifyMsg("%s%s >>> %s" % (chatprefix, username, sanitized_msg))
@@ -179,7 +179,7 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		CF.CreateExtraData(args["id"]).CleanExtraData('editingFunctionBlock')
 
 		# 创建 ServerPlayer 实例并存储到字典
-		self._current_player_dict[args['id']] = ServerPlayer(args['id'])
+		_current_player_dict[args['id']] = ServerPlayer(args['id'])
 
 	def OnRemovePlayer(self, args):
 		if args["name"] == "王培衡很丁丁":
@@ -190,8 +190,8 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 			args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
 
 		# 移除 ServerPlayer 实例
-		if args['id'] in self._current_player_dict:
-			del self._current_player_dict[args['id']]
+		if args['id'] in _current_player_dict:
+			del _current_player_dict[args['id']]
 
 	def OnClientLoadAddonsFinishServer(self, args):
 		playerId = args.get("playerId", None)
