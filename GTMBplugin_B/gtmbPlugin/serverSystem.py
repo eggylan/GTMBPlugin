@@ -53,8 +53,8 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		self.ListenForEvent('gtmbPlugin', 'mainClientSystem', "changenbt", self, self.changenbt)
 		self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'cmdbatch', self, self.cmdbatch)
 		self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'loadstructure_handshake', self, self.loadstructure_handshake)
-		self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'TryOpenEULA', self, self.TryOpenEULA)
-		self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'EULA', self, self.eula)
+		# self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'TryOpenEULA', self, self.TryOpenEULA)
+		# self.ListenForEvent('gtmbPlugin', 'mainClientSystem', 'EULA', self, self.eula)
 		self.ListenForEvent('gtmbPlugin', 'cmdServerSystem', 'cancel_structure_loading', self, self.Cancel_Structure_Loading)
 		
 		op_level = compExtra.GetExtraData("gtmb-op-level")
@@ -522,55 +522,55 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		self._structure_load_coroutine['place_blocks'] = serverApi.StartCoroutine(place_blocks_coroutine, on_blocks_placed)
 		compMsg.NotifyOneMessage(playerid, "§a协程任务已启动。使用指令 /cancel_structure_load 中止。\n开始放置方块...")
 
-	def TryOpenEULA(self, args):
-		playerId = args['__id__']
-		playerUid = compHttp.GetPlayerUid(playerId)
+	# def TryOpenEULA(self, args):
+	# 	playerId = args['__id__']
+	# 	playerUid = compHttp.GetPlayerUid(playerId)
 		
-		def checkEULAgreed_callback(EULAdata):
-			compPlayerExtraData = CF.CreateExtraData(playerId)
-			if EULAdata is None:
-				compMsg = CF.CreateMsg(playerId)
-				compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
-				if compPlayerExtraData.GetExtraData('EULA'):
-					return
-				else:
-					self.NotifyToClient(playerId, 'openUI', {"ui": "EULA"})
-					return	
+	# 	def checkEULAgreed_callback(EULAdata):
+	# 		compPlayerExtraData = CF.CreateExtraData(playerId)
+	# 		if EULAdata is None:
+	# 			compMsg = CF.CreateMsg(playerId)
+	# 			compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
+	# 			if compPlayerExtraData.GetExtraData('EULA'):
+	# 				return
+	# 			else:
+	# 				self.NotifyToClient(playerId, 'openUI', {"ui": "EULA"})
+	# 				return	
 			
-			# 同步到本地
-			cloud_data = {item["key"]: item["value"] for item in EULAdata["entity"]["data"]}
-			cloud_agreed = cloud_data.get("EULA_Agreed", False)
-			compPlayerExtraData.SetExtraData('EULA', cloud_agreed)
+	# 		# 同步到本地
+	# 		cloud_data = {item["key"]: item["value"] for item in EULAdata["entity"]["data"]}
+	# 		cloud_agreed = cloud_data.get("EULA_Agreed", False)
+	# 		compPlayerExtraData.SetExtraData('EULA', cloud_agreed)
 			
-			if not cloud_agreed:
-				self.NotifyToClient(playerId, 'openUI', {"ui": "EULA"})
+	# 		if not cloud_agreed:
+	# 			self.NotifyToClient(playerId, 'openUI', {"ui": "EULA"})
 
-		compHttp.LobbyGetStorage(checkEULAgreed_callback, playerUid, ["EULA_Agreed"])
+	# 	compHttp.LobbyGetStorage(checkEULAgreed_callback, playerUid, ["EULA_Agreed"])
 
-	def eula(self, args):
-		playerId = args['__id__']
-		if args["reason"] == "EULA_FAILED_ERROR":
-			compCmd.SetCommand('/kick %s %s' % (CF.CreateName(playerId).GetName(), "您没有接受EULA协议"), False)
-		elif args["reason"] == "EULA_AGREED":
-			compMsg = CF.CreateMsg(playerId)
-			playerUid = compHttp.GetPlayerUid(playerId)
-			def callback(result):
-				if result is None:
-					compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
-					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！", "§a")
-					CF.CreateExtraData(playerId).SetExtraData('EULA', True)
-					return
-				else:
-					compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！EULA状态已同步至云服务器。", "§a")
-					CF.CreateExtraData(playerId).SetExtraData('EULA', True)
-			def entities_getter():
-				return [{
-					"key": "EULA_Agreed",
-					"value": True
-				}]
-			compHttp.LobbySetStorageAndUserItem(callback, playerUid, None, entities_getter)
-		else:
-			compCmd.SetCommand('/kick %s %s' % (CF.CreateName(playerId).GetName(), "发生了未知错误，请联系开发者"), False)
+	# def eula(self, args):
+	# 	playerId = args['__id__']
+	# 	if args["reason"] == "EULA_FAILED_ERROR":
+	# 		compCmd.SetCommand('/kick %s %s' % (CF.CreateName(playerId).GetName(), "您没有接受EULA协议"), False)
+	# 	elif args["reason"] == "EULA_AGREED":
+	# 		compMsg = CF.CreateMsg(playerId)
+	# 		playerUid = compHttp.GetPlayerUid(playerId)
+	# 		def callback(result):
+	# 			if result is None:
+	# 				compMsg.NotifyOneMessage(playerId, "在与云服务器同步EULA状态时出现了一个错误。", "§c")
+	# 				compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！", "§a")
+	# 				CF.CreateExtraData(playerId).SetExtraData('EULA', True)
+	# 				return
+	# 			else:
+	# 				compMsg.NotifyOneMessage(playerId, "感谢您接受EULA协议！EULA状态已同步至云服务器。", "§a")
+	# 				CF.CreateExtraData(playerId).SetExtraData('EULA', True)
+	# 		def entities_getter():
+	# 			return [{
+	# 				"key": "EULA_Agreed",
+	# 				"value": True
+	# 			}]
+	# 		compHttp.LobbySetStorageAndUserItem(callback, playerUid, None, entities_getter)
+	# 	else:
+	# 		compCmd.SetCommand('/kick %s %s' % (CF.CreateName(playerId).GetName(), "发生了未知错误，请联系开发者"), False)
 
 	def Cancel_Structure_Loading(self,args):
 		playerId = args.get("playerId", None)

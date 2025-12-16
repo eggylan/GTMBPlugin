@@ -11,8 +11,8 @@ class EULA(ScreenNode):
 		self.mainClientSystem = clientApi.GetSystem("gtmbPlugin", "mainClientSystem")
 
 	def Create(self):
-		self.GetBaseUIControl("/panel/exit").asButton().AddTouchEventParams({"isSwallow": True})
-		self.GetBaseUIControl("/panel/exit").asButton().SetButtonTouchUpCallback(self.exit)
+		# self.GetBaseUIControl("/panel/exit").asButton().AddTouchEventParams({"isSwallow": True})
+		# self.GetBaseUIControl("/panel/exit").asButton().SetButtonTouchUpCallback(self.exit)
 		self.GetBaseUIControl("/panel/accept").asButton().AddTouchEventParams({"isSwallow": True})
 		self.GetBaseUIControl('/panel/accept').asButton().SetButtonTouchUpCallback(self.accept)
 		"""
@@ -20,13 +20,13 @@ class EULA(ScreenNode):
 		"""
 
 	def accept(self, args):
-		if self.GetBaseUIControl('/panel/switch_toggle').asSwitchToggle().GetToggleState():
-			self.mainClientSystem.NotifyToServer('EULA', {'reason': 'EULA_AGREED'})
-			clientApi.PopTopUI()
-
-	def exit(self, args):
+		# if self.GetBaseUIControl('/panel/switch_toggle').asSwitchToggle().GetToggleState():
+			# self.mainClientSystem.NotifyToServer('EULA', {'reason': 'EULA_AGREED'})
 		clientApi.PopTopUI()
-		self.mainClientSystem.NotifyToServer('EULA', {'reason': 'EULA_FAILED_ERROR'})
+
+	# def exit(self, args):
+	# 	clientApi.PopTopUI()
+	# 	self.mainClientSystem.NotifyToServer('EULA', {'reason': 'EULA_FAILED_ERROR'})
 
 	def Destroy(self):
 		"""

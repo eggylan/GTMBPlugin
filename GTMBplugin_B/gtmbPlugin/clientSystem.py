@@ -74,7 +74,8 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 			'sethudchatstackvisible':self.client_sethudchatstackvisible,
 			'chatclear': self.client_chatclear,
 			"openui": self.client_openui,
-			"hidenametag": self.client_hidenametag
+			"hidenametag": self.client_hidenametag,
+			"eula": self.client_eula
 		}
 		compPostProcess.SetEnableColorAdjustment(True)
 
@@ -156,6 +157,8 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 		compClientTextNotify.SetLeftCornerNotify("已打开 %s 界面" % uiWillbeOpenName)
 	def client_hidenametag(self, args):
 		clientApi.HideNameTag(args['cmdargs'][1])
+	def client_eula(self, args):
+		clientApi.PushScreen('gtmbPlugin', 'EULA')
 	# 客户端函数部分到此结束
 
 class functionBlockClientSystem(clientApi.GetClientSystemCls()):

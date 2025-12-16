@@ -184,6 +184,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			"setoplevel": self.setoplevel,
 			"opset": self.opset,
 			"setlobbymod": self.setlobbymod,
+			"eula": self.eula,
 			#'setblocknbt': self.setblocknbt
 			"§r§r§rgtmbdebug": self.debug,
 		}
@@ -2310,6 +2311,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				else:
 					CF.CreateAiCommand(i).Disable()
 			return False, '已全局 %s 魔法指令，请重载存档。' % ('启用' if is_enabled else '禁用')
+	def eula(self, cmdargs, playerId, variant, data):
+		if playerId is None:
+			return True, '该命令无法在命令方块或控制台执行'	
+		self.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'eula'})
+		return False, ''
 
 	#服务端函数部分到此结束
 
