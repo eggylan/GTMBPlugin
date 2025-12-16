@@ -10,6 +10,8 @@ class ServerPlayer:
         self.compPlayer = CF.CreatePlayer(playerId)
         self.compName = CF.CreateName(playerId)
         self.compDimension = CF.CreateDimension(playerId)
+        self.compExtraData = CF.CreateExtraData(playerId)
+        self.compMsg = CF.CreateMsg(playerId)
 
     def getPlayerName(self):
         return self.compName.GetName()
