@@ -19,7 +19,7 @@ compItemWorld = CF.CreateItem(levelId)
 
 create_players_str = lambda players: ', '.join([CF.CreateName(player).GetName() for player in players])
 
-check_entities_type = lambda typeName, ids: all([CF.CreateEngineType(i).GetEngineTypeStr() == typeName for i in ids])
+check_entities_type = lambda typeName, ids: all([CF.CreateEngineType(id).GetEngineTypeStr() == typeName for id in ids])
 
 def checkjson(data):
 	#type: (str) -> list
@@ -1195,11 +1195,12 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if len(cmdargs[1]) != 1:
 			return True, '只允许一个实体, 但提供的选择器允许多个实体'
 		cmd = cmdargs[0]
-		cmd.lstrip('/')
+		if cmd.startswith('/'):
+			cmd = cmd[1:]
 		params = compExtra.GetExtraData('parameters')
 		if isinstance(params, dict):
 			if '{' in cmd and '}' in cmd:
-				words = re.findall('''\{([^{}]+)\}''', cmd)
+				words = re.findall(r'\{([^{}]+)\}', cmd)
 				for word in words:
 					if params.get(word) is None:
 						value = '{%s}' % word
@@ -2314,6 +2315,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 
 
 	# 调试用，正式版请删除
+	# commit: 多好的东西
 	def debug(self, cmdargs, playerId, variant, data):
 		if CF.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CF.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
 			return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'
