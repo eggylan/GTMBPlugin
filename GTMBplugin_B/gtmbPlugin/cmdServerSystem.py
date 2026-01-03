@@ -555,6 +555,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		return False, '已设置 %s 个实体的跳跃力度为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setgravity(self, cmdargs, playerId, variant, data):
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
 		for i in cmdargs[0]:
 			CF.CreateGravity(i).SetGravity(cmdargs[1])
 		return False, '已设置 %s 个实体的重力为 %s' % (len(cmdargs[0]), cmdargs[1])
