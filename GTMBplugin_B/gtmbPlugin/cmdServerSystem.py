@@ -1428,11 +1428,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 
 	def setactorcanburnbylightning(self, cmdargs, playerId, variant, data):
 		compGame.SetCanActorSetOnFireByLightning(cmdargs[0])
-		return False, '已 %s 实体被闪电点燃' % ('允许' if cmdargs[1] else '禁止')
+		return False, '已 %s 实体被闪电点燃' % ('允许' if cmdargs[0] else '禁止')
 
 	def setblockcanburnbylightning(self, cmdargs, playerId, variant, data):
 		compGame.SetCanBlockSetOnFireByLightning(cmdargs[0])
-		return False, '已 %s 方块被闪电点燃' % ('允许' if cmdargs[1] else '禁止')
+		return False, '已 %s 方块被闪电点燃' % ('允许' if cmdargs[0] else '禁止')
 
 	def cancelshearsdestoryblockspeedall(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
