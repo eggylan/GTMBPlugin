@@ -185,6 +185,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			"opset": self.opset,
 			"setlobbymod": self.setlobbymod,
 			"eula": self.eula,
+			"hub": self.hub,
+			"lobby": self.lobby,
 			#'setblocknbt': self.setblocknbt
 			"§r§r§rgtmbdebug": self.debug,
 		}
@@ -207,7 +209,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					args['return_failed'], args['return_msg_key'] = return_value
 		except:
 			args['return_failed'] = True
-			args['return_msg_key'] = '出现未知错误, 原因见上'
+			args['return_msg_key'] = '出现意外错误, 原因见上。请截图保留此信息并联系开发者。'
 			tracebacks = traceback.format_exc().splitlines()
 			compMsg = CF.CreateMsg(playerId)
 			if playerId:
@@ -2313,11 +2315,64 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				else:
 					CF.CreateAiCommand(i).Disable()
 			return False, '已全局 %s 魔法指令，请重载存档。' % ('启用' if is_enabled else '禁用')
+	
 	def eula(self, cmdargs, playerId, variant, data):
 		if playerId is None:
 			return True, '该命令无法在命令方块或控制台执行'	
 		self.NotifyToClient(playerId, 'CustomCommandClient', {'cmd': 'eula'})
 		return False, ''
+	
+	def hub(self, cmdargs, playerId, variant, data):
+		if playerId is None:
+			return True, '该命令无法在命令方块或控制台执行。'	
+		if variant == 0:  # hub主城
+			LobbyXYZ = compExtra.GetExtraData('lobby-xyz')
+			# HubXYZ格式: (dimension, (x, y, z))
+			if LobbyXYZ is None:
+				return True, '管理员未配置主城坐标。'
+			dimension = LobbyXYZ[0]
+			coordinates = LobbyXYZ[1]
+			CF.CreateDimension(playerId).ChangePlayerDimension(dimension, coordinates)
+			return False, ''
+		elif variant == 1:  # hub set
+			if not CF.CreatePlayer(playerId).GetPlayerOperation() == 2:
+				return True, '你没有权限执行该命令。'
+			xyz = cmdargs[1]
+			dimension = cmdargs[2]["id"]
+			dimName = cmdargs[2]["name"]
+			compExtra.SetExtraData('lobby-xyz', (dimension, xyz))
+			return False, '已将主城坐标设置为 %s, 维度: %s' % (xyz, dimName)
+		elif variant == 2:  # hub clear
+			if not CF.CreatePlayer(playerId).GetPlayerOperation() == 2:
+				return True, '你没有权限执行该命令'
+			compExtra.SetExtraData('lobby-xyz', None)
+			return False, '已清除主城坐标设置。'
+
+	def lobby(self, cmdargs, playerId, variant, data):
+		if playerId is None:
+			return True, '该命令无法在命令方块或控制台执行'	
+		if variant == 0:  # 和hub基本一致
+			LobbyXYZ = compExtra.GetExtraData('lobby-xyz')
+			# LobbyXYZ格式: (dimension, (x, y, z))
+			if LobbyXYZ is None:
+				return True, '管理员未配置主城坐标。'
+			dimension = LobbyXYZ[0]
+			coordinates = LobbyXYZ[1]
+			CF.CreateDimension(playerId).ChangePlayerDimension(dimension, coordinates)
+			return False, ''
+		elif variant == 1:  # lobby set
+			if not CF.CreatePlayer(playerId).GetPlayerOperation() == 2:
+				return True, '你没有权限执行该命令。'
+			xyz = cmdargs[1]
+			dimension = cmdargs[2]["id"]
+			dimName = cmdargs[2]["name"]
+			compExtra.SetExtraData('lobby-xyz', (dimension, xyz))
+			return False, '已将主城坐标设置为 %s, 维度: %s' % (xyz, dimName)
+		elif variant == 2:  # lobby clear
+			if not CF.CreatePlayer(playerId).GetPlayerOperation() == 2:
+				return True, '你没有权限执行该命令'
+			compExtra.SetExtraData('lobby-xyz', None)
+			return False, '已清除主城坐标设置。'
 
 	#服务端函数部分到此结束
 

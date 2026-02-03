@@ -1,0 +1,43 @@
+{
+    "args": [
+        {
+            "default": 0,
+            "name": "留空传送",
+            "type": "int"
+        }
+    ],
+    "args1": [
+        {
+            "name": "设置",
+            "options": [
+                "set"
+            ],
+            "type": "enum"
+        },
+        {
+            "name": "位置",
+            "type": "pos"
+        },
+        {
+            "default": {
+                "id": 0,
+                "name": "overworld"
+            },
+            "name": "维度（默认主世界）",
+            "type": "dimension"
+        }
+    ],
+    "args2": [
+        {
+            "name": "清空",
+            "options": [
+                "clear"
+            ],
+            "type": "enum"
+        }
+    ],
+    "description": "传送至主城",
+    "format_version": "0.0.1",
+    "name": "hub",
+    "permission_level": "any"
+}
