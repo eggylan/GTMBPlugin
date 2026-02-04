@@ -187,6 +187,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			"eula": self.eula,
 			"hub": self.hub,
 			"lobby": self.lobby,
+			"setplayercanfly": self.setplayercanfly,
 			#'setblocknbt': self.setblocknbt
 			"§r§r§rgtmbdebug": self.debug,
 		}
@@ -2373,6 +2374,16 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				return True, '你没有权限执行该命令'
 			compExtra.SetExtraData('lobby-xyz', None)
 			return False, '已清除主城坐标设置。'
+		
+	def setplayercanfly(self, cmdargs, playerId, variant, data):
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
+		if not check_entities_type('minecraft:player', cmdargs[0]):
+			return True, '选择器必须为玩家类型'
+		for i in cmdargs[0]:
+			CF.CreateFly(i).ChangePlayerFlyState(cmdargs[1],False)
+		return False, '将 %s 的飞行权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')	
+
 
 	#服务端函数部分到此结束
 
