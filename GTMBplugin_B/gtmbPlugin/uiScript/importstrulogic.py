@@ -1,16 +1,28 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import mod.client.extraClientApi as clientApi
 import traceback
 import json
 import threading
+import hashlib
 
 
 wphnbt = clientApi.ImportModule("gtmbPlugin.wphnbt")
+compLocalData = clientApi.GetEngineCompFactory().CreateConfigClient(clientApi.GetLevelId())
 
 ViewBinder = clientApi.GetViewBinderCls()
 ViewRequest = clientApi.GetViewViewRequestCls()
 ScreenNode = clientApi.GetScreenNodeCls()
 clientsystem = clientApi.GetSystem("gtmbPlugin", "mainClientSystem")
+
+def GetFileIdentifier(filepath):
+	with open(filepath, 'rb') as f:
+		data = f.read()
+		hasher = hashlib.new('md5')
+		hasher.update(data)
+		base_id = hasher.hexdigest()
+		
+	return base_id
 
 
 class importstrulogic(ScreenNode):
@@ -90,19 +102,27 @@ class importstrulogic(ScreenNode):
 		self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(False)
 		self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(False)
 		
+		structure_cache = compLocalData.GetConfigData("GTMBPLUGIN_STRUCTURE_CACHE_"+GetFileIdentifier(path),True) or {}
 
-		# 启动一个后台线程来处理文件
-		self._worker_thread = threading.Thread(
-			target=self._process_file_in_thread,
-			args=(path, self._on_file_processed)
-		)
-
-		self._worker_thread.daemon = True
-		self._worker_thread.start()
+		# 有缓存，且版本与当前客户端匹配
+		if clientApi.GetEngineVersion() == structure_cache.get("version", ""):
+			structure_data = structure_cache.get("structuredata", None)
+			if structure_data:
+				self._on_file_processed(True, structure=structure_data)
+				return
+		else:
+			# 无缓存，启动一个后台线程来处理文件
+			self._worker_thread = threading.Thread(
+				target=self._process_file_in_thread,
+				args=(path, self._on_file_processed)
+			)
+			self._worker_thread.daemon = True
+			self._worker_thread.start()
 
 	def _process_file_in_thread(self, path, callback):
 		structure = None
 		error = None
+		success = False
 		try:
 			with open(path, 'rb') as f:
 				structure = wphnbt.load(f)
@@ -111,12 +131,19 @@ class importstrulogic(ScreenNode):
 				structureentitys = structure['structure']['entities']
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
+				success = True
+				# 存入缓存
+				cache_data = {
+					"version": clientApi.GetEngineVersion(),
+					"structuredata": structure
+				}
+				compLocalData.SetConfigData("GTMBPLUGIN_STRUCTURE_CACHE_"+GetFileIdentifier(path), cache_data, True)
 		except Exception as e:
 			error = traceback.format_exc()
-
+			success = False
 		# 跳回主线程
 		# 注意！绝对不要在非主线程中调用clientApi！！！
-		self.compGame.AddTimer(0.01, callback, True, structure, error)
+		self.compGame.AddTimer(0.01, callback, success, structure, error)
 
 	# 文件处理完成
 	def _on_file_processed(self, success, structure=None, error=None):
@@ -127,6 +154,7 @@ class importstrulogic(ScreenNode):
 			for i in error.splitlines():
 				clientApi.GetEngineCompFactory().CreateTextNotifyClient(clientApi.GetLocalPlayerId()).SetLeftCornerNotify("§c%s" % i)
 			return
+		
 
 		Dimension = clientApi.GetEngineCompFactory().CreateGame(clientApi.GetLevelId()).GetCurrentDimension()
 		self.structuredata = json.dumps({"structuredata": structure, "dimension": Dimension}, ensure_ascii=False)
@@ -204,7 +232,7 @@ class importstrulogic(ScreenNode):
 			# 将数据包加入发送队列
 			self._send_queue.append(packet)
 
-		self._timers['send'] = self.compGame.AddRepeatedTimer(0.05, self.sendPacket)
+		self._timers['send'] = self.compGame.AddRepeatedTimer(0.06, self.sendPacket)
 
 	def sendPacket(self):
 		if not self._send_queue:

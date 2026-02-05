@@ -338,19 +338,19 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 			del self._structure_receive_timeout_timer_object
 
 	def _process_packet(self, packet):
-		'''
-		服务端收到的数据包：
-		packet = {
-				"sequence": index,  # 数据包的序号，从0开始
-				"total_chunks": len(chunks),
-				"data": chunk,
-				"is_last": is_last  # 是否为最后一个数据包
-			}
-		'''
+		# '''
+		# 服务端收到的数据包：
+		# packet = {
+		# 		"sequence": index,  # 数据包的序号，从0开始
+		# 		"total_chunks": len(chunks),
+		# 		"data": chunk,
+		# 		"is_last": is_last  # 是否为最后一个数据包
+		# 	}
+		# '''
 		sequence = packet.get("sequence", None)
 		is_last = packet.get("is_last", False)
 		playerid = packet.get("__id__", None)
-		print("接收到来自玩家 %s 的数据包，序号：%s" % (playerid, sequence))
+		# print("接收到来自玩家 %s 的数据包，序号：%s" % (playerid, sequence))
 		self._structure_receive_timeout_counter = 0 # 重置超时计数器
 
 		# 将数据包存入队列
