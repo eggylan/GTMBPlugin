@@ -1935,16 +1935,31 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '无效的nbt'
 
 	def setdisablecontainers(self, cmdargs, playerId, variant, data):
-		compGame.SetDisableContainers(cmdargs[1])
-		return False, '将世界的容器权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			if not check_entities_type('minecraft:player', [i]):
+				return True, '选择器必须为玩家类型'
+			CF.CreateGame(i).SetDisableContainers(cmdargs[1])
+		return False, '将容器权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
 		
 	def setdisabledropitem(self, cmdargs, playerId, variant, data):
-		compGame.SetDisableDropItem(cmdargs[1])
-		return False, '将世界的丢弃物品权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			if not check_entities_type('minecraft:player', [i]):
+				return True, '选择器必须为玩家类型'
+			CF.CreateGame(i).SetDisableDropItem(cmdargs[1])
+		return False, '将丢弃物品权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
 		
 	def setdisablehunger(self, cmdargs, playerId, variant, data):
-		compGame.SetDisableHunger(cmdargs[1])
-		return False, '将世界的饱食度设置为 %s' % ('屏蔽' if cmdargs[1] else '生效')
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
+		for i in cmdargs[0]:
+			if not check_entities_type('minecraft:player', [i]):
+				return True, '选择器必须为玩家类型'
+			CF.CreateGame(i).SetDisableHunger(cmdargs[1])
+		return False, '将饱食度设置为 %s' % ('屏蔽' if cmdargs[1] else '生效')
 
 	def setenchantmentseed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
