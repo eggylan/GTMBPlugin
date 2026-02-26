@@ -1,10 +1,9 @@
 {
 	"format_version": "0.0.1",
 	"name": "setdisablecontainers",
-	"description": "禁止所有容器界面的打开",
+	"description": "禁止全局所有容器界面的打开",
 	"permission_level": "game_directors",
 	"args": [
-        {"name":"目标","type" : "target"},
         {"name":"是否禁止","type" : "bool"}
 	]
 }

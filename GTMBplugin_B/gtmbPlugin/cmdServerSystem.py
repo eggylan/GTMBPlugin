@@ -1935,16 +1935,16 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '无效的nbt'
 
 	def setdisablecontainers(self, cmdargs, playerId, variant, data):
-		compGame.SetDisableContainers(cmdargs[1])
-		return False, '将世界的容器权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
+		compGame.SetDisableContainers(cmdargs[0])
+		return False, '将世界的容器权限设置为 %s' % ('禁止' if cmdargs[0] else '允许')
 		
 	def setdisabledropitem(self, cmdargs, playerId, variant, data):
-		compGame.SetDisableDropItem(cmdargs[1])
-		return False, '将世界的丢弃物品权限设置为 %s' % ('禁止' if cmdargs[1] else '允许')
+		compGame.SetDisableDropItem(cmdargs[0])
+		return False, '将世界的丢弃物品权限设置为 %s' % ('禁止' if cmdargs[0] else '允许')
 		
 	def setdisablehunger(self, cmdargs, playerId, variant, data):
-		compGame.SetDisableHunger(cmdargs[1])
-		return False, '将世界的饱食度设置为 %s' % ('屏蔽' if cmdargs[1] else '生效')
+		compGame.SetDisableHunger(cmdargs[0])
+		return False, '将世界的饱食度设置为 %s' % ('屏蔽' if cmdargs[0] else '生效')
 
 	def setenchantmentseed(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
