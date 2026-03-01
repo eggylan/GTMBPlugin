@@ -11,8 +11,6 @@ uiNames = {'enchant': ('enchantUI', 'enchant.main_closable'),
 		'nbteditor': ('nbteditor', 'nbteditor.main_closable'),
 		'cmdbatch': ('cmdbatch', 'cmdbatch.main_closable'),
 		'struimport': ('importstrulogic', 'structureimport.main'),
-		'functionBlockScreen': ('functionBlockScreen', 'function_block_screen.node_screen'),
-		'listenBlockScreen': ('listenBlockScreen', 'function_block_screen.listen_screen'),
 		'EULA': ('EULA', 'GTMB_EULA.main')}
 
 PLATFORM_WINDOWS = 0
