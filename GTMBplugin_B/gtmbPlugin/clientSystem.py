@@ -160,20 +160,3 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 	def client_eula(self, args):
 		clientApi.PushScreen('gtmbPlugin', 'EULA')
 	# 客户端函数部分到此结束
-
-class functionBlockClientSystem(clientApi.GetClientSystemCls()):
-	def __init__(self, modName, systemName):
-		super(functionBlockClientSystem, self).__init__(modName, systemName)
-		self.ListenForEvent('gtmbPlugin', 'functionBlockServerSystem', 'rendersFromServer', self, self.LoadRenders)
-
-		self.currentRenders = []
-
-	def LoadRenders(self, args):
-		renderCreator = {'arrow': compDrawing.AddArrowShape,
-						 'circle': compDrawing.AddCircleShape,
-						 'line': compDrawing.AddLineShape,
-						 'text': compDrawing.AddTextShape,
-						 'box': compDrawing.AddBoxShape,
-						 'sphere': compDrawing.AddSphereShape}
-		for i in args['renders']:
-			renderCreator[i['type']](**i['data'])

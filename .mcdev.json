@@ -1,0 +1,17 @@
+{
+    "auto_hot_reload_mods": true,
+    "auto_join_game": true,
+    "enable_cheats": true,
+    "game_executable_path": "D:/MCStudioDownload/game/MinecraftPE_Netease/3.7.0.222593/Minecraft.Windows.exe",
+    "game_mode": 1,
+    "include_debug_mod": true,
+    "included_mod_dirs": [
+        "./"
+    ],
+    "keep_inventory": true,
+    "reset_world": false,
+    "world_folder_name": "MC_DEV_WORLD",
+    "world_name": "MC_DEV_WORLD",
+    "world_seed": null,
+    "world_type": 1
+}
