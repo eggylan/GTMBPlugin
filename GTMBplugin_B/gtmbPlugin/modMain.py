@@ -9,21 +9,18 @@ class gtmbPluginMod(object):
 		import mod.server.extraServerApi as serverApi
 		serverApi.RegisterSystem(modName, 'mainServerSystem', '%s.serverSystem.mainServerSystem' % modName)
 		serverApi.RegisterSystem(modName, 'cmdServerSystem', '%s.cmdServerSystem.cmdServerSystem' % modName)
-		serverApi.RegisterSystem(modName, 'functionBlockServerSystem', '%s.serverSystem.functionBlockServerSystem' % modName)
 
 	@Mod.DestroyServer()
 	def ServerDestroy(self):
 		#__destory__是一个自定义方法
 		import mod.server.extraServerApi as serverApi
 		serverApi.GetSystem(modName, 'mainServerSystem').__destroy__()
-		serverApi.GetSystem(modName, 'functionBlockServerSystem').__destroy__()
 
 	@Mod.InitClient()
 	def ClientInit(self):
 		import mod.client.extraClientApi as clientApi
 		clientApi.RegisterSystem(modName, 'mainClientSystem', '%s.clientSystem.mainClientSystem' % modName)
 		clientApi.RegisterSystem(modName, 'cmdClientSystem', '%s.clientSystem.cmdClientSystem' % modName)
-		clientApi.RegisterSystem(modName, 'functionBlockClientSystem', '%s.clientSystem.functionBlockClientSystem' % modName)
 
 	@Mod.DestroyClient()
 	def ClientDestroy(self):

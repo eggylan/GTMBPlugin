@@ -1,10 +1,9 @@
 {
 	"format_version": "0.0.1",
 	"name": "setdisablehunger",
-	"description": "设置是否禁用饥饿度",
+	"description": "设置是否全局禁用饥饿度",
 	"permission_level": "game_directors",
 	"args": [
-        {"name":"目标","type" : "target"},
         {"name":"是否禁止","type" : "bool"}
 	]
 }

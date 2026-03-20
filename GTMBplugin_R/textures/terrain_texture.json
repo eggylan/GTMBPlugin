@@ -1,27 +1,6 @@
 {
     "resource_pack_name": "vanilla",
     "texture_data": {
-        "gtmb_plugin:custom_brah": {
-            "textures": "textures/blocks/custom_brah"
-        },
-        "gtmb_plugin:custom_dirt": {
-            "textures": "textures/blocks/custom_dirt"
-        },
-        "ycgnw:command_block_back": {
-            "textures": "textures/blocks/adv_command_block_back"
-        },
-        "ycgnw:command_block_front": {
-            "textures": "textures/blocks/adv_command_block_front"
-        },
-        "ycgnw:command_block_side1": {
-            "textures": "textures/blocks/command_block_side1"
-        },
-        "ycgnw:command_block_side2": {
-            "textures": "textures/blocks/command_block_side2"
-        },
-        "ycgnw:command_block_side3": {
-            "textures": "textures/blocks/command_block_side3"
-        }
     },
     "texture_name": "atlas.terrain"
 }
