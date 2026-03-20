@@ -729,7 +729,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		xyz = (intg(x), int(y), intg(z))
 		rgba = (cmdargs[2], cmdargs[3], cmdargs[4], cmdargs[5])
 		lighting = cmdargs[6]
-		if compBlockInfo.SetSignTextStyle(xyz, cmdargs[1]['id'], rgba, lighting, int(cmdargs[7])):
+		if compBlockEntity.SetSignTextStyle(xyz, cmdargs[1]['id'], rgba, lighting, int(cmdargs[7])):
 			return False, '将 Pos%s in %s 的告示牌 %s 文本样式设置为 %s' % (xyz, cmdargs[1]['name'], '反面' if cmdargs[7] else '正面', rgba)
 		else:
 			return True, '位于 Pos%s in %s 的方块不是告示牌' % (xyz, cmdargs[1]['name'])
