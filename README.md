@@ -1,3 +1,9 @@
+<h1 align="center">⚠️ 重要说明 ⚠️</h1>
+<h3 align="center">本仓库代码因过于久远，含有大量不规范之处，正在考虑重构。</h3>
+<p align="center">如有任何问题或建议，欢迎提交 Issue 讨论。</p>
+
+---
+
 <p align="center">
 	<img
 		src="https://raw.githubusercontent.com/eggylan/GTMBPlugin/main/readmeimg/icon.png"
