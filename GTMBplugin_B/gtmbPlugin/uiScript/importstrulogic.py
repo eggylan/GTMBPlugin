@@ -126,8 +126,9 @@ class importstrulogic(ScreenNode):
 		try:
 			with open(path, 'rb') as f:
 				structure = wphnbt.load(f)
-				structureentitydata = structure['structure']['palette']['default']['block_position_data']
-				structure['structure']['palette']['default']['block_position_data'] = wphnbt.unpack(structureentitydata, True)
+				if structure['structure']['palette'].has_key('default'):
+					structureentitydata = structure['structure']['palette']['default']['block_position_data']
+					structure['structure']['palette']['default']['block_position_data'] = wphnbt.unpack(structureentitydata, True)
 				structureentitys = structure['structure']['entities']
 				structure['structure']['entities'] = wphnbt.unpack(structureentitys, True)
 				structure = wphnbt.unpack(structure)
@@ -151,6 +152,8 @@ class importstrulogic(ScreenNode):
 			self.notify_control_asLabel.SetText('§c⚠ 加载失败,原因已输出至聊天框')
 			self.notify_control.SetVisible(True)
 			self.compGame.AddTimer(1, self.notify_control.SetVisible, False)
+			self.GetBaseUIControl("/panel/closebutton").asButton().SetVisible(True)
+			self.GetBaseUIControl("/panel/launch_path_mode").asButton().SetVisible(True)
 			for i in error.splitlines():
 				clientApi.GetEngineCompFactory().CreateTextNotifyClient(clientApi.GetLocalPlayerId()).SetLeftCornerNotify("§c%s" % i)
 			return

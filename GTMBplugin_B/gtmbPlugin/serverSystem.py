@@ -400,30 +400,31 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 			player_Z = intg(player_Z)
 			structure = data["structuredata"]
 			#print(data)
-			palette = structure['structure']['palette']['default']
-			block_entity_data = palette['block_position_data']
-			blockcomp = CF.CreateBlockInfo(levelId)
-			blockStateComp = CF.CreateBlockState(levelId)
-			block_index = 0
-			compMsg = CF.CreateMsg(playerid)
-			for x in range(structure["size"][0]):
-				for y in range(structure['size'][1]):
-					for z in range(structure['size'][2]):
-						if structure['structure']['block_indices'][0][block_index] != -1:
-							block_info = palette['block_palette'][structure['structure']['block_indices'][0][block_index]]
-							if block_info['name'] != 'minecraft:air':
-								blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
-													{'name':block_info['name'], 
-													'aux': block_info.get('val', 0)}, 
-													0, 
-													data['dimension'], 
-													False, 
-													False)
-								blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),block_info.get('states', {}), data['dimension'])
-								if block_entity_data.has_key(str(block_index)) and block_entity_data[str(block_index)].has_key('block_entity_data'):
-									#if i % 10 == 0: print(block_entity_data[str(i)]['block_entity_data'])
-									blockcomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(block_index)]['block_entity_data'])
-						block_index += 1
+			if structure['structure']['palette'].has_key('default'):
+				palette = structure['structure']['palette']['default']
+				block_entity_data = palette['block_position_data']
+				blockcomp = CF.CreateBlockInfo(levelId)
+				blockStateComp = CF.CreateBlockState(levelId)
+				block_index = 0
+				compMsg = CF.CreateMsg(playerid)
+				for x in range(structure["size"][0]):
+					for y in range(structure['size'][1]):
+						for z in range(structure['size'][2]):
+							if structure['structure']['block_indices'][0][block_index] != -1:
+								block_info = palette['block_palette'][structure['structure']['block_indices'][0][block_index]]
+								if block_info['name'] != 'minecraft:air':
+									blockcomp.SetBlockNew((player_X+x, player_Y+y,player_Z+z),
+														{'name':block_info['name'], 
+														'aux': block_info.get('val', 0)}, 
+														0, 
+														data['dimension'], 
+														False, 
+														False)
+									blockStateComp.SetBlockStates((player_X+x, player_Y+y,player_Z+z),block_info.get('states', {}), data['dimension'])
+									if block_entity_data.has_key(str(block_index)) and block_entity_data[str(block_index)].has_key('block_entity_data'):
+										#if i % 10 == 0: print(block_entity_data[str(i)]['block_entity_data'])
+										blockcomp.SetBlockEntityData(data['dimension'], (player_X+x, player_Y+y,player_Z+z), block_entity_data[str(block_index)]['block_entity_data'])
+							block_index += 1
 			for entity in structure['structure']['entities']:
 				x, y, z = entity['Pos']
 				x = x['__value__']
@@ -446,8 +447,8 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		player_X, player_Y, player_Z = intg(playerpos[0]), int(playerpos[1]), intg(playerpos[2])
 		
 		structure = data["structuredata"]
-		palette = structure['structure']['palette']['default']
-		block_entity_data = palette['block_position_data']
+		palette = structure['structure']['palette'].get('default', {})
+		block_entity_data = palette.get('block_position_data', {})
 		blockcomp = CF.CreateBlockInfo(levelId)
 		blockStateComp = CF.CreateBlockState(levelId)
 		compMsg = CF.CreateMsg(playerid)
