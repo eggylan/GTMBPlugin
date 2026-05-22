@@ -169,7 +169,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			'sethudchatstackvisible':self.sethudchatstackvisible,
 			'setshowrideui':self.setshowrideui,
 			'summonitem':self.summonitem,
-			'summonnbt':self.summonnbt,
+			#'summonnbt':self.summonnbt,
 			'setgaussian':self.setgaussian,
 			'scoreparam': self.scoreparam,
 			'mute': self.mute,
@@ -1203,17 +1203,34 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		cmd = cmdargs[0]
 		if cmd.startswith('/'):
 			cmd = cmd[1:]
-		params = compExtra.GetExtraData('parameters')
-		if isinstance(params, dict):
-			if '{' in cmd and '}' in cmd:
-				words = re.findall(r'\{([^{}]+)\}', cmd)
-				for word in words:
-					if params.get(word) is None:
-						value = '{%s}' % word
-					else:
-						param = params[word]
-						value = param.get('value', '')
-					cmd = cmd.replace('{%s}' % word, str(value))
+		params = compExtra.GetExtraData('parameters') or {}
+		if '{' in cmd and '}' in cmd:
+			words = re.findall(r'\{([^{}]+)\}', cmd)
+			for word in words:
+				if params.get(word) is None:
+					selector = re.findall(r'\[(.*)\]', word)[0]
+					if selector:
+						if (cmdargs[1][0] or playerId) is None:
+							return True, '未能在处理选择器时找到合适的执行实体'
+						compEntity = CF.CreateEntityComponent(cmdargs[1][0] or playerId)
+						selectedEntities = compEntity.GetEntitiesBySelector(selector)
+						selectedEntitiesLen = len(selectedEntities)
+						if selectedEntitiesLen == 0:
+							return True, '处理变量 %s 时未选中任何实体' % word
+						elif selectedEntitiesLen != 1:
+							return True, '处理变量 %s 时选中了多个实体' % word
+						elif selectedEntitiesLen == 1:
+							compEntityExtra = CF.CreateExtraData(selectedEntities[0])
+							entityParams = compEntityExtra.GetExtraData('parameters') or {}
+							paramName = word.lstrip('[%s]' % selector)
+							if entityParams.get(paramName) is None:
+								value = '{%s}' % word
+							else:
+								value = entityParams[paramName].get('value', '')
+				else:
+					param = params[word]
+					value = param.get('value', '')
+				cmd = cmd.replace('{%s}' % word, str(value))
 		
 		cmd = cmd.replace("'", '"')
 		compCmd.SetCommand(cmd, cmdargs[1][0], cmdargs[2])
@@ -2184,12 +2201,20 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		return False, ''
 	
 	def chatlimit(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] < 0:
-			return True, '发言间隔不能小于0'
-		if compExtra.SetExtraData('limitFrequency', cmdargs[0]):
-			return False, '已将发言间隔限制设置为 %.1f 秒' % cmdargs[0]
-		else:
-			return True, '设置失败'
+		if variant == 0:
+			if cmdargs[1] < 0:
+				return True, '发言间隔不能小于0'
+			if compExtra.SetExtraData('limitFrequency', cmdargs[1]):
+				return False, '已将发言间隔限制设置为 %.1f 秒' % cmdargs[1]
+			else:
+				return True, '设置失败'
+		elif variant == 1:
+			if cmdargs[1] < 0:
+				return True, '消息长度不能小于0'
+			if compExtra.SetExtraData('limitLength', cmdargs[1]):
+				return False, '已将消息长度限制设置为 %d 个字符' % cmdargs[1]
+			else:
+				return True, '设置失败'
 		
 	def allowmsg(self, cmdargs, playerId, variant, data):
 		if cmdargs[0]:

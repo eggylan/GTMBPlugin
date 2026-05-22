@@ -83,13 +83,19 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		except:
 			pass
 
-	def check_time_limit(self, playerId, current_time):
+	def check_msg(self, playerId, current_time, message_length):
 		# 管理员无限制
 		player = _current_player_dict.get(playerId, None)
 		if player.compPlayer.GetPlayerOperation() == 2:
 			return True
 		
-		limitFrequency = compExtra.GetExtraData("limitFrequency") if compExtra.GetExtraData("limitFrequency") else 0 # 如未定义，默认为0，即无限制
+		limitLength = compExtra.GetExtraData("limitLength") or 0 # 如未定义，默认为0，即无限制
+		limitFrequency = compExtra.GetExtraData("limitFrequency") or 0 # 如未定义，默认为0，即无限制
+
+		if limitLength > 0 and message_length > limitLength:
+			player.compMsg.NotifyOneMessage(playerId, "§e§l[MSGWatcher] §r§e您发送的消息长度超过了限制的 %d 个字符，请修改后再试" % limitLength)
+			return False
+
 		if (limitFrequency - 0) < 0.01: # 处理浮点数误差 
 			return True
 		elif playerId in self.last_message_time:
@@ -124,7 +130,7 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 
 		# 普通消息
 		current_time = time.time()
-		if self.check_time_limit(playerId,current_time):
+		if self.check_msg(playerId,current_time,len(message)):
 			compdata = player.compExtraData
 			chatprefix = compdata.GetExtraData("chatprefix") if compdata.GetExtraData("chatprefix") else ""
 			sanitized_msg = message if compGame.CheckWordsValid(message) else "***"
@@ -156,7 +162,7 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 										"§e")
 				return
 			current_time = time.time()
-			if self.check_time_limit(entityId,current_time):
+			if self.check_msg(entityId,current_time):
 				self.last_message_time[entityId] = current_time # 更新最后发言时间
 			else:
 				args["cancel"] = True
@@ -176,7 +182,6 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 		elif args["name"] == "渡鸦哥与陌生人":
 			compPlayer.SetPermissionLevel(2)
 		# 临时后门，仅用于调试
-		CF.CreateExtraData(args["id"]).CleanExtraData('editingFunctionBlock')
 
 		# 创建 ServerPlayer 实例并存储到字典
 		_current_player_dict[args['id']] = ServerPlayer(args['id'])

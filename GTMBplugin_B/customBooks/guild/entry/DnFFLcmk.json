@@ -309,7 +309,7 @@
             "content": "设置玩家的屏幕暗角\n用法: 暗角中心\n/setvignette center <目标:target> <x:float> <y:float>\n暗角半径\n/setvignette rad <目标:target> <半径:float>\n暗角颜色\n/setvignette color <目标:target> <RGB值(必须带小数点):pos>\n暗角模糊度\n/setvignette smooth <目标:target> <值, 范围为[0,1]:float>\n是否有暗角\n/setvignette <目标:target> <是否开启:bool>",
             "type": "textPage",
             "subtitle": "setvignette",
-            "contentTextSize":8
+            "contentTextSize":7
         },
         {
             "content": "设置世界出生点维度与坐标\n用法: /setworldspawnd <维度:dimension> <坐标:pos>",
@@ -347,7 +347,7 @@
             "subtitle": "summonnbt"
         },
         {
-            "content": "生成抛射物（直接发射）\n用法: /summonprojectile <创建者:target> <抛射物的id:str> <初始位置:pos> <初始朝向:pos> <力量值:float> [重力因子:float] [伤害:float] [追踪目标:target] [伤害创建者:bool] [特殊值:int]",
+            "content": "生成抛射物（直接发射）\n用法: /summonprojectile <创建者:target> <抛射物的id:str> <初始位置:pos> <三轴朝向比值:pos> (必须带小数点) <力量值:float> [重力因子:float] [伤害:float] [追踪目标:target] [伤害创建者:bool] [特殊值:int]",
             "type": "textPage",
             "subtitle": "summonprojectile"
         },
