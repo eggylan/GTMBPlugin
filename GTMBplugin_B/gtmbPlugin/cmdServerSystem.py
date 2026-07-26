@@ -1206,27 +1206,36 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		params = compExtra.GetExtraData('parameters') or {}
 		if '{' in cmd and '}' in cmd:
 			words = re.findall(r'\{([^{}]+)\}', cmd)
+			processedWords = []
 			for word in words:
+
+				if word in processedWords:
+					continue
+
+				processedWords.append(word)
 				if params.get(word) is None:
-					selector = re.findall(r'\[(.*)\]', word)[0]
-					if selector:
+					selectors = re.findall(r'\[(.*)\]', word)
+					if selectors:
+						selector = selectors[0]
 						if (cmdargs[1][0] or playerId) is None:
 							return True, '未能在处理选择器时找到合适的执行实体'
 						compEntity = CF.CreateEntityComponent(cmdargs[1][0] or playerId)
 						selectedEntities = compEntity.GetEntitiesBySelector(selector)
-						selectedEntitiesLen = len(selectedEntities)
-						if selectedEntitiesLen == 0:
+						selectedEntitiesNum = len(selectedEntities)
+						if selectedEntitiesNum == 0:
 							return True, '处理变量 %s 时未选中任何实体' % word
-						elif selectedEntitiesLen != 1:
+						elif selectedEntitiesNum != 1:
 							return True, '处理变量 %s 时选中了多个实体' % word
-						elif selectedEntitiesLen == 1:
+						elif selectedEntitiesNum == 1:
 							compEntityExtra = CF.CreateExtraData(selectedEntities[0])
 							entityParams = compEntityExtra.GetExtraData('parameters') or {}
 							paramName = word.lstrip('[%s]' % selector)
 							if entityParams.get(paramName) is None:
-								value = '{%s}' % word
+								continue
 							else:
 								value = entityParams[paramName].get('value', '')
+					else:
+						continue
 				else:
 					param = params[word]
 					value = param.get('value', '')
