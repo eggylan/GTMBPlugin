@@ -9,40 +9,24 @@ localPlayerId = clientApi.GetLocalPlayerId()
 levelId = clientApi.GetLevelId()
 compPostProcess = CF.CreatePostProcess(levelId)
 compDrawing = CF.CreateDrawing(levelId)
-uiNames = {'enchant': ('enchantUI', 'enchant.main_closable'),
-  		'getitem': ('getitemUI', 'getitem.main_closable'),
-		'itemTips': ('itemTips', 'customtips.main_closable'),
-		'nbteditor': ('nbteditor', 'nbteditor.main_closable'),
-		'cmdbatch': ('cmdbatch', 'cmdbatch.main_closable'),
-		'struimport': ('importstrulogic', 'structureimport.main'),
-		'EULA': ('EULA', 'GTMB_EULA.main')}
+compPlayer = CF.CreatePlayer(localPlayerId)
+compItem = CF.CreateItem(localPlayerId)
+compGame = CF.CreateGame(levelId)
+compActorMotion = CF.CreateActorMotion(localPlayerId)
+compPos = CF.CreatePos(localPlayerId)
+compRot = CF.CreateRot(localPlayerId)
+compCamera = CF.CreateCamera(localPlayerId)
+compOperation = CF.CreateOperation(levelId)
+compPlayerView = CF.CreatePlayerView(localPlayerId)
+compAttr = CF.CreateAttr(localPlayerId)
+
+from consts import UI_NAMES
 
 PLATFORM_WINDOWS = 0
 PLATFORM_IOS = 1
 PLATFORM_ANDROID = 2
 
-CLIENT_STATUS_MATH_FUNCTIONS = {
-	'abs': abs, 'sqrt': math.sqrt, 'floor': math.floor, 'ceil': math.ceil,
-	'round': round, 'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
-	'asin': math.asin, 'acos': math.acos, 'atan': math.atan,
-	'atan2': math.atan2, 'log': math.log, 'log10': math.log10,
-	'exp': math.exp, 'pow': math.pow, 'min': min, 'max': max,
-	'trunc': lambda value: int(value), 'degrees': math.degrees, 'radians': math.radians,
-	'hypot': math.hypot, 'sign': lambda value: 1 if value > 0 else (-1 if value < 0 else 0),
-	'clamp01': lambda value: max(0, min(1, value)),
-	'clamp': lambda value, low, high: max(low, min(high, value)),
-	'lerp': lambda start, end, amount: start + (end - start) * amount,
-}
-CLIENT_STATUS_MATH_BINOPS = {
-	ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
-	ast.Div: operator.truediv, ast.Mod: operator.mod, ast.Pow: operator.pow,
-	ast.BitAnd: operator.and_, ast.BitOr: operator.or_, ast.BitXor: operator.xor,
-	ast.LShift: operator.lshift, ast.RShift: operator.rshift,
-}
-CLIENT_STATUS_MATH_CMPOPS = {
-	ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
-	ast.LtE: operator.le, ast.Gt: operator.gt, ast.GtE: operator.ge,
-}
+from consts import STATUS_MATH_FUNCTIONS, STATUS_MATH_BINOPS, STATUS_MATH_CMPOPS
 
 class mainClientSystem(clientApi.GetClientSystemCls()):
 	def __init__(self, modName, systemName):
@@ -61,9 +45,9 @@ class mainClientSystem(clientApi.GetClientSystemCls()):
 	def OnUiInitFinished(self, args):
 		# if self.is_UI_First_Init:
 		self.is_UI_First_Init = False
-		for i in uiNames:
-			uiClsName = uiNames[i][0]
-			clientApi.RegisterUI('gtmbPlugin', i, 'gtmbPlugin.uiScript.%s.%s' % (uiClsName, uiClsName), uiNames[i][1])
+		for i in UI_NAMES:
+			uiClsName = UI_NAMES[i][0]
+			clientApi.RegisterUI('gtmbPlugin', i, 'gtmbPlugin.uiScript.%s.%s' % (uiClsName, uiClsName), UI_NAMES[i][1])
 		self.NotifyToServer('TryOpenEULA', {})
 			# self.openUI({'ui':'EULA'})
 
@@ -164,18 +148,17 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 		if not parts:
 			return False, None, '客户端物品状态不能为空'
 		position = parts[0].lower()
-		item = CF.CreateItem(localPlayerId)
 		if position in ('carried', 'mainhand', 'held'):
-			value = item.GetCarriedItem(True)
+			value = compItem.GetCarriedItem(True)
 			parts = parts[1:]
 		elif position == 'offhand':
-			value = item.GetOffhandItem(True)
+			value = compItem.GetOffhandItem(True)
 			parts = parts[1:]
 		elif position in ('inventory', 'armor'):
 			if len(parts) < 2 or not parts[1].isdigit():
-				return True, item.GetPlayerAllItems(0 if position == 'inventory' else 3, True), None
+				return True, compItem.GetPlayerAllItems(0 if position == 'inventory' else 3, True), None
 			slot = int(parts[1])
-			value = item.GetPlayerItem(0 if position == 'inventory' else 3, slot, True)
+			value = compItem.GetPlayerItem(0 if position == 'inventory' else 3, slot, True)
 			parts = parts[2:]
 		else:
 			return False, None, '未知客户端物品位置 %s' % parts[0]
@@ -202,7 +185,7 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 				if node.id == 'e':
 					return math.e
 				found, value, error = self._get_status_client_value(node.id)
-				if not found or not isinstance(value, (int, long, float)):
+				if not found or not isinstance(value, (int, long, float)): #type: ignore
 					raise ValueError(error or '状态不是数值')
 				return value
 			if isinstance(node, ast.Attribute):
@@ -217,14 +200,14 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 					raise ValueError('非法状态路径')
 				path.insert(0, current.id)
 				found, value, error = self._get_status_client_value('.'.join(path))
-				if not found or not isinstance(value, (int, long, float)):
+				if not found or not isinstance(value, (int, long, float)): #type: ignore
 					raise ValueError(error or '状态不是数值')
 				return value
 			if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd, ast.Invert, ast.Not)):
 				value = evaluate(node.operand)
 				return {ast.USub: operator.neg, ast.UAdd: operator.pos, ast.Invert: operator.invert, ast.Not: operator.not_}[type(node.op)](value)
-			if isinstance(node, ast.BinOp) and type(node.op) in CLIENT_STATUS_MATH_BINOPS:
-				return CLIENT_STATUS_MATH_BINOPS[type(node.op)](evaluate(node.left), evaluate(node.right))
+			if isinstance(node, ast.BinOp) and type(node.op) in STATUS_MATH_BINOPS:
+				return STATUS_MATH_BINOPS[type(node.op)](evaluate(node.left), evaluate(node.right))
 			if isinstance(node, ast.BoolOp) and isinstance(node.op, (ast.And, ast.Or)):
 				if isinstance(node.op, ast.And):
 					result = True
@@ -242,12 +225,12 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 				left = evaluate(node.left)
 				for index, comparator in enumerate(node.comparators):
 					right = evaluate(comparator)
-					if not CLIENT_STATUS_MATH_CMPOPS[type(node.ops[index])](left, right):
+					if not STATUS_MATH_CMPOPS[type(node.ops[index])](left, right):
 						return False
 					left = right
 				return True
-			if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in CLIENT_STATUS_MATH_FUNCTIONS:
-				return CLIENT_STATUS_MATH_FUNCTIONS[node.func.id](*[evaluate(arg) for arg in node.args])
+			if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in STATUS_MATH_FUNCTIONS:
+				return STATUS_MATH_FUNCTIONS[node.func.id](*[evaluate(arg) for arg in node.args])
 			raise ValueError('客户端数学表达式包含不支持的语法')
 
 		try:
@@ -266,19 +249,19 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 		if parts[0] in ('position', 'pos', 'xyz', 'foot_position', 'foot_pos', 'foot_xyz', 'velocity', 'motion', 'rotation', 'rot', 'rotxy', 'input_vector'):
 			root = parts[0]
 			if root in ('position', 'pos', 'xyz'):
-				value = CF.CreatePos(localPlayerId).GetPos()
+				value = compPos.GetPos()
 				fields = {'x': 0, 'y': 1, 'z': 2}
 			elif root in ('foot_position', 'foot_pos', 'foot_xyz'):
-				value = CF.CreatePos(localPlayerId).GetFootPos()
+				value = compPos.GetFootPos()
 				fields = {'x': 0, 'y': 1, 'z': 2}
 			elif root in ('rotation', 'rot', 'rotxy'):
-				value = CF.CreateRot(localPlayerId).GetRot()
+				value = compRot.GetRot()
 				fields = {'x': 0, 'pitch': 0, 'y': 1, 'yaw': 1}
 			elif root == 'input_vector':
-				value = CF.CreateActorMotion(localPlayerId).GetInputVector()
+				value = compActorMotion.GetInputVector()
 				fields = {'x': 0, 'forward': 0, 'y': 1, 'z': 1, 'strafe': 1}
 			else:
-				value = CF.CreateActorMotion(localPlayerId).GetMotion()
+				value = compActorMotion.GetMotion()
 				fields = {'x': 0, 'y': 1, 'z': 2}
 			if len(parts) == 1:
 				return True, value, None
@@ -287,10 +270,9 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 			return False, None, '客户端状态 %s 只支持 .x/.y/.z 或对应方向字段' % root
 		if parts[0] in ('item', 'items'):
 			if len(parts) == 1:
-				item = CF.CreateItem(localPlayerId)
 				return True, {
-					'carried': item.GetCarriedItem(True), 'offhand': item.GetOffhandItem(True),
-					'inventory': item.GetPlayerAllItems(0, True), 'armor': item.GetPlayerAllItems(3, True),
+					'carried': compItem.GetCarriedItem(True), 'offhand': compItem.GetOffhandItem(True),
+					'inventory': compItem.GetPlayerAllItems(0, True), 'armor': compItem.GetPlayerAllItems(3, True),
 				}, None
 			return self._get_status_client_item_value('.'.join(parts[1:]))
 		if key in ('name', 'entity_name'):
@@ -314,7 +296,7 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 		if key == 'time':
 			return True, CF.CreateTime(levelId).GetTime(), None
 		if key in ('is_alive', 'alive'):
-			return True, CF.CreateGame(levelId).IsEntityAlive(localPlayerId), None
+			return True, compGame.IsEntityAlive(localPlayerId), None
 		if key in ('effects', 'effect'):
 			return True, CF.CreateEffect(localPlayerId).GetAllEffects() or [], None
 		if key.startswith('effect.') or key.startswith('effects.'):
@@ -354,73 +336,71 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 				return False, None, '客户端 Molang query 没有返回值: %s' % status
 			return True, value, None
 		if key in ('dimension', 'dim'):
-			return True, CF.CreateGame(levelId).GetCurrentDimension(), None
+			return True, compGame.GetCurrentDimension(), None
 		if key in ('body_rot', 'body_rotation'):
-			return True, CF.CreateRot(localPlayerId).GetBodyRot(), None
+			return True, compRot.GetBodyRot(), None
 		if key in ('on_ground', 'is_on_ground'):
-			return True, CF.CreateAttr(localPlayerId).isEntityOnGround(), None
+			return True, compAttr.isEntityOnGround(), None
 		if key in ('in_lava', 'is_in_lava'):
-			return True, CF.CreateAttr(localPlayerId).isEntityInLava(), None
+			return True, compAttr.isEntityInLava(), None
 		if key in ('motion', 'velocity'):
-			return True, CF.CreateActorMotion(localPlayerId).GetMotion(), None
+			return True, compActorMotion.GetMotion(), None
 		if key in ('input', 'input_vector'):
-			return True, CF.CreateActorMotion(localPlayerId).GetInputVector(), None
+			return True, compActorMotion.GetInputVector(), None
 		if key in ('position', 'pos', 'xyz'):
-			return True, CF.CreatePos(localPlayerId).GetPos(), None
+			return True, compPos.GetPos(), None
 		if key in ('foot_position', 'foot_pos', 'foot_xyz'):
-			return True, CF.CreatePos(localPlayerId).GetFootPos(), None
+			return True, compPos.GetFootPos(), None
 		if key in ('rotation', 'rot'):
-			return True, CF.CreateRot(localPlayerId).GetRot(), None
+			return True, compRot.GetRot(), None
 		if key in ('is_gliding', 'gliding'):
-			return True, CF.CreatePlayer(localPlayerId).isGliding(), None
+			return True, compPlayer.isGliding(), None
 		if key in ('is_sprinting', 'sprinting'):
-			return True, CF.CreatePlayer(localPlayerId).isSprinting(), None
+			return True, compPlayer.isSprinting(), None
 		if key in ('is_moving', 'moving'):
-			return True, CF.CreatePlayer(localPlayerId).isMoving(), None
+			return True, compPlayer.isMoving(), None
 		if key in ('is_riding', 'riding'):
-			return True, CF.CreatePlayer(localPlayerId).isRiding(), None
+			return True, compPlayer.isRiding(), None
 		if key in ('is_sneaking', 'sneaking'):
-			return True, CF.CreatePlayer(localPlayerId).isSneaking(), None
+			return True, compPlayer.isSneaking(), None
 		if key in ('is_in_water', 'in_water'):
-			return True, CF.CreatePlayer(localPlayerId).isInWater(), None
+			return True, compPlayer.isInWater(), None
 		if key in ('is_on_ladder', 'on_ladder'):
-			return True, CF.CreatePlayer(localPlayerId).IsOnLadder(), None
+			return True, compPlayer.IsOnLadder(), None
 		if key in ('is_in_scaffolding', 'in_scaffolding'):
-			return True, CF.CreatePlayer(localPlayerId).IsInScaffolding(), None
+			return True, compPlayer.IsInScaffolding(), None
 		if key in ('is_fishing', 'fishing'):
-			return True, CF.CreatePlayer(localPlayerId).GetPlayerIsFishing(), None
+			return True, compPlayer.GetPlayerIsFishing(), None
 		if key in ('hunger', 'player_hunger'):
-			return True, CF.CreatePlayer(localPlayerId).GetPlayerHunger(), None
+			return True, compPlayer.GetPlayerHunger(), None
 		if key in ('selected_slot', 'slot'):
-			return True, CF.CreateItem(localPlayerId).GetSlotId(), None
+			return True, compItem.GetSlotId(), None
 		if key in ('all_enchants', 'enchants'):
-			return True, CF.CreateItem(localPlayerId).GetAllEnchantsInfo(), None
+			return True, compItem.GetAllEnchantsInfo(), None
 		if key in ('fish_hook', 'fish_hook_entities'):
-			return True, CF.CreateItem(localPlayerId).GetPlayerFishHookEntity(), None
+			return True, compItem.GetPlayerFishHookEntity(), None
 		if key in ('fish_item', 'fishing_item'):
-			return True, CF.CreateItem(localPlayerId).GetPlayerFishItem(True), None
+			return True, compItem.GetPlayerFishItem(True), None
 		if key in ('drop_item_entities', 'client_drop_item_entities'):
-			return True, CF.CreateItem(localPlayerId).GetClientDropItemEntityIdList(), None
+			return True, compItem.GetClientDropItemEntityIdList(), None
 		if key in ('pick_range', 'interaction_range'):
-			return True, CF.CreatePlayer(localPlayerId).GetPickRange(), None
+			return True, compPlayer.GetPickRange(), None
 		if key in ('pick_center_offset', 'interaction_center_offset'):
-			return True, CF.CreatePlayer(localPlayerId).GetPickCenterOffset(), None
+			return True, compPlayer.GetPickCenterOffset(), None
 		if key in ('uid', 'player_uid'):
-			return True, CF.CreatePlayer(localPlayerId).getUid(), None
+			return True, compPlayer.getUid(), None
 		if key in ('camera', 'camera.all'):
-			camera = CF.CreateCamera(localPlayerId)
 			return True, {
-				'fov': self._get_status_client_safe_call(camera, 'GetFov'),
-				'position': self._get_status_client_safe_call(camera, 'GetPosition'),
-				'rotation': self._get_status_client_safe_call(camera, 'GetCameraRotation'),
-				'forward': self._get_status_client_safe_call(camera, 'GetForward'),
-				'offset': self._get_status_client_safe_call(camera, 'GetCameraOffset'),
-				'anchor': self._get_status_client_safe_call(camera, 'GetCameraAnchor'),
-				'pitch_limit': self._get_status_client_safe_call(camera, 'GetCameraPitchLimit'),
-				'motions': self._get_status_client_safe_call(camera, 'GetCameraMotions'),
+				'fov': self._get_status_client_safe_call(compCamera, 'GetFov'),
+				'position': self._get_status_client_safe_call(compCamera, 'GetPosition'),
+				'rotation': self._get_status_client_safe_call(compCamera, 'GetCameraRotation'),
+				'forward': self._get_status_client_safe_call(compCamera, 'GetForward'),
+				'offset': self._get_status_client_safe_call(compCamera, 'GetCameraOffset'),
+				'anchor': self._get_status_client_safe_call(compCamera, 'GetCameraAnchor'),
+				'pitch_limit': self._get_status_client_safe_call(compCamera, 'GetCameraPitchLimit'),
+				'motions': self._get_status_client_safe_call(compCamera, 'GetCameraMotions'),
 			}, None
 		if key.startswith('camera.'):
-			camera = CF.CreateCamera(localPlayerId)
 			camera_fields = {
 				'fov': 'GetFov', 'position': 'GetPosition', 'rotation': 'GetCameraRotation',
 				'forward': 'GetForward', 'offset': 'GetCameraOffset', 'anchor': 'GetCameraAnchor',
@@ -432,15 +412,14 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 			field = key.split('.', 1)[1]
 			method_name = camera_fields.get(field)
 			if method_name:
-				return True, self._get_status_client_safe_call(camera, method_name), None
+				return True, self._get_status_client_safe_call(compCamera, method_name), None
 		if key in ('fps', 'screen_fps'):
-			return True, CF.CreateGame(levelId).GetFps(), None
+			return True, compGame.GetFps(), None
 		if key in ('screen_size', 'resolution'):
-			return True, CF.CreateGame(levelId).GetScreenSize(), None
+			return True, compGame.GetScreenSize(), None
 		if key in ('screen_view', 'screen_view_info'):
-			return True, CF.CreateGame(levelId).GetScreenViewInfo(), None
+			return True, compGame.GetScreenViewInfo(), None
 		if key.startswith('operation.'):
-			operation = CF.CreateOperation(levelId)
 			operation_fields = {
 				'can_move': 'IsCanMove', 'can_jump': 'IsCanJump', 'can_attack': 'IsCanAttack',
 				'can_walk_mode': 'IsCanWalkMode', 'can_perspective': 'IsCanPerspective',
@@ -451,47 +430,38 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 			}
 			method_name = operation_fields.get(key.split('.', 1)[1])
 			if method_name:
-				return True, self._get_status_client_safe_call(operation, method_name), None
+				return True, self._get_status_client_safe_call(compOperation, method_name), None
 		if key in ('perspective', 'view_perspective'):
-			return True, CF.CreatePlayerView(localPlayerId).GetPerspective(), None
+			return True, compPlayerView.GetPerspective(), None
 		if key in ('ui_profile', 'view_ui_profile'):
-			return True, CF.CreatePlayerView(localPlayerId).GetUIProfile(), None
+			return True, compPlayerView.GetUIProfile(), None
 		if key == 'all':
-			player = CF.CreatePlayer(localPlayerId)
-			motion = CF.CreateActorMotion(localPlayerId)
-			pos = CF.CreatePos(localPlayerId)
-			rot = CF.CreateRot(localPlayerId)
-			item = CF.CreateItem(localPlayerId)
-			game = CF.CreateGame(levelId)
-			camera = CF.CreateCamera(localPlayerId)
-			operation = CF.CreateOperation(levelId)
-			view = CF.CreatePlayerView(localPlayerId)
 			return True, {
 				'id': localPlayerId,
 				'name': self._get_status_client_safe_call(CF.CreateName(localPlayerId), 'GetName'),
 				'type': self._get_status_client_safe_call(CF.CreateEngineType(localPlayerId), 'GetEngineTypeStr'),
-				'position': pos.GetPos(), 'foot_position': pos.GetFootPos(),
-				'rotation': rot.GetRot(), 'body_rot': rot.GetBodyRot(),
-				'motion': motion.GetMotion(), 'input_vector': motion.GetInputVector(),
-				'dimension': CF.CreateGame(levelId).GetCurrentDimension(),
-				'on_ground': CF.CreateAttr(localPlayerId).isEntityOnGround(),
-				'in_lava': CF.CreateAttr(localPlayerId).isEntityInLava(),
+				'position': compPos.GetPos(), 'foot_position': compPos.GetFootPos(),
+				'rotation': compRot.GetRot(), 'body_rot': compRot.GetBodyRot(),
+				'motion': compActorMotion.GetMotion(), 'input_vector': compActorMotion.GetInputVector(),
+				'dimension': compGame.GetCurrentDimension(),
+				'on_ground': compAttr.isEntityOnGround(),
+				'in_lava': compAttr.isEntityInLava(),
 				'effects': CF.CreateEffect(localPlayerId).GetAllEffects() or [],
-				'hunger': player.GetPlayerHunger(),
+				'hunger': compPlayer.GetPlayerHunger(),
 				'states': {
-					'gliding': player.isGliding(), 'sprinting': player.isSprinting(),
-					'moving': player.isMoving(), 'riding': player.isRiding(),
-					'sneaking': player.isSneaking(), 'in_water': player.isInWater(),
-					'on_ladder': player.IsOnLadder(), 'in_scaffolding': player.IsInScaffolding(),
-					'fishing': player.GetPlayerIsFishing(),
+					'gliding': compPlayer.isGliding(), 'sprinting': compPlayer.isSprinting(),
+					'moving': compPlayer.isMoving(), 'riding': compPlayer.isRiding(),
+					'sneaking': compPlayer.isSneaking(), 'in_water': compPlayer.isInWater(),
+					'on_ladder': compPlayer.IsOnLadder(), 'in_scaffolding': compPlayer.IsInScaffolding(),
+					'fishing': compPlayer.GetPlayerIsFishing(),
 				},
 				'items': {
-					'carried': item.GetCarriedItem(True), 'offhand': item.GetOffhandItem(True),
-					'inventory': item.GetPlayerAllItems(0, True), 'armor': item.GetPlayerAllItems(3, True),
+					'carried': compItem.GetCarriedItem(True), 'offhand': compItem.GetOffhandItem(True),
+					'inventory': compItem.GetPlayerAllItems(0, True), 'armor': compItem.GetPlayerAllItems(3, True),
 				},
-				'selected_slot': item.GetSlotId(), 'all_enchants': item.GetAllEnchantsInfo(),
-				'fish_hook': item.GetPlayerFishHookEntity(), 'fps': game.GetFps(),
-				'screen_size': game.GetScreenSize(), 'screen_view': game.GetScreenViewInfo(),
+				'selected_slot': compItem.GetSlotId(), 'all_enchants': compItem.GetAllEnchantsInfo(),
+				'fish_hook': compItem.GetPlayerFishHookEntity(), 'fps': compGame.GetFps(),
+				'screen_size': compGame.GetScreenSize(), 'screen_view': compGame.GetScreenViewInfo(),
 				'attack_target': self._get_status_client_safe_call(CF.CreateAction(localPlayerId), 'GetAttackTarget'),
 				'collision_size': self._get_status_client_safe_call(CF.CreateCollisionBox(localPlayerId), 'GetSize'),
 				'quaternion': self._get_status_client_safe_call(CF.CreatePhysx(localPlayerId), 'GetQuaternion'),
@@ -499,14 +469,14 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 				'owner': self._get_status_client_safe_call(CF.CreateTame(localPlayerId), 'GetOwnerId'),
 				'local_time': self._get_status_client_safe_call(CF.CreateDimension(localPlayerId), 'GetLocalTime'),
 				'time': self._get_status_client_safe_call(CF.CreateTime(levelId), 'GetTime'),
-				'perspective': self._get_status_client_safe_call(view, 'GetPerspective'),
-				'ui_profile': self._get_status_client_safe_call(view, 'GetUIProfile'),
+				'perspective': self._get_status_client_safe_call(compPlayerView, 'GetPerspective'),
+				'ui_profile': self._get_status_client_safe_call(compPlayerView, 'GetUIProfile'),
 				'operation': {
-					'can_move': self._get_status_client_safe_call(operation, 'IsCanMove'),
-					'can_jump': self._get_status_client_safe_call(operation, 'IsCanJump'),
-					'can_attack': self._get_status_client_safe_call(operation, 'IsCanAttack'),
-					'can_pause': self._get_status_client_safe_call(operation, 'IsCanPause'),
-					'can_chat': self._get_status_client_safe_call(operation, 'IsCanChat'),
+					'can_move': self._get_status_client_safe_call(compOperation, 'IsCanMove'),
+					'can_jump': self._get_status_client_safe_call(compOperation, 'IsCanJump'),
+					'can_attack': self._get_status_client_safe_call(compOperation, 'IsCanAttack'),
+					'can_pause': self._get_status_client_safe_call(compOperation, 'IsCanPause'),
+					'can_chat': self._get_status_client_safe_call(compOperation, 'IsCanChat'),
 				},
 			}, None
 		return False, None, '未知客户端状态 %s；可使用 client.query.*、client.event.*、client.dimension、client.body_rot、client.on_ground 或 client.all' % status
@@ -527,11 +497,11 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 
 	# 客户端函数部分由此开始
 	def client_setplayerinteracterange(self, args):
-		CF.CreatePlayer(localPlayerId).SetPickRange(args['cmdargs'][1])
+		compPlayer.SetPickRange(args['cmdargs'][1])
 	def client_openfoldgui(self, args):
 		clientApi.OpenFoldGui()
 	def client_setcanpausescreen(self, args):
-		CF.CreateOperation(levelId).SetCanPauseScreen(args['cmdargs'][1])
+		compOperation.SetCanPauseScreen(args['cmdargs'][1])
 	def client_setcolorbrightness(self, args):
 		compPostProcess.SetColorAdjustmentBrightness(args['cmdargs'][2])
 	def client_setcolorcontrast(self, args):
@@ -541,9 +511,9 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 	def client_setcolortint(self, args):
 		compPostProcess.SetColorAdjustmentTint(args['cmdargs'][2], (args['cmdargs'][3], args['cmdargs'][4], args['cmdargs'][5]))
 	def client_setcompassentity(self, args):
-		CF.CreateItem(localPlayerId).SetCompassEntity(args['cmdargs'][1][0])
+		compItem.SetCompassEntity(args['cmdargs'][1][0])
 	def client_setcompasstarget(self, args):
-		CF.CreateItem(localPlayerId).SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
+		compItem.SetCompassTarget(args['cmdargs'][0], args['cmdargs'][1], args['cmdargs'][2])
 	def client_setvignettecenter(self, args):
 		compPostProcess.SetVignetteCenter((args['cmdargs'][2], args['cmdargs'][3]))
 	def client_setvignetteradius(self, args):

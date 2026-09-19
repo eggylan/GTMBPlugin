@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "get_status",
-	"description": "读取实体状态或 Molang 结果；可输出到积分榜或标签",
+	"description": "读取实体状态或 Molang 结果",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},

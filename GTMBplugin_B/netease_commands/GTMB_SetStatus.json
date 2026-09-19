@@ -1,7 +1,7 @@
 {
 	"format_version": "0.0.1",
 	"name": "set_status",
-	"description": "Set a writable entity status. normal uses a manual value; toscore reads the value from a scoreboard objective.",
+	"description": "设置实体状态",
 	"permission_level": "game_directors",
 	"args": [
 		{"name": "目标", "type": "target"},
@@ -9,12 +9,6 @@
 		{"name": "值", "type": "str"}
 	],
 	"args1": [
-		{"name": "目标", "type": "target"},
-		{"name": "状态", "type": "str"},
-		{"name": "模式", "type": "enum", "options": ["normal"]},
-		{"name": "值", "type": "str"}
-	],
-	"args2": [
 		{"name": "目标", "type": "target"},
 		{"name": "状态", "type": "str"},
 		{"name": "模式", "type": "enum", "options": ["toscore"]},
