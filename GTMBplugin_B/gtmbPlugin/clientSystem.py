@@ -24,7 +24,6 @@ class mainClientSystem(clientApi.GetClientSystemCls()):
 		listenClientSysEvent('OnKeyPressInGame', self.OnPressKey)
 		listenClientSysEvent('UiInitFinished', self.OnUiInitFinished)
 		self.ListenForEvent('gtmbPlugin', 'mainServerSystem', 'openUI', self, self.openUI)
-		self.ListenForEvent('gtmbPlugin', 'functionBlockServerSystem', 'openUI', self, self.openUI)
 		
 		self.is_UI_First_Init = True
 
@@ -148,9 +147,9 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 			else:
 				compClientTextNotify.SetLeftCornerNotify("§e您的设备暂不支持此功能，请前往电脑端使用")
 				return
-		elif args['cmdargs'][0] == "nbteditornew":
-			uiWillbeOpen = "nbteditornew"
-			uiWillbeOpenName = "NBT编辑器(新)"
+		else:
+			compClientTextNotify.SetLeftCornerNotify("§e未知的界面名：%s" % args['cmdargs'][0])
+			return
 		clientApi.PushScreen('gtmbPlugin', uiWillbeOpen)
 		compClientTextNotify.SetLeftCornerNotify("已打开 %s 界面" % uiWillbeOpenName)
 	def client_hidenametag(self, args):

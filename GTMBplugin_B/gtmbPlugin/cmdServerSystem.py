@@ -187,9 +187,9 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			"eula": self.eula,
 			"hub": self.hub,
 			"lobby": self.lobby,
-			"setplayercanfly": self.setplayercanfly,
+			"setplayercanfly": self.setplayercanfly
 			#'setblocknbt': self.setblocknbt
-			"§r§r§rgtmbdebug": self.debug,
+			# "§r§r§rgtmbdebug": self.debug,
 		}
 		self.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
 
@@ -2424,28 +2424,28 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 
 	# 调试用，正式版请删除
 	# commit: 多好的东西
-	def debug(self, cmdargs, playerId, variant, data):
-		if CF.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CF.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
-			return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'
-		if cmdargs[0] == 'throw':
-			raise Exception('This is a debug exception!')
-		elif cmdargs[0] == 'getextra':
-			return False, str(compExtra.GetWholeExtraData())
-		elif cmdargs[0] == 'showfile':
-			try:
-				with open(cmdargs[1]) as f:
-					lines = f.readlines()
-					return False, '文件 %s\n的第%s行如下\n%s' % (cmdargs[1], cmdargs[2], lines[int(cmdargs[2])-1])
-			except IOError as e:
-				return True, '读取文件 %s 时发生错误: %s' % (cmdargs[1], str(e))
-		elif cmdargs[0] == 'writefile':
-			try:
-				with open(cmdargs[1], 'r+') as f:
-					file = f.readlines()
-					file[int(cmdargs[2])-1] = cmdargs[3] + '\n'
-					f.seek(0)
-					f.writelines(file)
-				return False, '已修改文件 %s\n的第%s行内容为\n%s' % (cmdargs[1], cmdargs[2], cmdargs[3])
-			except IOError as e:
-				return True, '修改文件 %s 时发生错误: %s' % (cmdargs[1], str(e))	
+	# def debug(self, cmdargs, playerId, variant, data):
+	# 	if CF.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CF.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
+	# 		return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'
+	# 	if cmdargs[0] == 'throw':
+	# 		raise Exception('This is a debug exception!')
+	# 	elif cmdargs[0] == 'getextra':
+	# 		return False, str(compExtra.GetWholeExtraData())
+	# 	elif cmdargs[0] == 'showfile':
+	# 		try:
+	# 			with open(cmdargs[1]) as f:
+	# 				lines = f.readlines()
+	# 				return False, '文件 %s\n的第%s行如下\n%s' % (cmdargs[1], cmdargs[2], lines[int(cmdargs[2])-1])
+	# 		except IOError as e:
+	# 			return True, '读取文件 %s 时发生错误: %s' % (cmdargs[1], str(e))
+	# 	elif cmdargs[0] == 'writefile':
+	# 		try:
+	# 			with open(cmdargs[1], 'r+') as f:
+	# 				file = f.readlines()
+	# 				file[int(cmdargs[2])-1] = cmdargs[3] + '\n'
+	# 				f.seek(0)
+	# 				f.writelines(file)
+	# 			return False, '已修改文件 %s\n的第%s行内容为\n%s' % (cmdargs[1], cmdargs[2], cmdargs[3])
+	# 		except IOError as e:
+	# 			return True, '修改文件 %s 时发生错误: %s' % (cmdargs[1], str(e))	
 	
