@@ -1,0 +1,20 @@
+{
+	"format_version": "0.0.1",
+	"name": "execute_as",
+	"description": "代表一个或多个符合条件的执行点执行命令",
+	"permission_level": "game_directors",
+	"args": [
+        {"name": "type", "type": "enum", "options": ["on_segment", "in_area"]},
+        {"name": "start_point", "type": "pos"},
+        {"name": "end_point", "type": "pos"},
+        {"name": "step", "type": "float"},
+        {"name": "命令", "type": "str"}
+	],
+	"args1": [
+		{"name": "type", "type": "enum", "options": ["if_in_area"]},
+		{"name": "point", "type": "pos"},
+		{"name": "start_point", "type": "pos"},
+		{"name": "end_point", "type": "pos"},
+		{"name": "命令", "type": "str"}
+	]
+}

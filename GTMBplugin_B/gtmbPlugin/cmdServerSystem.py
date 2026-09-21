@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import math
+
 import mod.server.extraServerApi as serverApi
 import traceback
 import random
 import re
 import json
-from serverSystem import unicode_convert, intg
+from serverSystem import unicode_convert, intg, float_range
+from GTMBExceptions import InvaildNBTDataException
 
 from metaData import copyRightInfo
 
@@ -21,14 +24,14 @@ create_players_str = lambda players: ', '.join([CF.CreateName(player).GetName() 
 
 check_entities_type = lambda typeName, ids: all([CF.CreateEngineType(id).GetEngineTypeStr() == typeName for id in ids])
 
-def checkjson(data):
+def checkjson(data): #throw InvaildNBTDataException
 	#type: (str) -> list
 	try:
 		itemDict = json.loads(data.replace("'", '"'))
 	except ValueError as errordata:
 		errordata = str(errordata)
 		if errordata.find('char') == -1:
-			return ['无效的nbt', True]
+			raise InvaildNBTDataException('无效的NBT')
 		if errordata.find('Extra') != -1:
 			split = errordata.split(' - ')
 			start = int(split[1][split[1].find('char') + 5:])
@@ -36,10 +39,10 @@ def checkjson(data):
 		else:
 			start = int(errordata[errordata.find('char') + 5:-1])
 			end = start + 1
-		return ['无效的nbt 位于 %s>>%s<<%s' % (data[:start], data[start:end], data[end:]), True]
+		raise InvaildNBTDataException('无效的nbt 位于 %s>>%s<<%s' % (data[:start], data[start:end], data[end:]))
 	if isinstance(itemDict, dict):
-		return [unicode_convert(itemDict), False]
-	return['无效的nbt', True]
+		return unicode_convert(itemDict)
+	raise InvaildNBTDataException('无效的NBT')
 
 class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def __init__(self, namespace, systemName):
@@ -188,6 +191,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			"hub": self.hub,
 			"lobby": self.lobby,
 			"setplayercanfly": self.setplayercanfly,
+			"execute_as": self.execute_as,
 			#'setblocknbt': self.setblocknbt
 			"§r§r§rgtmbdebug": self.debug,
 		}
@@ -1522,10 +1526,10 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '没有与选择器匹配的目标'
 		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[1])
-		if result[1] == True:
-			return True, result[0]
-		itemDict = result[0]
+		try:
+			itemDict = checkjson(cmdargs[1])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
 		if isinstance(itemDict, dict):
 			for i in ['isDiggerItem', 'enchantData', 'itemId', 'modEnchantData', 'modId', 'modItemId', 'itemName', 'auxValue']:
 				itemDict.pop(i, False) #删去多余键值对(这些已被弃用)
@@ -1547,10 +1551,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		y = int(cmdargs[2][1])
 		z = intg(cmdargs[2][2])
 		itemDict = compItemWorld.GetContainerItem((x, y, z), cmdargs[1], cmdargs[3]['id'], True)
-		result = checkjson(cmdargs[0])
-		if result[1] == True:
-			return True, result[0]
-		itemDict2 = result[0]
+		try:
+			itemDict = checkjson(cmdargs[0])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
+		itemDict2 = itemDict.copy()
 		if isinstance(itemDict2, dict):
 			for k,v in [('durability', 0), ('customTips', ''), ('extraId', ''), ('newAuxValue', 0), ('userData', None), ('showInHand', True)]:
 				itemDict2.setdefault(k, v)
@@ -1579,10 +1584,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		# args['return_failed'] = True
 		if not check_entities_type('minecraft:player', cmdargs[2]):
 			return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[0])
-		if result[1] == True:
-			return True, result[0]
-		itemDict2 = result[0]
+		try:
+			itemDict = checkjson(cmdargs[0])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
+		itemDict2 = itemDict.copy()
 		if isinstance(itemDict2, dict):
 			for k,v in [('durability', 0), ('customTips', ''), ('extraId', ''), ('newAuxValue', 0), ('userData', None), ('showInHand', True)]:
 				itemDict2.setdefault(k, v)
@@ -1612,10 +1618,10 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '没有与选择器匹配的目标'
 		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[1])
-		if result[1] == True:
-			return True, result[0]
-		itemDict = result[0]
+		try:
+			itemDict = checkjson(cmdargs[1])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
 		if isinstance(itemDict, dict):
 			if itemDict.get('newItemName') is None:
 				return True, '物品数据中缺少 newItemName 键'
@@ -1761,10 +1767,10 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '没有与选择器匹配的目标'
 		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
-		result = checkjson(cmdargs[2])
-		if result[1] == True:
-			return True, result[0]
-		itemDict = result[0]
+		try:
+			itemDict = checkjson(cmdargs[2])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
 		if isinstance(itemDict, dict):
 			if itemDict.get('newItemName') is None:
 				return True, '物品数据中缺少 newItemName 键'
@@ -1944,10 +1950,10 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '无效的槽位'
 		x, y, z = cmdargs[2]
 		xyz = (intg(x), int(y), intg(z))
-		result = checkjson(cmdargs[0])
-		if result[1] == True:
-			return True, result[0]
-		itemDict = result[0]
+		try:
+			itemDict = checkjson(cmdargs[0])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
 		if isinstance(itemDict, dict):
 			if itemDict.get('newItemName') is None:
 				return True, '物品数据中缺少 newItemName 键'
@@ -1984,12 +1990,10 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setentityitem(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		result = checkjson(cmdargs[2])
-		if result[1] == True:
-			return True, result[0]
-		itemDict = result[0]
-		if not isinstance(itemDict, dict):
-			return True, '无效的nbt'
+		try:
+			itemDict = checkjson(cmdargs[2])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
 		for i in cmdargs[0]:
 			if CF.CreateEngineType(i).GetEngineTypeStr() == 'minecraft:player':
 				return True, '选择器必须为非玩家类型'
@@ -2152,18 +2156,18 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if cmdargs[2] is None:
 			return False, 'Pos%s 处的方块NBT为\n%s' % (xyz, CF.CreateBlockInfo(levelId).GetBlockEntityData(cmdargs[1]['id'], xyz))
 		else:
-			result = checkjson(cmdargs[2])
-			if result[1] == True:
-				return True, result[0]
-			blockDict = result[0]
+			try:
+				blockDict = checkjson(cmdargs[2])
+			except InvaildNBTDataException as exception:
+				return True, str(exception)
 			CF.CreateBlockInfo(levelId).SetBlockEntityData(cmdargs[1]['id'], xyz, blockDict)
 			return False, '已设置 Pos%s 的方块nbt' % (xyz,)
 
 	def summonitem(self, cmdargs, playerId, variant, data):
-		result = checkjson(cmdargs[1])
-		if result[1] == True:
-			return True, result[0]
-		itemDict = result[0]
+		try:
+			itemDict = checkjson(cmdargs[1])
+		except InvaildNBTDataException as exception:
+			return True, str(exception)
 		if isinstance(itemDict, dict):
 			x, y, z = cmdargs[0]
 			xyz = (intg(x), int(y), intg(z))
@@ -2418,12 +2422,49 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			CF.CreateFly(i).ChangePlayerFlyState(cmdargs[1],False)
 		return False, '将 %s 的飞行权限设置为 %s' % (create_players_str(cmdargs[0]), '允许' if cmdargs[1] else '禁止')	
 
+	def execute_as(self, cmdargs, playerId, variant, data):
+		if variant == 0:
+			if cmdargs[3] <= 0:
+				return True, '步长必须大于0'
+			cmd = cmdargs[4]
+			cmd = cmd.replace("'", '"')
+			if cmdargs[0] == 'in_area':
+				for x in float_range(cmdargs[1][0], cmdargs[2][0], cmdargs[3]):
+					for y in float_range(cmdargs[1][1], cmdargs[2][1], cmdargs[3]):
+						for z in float_range(cmdargs[1][2], cmdargs[2][2], cmdargs[3]):
+							compCmd.SetCommand('execute positioned %s %s %s run %s' % (x, y, z, cmd))
+							#compCmd.SetCommand('summon tnt %s %s %s' % position)
+				return False, '已在指定区域内执行命令'
+			if cmdargs[0] == 'on_segment':
+				dx = cmdargs[2][0] - cmdargs[1][0]
+				dy = cmdargs[2][1] - cmdargs[1][1]
+				dz = cmdargs[2][2] - cmdargs[1][2]
+				distance = math.sqrt(dx**2 + dy**2 + dz**2)
+				steps = int(distance / cmdargs[3])
+				for i in range(steps):
+					x = cmdargs[1][0] + dx * i / steps
+					y = cmdargs[1][1] + dy * i / steps
+					z = cmdargs[1][2] + dz * i / steps
+					compCmd.SetCommand('execute positioned %s %s %s run %s' % (x, y, z, cmd))
+				return False, '已在指定线段上执行命令'
+
+		if variant == 1:
+			cmd = cmdargs[4]
+			cmd = cmd.replace("'", '"')
+			if cmdargs[0] == 'if_in_area':
+				if (min(cmdargs[2][0], cmdargs[3][0]) <= cmdargs[1][0] and cmdargs[1][0] <= max(cmdargs[2][0], cmdargs[3][0])
+					and min(cmdargs[2][1], cmdargs[3][1]) <= cmdargs[1][1] and cmdargs[1][1] <= max(cmdargs[2][1], cmdargs[3][1])
+					and min(cmdargs[2][2], cmdargs[3][2]) <= cmdargs[1][2] and cmdargs[1][2] <= max(cmdargs[2][2], cmdargs[3][2])):
+					compCmd.SetCommand('execute positioned %s %s %s run %s' % (cmdargs[1][0], cmdargs[1][1], cmdargs[1][2], cmd))
+					return False, '条件通过'
+				else:
+					return True, '条件不通过'
+
 
 	#服务端函数部分到此结束
 
 
 	# 调试用，正式版请删除
-	# commit: 多好的东西
 	def debug(self, cmdargs, playerId, variant, data):
 		if CF.CreateEngineType(playerId).GetEngineTypeStr() != 'minecraft:player' or CF.CreateName(playerId).GetName() not in ['ffdgd', 'EGGYLAN_', 'EGGYLAN', '王培衡很丁丁']:
 			return True, '未知的命令:gtmbdebug。请检查命令是否存在，以及你对它是否拥有使用权限'

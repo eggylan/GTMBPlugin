@@ -31,6 +31,16 @@ def unicode_convert(input):
 		return input.encode('utf-8')
 	return input
 
+def float_range(start, stop, step):
+	#type: (float, float, float) -> list
+	if (step <= 0): raise ValueError("step must be a positive number")
+	step = -step if start > stop else step
+	result = []
+	while (step > 0 and start <= stop) or (step < 0 and start >= stop):
+		result.append(start)
+		start += step
+	return result
+
 class mainServerSystem(serverApi.GetServerSystemCls()):
 	def __init__(self, namespace, systemName):
 		super(mainServerSystem, self).__init__(namespace, systemName)
