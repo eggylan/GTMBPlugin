@@ -1552,10 +1552,9 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		z = intg(cmdargs[2][2])
 		itemDict = compItemWorld.GetContainerItem((x, y, z), cmdargs[1], cmdargs[3]['id'], True)
 		try:
-			itemDict = checkjson(cmdargs[0])
+			itemDict2 = checkjson(cmdargs[0])
 		except InvaildNBTDataException as exception:
 			return True, str(exception)
-		itemDict2 = itemDict.copy()
 		if isinstance(itemDict2, dict):
 			for k,v in [('durability', 0), ('customTips', ''), ('extraId', ''), ('newAuxValue', 0), ('userData', None), ('showInHand', True)]:
 				itemDict2.setdefault(k, v)
