@@ -1392,7 +1392,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, '没有与选择器匹配的目标'
 		status = cmdargs[1]
 		output = None
-		if cmdargs[2] == 'toscore':
+		if variant == 1:  # toscore
 			if not cmdargs[3]:
 				return True, '计分板目标名不能为空'
 			if not self._get_status_valid_scoreboard_objective(cmdargs[3]):
@@ -1404,7 +1404,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			if not any(isinstance(item, dict) and item.get('name') == cmdargs[3] for item in objects):
 				return True, '积分榜目标不存在: %s' % cmdargs[3]
 			output = {'kind': 'toscore', 'objective': cmdargs[3], 'mode': cmdargs[4], 'scale': cmdargs[5]}
-		elif cmdargs[2] == 'totag':
+		elif variant == 2:  # totag
 			if not cmdargs[3]:
 				return True, '标签名不能为空'
 			output = {'kind': 'totag', 'tag': cmdargs[3], 'remove_false': cmdargs[4]}
