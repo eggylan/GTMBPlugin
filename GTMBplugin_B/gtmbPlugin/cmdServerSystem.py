@@ -735,7 +735,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					return self._get_status_server_value(entity_id, ability_status)
 				return self._get_status_nested_value(CF.CreatePlayer(entity_id).GetPlayerAbilities(), raw_path[1:])
 
-		is_player = is_player(entity_id)
+		entity_is_player = is_player(entity_id)
 		compEngineType = CF.CreateEngineType(entity_id)
 		compName = CF.CreateName(entity_id)
 		compPos = CF.CreatePos(entity_id)
@@ -771,7 +771,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if key in ('dimension', 'dim'):
 			return True, compDimension.GetEntityDimensionId(), None
 		if key in ('is_player', 'player'):
-			return True, is_player, None
+			return True, entity_is_player, None
 		if key in ('tags', 'tag'):
 			return True, compTag.GetEntityTags(), None
 		if key in ('effects', 'effect'):
@@ -808,7 +808,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return True, CF.CreateBreath(entity_id).GetMaxAirSupply(), None
 		if key in ('motions', 'entity_motions'):
 			motion = CF.CreateActorMotion(entity_id)
-			return True, motion.GetPlayerMotions() if is_player else motion.GetEntityMotions(), None
+			return True, motion.GetPlayerMotions() if entity_is_player else motion.GetEntityMotions(), None
 		if key in ('properties', 'property'):
 			return True, CF.CreateQueryVariable(entity_id).GetAllProperties(), None
 
@@ -819,7 +819,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			attr_type = STATUS_ATTRS[attr_name]
 			return True, compAttr.GetAttrMaxValue(attr_type) if is_max else compAttr.GetAttrValue(attr_type), None
 
-		if is_player:
+		if entity_is_player:
 			compPlayer = CF.CreatePlayer(entity_id)
 			compFly = CF.CreateFly(entity_id)
 			compExp = CF.CreateExp(entity_id)
@@ -912,11 +912,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				'nbt': CF.CreateEntityDefinitions(entity_id).GetEntityNBTTags(),
 				'extra': CF.CreateExtraData(entity_id).GetWholeExtraData(),
 				'components': CF.CreateEntityComponent(entity_id).GetAllComponentsName(),
-				'motions': motion.GetPlayerMotions() if is_player else motion.GetEntityMotions(),
+				'motions': motion.GetPlayerMotions() if entity_is_player else motion.GetEntityMotions(),
 				'entity_states': simple_states,
 				'extern': self._get_status_extern_value(entity_id)[1],
 			}
-			if is_player:
+			if entity_is_player:
 				result['player'] = {
 					'name': CF.CreateName(entity_id).GetName(), 
 					'xp': compExp.GetPlayerExp(False),
@@ -1261,8 +1261,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				result = CF.CreateExp(entity_id).SetOrbExperience(converted)
 			return (False, '%s 设置失败' % key) if result is False or result == -1 else (True, '%s 已设置' % key)
 
-		is_player = is_player(entity_id)
-		if is_player:
+		entity_is_player = is_player(entity_id)
+		if entity_is_player:
 			player = CF.CreatePlayer(entity_id)
 			if key == 'hunger':
 				try:
