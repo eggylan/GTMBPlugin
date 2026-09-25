@@ -1,0 +1,28 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "§l§a为什么要写进记分板§r\n\n记分板是命令方块之间「传消息」的通用手段：把血量、经验、坐标写进去后，就能用比较器、§u/if§r、排行榜来使用它。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a操作步骤§r\n\n1. 先建一个计分项（只建一次）：\n§u/scoreboard objectives add hp dummy§r\n\n2. 把血量写进去：\n§u/get_status @a health toscore hp set 1§r",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a让它保持最新§r\n\n把上一条命令放进循环命令方块（保持开启），记分板就会实时更新。\n\n查看：§u/scoreboard players list @a§r\n末尾的 1 是倍率（写 10 就是放大 10 倍）。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a更省事的写法：打标签§r\n\n只想判断「血量是否低于 10」：\n\n§u/get_status @s \"health < 10\" totag lowhp true§r\n\n成立就加标签，不成立就自动删掉。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§e提示§r\n\n- 记分板只能存整数；需要小数就用倍率放大。\n- 纯读取结果为假（0、false、空）会以§c红字§r失败，正好能当条件（红字 = 比较器不触发）。\n- 需要管理员权限。",
+            "type": "textPage"
+        }
+    ],
+    "parent": "fTPfgaAD",
+    "sortnum": 2,
+    "title": "把状态写进记分板"
+}

@@ -2,8 +2,22 @@
     "editor_identifier": "guild",
     "pages": [
         {
-            "content":"这些是GTMB插件新增命令的下半部分, 共73条。你可以在这儿看见各个命令的用法以及注意事项",
+            "content":"这些是GTMB插件新增命令的下半部分, 共78条。你可以在这儿看见各个命令的用法以及注意事项",
             "type":"textPage"
+        },
+        {
+            "content": "设置实体的状态\n用法: /set_status <目标:target> <状态:str> <值:str>\n\n值必须用英文双引号包起来，裸写数字会报语法错误：\n/set_status @s hunger \"20\"",
+            "type": "textPage",
+            "subtitle": "set_status"
+        },
+        {
+            "content": "常用状态：\nhunger 饱食度 / health 血量 / game_type 游戏模式\nposition 脚底坐标，如 \"100,64,100\"\neffect.<效果名>，如 effect.speed \"30,1,1\"\nabilities.canFly \"true\" / \"false\"",
+            "type": "textPage"
+        },
+        {
+            "content": "从计分板取值，写进实体状态\n用法: /set_status_score <目标:target> <状态:str> <计分项:str> [计分实体:target]\n\n例：/set_status_score @s health 血量\n\n省略计分实体时，读取每个目标自己的分数",
+            "type": "textPage",
+            "subtitle": "set_status_score"
         },
         {
             "content":"禁止所有玩家所有容器界面的打开, 包括物品栏\n用法: /setdisablecontainers <是否禁止:bool>",
@@ -13,7 +27,7 @@
         {
             "content": "禁止所有玩家丢弃物品\n用法: /setdisabledropitem <是否禁止:bool>",
             "type": "textPage",
-            "subtitle": "serdisableddropitem"
+            "subtitle": "setdisabledropitem"
         },
         {
             "content": "禁用所有玩家的饥饿度\n用法: /setdisablehunger <是否禁止:bool>",
@@ -131,6 +145,15 @@
             "subtitle": "setlevelgravity"
         },
         {
+            "content": "设置联机大厅模组的启用状态\n用法: \n/setlobbymod 我的伙伴-全局 <是否启用:bool>\n/setlobbymod 我的好友 <玩家:target> <是否启用:bool>\n/setlobbymod 魔法指令 <玩家:target> <是否启用:bool>",
+            "type": "textPage",
+            "subtitle": "setlobbymod"
+        },
+        {
+            "content": "/setlobbymod 我的好友-全局 <是否启用:bool>\n/setlobbymod 魔法指令-全局 <是否启用:bool>\n\n带「-全局」的设置会提示「重载存档」后生效。",
+            "type": "textPage"
+        },
+        {
             "content": "设置生物是否生成掉落物\n用法: /setlootdropped <目标:target> <是否掉落:bool>",
             "type": "textPage",
             "subtitle": "setlootdropped"
@@ -166,6 +189,15 @@
             "subtitle": "setopencontainersability"
         },
         {
+            "content": "设置「使用 /op 命令时获得的权限等级」\n用法: /setoplevel <等级:2|3|4>\n\n2：可以使用所有单人游戏作弊命令\n3：可以使用大多数多人游戏独有的命令\n4：可以使用所有命令",
+            "type": "textPage",
+            "subtitle": "setoplevel"
+        },
+        {
+            "content": "设置会存进存档，但需要重新获取一次命令权限才会应用。\n\n单人开图或自己当房主时，直接设成 4 最省事。",
+            "type": "textPage"
+        },
+        {
             "content": "设置玩家能否与门和拉杆交互\n用法: /setoperatedoorability <目标:target> <能否交互:bool>",
             "type": "textPage",
             "subtitle": "setoperatedoorability"
@@ -199,6 +231,11 @@
             "content": "管理玩家某行为饥饿度消耗倍率\n用法: /playerexhaustionratio <玩家:target> heal|jump|sprint_jump|mine|attack|global <倍率:float>",
             "type": "textPage",
             "subtitle": "playerexhaustionratio"
+        },
+        {
+            "content": "设置玩家是否可以飞行\n用法: /setplayercanfly <目标:target> <是否能:bool>\n\n只给/收回飞行能力，不会强制让玩家进入飞行状态；给完之后玩家双击跳跃键就能起飞（生存模式也可以）",
+            "type": "textPage",
+            "subtitle": "setplayercanfly"
         },
         {
             "content": "设置玩家健康临界值, 当饥饿值大于等于此值时会自动回血, 原版18\n用法: /setplayerhealthlevel <玩家:target> <值:int>",

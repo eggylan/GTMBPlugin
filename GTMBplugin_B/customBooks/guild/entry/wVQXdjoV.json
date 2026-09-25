@@ -2,7 +2,19 @@
     "editor_identifier": "guild",
     "pages": [
         {
-            "content": "这里的书页似乎残缺了...",
+            "content": "§l§a为什么需要它§r\n\n玩家的身份分三档：\n访客：不能破坏、放置方块\n成员：可以正常游玩\n管理员：可以使用管理员命令\n\n有些房间重进后会把权限重置。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a做法§r\n\n命令方块设成「循环」+「保持开启」，命令栏填入：\n\n§u/console \"op 玩家名\"§r\n\n玩家名换成你自己，用拉杆一直充能即可。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a为什么要套一层 /console§r\n\n直接写 §u/op 玩家名§r 会以命令方块的身份执行，而命令方块没有这个权限。\n\n套上 §u/console§r 就会以控制台身份执行。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§e注意事项§r\n\n- 玩家名要写完整，不能用 §u@s§r、§u@a§r 这类选择器\n- 只是想把身份改成访客/成员，用 §u/opset§r 更方便",
             "type": "textPage"
         }
     ],

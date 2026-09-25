@@ -1,0 +1,120 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "§l§a三条状态命令§r\n\n§u/get_status§r 读取实体 / 世界的状态\n§u/set_status§r 写入手动值\n§u/set_status_score§r 先从计分板取值再写入\n\n状态名不区分大小写，完整清单见《状态速查表》。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§aget_status 语法§r\n\n/get_status <目标> <状态或表达式>\n/get_status <目标> <状态> toscore <积分榜> <set|add|remove> [倍率]\n/get_status <目标> <状态> totag <标签> [结果false时删除]",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a倍率与写入示例§r\n\n倍率默认 1；写进积分榜按「四舍五入(结果 × 倍率)」取整，想保留小数写 10 或 100。\n\n/get_status @a \"query.health\" toscore health add 10\n/get_status @s \"query.health > 0\" totag alive true",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a读取示例 · 基础§r\n\n/get_status @s health\n/get_status @s xyz\n/get_status @s rotation.yaw\n/get_status @s velocity.x\n/get_status @s xp\n/get_status @s effects\n/get_status @s effect.speed.duration",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a读取示例 · 物品与世界§r\n\n/get_status @s item.carried.durability\n/get_status @s item.inventory.0\n/get_status @s world.time\n/get_status @s world.difficulty\n/get_status @s all",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§aset_status 与引号规则§r\n\n/set_status <目标> <状态> <值>\n\n§l值必须加英文双引号§r，裸写数字或布尔会报「语法错误」。\n\n/set_status @s hunger \"6\"\n/set_status @s position \"100,64,-20\"",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§aset_status_score§r\n\n/set_status_score <目标> <状态> <计分项> [计分实体]\n\n先从计分板读出整数再逐个写入；省略计分实体时读每个目标自己。\n\n例：/set_status_score @s hunger hunger_score",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a回显颜色 = 失败标志§r\n\n§c红色§r = 失败：只要§l任一目标§r失败（未知状态、读取异常、积分榜写入失败等），整条命令都按失败返回。\n\n无匹配目标、积分榜不存在等前置条件失败同样是红色。\n\n普通颜色 = 全部成功。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a纯读取的假值也算失败§r\n\n只读取状态时，结果是假（false、0、空字符串、空列表或字典、null）会以§c红字§r返回。\n\n这正好能当命令方块的条件用：红字 = 比较器不触发。\n\ntoscore / totag 按写入成败判定，写 0 仍算成功。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a数学表达式 · 支持的运算§r\n\n算术：+ - * / % **\n位运算：& | ^ << >>\n比较：> < >= <= == !=\n逻辑：and / or / not\n\n状态路径可以直接当变量用（如 velocity.x）。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a数学表达式 · 函数§r\n\nabs、sqrt、floor、ceil、round\ntrunc、sign、clamp、clamp01、lerp\nsin、cos、tan、asin、acos、atan、atan2\ndegrees、radians、hypot\nlog、log10、exp、pow、min、max",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a表达式示例§r\n\n/get_status @s \"max_health-health\"\n/get_status @s \"(hunger>=6) and (health>0)\"\n/get_status @s \"clamp(health/20, 0, 1)\"\n\n纯数字（\"1\"、\"-2.5\"、\"1e3\"）也按表达式求值。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§aMolang 表达式§r\n\n以 query.、variable. 开头，或用 && || ! 的表达式交给引擎 Molang 求值器，以目标实体作为 query 上下文。\n\n例：/get_status @s query.is_flying",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§aextern 派生状态（只读）§r\n\nextern.forward / backward\nleftward / rightward / rising / falling / downing\n\n按朝向拆出的速度分量，垂直项是速度分量的正值。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a事件状态 event.*§r\n\nevent.<服务端事件名>[.<字段>]\n\n第一次调用会订阅该事件，触发后再执行一次即可取回快照。\n\n例：/get_status @s event.PlayerAttackEntityEvent",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a客户端状态 client.*§r\n\nclient.query.* —— 向该玩家客户端请求 Molang\nclient.dimension、client.body_rot\nclient.on_ground、client.on_ladder、client.in_lava\nclient.all、client.event.<客户端事件名>[.<字段>]",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a订阅与上限§r\n\n事件监听上限：每端 32 个\n客户端请求队列上限：128 个\n\n没有命令调用时，不会注册监听、不会轮询、也不跑 Tick —— 不调用就没有额外开销。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写状态 · 总则§r\n\n布尔统一接受 \"true\"/\"false\" 或 \"1\"/\"0\"（1 真 0 假）。\n§l这些值都要加英文双引号。§r\n\n解析不了的内容会原样当字符串，由各状态自己的写入逻辑报错。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写状态 · 值怎么解析§r\n\ntrue / yes / on → 真\nfalse / no / off → 假\n\n逗号分隔 → 浮点元组（1,2,3 → (1.0,2.0,3.0)）\n以 [ { \" 开头 → 按 JSON 解析\n含 . 或 e → float；纯数字 → int",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写 · 空间§r\n\nposition、position.x|y|z\nrotation、rotation.pitch|yaw\nvelocity、velocity.x|y|z\n\n坐标写的是§l脚底§r，与读出的 position 对称 —— 读到的值原样写回去不会漂移。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写 · 属性与实体§r\n\n任意 AttrType 属性都能写：health、max_health、speed、damage、hunger、armor、flying_speed……\n\n实体：name、step_height、air、max_air、tag.<标签>、extra.<键>、mod.<键>",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写 · 状态效果§r\n\neffect.<效果名>：0 删除、数字是秒数、「秒数,等级,粒子」添加或刷新。\n\n引擎不会缩短已有效果：同级重复保留较长的，更高等级直接覆盖；要缩短先写 0。\n\n秒数按四舍五入取整。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写 · 物品§r\n\nitem.carried、item.offhand\nitem.inventory.<槽位>、item.armor.<槽位>\n\n可以整体替换成 JSON 物品字典，也可以只写某个字段：\n.count、.userData.xxx、.durability、.max_durability",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写 · 玩家（上）§r\n\nhunger、current_exhaustion、max_exhaustion\nhealth_level、starve_level\nhealth_tick、starve_tick\nnatural_regen、natural_starve\njumpable、movable、can_fly、isFlying",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写 · 玩家（下）§r\n\nattack_mobs、attack_players\nbuild_ability、mine_ability\nteleport_ability、operator_commands",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写 · 玩家（末）§r\n\nopen_containers、operate_doors\nmuted、ban_fishing\npermission、game_type\ninteract_range、pickup_area、attack_speed_amplifier",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a别名§r\n\nattributes.health、player.hunger\nmod.<键>、extra.<键>\n\n能力别名 abilities.*：\ncanFly、jump、move、build、mine、teleport\n读侧只有 move / jump 没有接口。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a只读状态§r\n\nquery.* —— 引擎 Molang\n事件快照 event.*、client.event.*\nNBT、ExtraData、实体组件、玩家经验\n\n以上都只能读，不能写。",
+            "type": "textPage"
+        }
+    ],
+    "parent": "rcTYWJwm",
+    "sortnum": 1,
+    "title": "状态命令使用说明"
+}

@@ -1,0 +1,156 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "§l§a怎么用这张表§r\n\n/get_status <目标> <状态>\n/set_status <目标> <状态> <值>\n/set_status_score <目标> <状态> <计分项> [计分实体]\n\n规则与值的格式见《状态命令使用说明》。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a向量§r\n\nposition / xyz —— .x .y .z（可写，脚底）\nfoot_position —— .x .y .z（可写，等价）\nrotation / rotxy —— .pitch .yaw（可写）\nvelocity / motion —— .x .y .z（可写）\nquaternion —— 只读",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a坐标为什么按脚底§r\n\n引擎的 GetPos() 对玩家返回「脚位 + 眼高 1.62」，而 SetPos() 设置的却是脚位 —— 一读一写就错位。\n\n插件统一改用 GetFootPos() / SetFootPos()，所以 position 与 foot_position 等价，读到的值可以原样写回。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a属性 · 一§r\n\nhealth、speed、damage、underwater_speed\nhunger、saturation、absorption、lava_speed\nluck、follow_range、knockback_resistance\njump_strength、armor、attack_knockback",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a属性 · 二§r\n\nattack_speed、explosion_knockback_resistance\nflying_speed、sneaking_speed\nmovement_efficiency、water_movement_efficiency\nblock_break_speed、mining_efficiency、submerged_mining_speed",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a属性 · 修饰符§r\n\n任一属性加 max_ 前缀即为最大值，例如 max_health、max_speed。\n\n属性修饰符用 modifier.<属性名>。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a实体与行为 · 一§r\n\nid、name、type、engine_type_id\nalive、dimension、tags、tag.<标签>\nnbt、nbt.<字段>、extra、extra.<键>\nmod.<键>、components、motions、properties\nentity_event_components",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a实体与行为 · 二§r\n\nattack_target、entity_owner、tame_owner\nrider、riders、is_riding\nentity_scale、collision_size\ngravity、jump_power、step_height\non_fire、air、max_air、consuming_air、type_family",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a实体与行为 · 三§r\n\ndeath_time、fall_distance\nentity_definitions、entity_links\nleash_holder",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a实体定义状态 · 一§r\n\nmark_variant、variant、mob_color\nmob_strength、max_mob_strength\ntrade_level、has_chest、has_saddle\nangry、baby、eating、illager_captain",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a实体定义状态 · 二§r\n\nloot_dropped、naturally_spawned\nout_of_control、persistent、pregnant\nroaring、sheared、sitting、stunned、tamed\nai_blocked、orb_experience、model_name",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写实体状态 · 一§r\n\nname、step_height、air、max_air\ngravity、jump_power、entity_scale\norb_experience、persistent、sitting\nsheared、loot_dropped",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a可写实体状态 · 二§r\n\nactor_pushable、actor_collidable、ai_blocked\ntag.<标签>、extra.<键>、mod.<键>\n\nair 等价 air.current / air.value；max_air 等价 air.max。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a状态效果 · 示例§r\n\n/get_status @s effects\n/get_status @s effect.speed.amplifier\n/get_status @s effect.speed.duration_f\n/set_status @s effect.speed \"30,1,1\"\n/set_status @s effect.speed \"0\"",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a状态效果 · 写入格式§r\n\n值是「持续秒数,额外等级,显示粒子」\n\n/set_status @s effect.speed \"30,1,1\"\n→ 30 秒、1 级、显示粒子",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a效果值的坑§r\n\n引擎§l不会缩短已有效果§r：同等级重复设置保留较长的剩余时长，更高等级会直接覆盖。想缩短必须先写 0 删除。\n\neffects.<下标>.<字段> 读原始字典（duration、duration_f、amplifier、effectName）。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a怎么判断有没有效果§r\n\n直接用 effect.<效果名>：\n\n不存在 → 返回 false（按失败标志规则会变成红字）\n存在 → 返回效果字典\n\n例：/get_status @s effect.speed",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家状态 · 读（上）§r\n\nxp、xp_percent、total_xp、level\nhunger、current_exhaustion、max_exhaustion\nhealth_level、starve_level\nhealth_tick、starve_tick\nnatural_regen、natural_starve",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家状态 · 读（中）§r\n\nenchantment_seed、abilities、abilities.<字段>\ncan_fly、isFlying、permission、game_type\nsneaking、swimming、blocking、fishing",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家状态 · 读（下）§r\n\ninteract_range、interact_center_offset\nrespawn_pos、nearby_players\nselected_slot、all_enchants、fish_hook",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家状态 · 只读能力别名§r\n\nabilities.build、abilities.mine\nabilities.teleport、abilities.opencontainers\nabilities.attackmobs、abilities.attackplayers\n\nmove 与 jump 没有读取接口。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家状态 · 写（上）§r\n\nhunger、current_exhaustion、max_exhaustion\nhealth_level、starve_level\nhealth_tick、starve_tick\nnatural_regen、natural_starve\nenchantment_seed、jumpable、movable",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家状态 · 写（下）§r\n\ncan_fly、isFlying\nattack_mobs、attack_players\nbuild_ability、mine_ability\nopen_containers、operate_doors\noperator_commands、teleport_ability",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家状态 · 写（末）§r\n\nmuted、ban_fishing、permission、game_type\ninteract_range、pickup_area、attack_speed_amplifier",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a只写不能读的三个§r\n\nmovable、jumpable、operator_commands 引擎只提供写入接口，读取会明确报「仅可写」。\n\n其它玩家状态都既能读也能写。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a参数型读取§r\n\ndestroy_time.<命名空间方块> —— 用剪刀破坏该方块的耗时\nexhaustion_ratio.<行为枚举整数> —— 某行为的饥饿消耗\n\n示例：/get_status @s destroy_time.minecraft:stone",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家物品 · 位置§r\n\nitem.carried、item.mainhand、held_item —— 主手\nitem.offhand —— 副手\nitem.inventory.<0-35> —— 背包槽\nitem.armor.<0-3> —— 盔甲槽",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家物品 · 读写§r\n\n末尾可以跟物品字典的任意字段；durability、max_durability 有专用写接口。\n\n直接设置 item.<位置> 或 item.<位置>.<槽位> 时传 JSON 物品字典，传 null 清空。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a世界状态 · 一§r\n\nworld.time、world.raining、world.thunder\nworld.game_type、world.difficulty、world.difficulty_locked\nworld.game_rules、world.game_rules_locked、world.game_type_locked\nworld.gravity、world.seed",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a世界状态 · 二§r\n\nworld.spawn_position、world.spawn_dimension\nworld.piston_max_interaction_count\nworld.disable_command_minecart\nworld.scoreboard_objects",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a客户端状态§r\n\nclient.query.*、client.effects、client.effect.<效果名>.<字段>\nclient.dimension、client.body_rot、client.on_ground、client.on_ladder、client.in_lava、client.all\nclient.event.<事件名>.<字段>",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a全量快照与事件§r\n\nall：一次拿到实体的状态、属性、NBT 与物品。\n\nevent.<服务端事件名>[.<字段>]\nclient.event.<客户端事件名>[.<字段>]\n\n返回按需订阅后的快照。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a客户端扩展 · 一§r\n\nclient.position、client.foot_position\nclient.velocity、client.velocity.x\nclient.rotation.yaw、client.input_vector\nclient.effects、client.effect.<效果名>.<字段>",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a客户端扩展 · 二§r\n\nclient.item.carried、client.item.offhand\nclient.item.inventory.<槽位>、client.item.armor.<槽位>",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a客户端扩展 · 三§r\n\nclient.is_gliding、client.is_sprinting\nclient.is_moving、client.is_riding\nclient.is_sneaking\nclient.is_in_water、client.is_on_ladder",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a客户端扩展 · 四§r\n\nclient.is_in_scaffolding、client.is_fishing\nclient.fish_hook、client.hunger\nclient.selected_slot、client.all_enchants",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a客户端扩展 · 五§r\n\nclient.camera.*、client.fps\nclient.screen_size、client.screen_view\nclient.operation.*",
+            "type": "textPage"
+        }
+    ],
+    "parent": "rcTYWJwm",
+    "sortnum": 2,
+    "title": "状态速查表"
+}

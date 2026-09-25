@@ -2,7 +2,7 @@
     "editor_identifier": "guild",
     "pages": [
         {
-            "content": "这些是GTMB插件新增命令的上半部分，共71条。你可以在这儿看见各个命令的用法以及注意事项",
+            "content": "这些是GTMB插件新增命令的上半部分，共70条。你可以在这儿看见各个命令的用法以及注意事项",
             "type": "textPage"
         },
         {
@@ -58,6 +58,11 @@
             "type": "textPage"
         },
         {
+            "subtitle": "cancel_structure_load",
+            "content": "取消正在进行的结构导入\n用法: /cancel_structure_load\n\n导入大结构等待太久、或者发现导错了，用它中断即可",
+            "type": "textPage"
+        },
+        {
             "subtitle": "changeselectslot",
             "content": "设置玩家当前选中的快捷栏槽位\n用法: /changeselectslot <目标:target> <槽位:int>\n槽位从0开始",
             "type": "textPage"
@@ -87,8 +92,22 @@
             "type": "textPage"
         },
         {
+            "subtitle": "execute_as",
+            "content": "在一条线段或一片区域上的大量点处，同时执行同一条命令\n用法: \n/execute_as on_segment <起点:pos> <终点:pos> <步长:float> <命令:str>\n/execute_as in_area <起点:pos> <终点:pos> <步长:float> <命令:str>",
+            "type": "textPage"
+        },
+        {
+            "content": "/execute_as if_in_area <判定点:pos> <起点:pos> <终点:pos> <命令:str>\n\n命令要用英文双引号包裹，内部的双引号换成单引号。\n\n§l§c注意§r：步长越小点越多（0.1 会有上百万个点），会让游戏卡死——先用大步长试。",
+            "type": "textPage"
+        },
+        {
             "subtitle": "executecb",
             "content": "执行指定的命令方块\n用法: /executecb <坐标:pos> <维度:dimension>",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "eula",
+            "content": "查看用户协议\n用法: /eula\n\n只能在游戏里以玩家身份执行（命令方块和控制台不行），打开后按界面提示阅读即可",
             "type": "textPage"
         },
         {
@@ -112,6 +131,19 @@
             "type": "textPage"
         },
         {
+            "subtitle": "get_status",
+            "content": "读取实体状态，也可以直接算数学表达式\n用法: \n/get_status <目标:target> <状态:str>\n/get_status <目标:target> <状态:str> toscore <积分榜:str> <模式:set|add|remove> [倍率:float]",
+            "type": "textPage"
+        },
+        {
+            "content": "/get_status <目标:target> <状态:str> totag <标签:str> [结果false时删除:bool]\n\n例：\n/get_status @s health\n/get_status @s \"max_health - health\"",
+            "type": "textPage"
+        },
+        {
+            "content": "常用状态：\nhealth 血量 / max_health 最大血量 / hunger 饱食度\nxp 经验 / armor 护甲 / position 脚底坐标\n\n纯读取结果为假（false/0/空）会以§c红字§r返回，可当命令方块的条件。",
+            "type": "textPage"
+        },
+        {
             "subtitle": "gettps",
             "content": "获取服务器TPS\n用法: /gettps",
             "type": "textPage"
@@ -119,6 +151,20 @@
         {
             "subtitle": "givewithnbt",
             "content": "生成物品到玩家背包\n用法: /givewithnbt <目标:target> <物品信息Json:str>\n\n命令中的JSON不允许出现§l§b\"§r, 应使用§l§b'§r来代替",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "hidenametag",
+            "content": "隐藏指定玩家屏幕上的悬浮字（名牌）\n用法: /hidenametag <目标:target> <是否隐藏:bool>\n\n只对玩家生效；这是屏幕显示效果，不会改变实体本身",
+            "type": "textPage"
+        },
+        {
+            "subtitle": "hub",
+            "content": "传送回主城\n用法: \n/hub\n/hub set <坐标:pos> [维度:dimension]\n/hub clear",
+            "type": "textPage"
+        },
+        {
+            "content": "管理员用 /hub set 设置一次主城落点，之后所有玩家在任何位置输入 /hub 都能回城。\n\n注意：set / clear 需要管理员权限；这条命令不能由命令方块执行。",
             "type": "textPage"
         },
         {
@@ -143,6 +189,11 @@
             "type": "textPage"
         },
         {
+            "subtitle": "lobby",
+            "content": "传送回主城（与 /hub 完全一样，两条命令共用同一个坐标）\n用法: \n/lobby\n/lobby set <坐标:pos> [维度:dimension]\n/lobby clear",
+            "type": "textPage"
+        },
+        {
             "subtitle": "mute",
             "content": "设置玩家禁言\n用法: /mute <目标:target> [是否禁言:bool]",
             "type": "textPage"
@@ -163,6 +214,11 @@
             "type": "textPage"
         },
         {
+            "subtitle": "opset",
+            "content": "强制设置玩家的身份权限，立即生效\n用法: /opset <目标:target> <身份:visitor|member|operator>\n\nvisitor 访客：不能破坏、放置方块\nmember 成员：可以正常游玩\noperator 管理员：可以用管理员命令",
+            "type": "textPage"
+        },
+        {
             "subtitle": "param",
             "content": "用法: \n展示世界中的变量\n/param show [变量:str]\n\n修改或创建世界中的变量\n/param set <变量:str> <类型:int|float|str> [值(可选):str]\n\n删除某一变量\n/param del <变量:str>",
             "type": "textPage"
@@ -171,6 +227,15 @@
             "content": "对变量进行计算\n/param operation <变量:str> <操作:加|减|乘|除|乘方|取余|整除> <参数2:str>\n这里参数2即使是数值也应该填写成\"2\"的形式,\n变量可以这样计算:\n任意类型互加; 字符数字互乘; 其余的都只能数字间操作\n\n给变量随机取值\n/param <模式:random> <变量:str> <最小值:int> <最大值:int>",
             "type": "textPage",
             "contentTextSize": 8
+        },
+        {
+            "subtitle": "param_private",
+            "content": "给某个实体单独存变量（用来替代 /param 的每人一份）\n用法: \n/param_private <数据源:target> show [变量:str]\n/param_private <数据源:target> set <变量:str> <类型:int|float|str> [值:str]",
+            "type": "textPage"
+        },
+        {
+            "content": "/param_private <数据源> del <变量>\n/param_private <数据源> operation <变量> <操作:加|减|乘|除|乘方|取余|整除> <参数>\n/param_private <数据源> random <变量> <最小值> <最大值>",
+            "type": "textPage"
         },
         {
             "subtitle": "playerchatprefix",

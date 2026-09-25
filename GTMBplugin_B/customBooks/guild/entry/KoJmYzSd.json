@@ -1,0 +1,20 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "§l§a管理员先设置一次§r\n\n站在主城的落点中心，由管理员执行：\n\n§u/hub set 0 64 0§r\n\n这会把「主城坐标」记进存档（默认主世界，也可以指定维度）。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a之后任何人、任何位置§r\n\n§u/hub§r\n\n输入这两个字母就瞬间回到主城——穿过地图、掉进虚空、和朋友走散，都能一步回城。\n\n§u/lobby§r 用法完全一样（共用同一个坐标）。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§e注意事项§r\n\n- 必须由玩家本人执行，§l命令方块和控制台都不行§r。\n- 坐标算的是方块中心；落点卡在方块里就把 y 加 1 再设一次。\n- 传送是跨维度的：不管你当前在哪，都会被送回设置时的维度。",
+            "type": "textPage"
+        }
+    ],
+    "parent": "fTPfgaAD",
+    "sortnum": 4,
+    "title": "一键回主城"
+}

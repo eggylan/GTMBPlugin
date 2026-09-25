@@ -2,7 +2,19 @@
     "editor_identifier": "guild",
     "pages": [
         {
-            "content": "这里的书页似乎丢失了...",
+            "content": "§l§a所有会动的东西都要两步§r\n\n1. 先添加运动器\n2. 再用 §u/startmotion§r 启动它\n\n§l只添加不启动，实体是不会动的§r。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a排好队，围着你转圈§r\n\n站在空地上，依次执行：\n\n§u/addaroundentitymotion @e[type=villager] @s 3.14 0.0 1.0 0.0 true 0.0 4.0§r\n\n§u/startmotion @e[type=villager]§r",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a参数依次是§r\n\n目标 = 村民\n环绕对象 = §u@s§r\n角速度 = 3.14（每秒半圈）\n轴 = §u0.0 1.0 0.0§r\n停止弧度 = 0.0（一直转）\n环绕半径 = 4.0",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩点花样§r\n\n- §l只转一圈§r：把「停止弧度」改成 §u6.28§r\n- §l解除§r：§u/removemotion @e[type=villager]§r\n\n§l§e提示§r\n轴的三个数字必须带小数点。",
             "type": "textPage"
         }
     ],

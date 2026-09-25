@@ -1,0 +1,32 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "§l§a什么是变量§r\n\n变量就是「存在世界里的一个数字或一段文字」，可以随时加减、比较、显示。做倒计时、计数器、开关都靠它。\n\n§u/param§r 的变量全房间共享；每个玩家各一份用 §u/param_private§r。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a做个 30 秒倒计时§r\n\n1. 创建变量并设初值：\n§u/param set t int 30§r\n\n2. 每次减 1（放进循环命令方块）：\n§u/param operation t 减 \"1\"§r\n（参数即使是数字也要加英文双引号）",
+            "type": "textPage"
+        },
+        {
+            "content": "3. 查看当前值：\n§u/param show t§r\n\n4. 用它当条件：\n§u/if param t greater_than 0 ...§r\n\n循环命令方块配上比较器，就能在减到 0 时触发下一件事。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a其它常用操作§r\n\n§u/param set c int 0§r  新建变量\n§u/param operation c 加 \"1\"§r  每次 +1\n§u/param operation c 取余 \"10\"§r  每 10 次归零",
+            "type": "textPage"
+        },
+        {
+            "content": "§u/param random dice 1 6§r  随机取 1~6\n§u/param del c§r  删除变量\n\n支持的运算：加、减、乘、除、乘方、取余、整除；字符串只能用「加」和「乘」。",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§e提示§r\n\n- 变量存在世界里，重载存档不会丢；§u/param show§r 不带变量名会列出全部变量。\n- 变量名不能带空格，写命令时不用加引号。",
+            "type": "textPage"
+        }
+    ],
+    "parent": "fTPfgaAD",
+    "sortnum": 3,
+    "title": "用变量做倒计时和计数器"
+}
