@@ -134,6 +134,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		self.serverCustomCmds = {
 			'get_status': self.get_status,
 			'set_status': self.set_status,
+			'set_status_score': self.set_status_score,
 			'setentityonfire':self.setentityonfire,
 			'setcurrentairsupply':self.setcurrentairsupply,
 			'setcompasstarget':self.setcompasstarget,
@@ -1449,53 +1450,67 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		return False, '; '.join(shown)
 
 	def set_status(self, cmdargs, playerId, variant, data):
-		"""通用状态写入；normal 为手动值，toscore 从实体计分板取值。"""
+		"""写入状态的手动值形式；从计分板取值请用 /set_status_score。"""
 		if not cmdargs[0]:
 			return True, '没有与选择器匹配的目标'
 		targets, status = cmdargs[0], cmdargs[1]
-
-		if variant == 0:
-			value = cmdargs[2]
-		elif variant == 1:
-			if not cmdargs[3]:
-				return True, '计分板名称不能为空'
-			score_objective = str(cmdargs[3])
-			score_holders = cmdargs[4]
-
-			if not self._get_status_valid_scoreboard_objective(score_objective):
-				return True, '积分榜目标名无效'
+		value = cmdargs[2]
+		messages = []
+		success_count = 0
+		for entity_id in targets:
+			name = CF.CreateName(entity_id).GetName() or entity_id
 			try:
-				objects = compGame.GetAllScoreboardObjects() or []
+				success, message = self._set_status_server_value(entity_id, status, value)
 			except Exception:
-				objects = []
-			if not any(isinstance(item, dict) and item.get('name') == score_objective for item in objects):
-				return True, '计分项不存在: %s' % score_objective
+				success, message = False, '设置失败: %s' % traceback.format_exc().splitlines()[-1]
+			if success:
+				success_count += 1
+			messages.append('%s: %s' % (name, message))
+		shown = messages[:24]
+		if len(messages) > len(shown):
+			shown.append('其余 %s 条结果已省略' % (len(messages) - len(shown)))
+		return success_count == 0, '; '.join(shown)
+
+	def set_status_score(self, cmdargs, playerId, variant, data):
+		"""从计分板读取整数值再写入状态；省略计分实体时读取每个目标自身。"""
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		targets, status = cmdargs[0], cmdargs[1]
+		if not cmdargs[2]:
+			return True, '计分板名称不能为空'
+		score_objective = str(cmdargs[2])
+		score_holders = cmdargs[3]
+		if not self._get_status_valid_scoreboard_objective(score_objective):
+			return True, '积分榜目标名无效'
+		try:
+			objects = compGame.GetAllScoreboardObjects() or []
+		except Exception:
+			objects = []
+		if not any(isinstance(item, dict) and item.get('name') == score_objective for item in objects):
+			return True, '计分项不存在: %s' % score_objective
 		messages = []
 		success_count = 0
 		for index, entity_id in enumerate(targets):
 			name = CF.CreateName(entity_id).GetName() or entity_id
-			write_value = value
-			if variant == 1:
-				holder_id = entity_id
-				if score_holders:
-					if len(score_holders) == 1:
-						holder_id = score_holders[0]
-					elif len(score_holders) == len(targets):
-						holder_id = score_holders[index]
-					else:
-						messages.append('%s: toscore 实体数量必须为 1 或与目标数量相同' % name)
-						continue
-				found, write_value, error = self._get_status_score_value(entity_id, score_objective, holder_id)
-				if not found:
-					messages.append('%s: %s' % (name, error))
+			holder_id = entity_id
+			if score_holders:
+				if len(score_holders) == 1:
+					holder_id = score_holders[0]
+				elif len(score_holders) == len(targets):
+					holder_id = score_holders[index]
+				else:
+					messages.append('%s: 计分实体数量必须为 1 或与目标数量相同' % name)
 					continue
+			found, write_value, error = self._get_status_score_value(entity_id, score_objective, holder_id)
+			if not found:
+				messages.append('%s: %s' % (name, error))
+				continue
 			try:
 				success, message = self._set_status_server_value(entity_id, status, write_value)
 			except Exception:
 				success, message = False, '设置失败: %s' % traceback.format_exc().splitlines()[-1]
 			if success:
 				success_count += 1
-			if variant == 1 and success:
 				message = '%s（读取 %s=%s）' % (message, score_objective, write_value)
 			messages.append('%s: %s' % (name, message))
 		shown = messages[:24]

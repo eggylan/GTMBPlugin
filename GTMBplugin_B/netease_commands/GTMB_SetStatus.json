@@ -7,12 +7,5 @@
 		{"name": "目标", "type": "target"},
 		{"name": "状态", "type": "str"},
 		{"name": "值", "type": "str"}
-	],
-	"args1": [
-		{"name": "目标", "type": "target"},
-		{"name": "状态", "type": "str"},
-		{"name": "模式", "type": "enum", "options": ["toscore"]},
-		{"name": "计分项", "type": "str"},
-		{"name": "计分实体", "type": "target", "default": null}
 	]
 }
