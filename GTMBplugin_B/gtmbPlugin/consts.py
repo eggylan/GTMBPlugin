@@ -94,9 +94,9 @@ STATUS_MATH_CMPOPS = {
 }
 
 STATUS_VECTOR_ROOTS = {
-	'position': ('xyz', {'x': 0, 'y': 1, 'z': 2}),
-	'pos': ('xyz', {'x': 0, 'y': 1, 'z': 2}),
-	'xyz': ('xyz', {'x': 0, 'y': 1, 'z': 2}),
+	'position': ('foot_xyz', {'x': 0, 'y': 1, 'z': 2}),
+	'pos': ('foot_xyz', {'x': 0, 'y': 1, 'z': 2}),
+	'xyz': ('foot_xyz', {'x': 0, 'y': 1, 'z': 2}),
 	'foot_position': ('foot_xyz', {'x': 0, 'y': 1, 'z': 2}),
 	'foot_pos': ('foot_xyz', {'x': 0, 'y': 1, 'z': 2}),
 	'foot_xyz': ('foot_xyz', {'x': 0, 'y': 1, 'z': 2}),
@@ -143,6 +143,18 @@ ABILITY_ALIASES = {
 	'build': 'build_ability', 'mine': 'mine_ability', 'opencontainers': 'open_containers',
 	'operatedoors': 'operate_doors', 'operatorcommands': 'operator_commands',
 	'teleport': 'teleport_ability',
+}
+
+# 可读布尔能力 → GetPlayerAbilities() 字典键。引擎只为这些能力提供了 setter，
+# 读取只能靠该字典；movable / jumpable / operator_commands 没有读取来源，只能写。
+ABILITY_READ_KEYS = {
+	'build_ability': 'build',
+	'mine_ability': 'mine',
+	'teleport_ability': 'teleport',
+	'open_containers': 'opencontainers',
+	'operate_doors': 'doorsandswitches',
+	'attack_mobs': 'attackmobs',
+	'attack_players': 'attackplayers',
 }
 
 SIMPLE_ENTITY_BOOL_SETTERS = {

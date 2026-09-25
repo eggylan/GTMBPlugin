@@ -62,6 +62,7 @@ from consts import STATUS_VECTOR_ROOTS
 from consts import STATUS_PLAYER_SETTERS
 
 from consts import ABILITY_ALIASES
+from consts import ABILITY_READ_KEYS
 
 # ModSDK ItemPosType：背包 / 副手 / 主手 / 盔甲。item.* 查询始终读取
 # userData，确保附魔、自定义名称和自定义耐久等字段不会丢失。
@@ -748,9 +749,9 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if key == 'name':
 			return True, compName.GetName(), None
 		if key in ('pos', 'position', 'xyz'):
-			return True, compPos.GetPos(), None
+			return True, compPos.GetFootPos(), None
 		if key in ('x', 'y', 'z'):
-			return True, compPos.GetPos()['xyz'.index(key)], None
+			return True, compPos.GetFootPos()['xyz'.index(key)], None
 		if key in ('foot_pos', 'foot_position', 'foot_xyz'):
 			return True, compPos.GetFootPos(), None
 		if key in ('foot_x', 'foot_y', 'foot_z'):
@@ -860,6 +861,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				return True, compPlayer.IsPlayerNaturalStarve(), None
 			if key in ('abilities', 'ability'):
 				return True, compPlayer.GetPlayerAbilities(), None
+			if key in ABILITY_READ_KEYS:
+				# 引擎只给这些布尔能力提供了 setter，读取只能查 GetPlayerAbilities()。
+				return True, (compPlayer.GetPlayerAbilities() or {}).get(ABILITY_READ_KEYS[key]), None
+			if key in ('movable', 'jumpable', 'operator_commands'):
+				return False, None, '%s 引擎只提供写入接口（无 getter），仅可写' % key
 			if key in ('operation', 'permission'):
 				return True, compPlayer.GetPlayerOperation(), None
 			if key in ('sneaking', 'is_sneaking'):
@@ -898,7 +904,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			result = {
 				'id': entity_id, 'name': CF.CreateName(entity_id).GetName(),
 				'type': CF.CreateEngineType(entity_id).GetEngineTypeStr(),
-				'pos': CF.CreatePos(entity_id).GetPos(), 'foot_pos': CF.CreatePos(entity_id).GetFootPos(),
+				'pos': CF.CreatePos(entity_id).GetFootPos(), 'foot_pos': CF.CreatePos(entity_id).GetFootPos(),
 				'rot': CF.CreateRot(entity_id).GetRot(), 'motion': motion.GetMotion(),
 				'dimension': CF.CreateDimension(entity_id).GetEntityDimensionId(),
 				'tags': CF.CreateTag(entity_id).GetEntityTags(), 'attributes': attributes,
@@ -1019,11 +1025,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def _set_status_vector(self, entity_id, root, field, value):
 		base_status, fields = STATUS_VECTOR_ROOTS[root]
 		if base_status == 'foot_xyz':
-			return False, 'foot_position 是只读坐标；请设置 position'
-		if base_status == 'xyz':
+			# 引擎的 GetPos() 对玩家返回「脚位 + 眼高 1.62」，而 SetPos() 设的是脚位，读写不成对；
+			# position 与 foot_position 统一按脚位读写，读什么写什么才不会逐次抬高。
 			component = CF.CreatePos(entity_id)
-			current = component.GetPos()
-			setter = component.SetPos
+			current = component.GetFootPos()
+			setter = getattr(component, 'SetFootPos', None) or component.SetPos
 		elif base_status == 'rotxy':
 			component = CF.CreateRot(entity_id)
 			current = component.GetRot()

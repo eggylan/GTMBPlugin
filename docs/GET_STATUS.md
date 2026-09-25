@@ -81,10 +81,10 @@
 
 ## 服务端直接状态
 
-- 空间：`position` / `position.x|y|z`、`foot_position` / `.x|y|z`、`rotation` / `.pitch|yaw`、`velocity` / `.x|y|z`。旧名称 `xyz`、`rotxy`、`motion`、`vx` / `vy` / `vz` 仍可用。
+- 空间：`position` / `position.x|y|z`、`foot_position` / `.x|y|z`、`rotation` / `.pitch|yaw`、`velocity` / `.x|y|z`。旧名称 `xyz`、`rotxy`、`motion`、`vx` / `vy` / `vz` 仍可用。坐标一律按**脚底**计算：`position` 与 `foot_position` 等价（引擎的 `GetPos()` 对玩家返回「脚位 + 眼高 1.62」，插件统一改用 `GetFootPos()` / `SetFootPos()`）。
 - 实体：`id`、`name`、`type`、`alive`、`tags`、`nbt`、`extra_data`、`components`、`motions`、`properties`、`on_fire`、`step_height`
 - 属性：`health`、`max_health`，以及 `speed`、`damage`、`hunger`、`saturation`、`absorption`、`armor`、`attack_speed`、`flying_speed`、`block_break_speed` 等全部 ModSDK `AttrType`；任一属性都可加 `max_` 前缀。
-- 玩家：`xp`、`xp_percent`、`total_xp`、`level`、`exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`can_fly`、`isFlying` / `is_flying`、`abilities`、`abilities.<字段>`、`permission`、`game_type`、`sneaking`、`swimming`、`blocking`、`fishing`、`interact_range`、`respawn_pos`。
+- 玩家：`xp`、`xp_percent`、`total_xp`、`level`、`exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`can_fly`、`isFlying` / `is_flying`、`abilities`、`abilities.<字段>`、`permission`、`game_type`、`sneaking`、`swimming`、`blocking`、`fishing`、`interact_range`、`respawn_pos`。能力别名中 `abilities.build`、`abilities.mine`、`abilities.teleport`、`abilities.opencontainers`、`abilities.operatedoors`、`abilities.attackmobs`、`abilities.attackplayers`、`abilities.canFly`、`abilities.flying` 可读（取自 `GetPlayerAbilities()`）；`abilities.move`（`movable`）与 `abilities.jump`（`jumpable`）以及 `operator_commands` 引擎只有写入接口，读取会返回「仅可写」。
 - 其他：`air`、`max_air`、`tag.<标签名>`、`extra.<键>[.<嵌套键>]`、`nbt.<键>[.<嵌套键>]`。
 - 状态效果：`effects`、`effect.<效果名>`、`effect.<效果名>.duration`、`.duration_f`、`.amplifier`、`.active`，以及 `loaded_effects`。
 - 物品：`item.carried` / `item.mainhand` / `held_item`、`item.offhand`、`item.inventory`、`item.inventory.<槽位>`、`item.armor.<槽位>`。物品字典完整返回原版与 `userData`、附魔等字段；可追加 `.durability` 或 `.max_durability`。
@@ -106,15 +106,15 @@
 
 所有布尔状态均统一接受 `"true"` / `"false"` 或 `"1"` / `"0"`（其中 `"1"` 为真、`"0"` 为假）；数组写成 `"x,y,z"` 或 `"[x,y,z]"`。**上述值都要加英文双引号**——`值` 是字符串参数，裸写的数字/布尔会被引擎拒绝。
 
-- 空间：`position`、`position.x|y|z`、`rotation`、`rotation.pitch|yaw`、`velocity`、`velocity.x|y|z`。`velocity` 是 ModSDK 的瞬时运动向量；玩家使用 `SetPlayerMotion`，其他实体使用 `SetMotion`。
+- 空间：`position`、`position.x|y|z`、`rotation`、`rotation.pitch|yaw`、`velocity`、`velocity.x|y|z`。坐标写的是**脚底**坐标，与 `/get_status @s position` 读出的值对称（读回来原样写回去不会漂移）；`velocity` 是 ModSDK 的瞬时运动向量，玩家使用 `SetPlayerMotion`，其他实体使用 `SetMotion`。
 - 全部 `AttrType` 属性：例如 `health`、`max_health`、`speed`、`max_speed`、`damage`、`hunger`、`absorption`、`armor`、`flying_speed`、`block_break_speed` 等。
 - 实体：`name`、`step_height`、`air`、`max_air`、`tag.<标签名>`、`extra.<键>[.<嵌套键>]`。氧气可写成 `air`（等价 `air.current` / `air.value`）与 `max_air`（等价 `air.max`），值为整数。
 - 状态效果：`effect.<效果名>`。`0` 删除效果；单个数值表示秒数；`秒数,等级,粒子` 添加或刷新，例如 `effect.speed 30,1,1`。
 - 物品：`item.carried`、`item.offhand`、`item.inventory.<槽位>`、`item.armor.<槽位>` 可用 JSON 物品字典替换；也可写 `.count`、`.userData.*`、`.durability`、`.max_durability`。
 - 自定义状态：`mod.<键>` 使用 ModAttr 读取和写入任意 ModSDK 自定义属性。
-- 玩家：`hunger`、`current_exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`jumpable`、`movable`、`can_fly`、`isFlying` / `is_flying`、`attack_mobs`、`attack_players`、`build_ability`、`mine_ability`、`open_containers`、`operate_doors`、`operator_commands`、`teleport_ability`、`muted`、`ban_fishing`、`permission`、`game_type`、`interact_range`、`pickup_area`、`attack_speed_amplifier`。
+- 玩家：`hunger`、`current_exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`jumpable`、`movable`、`can_fly`、`isFlying` / `is_flying`、`attack_mobs`、`attack_players`、`build_ability`、`mine_ability`、`open_containers`、`operate_doors`、`operator_commands`、`teleport_ability`、`muted`、`ban_fishing`、`permission`、`game_type`、`interact_range`、`pickup_area`、`attack_speed_amplifier`。其中 `movable`、`jumpable`、`operator_commands` 引擎只提供写入接口，读取会明确报「仅可写」。
 
-属性也可写为 `attributes.health` / `attributes.max_health`；玩家状态可写为 `player.hunger`；能力别名支持 `abilities.canFly`、`abilities.jump`、`abilities.move`、`abilities.attackMobs`、`abilities.attackPlayers`、`abilities.build`、`abilities.mine`、`abilities.teleport`。
+属性也可写为 `attributes.health` / `attributes.max_health`；玩家状态可写为 `player.hunger`；能力别名支持 `abilities.canFly`、`abilities.jump`、`abilities.move`、`abilities.attackMobs`、`abilities.attackPlayers`、`abilities.build`、`abilities.mine`、`abilities.teleport`（写侧全部可用；读侧仅 `abilities.move` / `abilities.jump` 不可用，见上文）。
 
 `query.*`、Molang 表达式、事件快照、NBT、组件、玩家经验等没有对应安全写接口，属于只读状态。
 ### Client status expansion

@@ -14,12 +14,14 @@
 
 | 状态 | 可用分量 | 可写 |
 |---|---|---|
-| `position` / `xyz` | `.x` `.y` `.z` | 是 |
-| `foot_position` | `.x` `.y` `.z` | 否 |
+| `position` / `xyz` | `.x` `.y` `.z` | 是（脚底坐标） |
+| `foot_position` | `.x` `.y` `.z` | 是（与 `position` 等价） |
 | `rotation` / `rotxy` | `.pitch` `.yaw` `.x` `.y` | 是 |
 | `velocity` / `motion` | `.x` `.y` `.z` | 是，瞬时运动向量 |
 | `quaternion` | 返回四元数 | 否 |
 
+
+坐标统一按**脚底**计算：引擎的 `GetPos()` 对玩家返回「脚位 + 眼高 1.62」，而 `SetPos()` 设置的是脚位，读写不成对；插件统一改用 `GetFootPos()` / `SetFootPos()`，因此 `position` ≡ `foot_position`，读到的值可以原样写回。
 ## 属性
 
 以下任一属性均可读取和设置；`max_` 前缀读取/设置最大值：
@@ -50,11 +52,11 @@
 
 ## 玩家
 
-`xp`、`xp_percent`、`total_xp`、`level`、`hunger`、`current_exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`enchantment_seed`、`abilities`、`abilities.<字段>`、`can_fly`、`isFlying`、`permission`、`game_type`、`sneaking`、`swimming`、`blocking`、`fishing`、`interact_range`、`interact_center_offset`、`respawn_pos`、`nearby_players`、`selected_slot`、`all_enchants`、`fish_hook`。
+`xp`、`xp_percent`、`total_xp`、`level`、`hunger`、`current_exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`enchantment_seed`、`abilities`、`abilities.<字段>`、`can_fly`、`isFlying`、`permission`、`game_type`、`sneaking`、`swimming`、`blocking`、`fishing`、`interact_range`、`interact_center_offset`、`respawn_pos`、`nearby_players`、`selected_slot`、`all_enchants`、`fish_hook`。`abilities.<别名>` 中 `build`、`mine`、`teleport`、`opencontainers`、`operatedoors`、`attackmobs`、`attackplayers` 由 `GetPlayerAbilities()` 提供；`move`、`jump` 没有读取接口。
 
 参数型读取：`destroy_time.<命名空间方块>`、`exhaustion_ratio.<行为枚举整数>`。
 
-可写：`hunger`、`current_exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`enchantment_seed`、`jumpable`、`movable`、`can_fly`、`isFlying`、`attack_mobs`、`attack_players`、`build_ability`、`mine_ability`、`open_containers`、`operate_doors`、`operator_commands`、`teleport_ability`、`muted`、`ban_fishing`、`permission`、`game_type`、`interact_range`、`pickup_area`、`attack_speed_amplifier`。
+可写：`hunger`、`current_exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`enchantment_seed`、`jumpable`、`movable`、`can_fly`、`isFlying`、`attack_mobs`、`attack_players`、`build_ability`、`mine_ability`、`open_containers`、`operate_doors`、`operator_commands`、`teleport_ability`、`muted`、`ban_fishing`、`permission`、`game_type`、`interact_range`、`pickup_area`、`attack_speed_amplifier`。其中 `movable`、`jumpable`、`operator_commands` 引擎只提供写入接口，读取会明确报「仅可写」。
 
 ## 玩家物品
 
