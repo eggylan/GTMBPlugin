@@ -1,0 +1,11 @@
+{
+	"format_version": "0.0.1",
+	"name": "set_status",
+	"description": "设置实体状态",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+		{"name": "状态", "type": "str"},
+		{"name": "值", "type": "str"}
+	]
+}

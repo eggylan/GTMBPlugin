@@ -6,6 +6,8 @@ import traceback
 import random
 import re
 import json
+import time
+from statusMath import evaluate_status_math
 from serverSystem import unicode_convert, intg, float_range
 from GTMBExceptions import InvaildNBTDataException
 
@@ -19,10 +21,85 @@ compCmd = CF.CreateCommand(levelId)
 compBlockEntity = CF.CreateBlockEntity(levelId)
 compExtra = CF.CreateExtraData(levelId)
 compItemWorld = CF.CreateItem(levelId)
+compTime = CF.CreateTime(levelId)
+compWeather = CF.CreateWeather(levelId)
+compItemBanned = CF.CreateItemBanned(levelId)
+compBlockWorld = CF.CreateBlock(levelId)
+compChunkSource = CF.CreateChunkSource(levelId)
+compDomainGame = CF.CreateDomainGame(levelId)
 
-create_players_str = lambda players: ', '.join([CF.CreateName(player).GetName() for player in players])
+# Bedrock 计分板目标名不能包含空白或命令分隔符。输出前先做严格校验，
+# 同时避免把用户输入拼进游戏命令后造成命令解析歧义。
+SCORE_OBJECTIVE_RE = re.compile(r'^[A-Za-z0-9_.-]+$')
 
-check_entities_type = lambda typeName, ids: all([CF.CreateEngineType(id).GetEngineTypeStr() == typeName for id in ids])
+create_players_str = lambda players: ', '.join(CF.CreateName(player).GetName() for player in players)
+
+check_entities_type = lambda typeName, ids: all(CF.CreateEngineType(id).GetEngineTypeStr() == typeName for id in ids)
+
+is_player = lambda entity_id: CF.CreateEngineType(entity_id).GetEngineTypeStr() == 'minecraft:player'	
+
+# GetStatus 使用整数常量而非在每次指令中查文档/创建临时表。该表与 ModSDK 3.9
+# AttrType 保持一致，键名同时是 /get_status 可使用的短名称。
+from consts import STATUS_ATTRS
+
+STATUS_MAX_EVENT_WATCHERS = 32
+STATUS_MAX_PENDING_CLIENT_REQUESTS = 128
+STATUS_PENDING_TTL = 20.0
+
+# 数学表达式的求值（含 math 函数表）已下沉到 statusMath 模块，服务端与客户端共用；
+# 这里只保留表达式判定用的字面量模式。Molang 原生 query.* 仍交给引擎处理。
+from consts import STATUS_MATH_LITERAL
+
+# 点路径的第一段与引擎返回向量的映射。公开写法统一采用可读的
+# position.x / velocity.x / rotation.yaw，而旧短名称仍保留兼容。
+from consts import STATUS_VECTOR_ROOTS
+
+# (PlayerComponent 方法名, 输入类型)。放在模块常量中，避免批量选择器每个实体
+# 都重新构造同一张分发表。
+from consts import STATUS_PLAYER_SETTERS
+
+from consts import ABILITY_ALIASES
+from consts import ABILITY_READ_KEYS
+
+# ModSDK ItemPosType：背包 / 副手 / 主手 / 盔甲。item.* 查询始终读取
+# userData，确保附魔、自定义名称和自定义耐久等字段不会丢失。
+ITEM_POSITIONS = {'inventory': 0, 'offhand': 1, 'carried': 2, 'mainhand': 2, 'held': 2, 'armor': 3}
+
+# ModSDK 3.9 中不需要额外参数的实体状态接口。统一走此表，避免不断增长的
+# if/elif，同时让 all 能覆盖每一个可直接读取的实体组件状态。
+from consts import STATUS_SIMPLE_ENTITY_READERS as GET_STATUS_SIMPLE_ENTITY_READERS
+
+STATUS_WORLD_READERS = {
+	'time': compTime.GetTime,
+	'raining': compWeather.IsRaining,
+	'thunder': compWeather.IsThunder,
+	'game_type': compGame.GetGameType,
+	'difficulty': compGame.GetGameDiffculty,
+	'difficulty_locked': compGame.IsLockDifficulty,
+	'game_rules': compGame.GetGameRulesInfoServer,
+	'game_rules_locked': compGame.IsLockGameRulesInfo,
+	'game_type_locked': compGame.IsLockGameType,
+	'gravity': compGame.GetLevelGravity,
+	'seed': compGame.GetSeed,
+	'spawn_position': compGame.GetSpawnPosition,
+	'spawn_dimension': compGame.GetSpawnDimension,
+	'piston_max_interaction_count': compGame.GetPistonMaxInteractionCount,
+	'disable_command_minecart': compGame.IsDisableCommandMinecart,
+	'scoreboard_objects': compGame.GetAllScoreboardObjects,
+	'player_scoreboard_objects': compGame.GetAllPlayerScoreboardObjects,
+	'loaded_actors': compGame.GetLoadActors,
+	'loaded_blocks': compBlockInfo.GetLoadBlocks,
+	'banned_items': compItemBanned.GetBannedItemList,
+	'command_permission': compCmd.GetCommandPermissionLevel,
+	'default_player_permission': compCmd.GetDefaultPlayerPermissionLevel,
+	'loaded_area_keys': compChunkSource.GetAllAreaKeys,
+	'host_player_uid': compDomainGame.GetHostPlayerUid,
+	'blank_block_palette': compBlockWorld.GetBlankBlockPalette,
+}
+
+from consts import SIMPLE_ENTITY_BOOL_SETTERS
+
+from consts import STATUS_EXTERN_NAMES
 
 def checkjson(data): #throw InvaildNBTDataException
 	#type: (str) -> list
@@ -47,7 +124,15 @@ def checkjson(data): #throw InvaildNBTDataException
 class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def __init__(self, namespace, systemName):
 		super(cmdServerSystem, self).__init__(namespace, systemName)
+		# 事件监听完全按需注册；空闲时 get_status 不产生 Tick、Timer 或轮询开销。
+		self._status_server_events = {}
+		self._status_server_event_callbacks = {}
+		self._status_pending_clients = {}
+		self._status_request_sequence = 0
 		self.serverCustomCmds = {
+			'get_status': self.get_status,
+			'set_status': self.set_status,
+			'set_status_score': self.set_status_score,
 			'setentityonfire':self.setentityonfire,
 			'setcurrentairsupply':self.setcurrentairsupply,
 			'setcompasstarget':self.setcompasstarget,
@@ -196,6 +281,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			# "§r§r§rgtmbdebug": self.debug,
 		}
 		self.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), 'CustomCommandTriggerServerEvent', self, self.OnCustomCommandServer)
+		self.ListenForEvent('gtmbPlugin', 'cmdClientSystem', 'GetStatusClientResponse', self, self.OnGetStatusClientResponse)
 
 	def OnCustomCommandServer(self, args):
 		cmdargs = []
@@ -222,6 +308,1167 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					compMsg.NotifyOneMessage(playerId, i, '§c')
 
 	# 服务端函数部分由此开始
+
+	def _get_status_event_value(self, status):
+		#type: (str) -> tuple[bool, dict, str | None]
+		"""读取 event.<EngineEvent>[.<field>...] 的最近一次服务端事件数据。"""
+		parts = status.split('.')
+		if len(parts) < 2 or not parts[1]:
+			return False, None, '事件状态格式为 event.<事件名>[.<字段>]'
+		event_name = parts[1]
+		if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', event_name):
+			return False, None, '事件名只能包含字母、数字和下划线'
+		if event_name not in self._status_server_event_callbacks:
+			if len(self._status_server_event_callbacks) >= STATUS_MAX_EVENT_WATCHERS:
+				return False, None, '事件监听数量已达上限 %s' % STATUS_MAX_EVENT_WATCHERS
+			def cache_event(args, cached_event_name=event_name):
+				try:
+					self._status_server_events[cached_event_name] = dict(args)
+				except (TypeError, ValueError):
+					self._status_server_events[cached_event_name] = args
+			self._status_server_event_callbacks[event_name] = cache_event
+			self.ListenForEvent(serverApi.GetEngineNamespace(), serverApi.GetEngineSystemName(), event_name, self, cache_event)
+		if event_name not in self._status_server_events:
+			return False, None, '已开始监听 %s；事件触发后再次执行本指令获取快照' % event_name
+		value = self._status_server_events[event_name]
+		for key in parts[2:]:
+			if isinstance(value, dict):
+				if key not in value:
+					return False, None, '事件 %s 中不存在字段 %s' % (event_name, key)
+				value = value[key]
+			elif isinstance(value, (list, tuple)) and key.isdigit() and int(key) < len(value):
+				value = value[int(key)]
+			else:
+				return False, None, '字段路径 %s 无法继续读取' % key
+		return True, value, None
+
+	def _get_status_nested_value(self, value, path):
+		for key in path:
+			if isinstance(value, dict) and key in value:
+				value = value[key]
+			elif isinstance(value, (list, tuple)) and key.lstrip('-').isdigit() and -len(value) <= int(key) < len(value):
+				value = value[int(key)]
+			else:
+				return False, None, '字段路径 %s 无法继续读取' % key
+		return True, value, None
+
+	def _get_status_vector_value(self, entity_id, root, field):
+		base_status, fields = STATUS_VECTOR_ROOTS[root]
+		if field not in fields:
+			return False, None, '%s 不存在分量 %s' % (root, field)
+		found, value, error = self._get_status_server_value(entity_id, base_status)
+		if not found:
+			return False, None, error
+		return True, value[fields[field]], None
+
+	def _get_status_math_value(self, entity_id, expression):
+		"""安全计算数学表达式；变量可引用 velocity.x 等状态路径。
+
+		求值本体在 statusMath 模块里与服务端/客户端共享，这里只注入状态读取回调。
+		"""
+		return evaluate_status_math(expression, lambda name: self._get_status_server_value(entity_id, name))
+
+	def _get_status_effect_value(self, entity_id, effect_name=None, path=None):
+		effects = CF.CreateEffect(entity_id).GetAllEffects() or []
+		if effect_name is None:
+			return True, effects, None
+		for effect in effects:
+			if effect.get('effectName', '').lower() == effect_name.lower():
+				if not path:
+					return True, effect, None
+				return self._get_status_nested_value(effect, path)
+		return True, False, None
+
+	def _get_status_item_value(self, entity_id, position_name, path=None):
+		if not is_player(entity_id):
+			return False, None, '仅支持获取玩家物品'
+		position_name = position_name.lower()
+		if position_name not in ITEM_POSITIONS:
+			return False, None, '物品位置应为 carried、offhand、inventory 或 armor'
+		pos_type = ITEM_POSITIONS[position_name]
+		item_comp = CF.CreateItem(entity_id)
+		path = path or []
+		if pos_type in (0, 3):
+			if not path:
+				return True, item_comp.GetPlayerAllItems(pos_type, True), None
+			if not path[0].isdigit():
+				return False, None, '%s 需要槽位，例如 item.%s.0' % (position_name, position_name)
+			slot = int(path[0])
+			path = path[1:]
+		else:
+			slot = 0
+		item = item_comp.GetPlayerItem(pos_type, slot, True)
+		if path and path[0] in ('durability', 'max_durability'):
+			if path[0] == 'durability':
+				return True, item_comp.GetItemDurability(pos_type, slot), None
+			return True, item_comp.GetItemMaxDurability(pos_type, slot, False), None
+		# 专用附魔/盾牌接口比物品字典中的兼容字段更完整。背包和盔甲
+		# 槽位支持原版附魔与 Mod 自定义附魔，主手/副手仍读取原始物品字典。
+		if path and len(path) == 1 and pos_type in (0, 3):
+			field = path[0].lower()
+			if field in ('enchantments', 'enchants', 'enchant'):
+				reader = item_comp.GetInvItemEnchantData if pos_type == 0 else item_comp.GetEquItemEnchant
+				return True, reader(slot), None
+			if field in ('mod_enchantments', 'mod_enchants', 'custom_enchantments', 'custom_enchants'):
+				reader = item_comp.GetInvItemModEnchantData if pos_type == 0 else item_comp.GetEquItemModEnchant
+				return True, reader(slot), None
+			if field in ('defence_angle', 'defense_angle'):
+				return True, item_comp.GetItemDefenceAngle(pos_type, slot), None
+		if not path:
+			return True, item, None
+		return self._get_status_nested_value(item, path)
+
+	def _get_status_all_player_items(self, entity_id):
+		if not is_player(entity_id):
+			return False, None, '仅支持获取玩家物品'
+		compItem = CF.CreateItem(entity_id)
+		return True, {
+			'carried': compItem.GetPlayerItem(2, 0, True),
+			'offhand': compItem.GetPlayerItem(1, 0, True),
+			'inventory': compItem.GetPlayerAllItems(0, True),
+			'armor': compItem.GetPlayerAllItems(3, True),
+		}, None
+
+	def _get_status_valid_scoreboard_objective(self, objective):
+		"""只接受可直接放进 Bedrock scoreboard 命令的目标名。"""
+		if not isinstance(objective, str) or not objective:
+			return False
+		try:
+			return SCORE_OBJECTIVE_RE.match(str(objective)) is not None
+		except (TypeError, UnicodeEncodeError):
+			return False
+
+	def _get_status_score_value(self, entity_id, objective, holder_id=None):
+		#type: (int, str, int | None) -> tuple[bool, int | None, str | None]
+		"""读取实体在指定计分项中的值。ModSDK 3.9 返回 scoreList 嵌套结构。"""
+		holder_id = holder_id or entity_id
+		try:
+			# GetAllPlayerScoreboardObjects 返回的是全体玩家的记分项，与传入实体无关；
+			# 同文件其它读取一律用模块级 compGame，传实体 id 可能拿到无效组件，
+			# 异常被吞掉后就成了「没有计分项」的假阴性。这里保留一次旧调用作为兜底。
+			score_data = compGame.GetAllPlayerScoreboardObjects() or []
+		except Exception:
+			try:
+				score_data = CF.CreateGame(holder_id).GetAllPlayerScoreboardObjects() or []
+			except Exception:
+				return False, None, '无法读取实体计分板数据'
+		if isinstance(score_data, dict):
+			score_data = [score_data]
+		# GetAllPlayerScoreboardObjects 通常返回所有玩家记录；当实现只
+		# 返回当前 holder 的 scoreList 时，也接受扁平 scoreList 结果。
+		if score_data and isinstance(score_data[0], dict) and ('scoreList' not in score_data[0] and 'scores' not in score_data[0]) and ('name' in score_data[0] or 'objective' in score_data[0]):
+			score_data = [{'playerId': holder_id, 'scoreList': score_data}]
+		for player_data in score_data:
+			if not isinstance(player_data, dict):
+				continue
+			player_id = player_data.get('playerId', player_data.get('entityId'))
+			if player_id is not None and player_id != holder_id:
+				continue
+			score_list = player_data.get('scoreList', player_data.get('scores', []))
+			if isinstance(score_list, dict):
+				score_list = [score_list]
+			for score in score_list or []:
+				if not isinstance(score, dict):
+					continue
+				if score.get('name', score.get('objective')) == objective:
+					if 'value' not in score:
+						return False, None, '计分项 %s 返回记录但没有 value' % objective
+					try:
+						return True, int(score['value']), None
+					except (TypeError, ValueError):
+						return False, None, '计分项 %s 的 value 不是整数' % objective
+		return False, None, '实体 %s 没有计分项 %s' % (holder_id, objective)
+
+	def _get_status_simple_entity_value(self, entity_id, key):
+		factory_name, method_name = GET_STATUS_SIMPLE_ENTITY_READERS[key]
+		component = getattr(CF, factory_name)(entity_id)
+		return True, getattr(component, method_name)(), None
+
+	def _get_status_extern_values(self, entity_id):
+		#type: (str) -> dict[str, int | bool]
+		"""一次读取并计算全部派生状态，避免 all 命令重复创建组件。"""
+		result = {}
+		try:
+			motion = CF.CreateActorMotion(entity_id).GetMotion()
+			vx, vy, vz = float(motion[0]), float(motion[1]), float(motion[2])
+			result['rising'] = max(vy, 0.0)
+			result['falling'] = max(-vy, 0.0)
+			result['downing'] = result['falling']
+		except Exception:
+			result['rising'] = result['falling'] = result['downing'] = 0.0
+		try:
+			rotation = CF.CreateRot(entity_id).GetRot()
+			yaw = math.radians(float(rotation[1]))
+			# Bedrock yaw=0 时朝向 +Z：forward=(-sin(yaw), 0, cos(yaw))。
+			forward_component = -math.sin(yaw) * vx + math.cos(yaw) * vz
+			left_component = -math.cos(yaw) * vx - math.sin(yaw) * vz
+			result['forward'] = max(forward_component, 0.0)
+			result['backward'] = max(-forward_component, 0.0)
+			result['leftward'] = max(left_component, 0.0)
+			result['rightward'] = max(-left_component, 0.0)
+		except Exception:
+			pass
+		# climbing 需要客户端 IsOnLadder（服务端 query.is_on_ladder 不受支持），
+		# 因此不在 extern 中提供，请改用 /get_status <target> client.on_ladder。
+		for name in STATUS_EXTERN_NAMES:
+			if name not in result:
+				result[name] = 0.0
+		return result
+
+	def _get_status_extern_value(self, entity_id, name=None):
+		#type: (str, str | None) -> tuple[bool, dict | None, str | None]
+		"""读取本插件计算的派生状态，不向 ModSDK 注册额外组件或轮询。"""
+		if name is None or str(name).lower() in ('', 'all'):
+			return True, self._get_status_extern_values(entity_id), None
+		name = str(name).lower()
+		if name == 'climbing':
+			return False, None, 'climbing 是客户端状态，请改用 client.on_ladder'
+		if name not in STATUS_EXTERN_NAMES:
+			return False, None, '未知 extern 状态: %s' % name
+		values = self._get_status_extern_values(entity_id)
+		if name not in values:
+			return False, None, '无法计算 extern.%s' % name
+		return True, values[name], None
+
+	def _get_status_world_value(self, key):
+		if key == 'all':
+			result = {}
+			for world_key, reader in STATUS_WORLD_READERS.items():
+				try:
+					result[world_key] = reader()
+				except Exception:
+					pass
+			return True, result, None
+		reader = STATUS_WORLD_READERS.get(key)
+		if reader is None:
+			return False, None, '未知世界状态 world.%s' % key
+		return True, reader(), None
+
+	def _get_status_server_value(self, entity_id, status):
+		#type: (str, str) -> tuple[bool, dict | bool | None, str | None]
+		"""以实体上下文读取一个服务端状态或 Molang 表达式。"""
+		if not status:
+			return False, None, '状态不能为空'
+		status = status.strip() if isinstance(status, str) else str(status).strip()
+		key = status.lower()
+		is_math_expression = bool(
+			re.search(r'[+\-*/%&|^!<>=()]', status)
+			or re.search(r'\b(and|or|not)\b', status)
+			# 裸数字（"1"、"-2.5"、"1e3"）同样是合法表达式，否则会被当成未知状态名。
+			or re.match(STATUS_MATH_LITERAL, status)
+		)
+		if key == 'extern' or key == 'extern.all':
+			return self._get_status_extern_value(entity_id)
+		if key.startswith('extern.'):
+			return self._get_status_extern_value(entity_id, key.split('.', 1)[1])
+		if key in STATUS_EXTERN_NAMES or key == 'climbing':
+			return self._get_status_extern_value(entity_id, key)
+		if key.startswith('damage_to.') or key.startswith('entity_damage.'):
+			target_id = status.split('.', 1)[1]
+			if not target_id:
+				return False, None, 'damage_to.<target> 缺少目标实体'
+			return True, compGame.GetEntityDamage(entity_id, target_id), None
+		if key.startswith('world.'):
+			world_parts = status.split('.')
+			if len(world_parts) == 3 and world_parts[1].lower() in ('loaded_chunks', 'chunks'):
+				try:
+					dimension = int(world_parts[2])
+				except (TypeError, ValueError):
+					return False, None, 'world.loaded_chunks.<dimension> 的维度必须是整数'
+				return True, compChunkSource.GetLoadedChunks(dimension), None
+			if len(world_parts) == 6 and world_parts[1].lower() in ('chunk_state', 'chunk_loaded'):
+				try:
+					dimension, x, y, z = [int(item) for item in world_parts[2:6]]
+				except (TypeError, ValueError):
+					return False, None, 'world.chunk_state.<dimension>.<x>.<y>.<z> 参数必须是整数'
+				return True, compChunkSource.CheckChunkState(dimension, (x, y, z)), None
+			if len(world_parts) == 6 and world_parts[1].lower() in ('chunk_entities', 'chunk_entity_ids'):
+				try:
+					dimension, x, y, z = [int(item) for item in world_parts[2:6]]
+				except (TypeError, ValueError):
+					return False, None, 'world.chunk_entities.<dimension>.<x>.<y>.<z> 参数必须是整数'
+				return True, compChunkSource.GetChunkEntites(dimension, (x, y, z)), None
+			if len(world_parts) == 3 and world_parts[1].lower() in ('player_game_type', 'player_gametype'):
+				return True, compGame.GetPlayerGameType(world_parts[2]), None
+			return self._get_status_world_value(key.split('.', 1)[1])
+		if key.startswith('destroy_time.'):
+			if not is_player(entity_id):
+				return False, None, 'destroy_time.* 仅支持玩家'
+			return True, CF.CreatePlayer(entity_id).GetPlayerDestroyTotalTime(status.split('.', 1)[1]), None
+		if key.startswith('exhaustion_ratio.'):
+			if not is_player(entity_id):
+				return False, None, 'exhaustion_ratio.* 仅支持玩家'
+			try:
+				exhaustion_type = int(status.split('.', 1)[1])
+			except ValueError:
+				return False, None, 'exhaustion_ratio.<行为枚举> 需要整数枚举值'
+			return True, CF.CreatePlayer(entity_id).GetPlayerExhaustionRatioByType(exhaustion_type), None
+		if key.startswith('event.') or key.startswith('server_event.'):
+			if key in ('event.all', 'server_event.all'):
+				return True, dict(self._status_server_events), None
+			if key.startswith('server_event.'):
+				event_status = status[len('server_event.'):]
+				if not event_status.lower().startswith('event.'):
+					event_status = 'event.' + event_status
+				return self._get_status_event_value(event_status)
+			return self._get_status_event_value(status)
+		# 表达式中的 `velocity.x` / `rotation.yaw` 不能先按普通路径拦截，
+		# 否则会在这里递归回到同一个表达式；由下方安全 AST 统一解析。
+		if '.' in key and not is_math_expression:
+			raw_path = status.split('.')
+			path = key.split('.')
+			root = path[0]
+			if root in STATUS_VECTOR_ROOTS:
+				if len(path) == 2:
+					return self._get_status_vector_value(entity_id, root, path[1])
+				return False, None, '%s 只支持一个分量，例如 %s.x' % (root, root)
+			if root in ('extra', 'extra_data'):
+				return self._get_status_nested_value(CF.CreateExtraData(entity_id).GetExtraData(raw_path[1]), raw_path[2:])
+			if root in ('mod', 'mod_attr', 'modattr'):
+				if len(raw_path) < 2 or not raw_path[1]:
+					return False, None, 'mod 状态格式为 mod.<键>[.<嵌套键>]'
+				return self._get_status_nested_value(CF.CreateModAttr(entity_id).GetAttr(raw_path[1], None), raw_path[2:])
+			if root in ('nbt', 'entity_nbt'):
+				return self._get_status_nested_value(CF.CreateEntityDefinitions(entity_id).GetEntityNBTTags(), raw_path[1:])
+			if root in ('tag', 'tags') and len(path) == 2:
+				return True, CF.CreateTag(entity_id).EntityHasTag(status.split('.', 1)[1]), None
+			if root in ('effect', 'effects'):
+				if root == 'effects' and path[1].isdigit():
+					return self._get_status_nested_value(CF.CreateEffect(entity_id).GetAllEffects() or [], path[1:])
+				return self._get_status_effect_value(entity_id, raw_path[1], path[2:])
+			if root in ('item', 'items'):
+				if len(path) < 2:
+					return self._get_status_all_player_items(entity_id)
+				return self._get_status_item_value(entity_id, path[1], path[2:])
+			if root in ('modifier', 'modifiers', 'attribute_modifiers') and len(path) == 2:
+				attr_name = path[1][4:] if path[1].startswith('max_') else path[1]
+				if attr_name not in STATUS_ATTRS:
+					return False, None, '未知属性 %s' % path[1]
+				return True, CF.CreateAttr(entity_id).GetAllModifiers(STATUS_ATTRS[attr_name]), None
+			if root in ('attribute', 'attributes') and len(path) == 2:
+				return self._get_status_server_value(entity_id, path[1])
+			if root == 'player' and len(path) == 2:
+				if not is_player(entity_id):
+					return False, None, 'player.* 仅支持玩家'
+				return self._get_status_server_value(entity_id, path[1])
+			if root == 'air' and len(path) == 2:
+				if path[1] in ('current', 'value'):
+					return self._get_status_server_value(entity_id, 'air')
+				if path[1] == 'max':
+					return self._get_status_server_value(entity_id, 'max_air')
+				return False, None, 'air 状态格式为 air、air.current 或 air.max'
+			if root in ('abilities', 'ability'):
+				if not is_player(entity_id):
+					return False, None, 'abilities.* 仅支持玩家'
+				ability_status = ABILITY_ALIASES.get(path[1]) if len(path) == 2 else None
+				if ability_status:
+					return self._get_status_server_value(entity_id, ability_status)
+				return self._get_status_nested_value(CF.CreatePlayer(entity_id).GetPlayerAbilities(), raw_path[1:])
+
+		entity_is_player = is_player(entity_id)
+		compEngineType = CF.CreateEngineType(entity_id)
+		compName = CF.CreateName(entity_id)
+		compPos = CF.CreatePos(entity_id)
+		compRot = CF.CreateRot(entity_id)
+		compActorMotion = CF.CreateActorMotion(entity_id)
+		compDimension = CF.CreateDimension(entity_id)
+		compTag = CF.CreateTag(entity_id)
+		compEffect = CF.CreateEffect(entity_id)
+		if key in ('id', 'entity_id'):
+			return True, entity_id, None
+		if key in ('type', 'entity_type'):
+			return True, compEngineType.GetEngineTypeStr(), None
+		if key == 'name':
+			return True, compName.GetName(), None
+		if key in ('pos', 'position', 'xyz'):
+			return True, compPos.GetFootPos(), None
+		if key in ('x', 'y', 'z'):
+			return True, compPos.GetFootPos()['xyz'.index(key)], None
+		if key in ('foot_pos', 'foot_position', 'foot_xyz'):
+			return True, compPos.GetFootPos(), None
+		if key in ('foot_x', 'foot_y', 'foot_z'):
+			return True, compPos.GetFootPos()['foot_xyz'.index(key[-1])], None
+		if key in ('rot', 'rotation', 'rotxy'):
+			return True, compRot.GetRot(), None
+		if key in ('pitch', 'rot_x'):
+			return True, compRot.GetRot()[0], None
+		if key in ('yaw', 'rot_y'):
+			return True, compRot.GetRot()[1], None
+		if key in ('motion', 'velocity', 'motion_xyz', 'velocity_xyz'):
+			return True, compActorMotion.GetMotion(), None
+		if key in ('vx', 'vy', 'vz'):
+			return True, compActorMotion.GetMotion()['xyz'.index(key[-1])], None
+		if key in ('dimension', 'dim'):
+			return True, compDimension.GetEntityDimensionId(), None
+		if key in ('is_player', 'player'):
+			return True, entity_is_player, None
+		if key in ('tags', 'tag'):
+			return True, compTag.GetEntityTags(), None
+		if key in ('effects', 'effect'):
+			return self._get_status_effect_value(entity_id)
+		if key in ('loaded_effects', 'effect_list'):
+			return True, compEffect.GetLoadEffects(), None
+		if key in ('item', 'items'):
+			return self._get_status_all_player_items(entity_id)
+		if key in ('held_item', 'carried_item', 'mainhand_item'):
+			return self._get_status_item_value(entity_id, 'carried')
+		if key == 'offhand_item':
+			return self._get_status_item_value(entity_id, 'offhand')
+		if key in ('inventory', 'inventory_items'):
+			return self._get_status_item_value(entity_id, 'inventory')
+		if key in ('armor_items', 'armor_inventory'):
+			return self._get_status_item_value(entity_id, 'armor')
+		if key in ('nbt', 'entity_nbt'):
+			return True, CF.CreateEntityDefinitions(entity_id).GetEntityNBTTags(), None
+		if key in ('extra', 'extra_data'):
+			return True, CF.CreateExtraData(entity_id).GetWholeExtraData(), None
+		if key in ('components', 'component'):
+			return True, CF.CreateEntityComponent(entity_id).GetAllComponentsName(), None
+		if key in ('alive', 'is_alive'):
+			return True, compGame.IsEntityAlive(entity_id), None
+		if key in GET_STATUS_SIMPLE_ENTITY_READERS:
+			return self._get_status_simple_entity_value(entity_id, key)
+		if key in ('on_fire', 'is_on_fire'):
+			return True, CF.CreateAttr(entity_id).IsEntityOnFire(), None
+		if key == 'step_height':
+			return True, CF.CreateAttr(entity_id).GetStepHeight(), None
+		if key in ('air', 'air_current', 'current_air'):
+			return True, CF.CreateBreath(entity_id).GetCurrentAirSupply(), None
+		if key in ('max_air', 'air_max'):
+			return True, CF.CreateBreath(entity_id).GetMaxAirSupply(), None
+		if key in ('motions', 'entity_motions'):
+			motion = CF.CreateActorMotion(entity_id)
+			return True, motion.GetPlayerMotions() if entity_is_player else motion.GetEntityMotions(), None
+		if key in ('properties', 'property'):
+			return True, CF.CreateQueryVariable(entity_id).GetAllProperties(), None
+
+		is_max = key.startswith('max_')
+		attr_name = key[4:] if is_max else key
+		if attr_name in STATUS_ATTRS:
+			compAttr = CF.CreateAttr(entity_id)
+			attr_type = STATUS_ATTRS[attr_name]
+			return True, compAttr.GetAttrMaxValue(attr_type) if is_max else compAttr.GetAttrValue(attr_type), None
+
+		if entity_is_player:
+			compPlayer = CF.CreatePlayer(entity_id)
+			compFly = CF.CreateFly(entity_id)
+			compExp = CF.CreateExp(entity_id)
+			compItem = CF.CreateItem(entity_id)
+			compLv = CF.CreateLv(entity_id)
+			if key == 'enchantment_seed':
+				return True, compPlayer.GetEnchantmentSeed(), None
+			if key in ('interact_center_offset', 'interaction_center_offset'):
+				return True, compPlayer.GetInteracteCenterOffset(), None
+			if key in ('nearby_players', 'relevant_players'):
+				return True, compPlayer.GetRelevantPlayer(None), None
+			if key in ('can_fly', 'canfly', 'fly', 'is_player_can_fly'):
+				return True, compFly.IsPlayerCanFly(), None
+			if key in ('is_flying', 'flying', 'isflying'):
+				return True, compFly.IsPlayerFlying(), None
+			if key in ('xp', 'exp', 'experience'):
+				return True, compExp.GetPlayerExp(False), None
+			if key in ('xp_percent', 'exp_percent', 'experience_percent'):
+				return True, compExp.GetPlayerExp(True), None
+			if key in ('total_xp', 'total_exp', 'total_experience'):
+				return True, compExp.GetPlayerTotalExp(), None
+			if key in ('level', 'xp_level', 'experience_level'):
+				return True, compLv.GetPlayerLevel(), None
+			if key == 'hunger':
+				return True, compPlayer.GetPlayerHunger(), None
+			if key in ('exhaustion', 'current_exhaustion'):
+				return True, compPlayer.GetPlayerCurrentExhaustionValue(), None
+			if key == 'max_exhaustion':
+				return True, compPlayer.GetPlayerMaxExhaustionValue(), None
+			if key in ('health_level', 'natural_regen_level'):
+				return True, compPlayer.GetPlayerHealthLevel(), None
+			if key in ('starve_level', 'natural_starve_level'):
+				return True, compPlayer.GetPlayerStarveLevel(), None
+			if key in ('health_tick', 'natural_regen_tick'):
+				return True, compPlayer.GetPlayerHealthTick(), None
+			if key in ('starve_tick', 'natural_starve_tick'):
+				return True, compPlayer.GetPlayerStarveTick(), None
+			if key in ('natural_regen', 'is_natural_regen'):
+				return True, compPlayer.IsPlayerNaturalRegen(), None
+			if key in ('natural_starve', 'is_natural_starve'):
+				return True, compPlayer.IsPlayerNaturalStarve(), None
+			if key in ('abilities', 'ability'):
+				return True, compPlayer.GetPlayerAbilities(), None
+			if key in ABILITY_READ_KEYS:
+				# 引擎只给这些布尔能力提供了 setter，读取只能查 GetPlayerAbilities()。
+				return True, (compPlayer.GetPlayerAbilities() or {}).get(ABILITY_READ_KEYS[key]), None
+			if key in ('movable', 'jumpable', 'operator_commands'):
+				return False, None, '%s 引擎只提供写入接口（无 getter），仅可写' % key
+			if key in ('operation', 'permission'):
+				return True, compPlayer.GetPlayerOperation(), None
+			if key in ('sneaking', 'is_sneaking'):
+				return True, compPlayer.isSneaking(), None
+			if key in ('swimming', 'is_swimming'):
+				return True, compPlayer.isSwimming(), None
+			if key in ('blocking', 'is_blocking'):
+				return True, compPlayer.GetIsBlocking(), None
+			if key in ('fishing', 'is_fishing'):
+				return True, compPlayer.GetPlayerIsFishing(), None
+			if key in ('interact_range', 'interacte_range'):
+				return True, compPlayer.GetPlayerInteracteRange(), None
+			if key in ('respawn_pos', 'respawn_position'):
+				return True, compPlayer.GetPlayerRespawnPos(), None
+			if key in ('game_type', 'gametype'):
+				return True, compGame.GetPlayerGameType(entity_id), None
+
+		if key == 'all':
+			compAttr = CF.CreateAttr(entity_id)
+			attributes = {}
+			for attr_name, attr_type in STATUS_ATTRS.items():
+				try:
+					attributes[attr_name] = compAttr.GetAttrValue(attr_type)
+					attributes['max_' + attr_name] = compAttr.GetAttrMaxValue(attr_type)
+				except Exception:
+					pass
+			breath = CF.CreateBreath(entity_id)
+			motion = CF.CreateActorMotion(entity_id)
+			simple_states = {}
+			for state_name in GET_STATUS_SIMPLE_ENTITY_READERS:
+				try:
+					simple_states[state_name] = self._get_status_simple_entity_value(entity_id, state_name)[1]
+				except Exception:
+					# 某些状态只适用于特定实体（例如驴的 chest、玩家的选中槽）。
+					pass
+			result = {
+				'id': entity_id, 'name': CF.CreateName(entity_id).GetName(),
+				'type': CF.CreateEngineType(entity_id).GetEngineTypeStr(),
+				'pos': CF.CreatePos(entity_id).GetFootPos(), 'foot_pos': CF.CreatePos(entity_id).GetFootPos(),
+				'rot': CF.CreateRot(entity_id).GetRot(), 'motion': motion.GetMotion(),
+				'dimension': CF.CreateDimension(entity_id).GetEntityDimensionId(),
+				'tags': CF.CreateTag(entity_id).GetEntityTags(), 'attributes': attributes,
+				'properties': CF.CreateQueryVariable(entity_id).GetAllProperties(),
+				'effects': CF.CreateEffect(entity_id).GetAllEffects() or [],
+				'loaded_effects': CF.CreateEffect(entity_id).GetLoadEffects(),
+				'air': {'current': breath.GetCurrentAirSupply(), 'max': breath.GetMaxAirSupply()},
+				'nbt': CF.CreateEntityDefinitions(entity_id).GetEntityNBTTags(),
+				'extra': CF.CreateExtraData(entity_id).GetWholeExtraData(),
+				'components': CF.CreateEntityComponent(entity_id).GetAllComponentsName(),
+				'motions': motion.GetPlayerMotions() if entity_is_player else motion.GetEntityMotions(),
+				'entity_states': simple_states,
+				'extern': self._get_status_extern_value(entity_id)[1],
+			}
+			if entity_is_player:
+				result['player'] = {
+					'name': CF.CreateName(entity_id).GetName(), 
+					'xp': compExp.GetPlayerExp(False),
+					'total_xp': compExp.GetPlayerTotalExp(),
+					'level': compLv.GetPlayerLevel(),
+					'hunger': compPlayer.GetPlayerHunger(),
+					'exhaustion': compPlayer.GetPlayerCurrentExhaustionValue(),
+					'max_exhaustion': compPlayer.GetPlayerMaxExhaustionValue(),
+					'abilities': compPlayer.GetPlayerAbilities(),
+					'can_fly': compFly.IsPlayerCanFly(),
+					'is_flying': compFly.IsPlayerFlying(),
+					'health_level': compPlayer.GetPlayerHealthLevel(), 'starve_level': compPlayer.GetPlayerStarveLevel(),
+					'health_tick': compPlayer.GetPlayerHealthTick(), 'starve_tick': compPlayer.GetPlayerStarveTick(),
+					'natural_regen': compPlayer.IsPlayerNaturalRegen(), 'natural_starve': compPlayer.IsPlayerNaturalStarve(),
+					'game_type': compGame.GetPlayerGameType(entity_id),
+					'operation': compPlayer.GetPlayerOperation(),
+					'sneaking': compPlayer.isSneaking(),
+					'swimming': compPlayer.isSwimming(),
+					'blocking': compPlayer.GetIsBlocking(),
+					'fishing': compPlayer.GetPlayerIsFishing(),
+					'interact_range': compPlayer.GetPlayerInteracteRange(),
+					'respawn_position': compPlayer.GetPlayerRespawnPos(),
+					'enchantment_seed': compPlayer.GetEnchantmentSeed(),
+					'interact_center_offset': compPlayer.GetInteracteCenterOffset(),
+					'nearby_players': compPlayer.GetRelevantPlayer(None),
+					'items': self._get_status_all_player_items(entity_id)[1],
+					'selected_slot': compItem.GetSelectSlotId(),
+					'all_enchants': compItem.GetAllEnchantsInfo(),
+					'fish_hook': compItem.GetPlayerFishHookEntity(),
+				}
+			return True, result, None
+
+		# query.* / variable.* 保持交给 Molang；普通算术表达式走白名单 AST，
+		# 因而支持 sqrt(velocity.x * velocity.x) 以及位运算、比较和逻辑运算。
+		if key.startswith(('query.', 'variable.', 'temp.')) or '&&' in status or '||' in status or re.search(r'!(?!=)', status):
+			evaluated = CF.CreateQueryVariable(entity_id).EvalMolangExpression(status)
+			if not isinstance(evaluated, dict):
+				return False, None, 'Molang 求值没有返回结果'
+			if evaluated.get('error'):
+				return False, None, 'Molang 错误: %s' % evaluated.get('error')
+			if 'value' not in evaluated:
+				return False, None, 'Molang 结果中不存在 value'
+			return True, evaluated['value'], None
+		if key.startswith('math.'):
+			return self._get_status_math_value(entity_id, status.split('.', 1)[1])
+		if is_math_expression:
+			return self._get_status_math_value(entity_id, status)
+		return False, None, '未知状态 %s；可使用直接状态名、query.*、Molang 表达式、all 或 event.<事件名>' % status
+
+	def _get_status_truthy(self, value):
+		if value is None or value is False or value == 0:
+			return False
+		if isinstance(value, str) and value.strip().lower() in ('', '0', 'false', 'none', 'null'):
+			return False
+		return True
+
+	def _get_status_is_false_result(self, value):
+		"""纯读取形态的「假」判定：假值结果按命令失败处理，便于命令方块用它当条件。"""
+		if isinstance(value, (list, tuple, dict)) and not value:
+			return True
+		return not self._get_status_truthy(value)
+
+	def _get_status_parse_value(self, value):
+		"""将自定义命令的 str 参数转成 ModSDK setter 可用的基础类型。"""
+		if not isinstance(value, str):
+			return value
+		raw = value.strip()
+		lower = raw.lower()
+		if lower in ('true', 'yes', 'on'):
+			return True
+		if lower in ('false', 'no', 'off'):
+			return False
+		if lower in ('null', 'none'):
+			return None
+		try:
+			# 数组/对象/带引号字符串统一使用 JSON；如 [1,2,3]。
+			if raw[:1] in ('[', '{', '"'):
+				return json.loads(raw)
+			if ',' in raw:
+				return tuple(float(part.strip()) for part in raw.split(','))
+			if '.' in raw or 'e' in lower:
+				return float(raw)
+			return int(raw)
+		except (TypeError, ValueError):
+			return value
+
+	def _get_status_as_bool(self, value):
+		if isinstance(value, str):
+			lower = value.strip().lower()
+			if lower in ('true', '1', 'yes', 'on'):
+				return True
+			if lower in ('false', '0', 'no', 'off', ''):
+				return False
+			return None
+		if isinstance(value, (int, long, float)): #type: ignore
+			return value != 0
+		return None
+
+	def _get_status_vector_input(self, value, size, name):
+		if not isinstance(value, (list, tuple)) or len(value) != size:
+			return None, '%s 需要 %s 个数值，例如 %s' % (name, size, ','.join(['0'] * size))
+		try:
+			return tuple(float(item) for item in value), None
+		except (TypeError, ValueError):
+			return None, '%s 的每个分量必须是数值' % name
+
+	def _set_status_vector(self, entity_id, root, field, value):
+		base_status, fields = STATUS_VECTOR_ROOTS[root]
+		if base_status == 'foot_xyz':
+			# 引擎的 GetPos() 对玩家返回「脚位 + 眼高 1.62」，而 SetPos() 设的是脚位，读写不成对；
+			# position 与 foot_position 统一按脚位读写，读什么写什么才不会逐次抬高。
+			component = CF.CreatePos(entity_id)
+			current = component.GetFootPos()
+			setter = getattr(component, 'SetFootPos', None) or component.SetPos
+		elif base_status == 'rotxy':
+			component = CF.CreateRot(entity_id)
+			current = component.GetRot()
+			setter = component.SetRot
+		else:
+			component = CF.CreateActorMotion(entity_id)
+			current = component.GetMotion()
+			setter = component.SetPlayerMotion if is_player(entity_id) else component.SetMotion
+
+		size = len(current)
+		if field is None:
+			new_value, error = self._get_status_vector_input(value, size, root)
+			if error:
+				return False, error
+		else:
+			if field not in fields:
+				return False, '%s 不存在分量 %s' % (root, field)
+			try:
+				new_item = float(value)
+			except (TypeError, ValueError):
+				return False, '%s.%s 必须为数值' % (root, field)
+			new_value = list(current)
+			new_value[fields[field]] = new_item
+			new_value = tuple(new_value)
+		result = setter(new_value)
+		return (False, '%s 设置失败' % root) if result is False else (True, '%s 已设置为 %s' % (root, new_value))
+
+	def _set_status_extra_path(self, entity_id, path, value):
+		if len(path) < 2 or not path[1]:
+			return False, 'extra 状态格式为 extra.<键>[.<嵌套键>]'
+		extra = CF.CreateExtraData(entity_id)
+		root_key = path[1]
+		if len(path) == 2:
+			extra.SetExtraData(root_key, value)
+			return True, 'extra.%s 已设置' % root_key
+		root_value = extra.GetExtraData(root_key)
+		if not isinstance(root_value, dict):
+			return False, 'extra.%s 不是字典，不能写入嵌套字段' % root_key
+		container = root_value
+		for key in path[2:-1]:
+			if key not in container or not isinstance(container[key], dict):
+				container[key] = {}
+			container = container[key]
+		container[path[-1]] = value
+		extra.SetExtraData(root_key, root_value)
+		return True, 'extra.%s 已设置' % '.'.join(path[1:])
+
+	def _set_status_effect(self, entity_id, effect_name, value):
+		"""effect.<名称>：0 删除；秒数或 duration,amplifier,particles 添加/刷新。"""
+		effect = CF.CreateEffect(entity_id)
+		if value is False or value == 0:
+			result = effect.RemoveEffectFromEntity(effect_name)
+			return (False, '状态效果 %s 删除失败' % effect_name) if result is False else (True, '状态效果 %s 已删除' % effect_name)
+		duration, amplifier, particles = value, 0, True
+		if isinstance(value, dict):
+			duration = value.get('duration', value.get('duration_f'))
+			amplifier = value.get('amplifier', 0)
+			particles = value.get('showParticles', value.get('particles', True))
+		elif isinstance(value, (list, tuple)):
+			if len(value) not in (2, 3):
+				return False, '效果值格式为 秒数,等级[,粒子]，例如 30,1,1'
+			duration, amplifier = value[0], value[1]
+			if len(value) == 3:
+				particles = value[2]
+		try:
+			# AddEffectToEntity 的 duration 要求 int，小数按四舍五入取整秒。
+			duration = int(round(float(duration)))
+			amplifier = int(amplifier)
+		except (TypeError, ValueError):
+			return False, '效果持续时间和等级必须为数值'
+		particles = self._get_status_as_bool(particles)
+		if duration <= 0 or amplifier < 0 or amplifier > 255 or particles is None:
+			return False, '效果要求持续时间大于 0、等级 0~255、粒子为 bool'
+		result = effect.AddEffectToEntity(effect_name, duration, amplifier, particles)
+		return (False, '状态效果 %s 设置失败' % effect_name) if result is False else (True, '状态效果 %s 已设置' % effect_name)
+
+	def _set_status_item_path(self, entity_id, raw_path, value):
+		if not is_player(entity_id):
+			return False, 'item.* 仅支持玩家'
+		if len(raw_path) < 2 or raw_path[1].lower() not in ITEM_POSITIONS:
+			return False, '物品状态格式为 item.<carried|offhand|inventory|armor>[.<槽位>][.<字段>]'
+		position_name = raw_path[1].lower()
+		pos_type = ITEM_POSITIONS[position_name]
+		path = raw_path[2:]
+		if pos_type in (0, 3):
+			if not path or not path[0].isdigit():
+				return False, '%s 需要槽位，例如 item.%s.0.count' % (position_name, position_name)
+			slot = int(path[0])
+			path = path[1:]
+		else:
+			slot = 0
+		item_comp = CF.CreateItem(entity_id)
+		if path and path[0] == 'durability':
+			try:
+				result = item_comp.SetItemDurability(pos_type, slot, int(value))
+			except (TypeError, ValueError):
+				return False, 'durability 必须为整数'
+			return (False, '物品耐久设置失败') if result is False else (True, '物品耐久已设置')
+		if path and path[0] in ('max_durability', 'maxDurability'):
+			try:
+				result = item_comp.SetItemMaxDurability(pos_type, slot, int(value), True)
+			except (TypeError, ValueError):
+				return False, 'max_durability 必须为整数'
+			return (False, '物品最大耐久设置失败') if result is False else (True, '物品最大耐久已设置')
+		if not path:
+			item_data = value
+			if item_data is not None and not isinstance(item_data, dict):
+				return False, '替换物品需要 JSON 物品字典或 null'
+		else:
+			item_data = item_comp.GetPlayerItem(pos_type, slot, True)
+			if not isinstance(item_data, dict):
+				return False, '目标槽没有物品，不能设置其字段'
+			container = item_data
+			for key in path[:-1]:
+				if key not in container or not isinstance(container[key], dict):
+					container[key] = {}
+				container = container[key]
+			container[path[-1]] = value
+		result = item_comp.SetEntityItem(pos_type, item_data, slot)
+		return (False, '物品设置失败') if result is False else (True, 'item.%s 已设置' % '.'.join(raw_path[1:]))
+
+	def _set_status_server_value(self, entity_id, status, value):
+		"""设置有 ModSDK 写接口的状态。只读 query、事件和 NBT 会明确拒绝。"""
+		if not status:
+			return False, '状态不能为空'
+		status = status.strip() if isinstance(status, str) else str(status).strip()
+		key = status.lower()
+		value = self._get_status_parse_value(value)
+		path = key.split('.')
+		raw_path = status.split('.')
+		root = path[0]
+
+		if root in ('effect', 'effects'):
+			if len(path) != 2 or not raw_path[1]:
+				return False, '效果状态格式为 effect.<效果名>'
+			return self._set_status_effect(entity_id, raw_path[1], value)
+		if root in ('item', 'items'):
+			return self._set_status_item_path(entity_id, raw_path, value)
+		if root in STATUS_VECTOR_ROOTS:
+			if len(path) > 2:
+				return False, '%s 只支持一个分量，例如 %s.x' % (root, root)
+			return self._set_status_vector(entity_id, root, path[1] if len(path) == 2 else None, value)
+		if root in ('extra', 'extra_data'):
+			return self._set_status_extra_path(entity_id, raw_path, value)
+		if root in ('mod', 'mod_attr', 'modattr'):
+			if len(raw_path) != 2 or not raw_path[1]:
+				return False, 'mod 状态格式为 mod.<键>'
+			CF.CreateModAttr(entity_id).SetAttr(raw_path[1], value, False, True)
+			return True, 'mod.%s 已设置' % raw_path[1]
+		if root in ('attribute', 'attributes'):
+			if len(path) != 2:
+				return False, 'attributes 状态格式为 attributes.<属性名>'
+			key = path[1]
+			path = [key]
+			root = key
+		elif root == 'player':
+			if len(path) != 2:
+				return False, 'player 状态格式为 player.<状态名>'
+			key = path[1]
+			path = [key]
+			root = key
+		elif root == 'air':
+			# 裸 air 等价 air.current；air.max 等价 max_air。
+			if len(path) > 2 or (len(path) == 2 and path[1] not in ('current', 'value', 'max')):
+				return False, 'air 状态格式为 air、air.current 或 air.max'
+			key = 'max_air' if len(path) == 2 and path[1] == 'max' else 'air'
+			path = [key]
+			root = key
+		elif root in ('ability', 'abilities'):
+			if len(path) != 2:
+				return False, 'abilities 状态格式为 abilities.<能力名>'
+			key = ABILITY_ALIASES.get(path[1], path[1])
+			path = [key]
+			root = key
+		if root in ('tag', 'tags'):
+			if len(path) != 2 or not path[1]:
+				return False, '标签状态格式为 tag.<标签名>'
+			bool_value = self._get_status_as_bool(value)
+			if bool_value is None:
+				return False, 'tag.<标签名> 的值必须为 bool，1 为 true、0 为 false'
+			tag_name = raw_path[1]
+			tag = CF.CreateTag(entity_id)
+			if bool_value:
+				tag.AddEntityTag(tag_name)
+			else:
+				tag.RemoveEntityTag(tag_name)
+			return True, '标签 %s 已%s' % (tag_name, '添加' if bool_value else '删除')
+		if key in ('name', 'entity_name'):
+			CF.CreateName(entity_id).SetName(value if isinstance(value, str) else str(value))
+			return True, '名称已设置为 %s' % value
+		if key == 'step_height':
+			try:
+				result = CF.CreateAttr(entity_id).SetStepHeight(float(value))
+			except (TypeError, ValueError):
+				return False, 'step_height 必须为数值'
+			return (False, 'step_height 设置失败') if result is False else (True, 'step_height 已设置')
+		if key in ('air', 'air_current', 'current_air'):
+			try:
+				result = CF.CreateBreath(entity_id).SetCurrentAirSupply(int(value))
+			except (TypeError, ValueError):
+				return False, 'air 必须为整数'
+			return (False, 'air 设置失败') if result is False else (True, 'air 已设置')
+		if key in ('max_air', 'air_max'):
+			try:
+				result = CF.CreateBreath(entity_id).SetMaxAirSupply(int(value))
+			except (TypeError, ValueError):
+				return False, 'max_air 必须为整数'
+			return (False, 'max_air 设置失败') if result is False else (True, 'max_air 已设置')
+		if key in SIMPLE_ENTITY_BOOL_SETTERS:
+			converted = self._get_status_as_bool(value)
+			if converted is None:
+				return False, '%s 必须为 bool，1 为 true、0 为 false' % key
+			factory_name, method_name = SIMPLE_ENTITY_BOOL_SETTERS[key]
+			result = getattr(getattr(CF, factory_name)(entity_id), method_name)(converted)
+			return (False, '%s 设置失败' % key) if result is False else (True, '%s 已设置' % key)
+		if key == 'ai_blocked':
+			converted = self._get_status_as_bool(value)
+			if converted is None:
+				return False, 'ai_blocked 必须为 bool，1 为 true、0 为 false'
+			result = CF.CreateControlAi(entity_id).SetBlockControlAi(converted, False)
+			return (False, 'ai_blocked 设置失败') if result is False else (True, 'ai_blocked 已设置')
+		if key in ('gravity', 'jump_power', 'entity_scale', 'orb_experience'):
+			try:
+				converted = float(value) if key != 'orb_experience' else int(value)
+			except (TypeError, ValueError):
+				return False, '%s 必须为数值' % key
+			if key == 'gravity':
+				result = CF.CreateGravity(entity_id).SetGravity(converted)
+			elif key == 'jump_power':
+				result = CF.CreateGravity(entity_id).SetJumpPower(converted)
+			elif key == 'entity_scale':
+				result = CF.CreateScale(entity_id).SetEntityScale(entity_id, converted)
+			else:
+				result = CF.CreateExp(entity_id).SetOrbExperience(converted)
+			return (False, '%s 设置失败' % key) if result is False or result == -1 else (True, '%s 已设置' % key)
+
+		entity_is_player = is_player(entity_id)
+		if entity_is_player:
+			player = CF.CreatePlayer(entity_id)
+			if key == 'hunger':
+				try:
+					result = player.SetPlayerHunger(int(value))
+				except (TypeError, ValueError):
+					return False, 'hunger 必须为整数'
+				return (False, 'hunger 设置失败') if result is False else (True, 'hunger 已设置')
+			if key == 'enchantment_seed':
+				try:
+					result = player.SetEnchantmentSeed(int(value))
+				except (TypeError, ValueError):
+					return False, 'enchantment_seed 必须为整数'
+				return (False, 'enchantment_seed 设置失败') if result is False else (True, 'enchantment_seed 已设置')
+			setting = STATUS_PLAYER_SETTERS.get(key)
+			if setting:
+				method_name, value_type = setting
+				if value_type == 'bool':
+					converted = self._get_status_as_bool(value)
+					if converted is None:
+						return False, '%s 必须为 bool，1 为 true、0 为 false' % key
+				elif value_type == 'integer':
+					try:
+						converted = int(value)
+					except (TypeError, ValueError):
+						return False, '%s 必须为整数' % key
+				else:
+					try:
+						converted = float(value)
+					except (TypeError, ValueError):
+						return False, '%s 必须为数值' % key
+				result = getattr(player, method_name)(converted)
+				return (False, '%s 设置失败' % key) if result is False else (True, '%s 已设置为 %s' % (key, converted))
+			if key in ('can_fly', 'canfly', 'fly', 'is_player_can_fly'):
+				converted = self._get_status_as_bool(value)
+				if converted is None:
+					return False, 'can_fly 必须为 bool，1 为 true、0 为 false'
+				result = CF.CreateFly(entity_id).ChangePlayerFlyState(converted, False)
+				return (False, 'can_fly 设置失败') if result is False else (True, 'can_fly 已设置')
+			if key in ('is_flying', 'flying', 'isflying'):
+				converted = self._get_status_as_bool(value)
+				if converted is None:
+					return False, 'is_flying 必须为 bool，1 为 true、0 为 false'
+				# 保留飞行能力，仅切换当前是否进入飞行状态。
+				result = CF.CreateFly(entity_id).ChangePlayerFlyState(True, converted)
+				return (False, 'is_flying 设置失败') if result is False else (True, 'is_flying 已设置')
+
+		is_max = key.startswith('max_')
+		attr_name = key[4:] if is_max else key
+		if attr_name in STATUS_ATTRS:
+			try:
+				converted = float(value)
+			except (TypeError, ValueError):
+				return False, '%s 必须为数值' % key
+			attr = CF.CreateAttr(entity_id)
+			result = attr.SetAttrMaxValue(STATUS_ATTRS[attr_name], converted) if is_max else attr.SetAttrValue(STATUS_ATTRS[attr_name], converted, 0)
+			return (False, '%s 设置失败' % key) if result is False else (True, '%s 已设置为 %s' % (key, converted))
+		if key == 'extern.climbing':
+			return False, 'climbing 是客户端状态，请改用 client.on_ladder'
+		if key == 'extern' or key == 'extern.all' or key in STATUS_EXTERN_NAMES or key.startswith('extern.'):
+			return False, 'extern.* 是只读派生状态'
+		if key.startswith(('query.', 'variable.', 'temp.', 'math.', 'event.', 'server_event.')) or key in ('nbt', 'entity_nbt', 'all', 'components', 'properties'):
+			return False, '%s 是只读状态' % status
+		return False, '未知或不可写状态 %s；可设置 position、rotation、velocity、属性、玩家设置、tag.<标签>、extra.<键>' % status
+
+	def _get_status_display_value(self, value):
+		try:
+			text = json.dumps(value, ensure_ascii=False, sort_keys=True)
+		except (TypeError, ValueError):
+			text = repr(value)
+		return text if len(text) <= 1024 else text[:1021] + '...'
+
+	def _get_status_apply_output(self, entity_id, value, output):
+		if output['kind'] == 'totag':
+			tag_comp = CF.CreateTag(entity_id)
+			if self._get_status_truthy(value):
+				tag_comp.AddEntityTag(output['tag'])
+				return True, 'tag %s 已添加' % output['tag']
+			if output['remove_false']:
+				tag_comp.RemoveEntityTag(output['tag'])
+				return True, 'tag %s 已删除' % output['tag']
+			return True, '结果为 false，tag %s 保持不变' % output['tag']
+
+		if not isinstance(value, (int, long, float)): #type: ignore
+			return False, '积分榜输出要求数值，当前结果为 %s' % self._get_status_display_value(value)
+		try:
+			score = int(round(float(value) * output['scale']))
+		except (TypeError, ValueError, OverflowError):
+			return False, 'scale 后的积分榜结果无效'
+		mode = output['mode']
+		if score < 0 and mode in ('add', 'remove'):
+			mode = 'remove' if mode == 'add' else 'add'
+			score = -score
+		command = '/scoreboard players %s @s %s %s' % (mode, output['objective'], score)
+		if not compCmd.SetCommand(command, entity_id, False):
+			return False, '积分榜写入失败: %s' % output['objective']
+		return True, '积分榜 %s %s %s' % (output['objective'], mode, score)
+
+	def _get_status_cleanup_expired(self):
+		deadline = time.time() - STATUS_PENDING_TTL
+		for request_id, request in list(self._status_pending_clients.items()):
+			if request['created_at'] < deadline:
+				del self._status_pending_clients[request_id]
+
+	def _get_status_notify_origin(self, player_id, message, color='§a'):
+		if player_id:
+			CF.CreateMsg(player_id).NotifyOneMessage(player_id, message, color)
+
+	def OnGetStatusClientResponse(self, args):
+		request_id = args.get('requestId')
+		request = self._status_pending_clients.get(request_id)
+		if request is None:
+			return
+		if args.get('__id__') != request['entity_id']:
+			return
+		del self._status_pending_clients[request_id]
+		if args.get('error'):
+			self._get_status_notify_origin(request['origin'], '客户端状态失败: %s' % args['error'], '§c')
+			return
+		value = args.get('value')
+		if request['output'] is None:
+			self._get_status_notify_origin(request['origin'], '%s = %s' % (request['name'], self._get_status_display_value(value)))
+			return
+		success, message = self._get_status_apply_output(request['entity_id'], value, request['output'])
+		self._get_status_notify_origin(request['origin'], '%s: %s (结果=%s)' % (request['name'], message, self._get_status_display_value(value)), '§a' if success else '§c')
+
+	def get_status(self, cmdargs, playerId, variant, data):
+		targets = cmdargs[0]
+		if targets is None:
+			return True, '没有与选择器匹配的目标'
+		status = cmdargs[1]
+		output = None
+		if variant == 1:  # toscore
+			if not cmdargs[3]:
+				return True, '计分板目标名不能为空'
+			if not self._get_status_valid_scoreboard_objective(cmdargs[3]):
+				return True, '积分榜目标名无效'
+			try:
+				objects = compGame.GetAllScoreboardObjects() or []
+			except:
+				objects = []
+			if not any(isinstance(item, dict) and item.get('name') == cmdargs[3] for item in objects):
+				return True, '积分榜目标不存在: %s' % cmdargs[3]
+			output = {'kind': 'toscore', 'objective': cmdargs[3], 'mode': cmdargs[4], 'scale': cmdargs[5]}
+		elif variant == 2:  # totag
+			if not cmdargs[3]:
+				return True, '标签名不能为空'
+			output = {'kind': 'totag', 'tag': cmdargs[3], 'remove_false': cmdargs[4]}
+
+		self._get_status_cleanup_expired()
+		messages = []
+		client_requests = 0
+		failed = False  # 只要有一个目标失败，整条命令按失败（红字）返回
+		for entity_id in targets:
+			name = CF.CreateName(entity_id).GetName() or entity_id
+			if str(status).lower().startswith('client.'):
+				if not is_player(entity_id):
+					messages.append('%s: client.* 仅支持玩家' % name)
+					failed = True
+					continue
+				if len(self._status_pending_clients) >= STATUS_MAX_PENDING_CLIENT_REQUESTS:
+					messages.append('%s: 客户端请求队列已满' % name)
+					failed = True
+					continue
+				self._status_request_sequence += 1
+				request_id = '%s:%s' % (entity_id, self._status_request_sequence)
+				self._status_pending_clients[request_id] = {'entity_id': entity_id, 'origin': playerId, 'output': output, 'name': name, 'created_at': time.time()}
+				self.NotifyToClient(entity_id, 'GetStatusClientRequest', {'requestId': request_id, 'status': str(status)[7:]})
+				client_requests += 1
+				continue
+			try:
+				found, value, error = self._get_status_server_value(entity_id, status)
+			except Exception:
+				found, value, error = False, None, '读取失败: %s' % traceback.format_exc().splitlines()[-1]
+			if not found:
+				messages.append('%s: %s' % (name, error))
+				failed = True
+				continue
+			if output is None:
+				# 假值结果按失败（红）返回：命令方块可据此当条件用（比较器不会触发）。
+				if self._get_status_is_false_result(value):
+					failed = True
+				messages.append('%s = %s' % (name, self._get_status_display_value(value)))
+			else:
+				success, message = self._get_status_apply_output(entity_id, value, output)
+				if not success:
+					failed = True
+				messages.append('%s: %s (结果=%s)' % (name, message, self._get_status_display_value(value)))
+		if client_requests:
+			messages.append('已向 %s 个客户端请求状态，结果会异步返回' % client_requests)
+		if not messages:
+			return True, '没有可处理的目标'
+		shown = messages[:24]
+		if len(messages) > len(shown):
+			shown.append('...%s 条结果已省略' % (len(messages) - len(shown)))
+		return failed, '; '.join(shown)
+
+	def set_status(self, cmdargs, playerId, variant, data):
+		"""写入状态的手动值形式；从计分板取值请用 /set_status_score。"""
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		targets, status = cmdargs[0], cmdargs[1]
+		value = cmdargs[2]
+		messages = []
+		success_count = 0
+		for entity_id in targets:
+			name = CF.CreateName(entity_id).GetName() or entity_id
+			try:
+				success, message = self._set_status_server_value(entity_id, status, value)
+			except Exception:
+				success, message = False, '设置失败: %s' % traceback.format_exc().splitlines()[-1]
+			if success:
+				success_count += 1
+			messages.append('%s: %s' % (name, message))
+		shown = messages[:24]
+		if len(messages) > len(shown):
+			shown.append('其余 %s 条结果已省略' % (len(messages) - len(shown)))
+		return success_count != len(targets), '; '.join(shown)
+
+	def set_status_score(self, cmdargs, playerId, variant, data):
+		"""从计分板读取整数值再写入状态；省略计分实体时读取每个目标自身。"""
+		if not cmdargs[0]:
+			return True, '没有与选择器匹配的目标'
+		targets, status = cmdargs[0], cmdargs[1]
+		if not cmdargs[2]:
+			return True, '计分板名称不能为空'
+		score_objective = str(cmdargs[2])
+		score_holders = cmdargs[3]
+		if not self._get_status_valid_scoreboard_objective(score_objective):
+			return True, '积分榜目标名无效'
+		try:
+			objects = compGame.GetAllScoreboardObjects() or []
+		except Exception:
+			objects = []
+		if not any(isinstance(item, dict) and item.get('name') == score_objective for item in objects):
+			return True, '计分项不存在: %s' % score_objective
+		messages = []
+		success_count = 0
+		for index, entity_id in enumerate(targets):
+			name = CF.CreateName(entity_id).GetName() or entity_id
+			holder_id = entity_id
+			if score_holders:
+				if len(score_holders) == 1:
+					holder_id = score_holders[0]
+				elif len(score_holders) == len(targets):
+					holder_id = score_holders[index]
+				else:
+					messages.append('%s: 计分实体数量必须为 1 或与目标数量相同' % name)
+					continue
+			found, write_value, error = self._get_status_score_value(entity_id, score_objective, holder_id)
+			if not found:
+				messages.append('%s: %s' % (name, error))
+				continue
+			try:
+				success, message = self._set_status_server_value(entity_id, status, write_value)
+			except Exception:
+				success, message = False, '设置失败: %s' % traceback.format_exc().splitlines()[-1]
+			if success:
+				success_count += 1
+				message = '%s（读取 %s=%s）' % (message, score_objective, write_value)
+			messages.append('%s: %s' % (name, message))
+		shown = messages[:24]
+		if len(messages) > len(shown):
+			shown.append('其余 %s 条结果已省略' % (len(messages) - len(shown)))
+		return success_count != len(targets), '; '.join(shown)
+
 	def setentityonfire(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'

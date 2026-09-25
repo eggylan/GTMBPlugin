@@ -1,0 +1,25 @@
+{
+	"format_version": "0.0.1",
+	"name": "get_status",
+	"description": "读取实体状态或 Molang 结果",
+	"permission_level": "game_directors",
+	"args": [
+		{"name": "目标", "type": "target"},
+		{"name": "状态 / Molang 表达式", "type": "str"}
+	],
+	"args1": [
+		{"name": "目标", "type": "target"},
+		{"name": "状态 / Molang 表达式", "type": "str"},
+		{"name": "输出", "type": "enum", "options": ["toscore"]},
+		{"name": "积分榜目标", "type": "str"},
+		{"name": "模式", "type": "enum", "options": ["set", "add", "remove"]},
+		{"name": "scale", "type": "float", "default": 1}
+	],
+	"args2": [
+		{"name": "目标", "type": "target"},
+		{"name": "状态 / Molang 表达式", "type": "str"},
+		{"name": "输出", "type": "enum", "options": ["totag"]},
+		{"name": "标签名", "type": "str"},
+		{"name": "结果为 false / 空时删除", "type": "bool", "default": false}
+	]
+}
