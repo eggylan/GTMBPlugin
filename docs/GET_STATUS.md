@@ -7,8 +7,7 @@
 /get_status <目标> <状态或 Molang 表达式> toscore <积分榜目标> <set|add|remove> [scale]
 /get_status <目标> <状态或 Molang 表达式> totag <标签名> [结果为 false / 空时删除]
 /set_status <目标> <状态> <值>
-/set_status <目标> <状态> normal <值>
-/set_status <目标> <状态> toscore <计分项> [计分实体]
+/set_status_score <目标> <状态> <计分项> [计分实体]
 ```
 
 `scale` 默认是 `1`。积分榜写入会计算 `round(结果 * scale)`，因此可用 `10`、`100` 保存浮点精度。
@@ -34,32 +33,33 @@
 /get_status @a "query.health" toscore health add 10
 /get_status @s "query.health > 0" totag alive true
 /get_status @s all
-/set_status @s hunger 6
-/set_status @s position 100,64,-20
-/set_status @s position.x 100
-/set_status @s rotation.yaw 180
-/set_status @s velocity 0,0.4,1
-/set_status @s velocity.x 0.25
-/set_status @s natural_regen 0
-/set_status @s abilities.canFly 1
-/set_status @s isFlying 1
-/set_status @s effect.speed 30,1,1
-/set_status @s effect.speed 0
-/set_status @s item.carried.durability 100
-/set_status @s item.inventory.0.count 32
-/set_status @s attributes.health 20
-/set_status @s tag.boss 1
+/set_status @s hunger "6"
+/set_status @s position "100,64,-20"
+/set_status @s position.x "100"
+/set_status @s rotation.yaw "180"
+/set_status @s velocity "0,0.4,1"
+/set_status @s velocity.x "0.25"
+/set_status @s natural_regen "0"
+/set_status @s abilities.canFly "1"
+/set_status @s isFlying "1"
+/set_status @s effect.speed "30,1,1"
+/set_status @s effect.speed "0"
+/set_status @s item.carried.durability "100"
+/set_status @s item.inventory.0.count "32"
+/set_status @s attributes.health "20"
+/set_status @s tag.boss "1"
 /set_status @s extra.home "{\"x\":100,\"y\":64,\"z\":-20}"
-/set_status @s hunger normal 6
-/set_status @s hunger toscore hunger_score
-/set_status @a hunger toscore hunger_score @s
+/set_status @s hunger "6"
+/set_status_score @s hunger hunger_score
+/set_status_score @a hunger hunger_score @s
 ```
 
 ### `set_status` 模式
 
-- `normal <值>`：手动写入；例如 `/set_status @s hunger normal 6`。
-- 省略模式仍兼容旧写法 `/set_status @s hunger 6`，等同于 `normal`。
-- `toscore <计分项> [计分实体]`：先读取计分项的整数值，再逐个写入目标状态；未填写计分实体时读取当前目标自身，填写选择器时可用一个实体，或与目标数量相同的实体列表。
+- `/set_status <目标> <状态> <值>`：直接写入手动值。
+- `/set_status_score <目标> <状态> <计分项> [计分实体]`：先从计分板读取整数值，再逐个写入目标状态；未填写计分实体时读取当前目标自身，填写选择器时可用一个实体，或与目标数量相同的实体列表。
+- **`值` 必须加引号**：它是字符串参数，引擎按类型校验 token，不加引号的数字（`6`、`0.25`、`1`）与布尔（`true`）会被当作数字/布尔类型而报「语法错误」。统一写法：`/set_status @s hunger "6"`、`/set_status @s isFlying "1"`、`/set_status @s position "100,64,-20"`。
+- `/set_status_score` 的从计分板取值永远先读整数，因此不受引号规则影响。
 
 ### 数学表达式
 
@@ -104,7 +104,7 @@
 
 ## `set_status` 可写状态
 
-所有布尔状态均统一接受 `true` / `false` 或 `1` / `0`；其中 `1` 为真、`0` 为假。数组可写成 `x,y,z` 或 JSON 数组 `[x,y,z]`。
+所有布尔状态均统一接受 `"true"` / `"false"` 或 `"1"` / `"0"`（其中 `"1"` 为真、`"0"` 为假）；数组写成 `"x,y,z"` 或 `"[x,y,z]"`。**上述值都要加英文双引号**——`值` 是字符串参数，裸写的数字/布尔会被引擎拒绝。
 
 - 空间：`position`、`position.x|y|z`、`rotation`、`rotation.pitch|yaw`、`velocity`、`velocity.x|y|z`。`velocity` 是 ModSDK 的瞬时运动向量；玩家使用 `SetPlayerMotion`，其他实体使用 `SetMotion`。
 - 全部 `AttrType` 属性：例如 `health`、`max_health`、`speed`、`max_speed`、`damage`、`hunger`、`absorption`、`armor`、`flying_speed`、`block_break_speed` 等。

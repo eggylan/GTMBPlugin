@@ -5,8 +5,7 @@
 ```mcfunction
 /get_status <target> <status>
 /set_status <target> <status> <value>
-/set_status <target> <status> normal <value>
-/set_status <target> <status> toscore <objective> [score_holder]
+/set_status_score <target> <status> <objective> [score_holder]
 ```
 
 状态名不区分大小写；点路径按原字段名读取，因此 NBT、ExtraData、物品 `userData` 的键名保留大小写。
@@ -43,8 +42,8 @@
 /get_status @s effect.speed.amplifier
 /get_status @s effect.speed.duration_f
 /get_status @s effect.speed.active
-/set_status @s effect.speed 30,1,1
-/set_status @s effect.speed 0
+/set_status @s effect.speed "30,1,1"
+/set_status @s effect.speed "0"
 ```
 
 效果值是 `持续秒数,额外等级,显示粒子`。`0` 删除指定效果。`effects.<下标>.<字段>` 可读取效果列表中的原始字典。
@@ -65,8 +64,8 @@
 /get_status @s item.carried.durability
 /get_status @s item.inventory.0
 /get_status @s item.armor.3.max_durability
-/set_status @s item.carried.durability 200
-/set_status @s item.inventory.0.count 32
+/set_status @s item.carried.durability "200"
+/set_status @s item.inventory.0.count "32"
 ```
 
 - `item.carried`、`item.mainhand`、`held_item`：主手。
@@ -82,7 +81,9 @@
 
 ## `set_status` 模式与数学表达式
 
-`normal <value>` 写入手动值；`toscore <objective> [score_holder]` 先读取 ModSDK 3.9 的实体计分项整数值再写入状态，省略 `score_holder` 时使用每个目标自身。旧的三参数写法仍等同于 `normal`。表达式支持 `sqrt` 等数学函数、四则运算、位运算、比较、逻辑运算，并支持 `velocity.x`、`rotation.yaw` 这种状态路径分量。
+`/set_status <target> <status> <value>` 写入手动值；`/set_status_score <target> <status> <objective> [score_holder]` 先读取 ModSDK 3.9 的实体计分项整数值再写入状态，省略 `score_holder` 时使用每个目标自身。表达式支持 `sqrt` 等数学函数、四则运算、位运算、比较、逻辑运算，并支持 `velocity.x`、`rotation.yaw` 这种状态路径分量。
+
+`<value>` 是字符串参数：**数字与布尔值必须加英文双引号**（如 `/set_status @s hunger "6"`、`/set_status @s isFlying "1"`、`/set_status @s position "100,64,-20"`）。引擎按参数类型校验 token，不加引号的数字会被当作数字类型而报「语法错误」。`/set_status_score` 从计分板取整数，不受该规则影响。
 
 `extern.forward`、`extern.backward`、`extern.leftward`、`extern.rightward`、`extern.rising`、`extern.falling`、`extern.downing`、`extern.climbing` 是本插件提供的只读派生状态；`extern` 返回全部派生值。
 
