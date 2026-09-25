@@ -2,13 +2,13 @@
     "categoryConfig": {
         "title": ""
     },
-    "content": "这里是《联机大厅服务器模板》的功能使用教程",
+    "content": "这里是 GTMBPlugin 的功能使用教程",
     "editor_identifier": "guild",
     "item": "gtmb_plugin:guild",
     "pageConfig": {
         "subtitle": ""
     },
-    "title1": "组件使用教学",
+    "title1": "插件使用教学",
     "title2": "",
     "titleArea": {
         "offset": [

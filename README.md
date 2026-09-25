@@ -10,17 +10,17 @@
 		width="120px"
 		align="center" alt="GTMB Logo"
 	/>
-	<h1 align="center">《联机大厅服务器模板》配套附加包</h1>
+	<h1 align="center">GTMBPlugin</h1>
 	<p align="center">
-		这是Minecraft（我的世界）中国版端游联机地图《联机大厅服务器模板》的配套附加包的开源仓库。
+		这是Minecraft（我的世界）中国版附加包 GTMBPlugin 的开源仓库。
 	</p>
 </p>
 
 <p align="center">
-	<a href="https://www.gnu.org/licenses/gpl-3.0">
+	<a href="https://opensource.org/license/mit">
 		<img
-			src="https://img.shields.io/badge/License-GPLv3-blue.svg"
-			alt="License: GPL v3"
+			src="https://img.shields.io/badge/License-MIT-blue.svg"
+			alt="License: MIT"
 		/>
 	</a>
 	<a href="https://mc.163.com">
@@ -56,7 +56,7 @@
 
 ## 项目简介
 
-这是Minecraft（我的世界）中国版端游联机地图《联机大厅服务器模板》的配套附加包的开源仓库。本项目是一个完全开源、社区驱动的组件，旨在为服务器管理员和地图创作者提供强大的自定义功能。
+这是Minecraft（我的世界）中国版附加包 GTMBPlugin 的开源仓库。本项目是一个完全开源、社区驱动的组件，旨在为服务器管理员和地图创作者提供强大的自定义功能。
 
 ## 主要功能
 
@@ -72,14 +72,16 @@
 ### 安装要求
 
 - Minecraft 中国版最新版本（您可以下载[官服](https://mc.163.com/)或[4399渠道服](https://news.4399.com/wdshijie/)）
-- 联机大厅服务器模板
+- Minecraft 中国版开发工作台（您可以在[官网](https://mc.163.com/dev/)下载）
 
 ### 安装步骤
 
-1. 打开 我的世界中国版 端游启动器
-2. 进入"组件中心"
-3. 搜索“联机大厅服务器模板”并下载
-4. 前往联机大厅创建房间
+1. 下载最新版附加包到本地（推荐使用 `git clone https://github.com/eggylan/GTMBPlugin.git`）
+2. 用 MCStudio 把行为包 `GTMBplugin_B` 与资源包 `GTMBplugin_R` 导入你的地图/项目
+3. 启动世界，在聊天框输入 `/openui enchant` 验证组件是否生效
+
+> GTMBPlugin 是一个可被任意地图与服务器产品集成的组件。
+> 例：联机大厅地图《联机大厅服务器模板》就使用了它。
 
 ## 功能详解
 
