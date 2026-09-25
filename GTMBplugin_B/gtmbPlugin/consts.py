@@ -68,6 +68,10 @@ STATUS_SIMPLE_ENTITY_READERS = {
 	'tame_owner': ('CreateTame', 'GetOwnerId'),
 }
 
+# 纯数字字面量（"1"、"-2.5"、"1e3"）也算数学表达式：get_status / set_status 的
+# 表达式判定原本只看运算符与 math. 前缀，会把裸数字当成未知状态名。
+STATUS_MATH_LITERAL = r'[+\-]?(\d+\.?\d*|\.\d+)([eE][+\-]?\d+)?$'
+
 STATUS_MATH_FUNCTIONS = {
 	'abs': abs, 'sqrt': math.sqrt, 'floor': math.floor, 'ceil': math.ceil,
 	'round': round, 'sin': math.sin, 'cos': math.cos, 'tan': math.tan,

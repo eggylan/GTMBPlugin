@@ -26,7 +26,7 @@ PLATFORM_WINDOWS = 0
 PLATFORM_IOS = 1
 PLATFORM_ANDROID = 2
 
-from consts import STATUS_MATH_FUNCTIONS, STATUS_MATH_BINOPS, STATUS_MATH_CMPOPS
+from consts import STATUS_MATH_FUNCTIONS, STATUS_MATH_BINOPS, STATUS_MATH_CMPOPS, STATUS_MATH_LITERAL
 
 class mainClientSystem(clientApi.GetClientSystemCls()):
 	def __init__(self, modName, systemName):
@@ -240,7 +240,7 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 	def _get_status_client_value(self, status):
 		status = str(status).strip()
 		key = status.lower()
-		if key.startswith('math.') or re.search(r'[+\-*/%&|^!<>=()]', status) or re.search(r'\b(and|or|not)\b', status):
+		if key.startswith('math.') or re.search(r'[+\-*/%&|^!<>=()]', status) or re.search(r'\b(and|or|not)\b', status) or re.match(STATUS_MATH_LITERAL, status):
 			expression = status.split('.', 1)[1] if key.startswith('math.') else status
 			return self._get_status_client_math_value(expression)
 		# 向量状态统一支持 velocity.x、rotation.yaw 等直观分量写法。
@@ -311,12 +311,8 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 						value = effect
 						break
 				if value is None:
-					if len(parts) > 2 and parts[2].lower() == 'active':
-						return True, False, None
 					return True, False, None
 				parts = parts[2:]
-				if len(parts) == 1 and parts[0].lower() == 'active':
-					return True, True, None
 			for field in parts:
 				if isinstance(value, dict) and field in value:
 					value = value[field]

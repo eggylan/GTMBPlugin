@@ -52,6 +52,7 @@ STATUS_PENDING_TTL = 20.0
 from consts import STATUS_MATH_FUNCTIONS
 from consts import STATUS_MATH_BINOPS
 from consts import STATUS_MATH_CMPOPS
+from consts import STATUS_MATH_LITERAL
 
 # 点路径的第一段与引擎返回向量的映射。公开写法统一采用可读的
 # position.x / velocity.x / rotation.yaw，而旧短名称仍保留兼容。
@@ -453,9 +454,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				if not path:
 					return True, effect, None
 				return self._get_status_nested_value(effect, path)
-		# active 是一个稳定的布尔查询；其它字段在没有该效果时没有值。
-		if path == ['active']:
-			return True, False, None
 		return True, False, None
 
 	def _get_status_item_value(self, entity_id, position_name, path=None):
@@ -624,7 +622,12 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return False, None, '状态不能为空'
 		status = status.strip() if isinstance(status, str) else str(status).strip()
 		key = status.lower()
-		is_math_expression = bool(re.search(r'[+\-*/%&|^!<>=()]', status) or re.search(r'\b(and|or|not)\b', status))
+		is_math_expression = bool(
+			re.search(r'[+\-*/%&|^!<>=()]', status)
+			or re.search(r'\b(and|or|not)\b', status)
+			# 裸数字（"1"、"-2.5"、"1e3"）同样是合法表达式，否则会被当成未知状态名。
+			or re.match(STATUS_MATH_LITERAL, status)
+		)
 		if key == 'extern' or key == 'extern.all':
 			return self._get_status_extern_value(entity_id)
 		if key.startswith('extern.'):
@@ -976,6 +979,12 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return False
 		return True
 
+	def _get_status_is_false_result(self, value):
+		"""纯读取形态的「假」判定：假值结果按命令失败处理，便于命令方块用它当条件。"""
+		if isinstance(value, (list, tuple, dict)) and not value:
+			return True
+		return not self._get_status_truthy(value)
+
 	def _get_status_parse_value(self, value):
 		"""将自定义命令的 str 参数转成 ModSDK setter 可用的基础类型。"""
 		if not isinstance(value, str):
@@ -1010,8 +1019,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return None
 		if isinstance(value, (int, long, float)): #type: ignore
 			return value != 0
-		if isinstance(value, bool):
-			return value
 		return None
 
 	def _get_status_vector_input(self, value, size, name):
@@ -1418,14 +1425,17 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		self._get_status_cleanup_expired()
 		messages = []
 		client_requests = 0
+		failed = False  # 只要有一个目标失败，整条命令按失败（红字）返回
 		for entity_id in targets:
 			name = CF.CreateName(entity_id).GetName() or entity_id
 			if str(status).lower().startswith('client.'):
 				if not is_player(entity_id):
 					messages.append('%s: client.* 仅支持玩家' % name)
+					failed = True
 					continue
 				if len(self._status_pending_clients) >= STATUS_MAX_PENDING_CLIENT_REQUESTS:
 					messages.append('%s: 客户端请求队列已满' % name)
+					failed = True
 					continue
 				self._status_request_sequence += 1
 				request_id = '%s:%s' % (entity_id, self._status_request_sequence)
@@ -1439,11 +1449,17 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				found, value, error = False, None, '读取失败: %s' % traceback.format_exc().splitlines()[-1]
 			if not found:
 				messages.append('%s: %s' % (name, error))
+				failed = True
 				continue
 			if output is None:
+				# 假值结果按失败（红）返回：命令方块可据此当条件用（比较器不会触发）。
+				if self._get_status_is_false_result(value):
+					failed = True
 				messages.append('%s = %s' % (name, self._get_status_display_value(value)))
 			else:
 				success, message = self._get_status_apply_output(entity_id, value, output)
+				if not success:
+					failed = True
 				messages.append('%s: %s (结果=%s)' % (name, message, self._get_status_display_value(value)))
 		if client_requests:
 			messages.append('已向 %s 个客户端请求状态，结果会异步返回' % client_requests)
@@ -1452,7 +1468,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		shown = messages[:24]
 		if len(messages) > len(shown):
 			shown.append('...%s 条结果已省略' % (len(messages) - len(shown)))
-		return False, '; '.join(shown)
+		return failed, '; '.join(shown)
 
 	def set_status(self, cmdargs, playerId, variant, data):
 		"""写入状态的手动值形式；从计分板取值请用 /set_status_score。"""
@@ -1474,7 +1490,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		shown = messages[:24]
 		if len(messages) > len(shown):
 			shown.append('其余 %s 条结果已省略' % (len(messages) - len(shown)))
-		return success_count == 0, '; '.join(shown)
+		return success_count != len(targets), '; '.join(shown)
 
 	def set_status_score(self, cmdargs, playerId, variant, data):
 		"""从计分板读取整数值再写入状态；省略计分实体时读取每个目标自身。"""
@@ -1521,7 +1537,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		shown = messages[:24]
 		if len(messages) > len(shown):
 			shown.append('其余 %s 条结果已省略' % (len(messages) - len(shown)))
-		return success_count == 0, '; '.join(shown)
+		return success_count != len(targets), '; '.join(shown)
 
 	def setentityonfire(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:

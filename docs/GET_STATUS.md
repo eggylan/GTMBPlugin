@@ -61,9 +61,14 @@
 - **`值` 必须加引号**：它是字符串参数，引擎按类型校验 token，不加引号的数字（`6`、`0.25`、`1`）与布尔（`true`）会被当作数字/布尔类型而报「语法错误」。统一写法：`/set_status @s hunger "6"`、`/set_status @s isFlying "1"`、`/set_status @s position "100,64,-20"`。
 - `/set_status_score` 的从计分板取值永远先读整数，因此不受引号规则影响。
 
+
+回显颜色即失败标志：**任一目标失败**（未知状态、读取异常、积分榜写入失败、`client.*` 用在非玩家上等）时，整条命令按失败处理、回显红色；全部成功则为普通颜色。前置条件失败（无匹配目标、积分榜不存在等）同样是红色。
+纯读取形态下，**结果为假**（`false`、`0`、空字符串、空列表或字典、`null`）也算失败（红）——这样 `get_status` 可以直接当命令方块的条件用（失败时不触发比较器）；`toscore` / `totag` 形态按写入成败判定，写 0 仍算成功。
 ### 数学表达式
 
 普通表达式支持 `+ - * / % **`、`& | ^ << >>`、比较、Python 风格 `and/or/not`，以及 `abs`、`sqrt`、`floor`、`ceil`、`round`、`sin`、`cos`、`tan`、`asin`、`acos`、`atan`、`atan2`、`log`、`log10`、`exp`、`pow`、`min`、`max`、`clamp`、`lerp`、`hypot` 等函数。状态路径可直接使用分量形式：
+
+纯数字字面量（`"1"`、`"-2.5"`、`"1e3"`）同样按表达式求值，不需要运算符或 `math.` 前缀。
 
 ```mcfunction
 /get_status @s "sqrt(velocity.x*velocity.x+velocity.z*velocity.z)"
@@ -86,7 +91,7 @@
 - 属性：`health`、`max_health`，以及 `speed`、`damage`、`hunger`、`saturation`、`absorption`、`armor`、`attack_speed`、`flying_speed`、`block_break_speed` 等全部 ModSDK `AttrType`；任一属性都可加 `max_` 前缀。
 - 玩家：`xp`、`xp_percent`、`total_xp`、`level`、`exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`can_fly`、`isFlying` / `is_flying`、`abilities`、`abilities.<字段>`、`permission`、`game_type`、`sneaking`、`swimming`、`blocking`、`fishing`、`interact_range`、`respawn_pos`。能力别名中 `abilities.build`、`abilities.mine`、`abilities.teleport`、`abilities.opencontainers`、`abilities.operatedoors`、`abilities.attackmobs`、`abilities.attackplayers`、`abilities.canFly`、`abilities.flying` 可读（取自 `GetPlayerAbilities()`）；`abilities.move`（`movable`）与 `abilities.jump`（`jumpable`）以及 `operator_commands` 引擎只有写入接口，读取会返回「仅可写」。
 - 其他：`air`、`max_air`、`tag.<标签名>`、`extra.<键>[.<嵌套键>]`、`nbt.<键>[.<嵌套键>]`。
-- 状态效果：`effects`、`effect.<效果名>`、`effect.<效果名>.duration`、`.duration_f`、`.amplifier`、`.active`，以及 `loaded_effects`。
+- 状态效果：`effects`、`effect.<效果名>`、`effect.<效果名>.duration`、`.duration_f`、`.amplifier`，以及 `loaded_effects`。判断效果是否存在直接用 `effect.<效果名>`：不存在返回 `false`，存在返回效果字典（引擎字典里只有 `duration`、`duration_f`、`amplifier`、`effectName`）。
 - 物品：`item.carried` / `item.mainhand` / `held_item`、`item.offhand`、`item.inventory`、`item.inventory.<槽位>`、`item.armor.<槽位>`。物品字典完整返回原版与 `userData`、附魔等字段；可追加 `.durability` 或 `.max_durability`。
 - 实体组件：攻击目标、主人、骑乘者、实体缩放、重力、跳跃力、AI、碰撞箱、氧气消耗、实体定义状态（幼年、驯服、坐下、剪毛、掉落物、变种、交易等级等）均可用对应英文状态名直接读取，`all.entity_states` 会汇总。
 - 世界：`world.time`、`world.raining`、`world.thunder`、`world.game_type`、`world.difficulty`、`world.game_rules`、`world.gravity`、`world.seed`、`world.spawn_position`、`world.spawn_dimension`、`world.scoreboard_objects`。
@@ -105,6 +110,13 @@
 ## `set_status` 可写状态
 
 所有布尔状态均统一接受 `"true"` / `"false"` 或 `"1"` / `"0"`（其中 `"1"` 为真、`"0"` 为假）；数组写成 `"x,y,z"` 或 `"[x,y,z]"`。**上述值都要加英文双引号**——`值` 是字符串参数，裸写的数字/布尔会被引擎拒绝。
+
+加引号后插件会把字符串按下列规则转成基础类型（解析不了的**原样保留为字符串**，由各状态的 setter 自行报错）：
+
+- 布尔与空值：`true` / `yes` / `on` → True，`false` / `no` / `off` → False，`null` / `none` → None（大小写不敏感）
+- 逗号分隔：`1,2,3` → 浮点元组 `(1.0, 2.0, 3.0)`（坐标、向量、效果都走这条）
+- 以 `[`、`{`、`"` 开头：按 JSON 解析，例如 `[1,2,3]`、`{"duration": 30}`
+- 含 `.` 或 `e`：`1.5`、`1e3` 按 float 解析；其余纯数字按 int 解析（`"200"` → 200）
 
 - 空间：`position`、`position.x|y|z`、`rotation`、`rotation.pitch|yaw`、`velocity`、`velocity.x|y|z`。坐标写的是**脚底**坐标，与 `/get_status @s position` 读出的值对称（读回来原样写回去不会漂移）；`velocity` 是 ModSDK 的瞬时运动向量，玩家使用 `SetPlayerMotion`，其他实体使用 `SetMotion`。
 - 全部 `AttrType` 属性：例如 `health`、`max_health`、`speed`、`max_speed`、`damage`、`hunger`、`absorption`、`armor`、`flying_speed`、`block_break_speed` 等。
