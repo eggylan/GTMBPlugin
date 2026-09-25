@@ -75,7 +75,7 @@
 
 ### `extern` 派生状态
 
-本插件提供只读状态：`extern.forward`、`extern.backward`、`extern.leftward`、`extern.rightward`、`extern.rising`、`extern.falling`、`extern.downing`、`extern.climbing`。水平状态是按实体 yaw 分解后的速度分量，垂直状态是速度分量的正值，`climbing` 使用 `query.is_on_ladder`；`/get_status @s extern` 返回全部派生状态。
+本插件提供只读状态：`extern.forward`、`extern.backward`、`extern.leftward`、`extern.rightward`、`extern.rising`、`extern.falling`、`extern.downing`。水平状态是按实体 yaw 分解后的速度分量，垂直状态是速度分量的正值；`/get_status @s extern` 返回全部派生状态。是否在梯子/藤蔓上请用客户端状态 `client.on_ladder`（服务端 Molang `query.is_on_ladder` 不被引擎支持，已从 `extern` 移除）。
 
 表达式原样交给 ModSDK 3.9 的 `EvalMolangExpression`，以目标实体作为 `query` 上下文；可直接传入 `query.*`，以及引擎支持的算术、比较、逻辑、移位、异或等 Molang 运算。
 
@@ -97,7 +97,7 @@
 
 - `event.<服务端事件名>[.<字段路径>]`：第一次调用按需订阅事件；事件下一次触发后，再次执行即可取得最近一次快照。例如：`event.PlayerAttackEntityEvent.playerId`。
 - `client.query.*`：向对应玩家客户端点对点请求客户端 Molang query；结果异步回传后显示或执行 `toscore` / `totag`。
-- 其他客户端直接状态：`client.dimension`、`client.body_rot`、`client.on_ground`、`client.in_lava`、`client.all`。
+- 其他客户端直接状态：`client.dimension`、`client.body_rot`、`client.on_ground`、`client.on_ladder`（等价 `client.is_on_ladder`）、`client.in_lava`、`client.all`。
 - `client.event.<客户端事件名>[.<字段路径>]`：同样按需订阅并读取最近事件快照。
 
 事件监听上限为每端 32 个，客户端请求队列上限 128 个；没有命令调用时不会注册监听、轮询或运行 Tick。
@@ -108,7 +108,7 @@
 
 - 空间：`position`、`position.x|y|z`、`rotation`、`rotation.pitch|yaw`、`velocity`、`velocity.x|y|z`。`velocity` 是 ModSDK 的瞬时运动向量；玩家使用 `SetPlayerMotion`，其他实体使用 `SetMotion`。
 - 全部 `AttrType` 属性：例如 `health`、`max_health`、`speed`、`max_speed`、`damage`、`hunger`、`absorption`、`armor`、`flying_speed`、`block_break_speed` 等。
-- 实体：`name`、`step_height`、`air`、`max_air`、`tag.<标签名>`、`extra.<键>[.<嵌套键>]`。
+- 实体：`name`、`step_height`、`air`、`max_air`、`tag.<标签名>`、`extra.<键>[.<嵌套键>]`。氧气可写成 `air`（等价 `air.current` / `air.value`）与 `max_air`（等价 `air.max`），值为整数。
 - 状态效果：`effect.<效果名>`。`0` 删除效果；单个数值表示秒数；`秒数,等级,粒子` 添加或刷新，例如 `effect.speed 30,1,1`。
 - 物品：`item.carried`、`item.offhand`、`item.inventory.<槽位>`、`item.armor.<槽位>` 可用 JSON 物品字典替换；也可写 `.count`、`.userData.*`、`.durability`、`.max_durability`。
 - 自定义状态：`mod.<键>` 使用 ModAttr 读取和写入任意 ModSDK 自定义属性。

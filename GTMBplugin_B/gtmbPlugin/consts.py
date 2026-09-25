@@ -156,7 +156,8 @@ SIMPLE_ENTITY_BOOL_SETTERS = {
 
 STATUS_EXTERN_NAMES = {
 	'forward', 'backward', 'leftward', 'rightward',
-	'rising', 'falling', 'downing', 'climbing',
+	'rising', 'falling', 'downing',
+	# climbing 需要客户端 IsOnLadder，服务端 query.is_on_ladder 不受支持，见 client.on_ladder
 }
 
 UI_NAMES = {'enchant': ('enchantUI', 'enchant.main_closable'),

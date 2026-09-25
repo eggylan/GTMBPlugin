@@ -32,7 +32,7 @@
 
 `id`、`name`、`type`、`engine_type_id`、`alive`、`dimension`、`tags`、`tag.<标签>`、`nbt`、`nbt.<字段>`、`extra`、`extra.<键>`、`mod.<键>`、`components`、`entity_event_components`、`properties`、`motions`、`attack_target`、`entity_owner`、`tame_owner`、`rider`、`riders`、`is_riding`、`entity_scale`、`collision_size`、`gravity`、`jump_power`、`step_height`、`on_fire`、`air`、`max_air`、`air_unit_bubble`、`consuming_air`、`type_family`、`death_time`、`fall_distance`、`entity_definitions`、`entity_links`、`leash_holder`、`mark_variant`、`mob_color`、`mob_strength`、`max_mob_strength`、`trade_level`、`variant`、`has_chest`、`has_saddle`、`angry`、`baby`、`eating`、`illager_captain`、`loot_dropped`、`naturally_spawned`、`out_of_control`、`persistent`、`pregnant`、`roaring`、`sheared`、`sitting`、`stunned`、`tamed`、`ai_blocked`、`orb_experience`、`model_name`。
 
-可写实体状态：`name`、`step_height`、`air`、`max_air`、`gravity`、`jump_power`、`entity_scale`、`orb_experience`、`persistent`、`sitting`、`sheared`、`loot_dropped`、`actor_pushable`、`actor_collidable`、`ai_blocked`、`tag.<标签>`、`extra.<键>`、`mod.<键>`。
+可写实体状态：`name`、`step_height`、`air`、`max_air`、`gravity`、`jump_power`、`entity_scale`、`orb_experience`、`persistent`、`sitting`、`sheared`、`loot_dropped`、`actor_pushable`、`actor_collidable`、`ai_blocked`、`tag.<标签>`、`extra.<键>`、`mod.<键>`。`air` 等价 `air.current` / `air.value`，`max_air` 等价 `air.max`。
 
 ## 状态效果
 
@@ -85,11 +85,11 @@
 
 `<value>` 是字符串参数：**数字与布尔值必须加英文双引号**（如 `/set_status @s hunger "6"`、`/set_status @s isFlying "1"`、`/set_status @s position "100,64,-20"`）。引擎按参数类型校验 token，不加引号的数字会被当作数字类型而报「语法错误」。`/set_status_score` 从计分板取整数，不受该规则影响。
 
-`extern.forward`、`extern.backward`、`extern.leftward`、`extern.rightward`、`extern.rising`、`extern.falling`、`extern.downing`、`extern.climbing` 是本插件提供的只读派生状态；`extern` 返回全部派生值。
+`extern.forward`、`extern.backward`、`extern.leftward`、`extern.rightward`、`extern.rising`、`extern.falling`、`extern.downing` 是本插件提供的只读派生状态；`extern` 返回全部派生值。是否在梯子/藤蔓上请用客户端状态 `client.on_ladder`（服务端 Molang `query.is_on_ladder` 不被引擎支持，已从 `extern` 移除）。
 
 ## 客户端
 
-`client.query.*`、`client.effects`、`client.effect.<效果名>.<字段>`、`client.dimension`、`client.body_rot`、`client.on_ground`、`client.in_lava`、`client.event.<事件名>.<字段>`、`client.all`。
+`client.query.*`、`client.effects`、`client.effect.<效果名>.<字段>`、`client.dimension`、`client.body_rot`、`client.on_ground`、`client.on_ladder`、`client.in_lava`、`client.event.<事件名>.<字段>`、`client.all`。
 
 ## 全量快照与事件
 

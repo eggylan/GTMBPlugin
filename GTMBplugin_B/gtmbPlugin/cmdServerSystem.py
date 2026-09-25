@@ -580,17 +580,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			result['rightward'] = max(-left_component, 0.0)
 		except Exception:
 			pass
+		# climbing 需要客户端 IsOnLadder（服务端 query.is_on_ladder 不受支持），
+		# 因此不在 extern 中提供，请改用 /get_status <target> client.on_ladder。
 		for name in STATUS_EXTERN_NAMES:
 			if name not in result:
-				result[name] = False if name == 'climbing' else 0.0
-		try:
-			query_result = CF.CreateQueryVariable(entity_id).EvalMolangExpression('query.is_on_ladder')
-			if isinstance(query_result, dict):
-				result['climbing'] = False if query_result.get('error') else self._get_status_truthy(query_result.get('value', 0))
-			else:
-				result['climbing'] = self._get_status_truthy(query_result)
-		except Exception:
-			result['climbing'] = False
+				result[name] = 0.0
 		return result
 
 	def _get_status_extern_value(self, entity_id, name=None):
@@ -599,6 +593,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if name is None or str(name).lower() in ('', 'all'):
 			return True, self._get_status_extern_values(entity_id), None
 		name = str(name).lower()
+		if name == 'climbing':
+			return False, None, 'climbing 是客户端状态，请改用 client.on_ladder'
 		if name not in STATUS_EXTERN_NAMES:
 			return False, None, '未知 extern 状态: %s' % name
 		values = self._get_status_extern_values(entity_id)
@@ -632,7 +628,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			return self._get_status_extern_value(entity_id)
 		if key.startswith('extern.'):
 			return self._get_status_extern_value(entity_id, key.split('.', 1)[1])
-		if key in STATUS_EXTERN_NAMES:
+		if key in STATUS_EXTERN_NAMES or key == 'climbing':
 			return self._get_status_extern_value(entity_id, key)
 		if key.startswith('damage_to.') or key.startswith('entity_damage.'):
 			target_id = status.split('.', 1)[1]
@@ -727,7 +723,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 					return self._get_status_server_value(entity_id, 'air')
 				if path[1] == 'max':
 					return self._get_status_server_value(entity_id, 'max_air')
-				return False, None, 'air 只支持 current 或 max'
+				return False, None, 'air 状态格式为 air、air.current 或 air.max'
 			if root in ('abilities', 'ability'):
 				if not is_player(entity_id):
 					return False, None, 'abilities.* 仅支持玩家'
@@ -1189,9 +1185,10 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			path = [key]
 			root = key
 		elif root == 'air':
-			if len(path) != 2 or path[1] not in ('current', 'value', 'max'):
-				return False, 'air 状态格式为 air.current 或 air.max'
-			key = 'air' if path[1] in ('current', 'value') else 'max_air'
+			# 裸 air 等价 air.current；air.max 等价 max_air。
+			if len(path) > 2 or (len(path) == 2 and path[1] not in ('current', 'value', 'max')):
+				return False, 'air 状态格式为 air、air.current 或 air.max'
+			key = 'max_air' if len(path) == 2 and path[1] == 'max' else 'air'
 			path = [key]
 			root = key
 		elif root in ('ability', 'abilities'):
@@ -1320,6 +1317,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			attr = CF.CreateAttr(entity_id)
 			result = attr.SetAttrMaxValue(STATUS_ATTRS[attr_name], converted) if is_max else attr.SetAttrValue(STATUS_ATTRS[attr_name], converted, 0)
 			return (False, '%s 设置失败' % key) if result is False else (True, '%s 已设置为 %s' % (key, converted))
+		if key == 'extern.climbing':
+			return False, 'climbing 是客户端状态，请改用 client.on_ladder'
 		if key == 'extern' or key == 'extern.all' or key in STATUS_EXTERN_NAMES or key.startswith('extern.'):
 			return False, 'extern.* 是只读派生状态'
 		if key.startswith(('query.', 'variable.', 'temp.', 'math.', 'event.', 'server_event.')) or key in ('nbt', 'entity_nbt', 'all', 'components', 'properties'):
