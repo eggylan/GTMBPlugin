@@ -121,7 +121,7 @@
 - 空间：`position`、`position.x|y|z`、`rotation`、`rotation.pitch|yaw`、`velocity`、`velocity.x|y|z`。坐标写的是**脚底**坐标，与 `/get_status @s position` 读出的值对称（读回来原样写回去不会漂移）；`velocity` 是 ModSDK 的瞬时运动向量，玩家使用 `SetPlayerMotion`，其他实体使用 `SetMotion`。
 - 全部 `AttrType` 属性：例如 `health`、`max_health`、`speed`、`max_speed`、`damage`、`hunger`、`absorption`、`armor`、`flying_speed`、`block_break_speed` 等。
 - 实体：`name`、`step_height`、`air`、`max_air`、`tag.<标签名>`、`extra.<键>[.<嵌套键>]`。氧气可写成 `air`（等价 `air.current` / `air.value`）与 `max_air`（等价 `air.max`），值为整数。
-- 状态效果：`effect.<效果名>`。`0` 删除效果；单个数值表示秒数；`秒数,等级,粒子` 添加或刷新，例如 `effect.speed 30,1,1`。
+- 状态效果：`effect.<效果名>`。`0` 删除效果；单个数值表示秒数；`秒数,等级,粒子` 添加或刷新，例如 `effect.speed 30,1,1`。秒数按四舍五入取整（`10.6` → 11 秒，取整后为 0 会被拒绝）。引擎**不会缩短**已有效果：同等级重复设置保留**较长**的剩余时长（当前 20 秒时设 5 秒仍是 20 秒），更高等级会直接覆盖；要缩短或立刻结束请先写 `0` 删除。
 - 物品：`item.carried`、`item.offhand`、`item.inventory.<槽位>`、`item.armor.<槽位>` 可用 JSON 物品字典替换；也可写 `.count`、`.userData.*`、`.durability`、`.max_durability`。
 - 自定义状态：`mod.<键>` 使用 ModAttr 读取和写入任意 ModSDK 自定义属性。
 - 玩家：`hunger`、`current_exhaustion`、`max_exhaustion`、`health_level`、`starve_level`、`health_tick`、`starve_tick`、`natural_regen`、`natural_starve`、`jumpable`、`movable`、`can_fly`、`isFlying` / `is_flying`、`attack_mobs`、`attack_players`、`build_ability`、`mine_ability`、`open_containers`、`operate_doors`、`operator_commands`、`teleport_ability`、`muted`、`ban_fishing`、`permission`、`game_type`、`interact_range`、`pickup_area`、`attack_speed_amplifier`。其中 `movable`、`jumpable`、`operator_commands` 引擎只提供写入接口，读取会明确报「仅可写」。

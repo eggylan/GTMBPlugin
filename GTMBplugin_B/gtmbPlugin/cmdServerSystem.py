@@ -7,8 +7,7 @@ import random
 import re
 import json
 import time
-import ast
-import operator
+from statusMath import evaluate_status_math
 from serverSystem import unicode_convert, intg, float_range
 from GTMBExceptions import InvaildNBTDataException
 
@@ -47,11 +46,8 @@ STATUS_MAX_EVENT_WATCHERS = 32
 STATUS_MAX_PENDING_CLIENT_REQUESTS = 128
 STATUS_PENDING_TTL = 20.0
 
-# 直接使用 Python math 只负责常用标量函数；表达式仍先经过安全的白名单解析，
-# 不执行 eval/exec。Molang 原生 query.* 仍交给引擎处理。
-from consts import STATUS_MATH_FUNCTIONS
-from consts import STATUS_MATH_BINOPS
-from consts import STATUS_MATH_CMPOPS
+# 数学表达式的求值（含 math 函数表）已下沉到 statusMath 模块，服务端与客户端共用；
+# 这里只保留表达式判定用的字面量模式。Molang 原生 query.* 仍交给引擎处理。
 from consts import STATUS_MATH_LITERAL
 
 # 点路径的第一段与引擎返回向量的映射。公开写法统一采用可读的
@@ -366,84 +362,11 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		return True, value[fields[field]], None
 
 	def _get_status_math_value(self, entity_id, expression):
-		"""安全计算数学表达式；变量可引用 velocity.x 等状态路径。"""
-		try:
-			parsed = ast.parse(expression, mode='eval')
-		except (SyntaxError, ValueError):
-			return False, None, '数学表达式语法错误'
-		values = {'pi': math.pi, 'e': math.e}
+		"""安全计算数学表达式；变量可引用 velocity.x 等状态路径。
 
-		def evaluate(node):
-			if isinstance(node, ast.Expression):
-				return evaluate(node.body)
-			if isinstance(node, ast.Num):
-				return node.n
-			if hasattr(ast, 'Constant') and isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
-				return node.value
-			if isinstance(node, ast.Name):
-				if node.id in values:
-					return values[node.id]
-				found, value, error = self._get_status_server_value(entity_id, node.id)
-				if not found:
-					raise ValueError('数学变量 %s 无法读取: %s' % (node.id, error))
-				if not isinstance(value, (int, long, float)): #type: ignore
-					raise TypeError('数学变量 %s 不是数值' % node.id)
-				values[node.id] = value
-				return value
-			if isinstance(node, ast.Attribute):
-				# 只允许读取状态路径，例如 velocity.x、rotation.yaw；不允许
-				# __class__、__dict__ 等 Python 对象属性，避免表达式越权。
-				path_parts = []
-				current = node
-				while isinstance(current, ast.Attribute):
-					if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', current.attr):
-						raise ValueError('非法状态路径')
-					path_parts.insert(0, current.attr)
-					current = current.value
-				if not isinstance(current, ast.Name) or not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', current.id):
-					raise ValueError('非法状态路径')
-				path_parts.insert(0, current.id)
-				path = '.'.join(path_parts)
-				found, value, error = self._get_status_server_value(entity_id, path)
-				if not found:
-					raise ValueError('数学变量 %s 无法读取: %s' % (path, error))
-				if not isinstance(value, (int, long, float)): #type: ignore
-					raise TypeError('数学变量 %s 不是数值' % path)
-				values[path] = value
-				return value
-			if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd, ast.Invert, ast.Not)):
-				value = evaluate(node.operand)
-				return {ast.USub: operator.neg, ast.UAdd: operator.pos, ast.Invert: operator.invert, ast.Not: operator.not_}[type(node.op)](value)
-			if isinstance(node, ast.BinOp) and type(node.op) in STATUS_MATH_BINOPS:
-				return STATUS_MATH_BINOPS[type(node.op)](evaluate(node.left), evaluate(node.right))
-			if isinstance(node, ast.BoolOp) and isinstance(node.op, (ast.And, ast.Or)):
-				# 短路计算，避免 `0 and sqrt(-1)` 这类无意义的异常。
-				if isinstance(node.op, ast.And):
-					result = True
-					for item in node.values:
-						result = evaluate(item)
-						if not result:
-							return False
-					return result
-				result = False
-				for item in node.values:
-					result = evaluate(item)
-					if result:
-						return True
-				return result
-			if isinstance(node, ast.Compare) and len(node.ops) == len(node.comparators):
-				left = evaluate(node.left)
-				return all(STATUS_MATH_CMPOPS[type(op)](left if index == 0 else evaluate(node.comparators[index - 1]), evaluate(comparator)) for index, (op, comparator) in enumerate(zip(node.ops, node.comparators)))
-			if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in STATUS_MATH_FUNCTIONS:
-				return STATUS_MATH_FUNCTIONS[node.func.id](*[evaluate(arg) for arg in node.args])
-			if isinstance(node, (ast.Tuple, ast.List)):
-				return tuple(evaluate(item) for item in node.elts)
-			raise ValueError('数学表达式包含不支持的语法')
-
-		try:
-			return True, evaluate(parsed), None
-		except (ArithmeticError, TypeError, ValueError, OverflowError, KeyError):
-			return False, None, '数学表达式计算失败'
+		求值本体在 statusMath 模块里与服务端/客户端共享，这里只注入状态读取回调。
+		"""
+		return evaluate_status_math(expression, lambda name: self._get_status_server_value(entity_id, name))
 
 	def _get_status_effect_value(self, entity_id, effect_name=None, path=None):
 		effects = CF.CreateEffect(entity_id).GetAllEffects() or []
@@ -520,9 +443,15 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		"""读取实体在指定计分项中的值。ModSDK 3.9 返回 scoreList 嵌套结构。"""
 		holder_id = holder_id or entity_id
 		try:
-			score_data = CF.CreateGame(holder_id).GetAllPlayerScoreboardObjects() or []
+			# GetAllPlayerScoreboardObjects 返回的是全体玩家的记分项，与传入实体无关；
+			# 同文件其它读取一律用模块级 compGame，传实体 id 可能拿到无效组件，
+			# 异常被吞掉后就成了「没有计分项」的假阴性。这里保留一次旧调用作为兜底。
+			score_data = compGame.GetAllPlayerScoreboardObjects() or []
 		except Exception:
-			return False, None, '无法读取实体计分板数据'
+			try:
+				score_data = CF.CreateGame(holder_id).GetAllPlayerScoreboardObjects() or []
+			except Exception:
+				return False, None, '无法读取实体计分板数据'
 		if isinstance(score_data, dict):
 			score_data = [score_data]
 		# GetAllPlayerScoreboardObjects 通常返回所有玩家记录；当实现只
@@ -1102,7 +1031,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			if len(value) == 3:
 				particles = value[2]
 		try:
-			duration = float(duration)
+			# AddEffectToEntity 的 duration 要求 int，小数按四舍五入取整秒。
+			duration = int(round(float(duration)))
 			amplifier = int(amplifier)
 		except (TypeError, ValueError):
 			return False, '效果持续时间和等级必须为数值'

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import mod.client.extraClientApi as clientApi
-import ast
-import math
-import operator
+from statusMath import evaluate_status_math
 import re
 CF = clientApi.GetEngineCompFactory()
 localPlayerId = clientApi.GetLocalPlayerId()
@@ -26,7 +24,8 @@ PLATFORM_WINDOWS = 0
 PLATFORM_IOS = 1
 PLATFORM_ANDROID = 2
 
-from consts import STATUS_MATH_FUNCTIONS, STATUS_MATH_BINOPS, STATUS_MATH_CMPOPS, STATUS_MATH_LITERAL
+# 数学表达式的求值在 statusMath 模块里与服务端共用；这里只保留表达式判定用的字面量模式。
+from consts import STATUS_MATH_LITERAL
 
 class mainClientSystem(clientApi.GetClientSystemCls()):
 	def __init__(self, modName, systemName):
@@ -166,76 +165,11 @@ class cmdClientSystem(clientApi.GetClientSystemCls()):
 		return self._get_status_client_nested_value(value, parts)
 
 	def _get_status_client_math_value(self, expression):
-		try:
-			parsed = ast.parse(expression, mode='eval')
-		except (SyntaxError, ValueError):
-			return False, None, '客户端数学表达式语法错误'
+		"""安全计算数学表达式；变量可引用 velocity.x 等状态路径。
 
-		def evaluate(node):
-			if isinstance(node, ast.Expression):
-				return evaluate(node.body)
-			if isinstance(node, ast.Num):
-				return node.n
-			if hasattr(ast, 'Constant') and isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
-				return node.value
-			if isinstance(node, ast.Name):
-				if node.id == 'pi':
-					return math.pi
-				if node.id == 'e':
-					return math.e
-				found, value, error = self._get_status_client_value(node.id)
-				if not found or not isinstance(value, (int, long, float)): #type: ignore
-					raise ValueError(error or '状态不是数值')
-				return value
-			if isinstance(node, ast.Attribute):
-				path = []
-				current = node
-				while isinstance(current, ast.Attribute):
-					if not current.attr.replace('_', '').isalnum():
-						raise ValueError('非法状态路径')
-					path.insert(0, current.attr)
-					current = current.value
-				if not isinstance(current, ast.Name):
-					raise ValueError('非法状态路径')
-				path.insert(0, current.id)
-				found, value, error = self._get_status_client_value('.'.join(path))
-				if not found or not isinstance(value, (int, long, float)): #type: ignore
-					raise ValueError(error or '状态不是数值')
-				return value
-			if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd, ast.Invert, ast.Not)):
-				value = evaluate(node.operand)
-				return {ast.USub: operator.neg, ast.UAdd: operator.pos, ast.Invert: operator.invert, ast.Not: operator.not_}[type(node.op)](value)
-			if isinstance(node, ast.BinOp) and type(node.op) in STATUS_MATH_BINOPS:
-				return STATUS_MATH_BINOPS[type(node.op)](evaluate(node.left), evaluate(node.right))
-			if isinstance(node, ast.BoolOp) and isinstance(node.op, (ast.And, ast.Or)):
-				if isinstance(node.op, ast.And):
-					result = True
-					for item in node.values:
-						result = evaluate(item)
-						if not result:
-							return False
-					return result
-				for item in node.values:
-					result = evaluate(item)
-					if result:
-						return True
-				return result
-			if isinstance(node, ast.Compare) and len(node.ops) == len(node.comparators):
-				left = evaluate(node.left)
-				for index, comparator in enumerate(node.comparators):
-					right = evaluate(comparator)
-					if not STATUS_MATH_CMPOPS[type(node.ops[index])](left, right):
-						return False
-					left = right
-				return True
-			if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in STATUS_MATH_FUNCTIONS:
-				return STATUS_MATH_FUNCTIONS[node.func.id](*[evaluate(arg) for arg in node.args])
-			raise ValueError('客户端数学表达式包含不支持的语法')
-
-		try:
-			return True, evaluate(parsed), None
-		except (ArithmeticError, TypeError, ValueError, OverflowError, KeyError):
-			return False, None, '客户端数学表达式计算失败'
+		求值本体在 statusMath 模块里与服务端共享，这里只注入客户端状态读取回调。
+		"""
+		return evaluate_status_math(expression, self._get_status_client_value)
 
 	def _get_status_client_value(self, status):
 		status = str(status).strip()
