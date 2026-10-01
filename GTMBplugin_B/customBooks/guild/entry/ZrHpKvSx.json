@@ -2,15 +2,15 @@
     "editor_identifier": "guild",
     "pages": [
         {
-            "content": "§l§a怎么用这张表§r\n\n/get_status <目标> <状态>\n/set_status <目标> <状态> <值>\n/set_status_score <目标> <状态> <计分项> [计分实体]\n\n规则与值的格式见《状态命令使用说明》。",
+            "content": "§l§a这张表用在哪里§r\n\n/get_status <目标> <状态>\n/set_status <目标> <状态> <值>\n/set_status_score <目标> <状态> <计分项> [计分实体]\n\n规则与值的格式见《状态命令使用说明》。",
             "type": "textPage"
         },
         {
-            "content": "§l§a向量§r\n\nposition / xyz —— .x .y .z（可写，脚底）\nfoot_position —— .x .y .z（可写，等价）\nrotation / rotxy —— .pitch .yaw（可写）\nvelocity / motion —— .x .y .z（可写）\nquaternion —— 只读",
+            "content": "§l§a向量§r\n\nposition / xyz\n§o.x .y .z （可写）§r\nfoot_position\n§o.x .y .z （可写，等价于前者）§r\nrotation / rotxy\n§o.pitch .yaw （可写）§r\nvelocity / motion\n§o.x .y .z （可写）§r\nquaternion\n§o(只读)",
             "type": "textPage"
         },
         {
-            "content": "§l§a坐标为什么按脚底§r\n\n引擎的 GetPos() 对玩家返回「脚位 + 眼高 1.62」，而 SetPos() 设置的却是脚位 —— 一读一写就错位。\n\n插件统一改用 GetFootPos() / SetFootPos()，所以 position 与 foot_position 等价，读到的值可以原样写回。",
+            "content": "§l§a坐标为什么按脚底§r\n\n引擎的 GetPos() 对玩家返回 §v足部坐标 + 眼高(1.62)§r，\n而 SetPos() 设置的却是 §v足部坐标§r。\n\n因此，插件统一改用 GetFootPos() 与\nSetFootPos()，所以 position 与 foot_position 等价。",
             "type": "textPage"
         },
         {
@@ -54,15 +54,19 @@
             "type": "textPage"
         },
         {
-            "content": "§l§a状态效果 · 示例§r\n\n/get_status @s effects\n/get_status @s effect.speed.amplifier\n/get_status @s effect.speed.duration_f\n/set_status @s effect.speed \"30,1,1\"\n/set_status @s effect.speed \"0\"",
+            "content": "§l§a状态效果 · 示例§r\n\n/get_status @s effects\n/get_status @s effect.speed.amplifier\n/get_status @s effect.speed.duration_f",
             "type": "textPage"
         },
         {
-            "content": "§l§a状态效果 · 写入格式§r\n\n值是「持续秒数,额外等级,显示粒子」\n\n/set_status @s effect.speed \"30,1,1\"\n→ 30 秒、1 级、显示粒子",
+            "content": "§l§p续表§r\n\n/set_status @s effect.speed \"30,1,1\"\n/set_status @s effect.speed \"0\"",
             "type": "textPage"
         },
         {
-            "content": "§l§a效果值的坑§r\n\n引擎§l不会缩短已有效果§r：同等级重复设置保留较长的剩余时长，更高等级会直接覆盖。想缩短必须先写 0 删除。\n\neffects.<下标>.<字段> 读原始字典（duration、duration_f、amplifier、effectName）。",
+            "content": "§l§a状态效果 · 写入格式\n\n§r§l§o\"持续秒数,额外等级,是否显示粒子\"§r\n\n/set_status @s effect.speed \"30,1,1\"\n即为§v30秒速度I, 显示粒子",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a效果值注意事项§r\n\n引擎§l不会缩短已有效果§r：同等级重复设置保留较长的剩余时长，更高等级会直接覆盖。想缩短必须先写 0 删除。\n\neffects.<下标>.<字段> 读原始字典（duration、duration_f、amplifier、effectName）。",
             "type": "textPage"
         },
         {
@@ -98,15 +102,19 @@
             "type": "textPage"
         },
         {
-            "content": "§l§a只写不能读的三个§r\n\nmovable、jumpable、operator_commands 引擎只提供写入接口，读取会明确报「仅可写」。\n\n其它玩家状态都既能读也能写。",
+            "content": "§l§a只可写状态§r\n\nmovable、jumpable、operator_commands §p仅可写§r，尝试读取时会执行失败并告知。\n\n其它玩家状态都既能读也能写。",
             "type": "textPage"
         },
         {
-            "content": "§l§a参数型读取§r\n\ndestroy_time.<命名空间方块> —— 用剪刀破坏该方块的耗时\nexhaustion_ratio.<行为枚举整数> —— 某行为的饥饿消耗\n\n示例：/get_status @s destroy_time.minecraft:stone",
+            "content": "§l§a参数型读取§r\n\ndestroy_time.<命名空间id>\n§o玩家破坏某方块的耗时，受玩家状态（急迫、潮涌、挖掘疲劳）和手持物及手持物附魔（效率）影响§r\nexhaustion_ratio.<行为枚举整数>\n§o某行为的饥饿消耗§r",
             "type": "textPage"
         },
         {
-            "content": "§l§a玩家物品 · 位置§r\n\nitem.carried、item.mainhand、held_item —— 主手\nitem.offhand —— 副手\nitem.inventory.<0-35> —— 背包槽\nitem.armor.<0-3> —— 盔甲槽",
+            "content": "§l§a参数型读取 · 示例§r\n\n/get_status @s destroy_time.minecraft:stone\n/get_status @s exhaustion_ratio.0",
+            "type": "textPage"
+        },
+        {
+            "content": "§l§a玩家物品 · 位置§r\n\nitem.carried / item.mainhand / held_item —— 主手\nitem.offhand —— 副手\nitem.inventory.<0-35> —— 背包槽\nitem.armor.<0-3> —— 盔甲槽",
             "type": "textPage"
         },
         {

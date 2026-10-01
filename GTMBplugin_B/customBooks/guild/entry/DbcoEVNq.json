@@ -1,0 +1,17 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "[=] 将预设系统弃用，大幅改进性能\n[=] 修复console无实体bug\n[+] 新增opset setoplevel setlobbymod命令\n[=] 修复了切换维度时UI打不开的bug\n[=] 迭代了console对变量名的识别方法\n[+] console命令可以使用私有变量了，详见console命令说明",
+            "subtitle": "v0.10更新内容",
+            "type": "textPage"
+        },
+        {
+            "content": "[+] 增加了变量名合规判断\n[-] EULA改为手动查看\n[=] 修复了setgravity与选择器相关的问题\n[=] 修复了闪电命令相关的问题",
+            "type": "textPage"
+        }
+    ],
+    "parent": "cSbJZUwV",
+    "sortnum": 2,
+    "title": "v0.10"
+}

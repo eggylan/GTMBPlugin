@@ -1,0 +1,17 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "[+] 增加了hub命令\n[+] 新增了setplayercanfly命令\n[+] 结构加载新增本地缓存\n[=] 修复了setsigntextstyle无法生效的问题\n[+] 修改了chatlimit命令，可以修改聊天长度限制了\n[=] 修改了summonprojectile命令的说明，使其更贴近实际\n[=] 修正了私有变量在console中的识别方式",
+            "subtitle": "v0.10.2更新内容",
+            "type": "textPage"
+        },
+        {
+            "content": "[=] 修复了纯实体结构无法导入的问题\n[=] 修复了结构导入失败时无法关闭UI的问题",
+            "type": "textPage"
+        }
+    ],
+    "parent": "cSbJZUwV",
+    "sortnum": 1,
+    "title": "v0.10.2"
+}

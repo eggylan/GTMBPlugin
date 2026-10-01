@@ -1,0 +1,13 @@
+{
+    "editor_identifier": "guild",
+    "pages": [
+        {
+            "content": "[+] 新增了set_status与get_status命令",
+            "subtitle": "v0.10.3更新内容",
+            "type": "textPage"
+        }
+    ],
+    "parent": "cSbJZUwV",
+    "sortnum": 0,
+    "title": "v0.10.3"
+}

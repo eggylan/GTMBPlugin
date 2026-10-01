@@ -7,15 +7,11 @@
             "type": "textPage"
         },
         {
-            "content": "[+] 现在结构加载失败会显示报错了\n[=] 修复了进游戏没有op标签的问题\n[+] 现在可以选择在加载结构时协程加载，防止服务端卡顿\n[=] 修复部分因数据包破损导致的报错\n[=] 将预设系统弃用，大幅改进性能",
-            "type": "textPage"
-        },
-        {
-            "content": "[+] 修改了chatlimit命令，可以修改聊天长度限制了\n[=] 修改了summonprojectile命令的说明，使其更贴近实际\n[+] console命令可以使用私有变量了，详见console命令说明",
+            "content": "[+] 现在结构加载失败会显示报错了\n[=] 修复了进游戏没有op标签的问题\n[+] 现在可以选择在加载结构时协程加载，防止服务端卡顿\n[=] 修复部分因数据包破损导致的报错",
             "type": "textPage"
         }
     ],
     "parent": "cSbJZUwV",
-    "sortnum": 0,
+    "sortnum": 3,
     "title": "v0.9"
 }
