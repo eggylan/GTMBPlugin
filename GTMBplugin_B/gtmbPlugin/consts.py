@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
-# 必须用白名单里的 mod.builtin_modules._operator：裸 `operator` 不在 456 项模块白名单内（引擎 2.9+ 会拦）。
-import mod.builtin_modules._operator as operator
+import operator
 import ast
 
 STATUS_ATTRS = {
