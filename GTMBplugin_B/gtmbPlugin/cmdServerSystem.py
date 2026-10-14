@@ -65,6 +65,8 @@ from consts import ABILITY_READ_KEYS
 # userData，确保附魔、自定义名称和自定义耐久等字段不会丢失。
 ITEM_POSITIONS = {'inventory': 0, 'offhand': 1, 'carried': 2, 'mainhand': 2, 'held': 2, 'armor': 3}
 
+EXECUTEAS_MAX_ITERATIONS = 10000
+
 # ModSDK 3.9 中不需要额外参数的实体状态接口。统一走此表，避免不断增长的
 # if/elif，同时让 all 能覆盖每一个可直接读取的实体组件状态。
 from consts import STATUS_SIMPLE_ENTITY_READERS as GET_STATUS_SIMPLE_ENTITY_READERS
@@ -687,7 +689,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		if key in ('foot_pos', 'foot_position', 'foot_xyz'):
 			return True, compPos.GetFootPos(), None
 		if key in ('foot_x', 'foot_y', 'foot_z'):
-			return True, compPos.GetFootPos()['foot_xyz'.index(key[-1])], None
+			return True, compPos.GetFootPos()['foot_xyz'.index(key[-1])-5], None
 		if key in ('rot', 'rotation', 'rotxy'):
 			return True, compRot.GetRot(), None
 		if key in ('pitch', 'rot_x'):
@@ -2367,7 +2369,6 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				compExtra.SetExtraData('parameters', params)
 				outputs.append('§r对 %s 存储的变量操作完成: 结果 %s' % (entityTypeStr, result))
 				faild = False
-			print(outputs)
 			return faild, '\n'.join(outputs)
 		
 		elif variant == 4:  # random
@@ -2480,7 +2481,7 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 						elif selectedEntitiesNum == 1:
 							compEntityExtra = CF.CreateExtraData(selectedEntities[0])
 							entityParams = compEntityExtra.GetExtraData('parameters') or {}
-							paramName = word.lstrip('[%s]' % selector)
+							paramName = word[len('[%s]' % selector):]
 							if entityParams.get(paramName) is None:
 								continue
 							else:
@@ -2923,6 +2924,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def setleashholder(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
+		if cmdargs[1] is None:
+			return True, '没有与选择器匹配的目标'
 		if len(cmdargs[0]) == 1:
 			for i in cmdargs[1]:
 				compEntityD = CF.CreateEntityDefinitions(i)
@@ -3164,14 +3167,14 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 	def settradelevel(self, cmdargs, playerId, variant, data):
 		if cmdargs[0] is None:
 			return True, '没有与选择器匹配的目标'
-		if not check_entities_type('minecraft:player', cmdargs[0]):
-			return True, '选择器必须为玩家类型'
+		if not check_entities_type('minecraft:villager_v2', cmdargs[0]):
+			return True, '选择器必须为村民类型'
 		for i in cmdargs[0]:
 			CF.CreateEntityDefinitions(i).SetTradeLevel(cmdargs[1])
 		return False, '已设置 %s 个村民的交易等级为 %s' % (len(cmdargs[0]), cmdargs[1])
 	
 	def setvignette(self, cmdargs, playerId, variant, data):
-		if cmdargs[0] is None:
+		if cmdargs[1] is None:
 			return True, '没有与选择器匹配的目标'
 		if not check_entities_type('minecraft:player', cmdargs[1]):
 			return True, '选择器必须为玩家类型'
@@ -3499,6 +3502,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 		pass
 
 	def hidenametag(self, cmdargs, playerId, variant, data):
+		if cmdargs[0] is None:
+			return True, '没有与选择器匹配的目标'
 		if not check_entities_type('minecraft:player', cmdargs[0]):
 			return True, '选择器必须为玩家类型'
 		self.NotifyToMultiClients(cmdargs[0], 'CustomCommandClient', {'cmd':'hidenametag', 'cmdargs': cmdargs})
@@ -3675,9 +3680,14 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 			cmd = cmdargs[4]
 			cmd = cmd.replace("'", '"')
 			if cmdargs[0] == 'in_area':
-				for x in float_range(cmdargs[1][0], cmdargs[2][0], cmdargs[3]):
-					for y in float_range(cmdargs[1][1], cmdargs[2][1], cmdargs[3]):
-						for z in float_range(cmdargs[1][2], cmdargs[2][2], cmdargs[3]):
+				pos_x = float_range(cmdargs[1][0], cmdargs[2][0], cmdargs[3])
+				pos_y = float_range(cmdargs[1][1], cmdargs[2][1], cmdargs[3])
+				pos_z = float_range(cmdargs[1][2], cmdargs[2][2], cmdargs[3])
+				if len(pos_x) * len(pos_y) * len(pos_z) > EXECUTEAS_MAX_ITERATIONS:
+					return True, '指定区域内的点数过多，请增大步长或缩小区域'
+				for x in pos_x:
+					for y in pos_y:
+						for z in pos_z:
 							compCmd.SetCommand('execute positioned %s %s %s run %s' % (x, y, z, cmd))
 							#compCmd.SetCommand('summon tnt %s %s %s' % position)
 				return False, '已在指定区域内执行命令'
@@ -3687,6 +3697,8 @@ class cmdServerSystem(serverApi.GetServerSystemCls()):
 				dz = cmdargs[2][2] - cmdargs[1][2]
 				distance = math.sqrt(dx**2 + dy**2 + dz**2)
 				steps = int(distance / cmdargs[3])
+				if steps > EXECUTEAS_MAX_ITERATIONS:
+					return True, '指定线段上的点数过多，请增大步长或缩短线段'
 				for i in range(steps):
 					x = cmdargs[1][0] + dx * i / steps
 					y = cmdargs[1][1] + dy * i / steps
